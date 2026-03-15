@@ -1,0 +1,114 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: lightrole_postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-lightrole}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-lightrole}
+      POSTGRES_DB: ${POSTGRES_DB:-lightrole}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - lightrole_net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-lightrole}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: lightrole_redis
+    ports:
+      - "6379:6379"
+    networks:
+      - lightrole_net
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: lightrole_backend
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-lightrole}:${POSTGRES_PASSWORD:-lightrole}@postgres:5432/${POSTGRES_DB:-lightrole}
+      REDIS_URL: redis://redis:6379/0
+      ENVIRONMENT: development
+      FRONTEND_URL: http://localhost:3000
+      SECRET_KEY: ${SECRET_KEY:-dev-secret-change-in-production}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      SENTRY_DSN: ${SENTRY_DSN:-}
+      UPLOADS_DIR: /uploads
+    volumes:
+      - uploads_data:/uploads
+      - logs_data:/app/logs
+    networks:
+      - lightrole_net
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: lightrole_frontend
+    ports:
+      - "3000:3000"
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:8000
+    networks:
+      - lightrole_net
+    depends_on:
+      - backend
+
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: lightrole_nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - uploads_data:/uploads:ro
+    networks:
+      - lightrole_net
+    depends_on:
+      - frontend
+      - backend
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+
+volumes:
+  postgres_data:
+    name: lightrole_postgres_data
+  uploads_data:
+    name: lightrole_uploads_data
+  logs_data:
+    name: lightrole_logs_data
+
+networks:
+  lightrole_net:
+    name: lightrole_network
+    driver: bridge

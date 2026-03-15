@@ -1,0 +1,38 @@
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.orm import Session
+
+from app.database import get_db
+from app.dependencies.auth import get_current_user
+from app.models.user import User
+from app.schemas.user import UserResponse, UserUpdateRequest
+
+router = APIRouter(prefix="/api/v1/users", tags=["users"])
+
+
+@router.get("/me", response_model=UserResponse)
+def get_me(current_user: User = Depends(get_current_user)):
+    return current_user
+
+
+@router.patch("/me", response_model=UserResponse)
+def update_me(
+    data: UserUpdateRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    if data.first_name is not None:
+        current_user.first_name = data.first_name
+    if data.last_name is not None:
+        current_user.last_name = data.last_name
+    if data.email is not None:
+        existing = db.query(User).filter(
+            User.email == data.email.lower(),
+            User.id != current_user.id,
+        ).first()
+        if existing:
+            raise HTTPException(status_code=409, detail="Email already taken")
+        current_user.email = data.email.lower()
+
+    db.commit()
+    db.refresh(current_user)
+    return current_user
