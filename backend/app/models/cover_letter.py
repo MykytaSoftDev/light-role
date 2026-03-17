@@ -1,7 +1,9 @@
+from __future__ import annotations
+
 import uuid
 from typing import TYPE_CHECKING, List
 
-from sqlalchemy import ForeignKey, Index, SmallInteger, String, Text, text
+from sqlalchemy import Enum as SAEnum, ForeignKey, Index, SmallInteger, String, Text, text
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -63,16 +65,19 @@ class CoverLetter(TimestampMixin, Base):
         nullable=True,
     )
     style: Mapped[CLStyle] = mapped_column(
+        SAEnum(CLStyle, name="clstyle", values_callable=lambda obj: [e.value for e in obj]),
         nullable=False,
         default=CLStyle.JOB_MATCHED,
         server_default=CLStyle.JOB_MATCHED.value,
     )
     tone: Mapped[CLTone] = mapped_column(
+        SAEnum(CLTone, name="cltone", values_callable=lambda obj: [e.value for e in obj]),
         nullable=False,
         default=CLTone.CONFIDENT,
         server_default=CLTone.CONFIDENT.value,
     )
     length_setting: Mapped[CLLength] = mapped_column(
+        SAEnum(CLLength, name="cllength", values_callable=lambda obj: [e.value for e in obj]),
         nullable=False,
         default=CLLength.MEDIUM,
         server_default=CLLength.MEDIUM.value,

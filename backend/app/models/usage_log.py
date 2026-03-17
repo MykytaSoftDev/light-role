@@ -1,8 +1,10 @@
+from __future__ import annotations
+
 import uuid
 from datetime import datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import DateTime, ForeignKey, Index, Integer, String, func
+from sqlalchemy import DateTime, Enum as SAEnum, ForeignKey, Index, Integer, String, func
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -32,6 +34,7 @@ class UsageLog(Base):
         nullable=False,
     )
     operation_type: Mapped[OperationType] = mapped_column(
+        SAEnum(OperationType, name="operationtype", values_callable=lambda obj: [e.value for e in obj]),
         nullable=False,
     )
     ai_model: Mapped[str | None] = mapped_column(

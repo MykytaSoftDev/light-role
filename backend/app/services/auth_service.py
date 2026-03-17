@@ -8,13 +8,17 @@ from sqlalchemy.orm import Session
 from app.models.enums import SubscriptionPlan, SubscriptionStatus
 from app.models.subscription import Subscription
 from app.models.user import User
-from app.schemas.auth import LoginRequest, RegisterRequest
+from app.redis import delete_token, get_token_user, store_token
+from app.schemas.auth import ForgotPasswordRequest, LoginRequest, RegisterRequest, ResetPasswordRequest
 from app.schemas.user import UserResponse
+from app.services.email_service import send_password_reset_email, send_verification_email, send_welcome_email
 from app.utils.security import (
     create_access_token,
     create_refresh_token,
     decode_token,
+    generate_token,
     hash_password,
+    hash_token,
     verify_password,
 )
 
@@ -55,7 +59,11 @@ def clear_auth_cookies(response: Response) -> None:
     response.delete_cookie(REFRESH_COOKIE, path="/")
 
 
-def register_user(data: RegisterRequest, db: Session, response: Response) -> UserResponse:
+_VERIFY_EMAIL_PREFIX = "verify_email"
+_VERIFY_EMAIL_TTL = 24 * 60 * 60  # 24 hours in seconds
+
+
+async def register_user(data: RegisterRequest, db: Session) -> dict:
     existing = db.query(User).filter(User.email == data.email).first()
     if existing:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Email already registered")
@@ -78,9 +86,19 @@ def register_user(data: RegisterRequest, db: Session, response: Response) -> Use
     db.commit()
     db.refresh(user)
 
-    set_auth_cookies(response, str(user.id))
+    # Generate a one-time email verification token and store its hash in Redis.
+    token = generate_token()
+    token_hash = hash_token(token)
+    await store_token(_VERIFY_EMAIL_PREFIX, token_hash, str(user.id), _VERIFY_EMAIL_TTL)
+
+    # Send verification email. A failure here must not abort registration.
+    try:
+        send_verification_email(user.email, token)
+    except Exception as exc:
+        logger.error(f"Could not send verification email for user {user.id}: {exc}")
+
     logger.info(f"User registered: {user.id}")
-    return UserResponse.model_validate(user)
+    return {"message": "Registration successful. Please check your email to verify your account."}
 
 
 def login_user(data: LoginRequest, db: Session, response: Response) -> UserResponse:
@@ -110,3 +128,97 @@ def refresh_tokens(refresh_token: str, db: Session, response: Response) -> dict:
 def logout_user(response: Response) -> dict:
     clear_auth_cookies(response)
     return {"message": "Logged out successfully"}
+
+
+async def verify_email_user(token: str, db: Session, response: Response) -> dict:
+    """Verify a user's email address using the one-time token."""
+    token_hash = hash_token(token)
+    user_id = await get_token_user(_VERIFY_EMAIL_PREFIX, token_hash)
+
+    if not user_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid or expired verification token",
+        )
+
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        # Token was valid but user no longer exists — clean up and reject.
+        await delete_token(_VERIFY_EMAIL_PREFIX, token_hash)
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid or expired verification token",
+        )
+
+    # Mark as verified and consume the token atomically.
+    user.is_verified = True
+    db.commit()
+    await delete_token(_VERIFY_EMAIL_PREFIX, token_hash)
+
+    set_auth_cookies(response, str(user.id))
+
+    logger.info(f"Email verified for user {user.id}")
+
+    # Send welcome email — fire and forget (failure does not affect response).
+    #TODO: Will see, do we need these letter or not.
+    # try:
+    #     send_welcome_email(user.email)
+    # except Exception as exc:
+    #     logger.error(f"Could not send welcome email for user {user.id}: {exc}")
+
+    return {"message": "Email verified successfully"}
+
+
+_RESET_PASSWORD_PREFIX = "reset_password"
+_RESET_PASSWORD_TTL = 60 * 60  # 1 hour in seconds
+_RESET_PASSWORD_SAFE_MESSAGE = "If that email exists, we sent a reset link"
+
+
+async def forgot_password(data: ForgotPasswordRequest, db: Session) -> dict:
+    """Initiate password reset. Always returns the same message to avoid email enumeration."""
+    user = db.query(User).filter(User.email == data.email).first()
+
+    if not user:
+        return {"message": _RESET_PASSWORD_SAFE_MESSAGE}
+
+    token = generate_token()
+    token_hash = hash_token(token)
+    await store_token(_RESET_PASSWORD_PREFIX, token_hash, str(user.id), _RESET_PASSWORD_TTL)
+
+    try:
+        send_password_reset_email(user.email, token)
+    except Exception as exc:
+        logger.error(f"Could not send password reset email for user {user.id}: {exc}")
+
+    logger.info(f"Password reset requested for user {user.id}")
+    return {"message": _RESET_PASSWORD_SAFE_MESSAGE}
+
+
+async def reset_password(data: ResetPasswordRequest, db: Session) -> dict:
+    """Consume a one-time reset token and update the user's password."""
+    token_hash = hash_token(data.token)
+    user_id = await get_token_user(_RESET_PASSWORD_PREFIX, token_hash)
+
+    if not user_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid or expired reset token",
+        )
+
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        # Token was valid but user no longer exists — clean up and reject.
+        await delete_token(_RESET_PASSWORD_PREFIX, token_hash)
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid or expired reset token",
+        )
+
+    user.password_hash = hash_password(data.password)
+    db.commit()
+
+    # Consume the token — one-time use only.
+    await delete_token(_RESET_PASSWORD_PREFIX, token_hash)
+
+    logger.info(f"Password reset successfully for user {user.id}")
+    return {"message": "Password reset successfully"}

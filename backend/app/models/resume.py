@@ -1,7 +1,9 @@
+from __future__ import annotations
+
 import uuid
 from typing import TYPE_CHECKING, List
 
-from sqlalchemy import Boolean, CheckConstraint, ForeignKey, Index, SmallInteger, String, text
+from sqlalchemy import Boolean, CheckConstraint, Enum as SAEnum, ForeignKey, Index, SmallInteger, String, text
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -62,6 +64,7 @@ class Resume(TimestampMixin, Base):
         nullable=False,
     )
     original_file_format: Mapped[FileFormat] = mapped_column(
+        SAEnum(FileFormat, name="fileformat", values_callable=lambda obj: [e.value for e in obj]),
         nullable=False,
     )
     optimized_file_path: Mapped[str | None] = mapped_column(

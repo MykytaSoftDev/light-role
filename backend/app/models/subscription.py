@@ -1,8 +1,10 @@
+from __future__ import annotations
+
 import uuid
 from datetime import datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import DateTime, ForeignKey, Index, String
+from sqlalchemy import DateTime, Enum as SAEnum, ForeignKey, Index, String
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -34,11 +36,13 @@ class Subscription(TimestampMixin, Base):
         nullable=False,
     )
     plan: Mapped[SubscriptionPlan] = mapped_column(
+        SAEnum(SubscriptionPlan, name="subscriptionplan", values_callable=lambda obj: [e.value for e in obj]),
         nullable=False,
         default=SubscriptionPlan.FREE,
         server_default=SubscriptionPlan.FREE.value,
     )
     status: Mapped[SubscriptionStatus] = mapped_column(
+        SAEnum(SubscriptionStatus, name="subscriptionstatus", values_callable=lambda obj: [e.value for e in obj]),
         nullable=False,
         default=SubscriptionStatus.ACTIVE,
         server_default=SubscriptionStatus.ACTIVE.value,

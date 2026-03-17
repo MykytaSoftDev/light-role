@@ -3,9 +3,9 @@ services:
     image: postgres:16-alpine
     container_name: lightrole_postgres
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-lightrole}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-lightrole}
-      POSTGRES_DB: ${POSTGRES_DB:-lightrole}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     ports:
       - "5432:5432"
     volumes:
@@ -13,7 +13,7 @@ services:
     networks:
       - lightrole_net
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-lightrole}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -39,15 +39,18 @@ services:
     ports:
       - "8000:8000"
     environment:
-      DATABASE_URL: postgresql://${POSTGRES_USER:-lightrole}:${POSTGRES_PASSWORD:-lightrole}@postgres:5432/${POSTGRES_DB:-lightrole}
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
       REDIS_URL: redis://redis:6379/0
-      ENVIRONMENT: development
-      FRONTEND_URL: http://localhost:3000
-      SECRET_KEY: ${SECRET_KEY:-dev-secret-change-in-production}
-      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
-      RESEND_API_KEY: ${RESEND_API_KEY:-}
-      SENTRY_DSN: ${SENTRY_DSN:-}
+      SECRET_KEY: ${SECRET_KEY}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      RESEND_API_KEY: ${RESEND_API_KEY}
+      RESEND_FROM_EMAIL: ${RESEND_FROM_EMAIL}
+      SENTRY_DSN: ${SENTRY_DSN}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
       UPLOADS_DIR: /uploads
+      FRONTEND_URL: ${FRONTEND_URL}
+      ENVIRONMENT: ${ENVIRONMENT}
     volumes:
       - uploads_data:/uploads
       - logs_data:/app/logs

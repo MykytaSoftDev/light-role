@@ -1,7 +1,9 @@
+from __future__ import annotations
+
 import uuid
 from typing import TYPE_CHECKING, List
 
-from sqlalchemy import Boolean, String, text
+from sqlalchemy import Boolean, Enum as SAEnum, String, text
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -51,6 +53,7 @@ class User(TimestampMixin, Base):
         nullable=True,
     )
     auth_provider: Mapped[AuthProvider] = mapped_column(
+        SAEnum(AuthProvider, name="authprovider", values_callable=lambda obj: [e.value for e in obj]),
         nullable=False,
         default=AuthProvider.EMAIL,
         server_default=AuthProvider.EMAIL.value,

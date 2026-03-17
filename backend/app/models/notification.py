@@ -1,8 +1,10 @@
+from __future__ import annotations
+
 import uuid
 from datetime import datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, Index, String, Text, func, text
+from sqlalchemy import Boolean, DateTime, Enum as SAEnum, ForeignKey, Index, String, Text, func, text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -41,6 +43,7 @@ class Notification(Base):
         nullable=False,
     )
     type: Mapped[NotificationType] = mapped_column(
+        SAEnum(NotificationType, name="notificationtype", values_callable=lambda obj: [e.value for e in obj]),
         nullable=False,
     )
     title: Mapped[str] = mapped_column(

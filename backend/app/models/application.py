@@ -1,8 +1,10 @@
+from __future__ import annotations
+
 import uuid
 from datetime import datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import CheckConstraint, DateTime, ForeignKey, Index, SmallInteger, Text
+from sqlalchemy import CheckConstraint, DateTime, Enum as SAEnum, ForeignKey, Index, SmallInteger, Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -61,6 +63,7 @@ class Application(TimestampMixin, Base):
         nullable=True,
     )
     status: Mapped[ApplicationStatus] = mapped_column(
+        SAEnum(ApplicationStatus, name="applicationstatus", values_callable=lambda obj: [e.value for e in obj]),
         nullable=False,
         default=ApplicationStatus.SAVED,
         server_default=ApplicationStatus.SAVED.value,
