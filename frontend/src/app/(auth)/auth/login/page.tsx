@@ -27,6 +27,7 @@ export default function LoginPage() {
 
   const handleGoogleSignIn = () => {
     const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+    console.log(clientId)
     if (!clientId) {
       alert("Google OAuth is not configured");
       return;
