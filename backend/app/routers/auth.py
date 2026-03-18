@@ -4,14 +4,16 @@ from fastapi import APIRouter, Cookie, Depends, HTTPException, Request, Response
 from sqlalchemy.orm import Session
 
 from app.database import get_db
+from app.dependencies.auth import get_verified_user
 from app.dependencies.rate_limit import (
     forgot_password_rate_limit,
     login_rate_limit,
     register_rate_limit,
 )
-from app.schemas.auth import ForgotPasswordRequest, GoogleOAuthRequest, LoginRequest, RegisterRequest, ResetPasswordRequest, VerifyEmailRequest
+from app.schemas.auth import ChangePasswordRequest, ForgotPasswordRequest, GoogleOAuthRequest, LoginRequest, RegisterRequest, ResetPasswordRequest, VerifyEmailRequest
 from app.schemas.user import UserResponse
 from app.services.auth_service import (
+    change_password,
     forgot_password,
     login_user,
     logout_user,
@@ -86,3 +88,12 @@ async def google_oauth(
     db: Session = Depends(get_db),
 ):
     return await google_oauth_login(data.code, data.redirect_uri, db, response)
+
+
+@router.post("/change-password")
+def change_password_endpoint(
+    data: ChangePasswordRequest,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_verified_user),
+):
+    return change_password(data, current_user, db)

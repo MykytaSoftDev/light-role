@@ -1,6 +1,7 @@
 import { AppSidebar, HamburgerButton } from "@/components/layout/app-sidebar";
 import { NotificationBell } from "@/components/layout/notification-bell";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
+import { OfflineDetector } from "@/components/shared/offline-detector";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -20,6 +21,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </header>
         <main className="flex-1 overflow-auto p-4 xl:p-6">{children}</main>
       </div>
+      <OfflineDetector />
     </div>
   );
 }

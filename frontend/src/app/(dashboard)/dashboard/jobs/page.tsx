@@ -30,6 +30,7 @@ import {
 import { cn } from "@/lib/utils";
 import { api } from "@/lib/api";
 import { JobContextMenu } from "@/components/jobs/job-context-menu";
+import { EmptyState } from "@/components/shared/empty-state";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -1203,40 +1204,30 @@ export default function JobsPage() {
       ) : viewMode === "table" ? (
         totalJobs === 0 ? (
           <div className="flex flex-1 items-center justify-center rounded-xl border border-border bg-muted/30">
-            <div className="text-center">
-              <Table2 className="mx-auto mb-2 h-8 w-8 text-muted-foreground" />
-              <p className="text-sm font-medium">No jobs yet.</p>
-              <p className="mt-1 text-xs text-muted-foreground">
-                Start tracking your job search.
-              </p>
-              <Link
-                href="/dashboard/jobs/new"
-                className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
-              >
-                <Plus className="h-4 w-4" />
-                Add Job
-              </Link>
-            </div>
+            <EmptyState
+              icon={<Table2 className="h-8 w-8" />}
+              title="No jobs yet"
+              description="Start tracking your job applications by adding your first job."
+              action={{
+                label: "Create Your First Job",
+                href: "/dashboard/jobs/new",
+              }}
+            />
           </div>
         ) : (
           <TableView jobs={allJobs} onDelete={handleDelete} />
         )
       ) : totalJobs === 0 ? (
         <div className="flex flex-1 items-center justify-center rounded-xl border border-border bg-muted/30">
-          <div className="text-center">
-            <LayoutGrid className="mx-auto mb-2 h-8 w-8 text-muted-foreground" />
-            <p className="text-sm font-medium">No jobs yet.</p>
-            <p className="mt-1 text-xs text-muted-foreground">
-              Start tracking your job search.
-            </p>
-            <Link
-              href="/dashboard/jobs/new"
-              className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
-            >
-              <Plus className="h-4 w-4" />
-              Add Job
-            </Link>
-          </div>
+          <EmptyState
+            icon={<LayoutGrid className="h-8 w-8" />}
+            title="No jobs yet"
+            description="Start tracking your job applications by adding your first job."
+            action={{
+              label: "Create Your First Job",
+              href: "/dashboard/jobs/new",
+            }}
+          />
         </div>
       ) : (
         <DragDropContext onDragEnd={onDragEnd}>

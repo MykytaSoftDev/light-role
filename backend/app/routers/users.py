@@ -2,8 +2,9 @@ from fastapi import APIRouter, Depends, HTTPException, Response
 from sqlalchemy.orm import Session
 
 from app.database import get_db
-from app.dependencies.auth import get_current_user
+from app.dependencies.auth import get_current_user, get_verified_user
 from app.models.user import User
+from app.schemas.usage import UsageResponse
 from app.schemas.user import UserResponse, UserUpdateRequest
 
 router = APIRouter(prefix="/api/v1/users", tags=["users"])
@@ -36,6 +37,15 @@ def update_me(
     db.commit()
     db.refresh(current_user)
     return current_user
+
+
+@router.get("/me/usage", response_model=UsageResponse)
+async def get_usage(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_verified_user),
+):
+    from app.services.usage_service import get_usage as usage_service_get_usage
+    return await usage_service_get_usage(current_user, db)
 
 
 @router.delete("/me", status_code=204)

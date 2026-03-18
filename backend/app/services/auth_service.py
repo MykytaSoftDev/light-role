@@ -5,11 +5,11 @@ from typing import Optional
 from fastapi import HTTPException, Response, status
 from sqlalchemy.orm import Session
 
-from app.models.enums import SubscriptionPlan, SubscriptionStatus
+from app.models.enums import AuthProvider, SubscriptionPlan, SubscriptionStatus
 from app.models.subscription import Subscription
 from app.models.user import User
 from app.redis import delete_token, get_token_user, store_token
-from app.schemas.auth import ForgotPasswordRequest, LoginRequest, RegisterRequest, ResetPasswordRequest
+from app.schemas.auth import ChangePasswordRequest, ForgotPasswordRequest, LoginRequest, RegisterRequest, ResetPasswordRequest
 from app.schemas.user import UserResponse
 from app.services.email_service import send_password_reset_email, send_verification_email, send_welcome_email
 from app.utils.security import (
@@ -222,3 +222,24 @@ async def reset_password(data: ResetPasswordRequest, db: Session) -> dict:
 
     logger.info(f"Password reset successfully for user {user.id}")
     return {"message": "Password reset successfully"}
+
+
+def change_password(data: ChangePasswordRequest, user: User, db: Session) -> dict:
+    """Change password for an email/password user after verifying the current password."""
+    if user.auth_provider != AuthProvider.EMAIL or not user.password_hash:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Password change is not available for accounts using social login",
+        )
+
+    if not verify_password(data.current_password, user.password_hash):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Current password is incorrect",
+        )
+
+    user.password_hash = hash_password(data.new_password)
+    db.commit()
+
+    logger.info(f"Password changed for user {user.id}")
+    return {"message": "Password changed successfully"}
