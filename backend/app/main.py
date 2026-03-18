@@ -14,6 +14,7 @@ from app.logging_config import setup_logging
 from app.redis import close_redis, get_redis_client
 from app.routers import auth as auth_router
 from app.routers import health
+from app.routers import jobs as jobs_router
 from app.routers import users as users_router
 
 logger = logging.getLogger(__name__)
@@ -87,6 +88,7 @@ def create_app() -> FastAPI:
     app.include_router(health.router, prefix="/api")
     app.include_router(auth_router.router)
     app.include_router(users_router.router)
+    app.include_router(jobs_router.router)
 
     return app
 

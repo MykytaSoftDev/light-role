@@ -19,4 +19,9 @@ export const api = {
       credentials: 'include',
       body: body ? JSON.stringify(body) : undefined,
     }),
+  delete: (path: string) =>
+    fetch(`${BASE_URL}${path}`, {
+      method: 'DELETE',
+      credentials: 'include',
+    }),
 };
