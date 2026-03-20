@@ -38,6 +38,7 @@ class Resume(TimestampMixin, Base):
             "user_id",
             postgresql_where=text("is_base = TRUE"),
         ),
+        Index("ix_resume_content_hash", "user_id", "content_hash"),
     )
 
     id: Mapped[uuid.UUID] = mapped_column(
@@ -103,6 +104,10 @@ class Resume(TimestampMixin, Base):
         nullable=False,
         default="classic",
         server_default="classic",
+    )
+    content_hash: Mapped[str | None] = mapped_column(
+        String(64),
+        nullable=True,
     )
 
     # Relationships
