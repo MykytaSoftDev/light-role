@@ -1,3 +1,4 @@
+import asyncio
 import logging
 from contextlib import asynccontextmanager
 from typing import Any
@@ -12,12 +13,16 @@ from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration
 from app.config import settings
 from app.logging_config import setup_logging
 from app.redis import close_redis, get_redis_client
+from app.tasks.scheduler import run_notification_scheduler
 from app.routers import auth as auth_router
 from app.routers import cover_letters as cover_letters_router
 from app.routers import health
 from app.routers import jobs as jobs_router
+from app.routers import notifications as notifications_router
 from app.routers import resumes as resumes_router
+from app.routers import subscriptions as subscriptions_router
 from app.routers import users as users_router
+from app.routers import webhooks as webhooks_router
 
 logger = logging.getLogger(__name__)
 
@@ -55,8 +60,14 @@ async def lifespan(app: FastAPI):
     setup_logging(log_dir="logs", environment=settings.environment)
     setup_sentry()
     await get_redis_client()
+    scheduler_task = asyncio.create_task(run_notification_scheduler())
     logger.info("Application startup complete")
     yield
+    scheduler_task.cancel()
+    try:
+        await scheduler_task
+    except asyncio.CancelledError:
+        pass
     await close_redis()
     logger.info("Application shutdown complete")
 
@@ -93,6 +104,9 @@ def create_app() -> FastAPI:
     app.include_router(jobs_router.router)
     app.include_router(resumes_router.router)
     app.include_router(cover_letters_router.router)
+    app.include_router(notifications_router.router)
+    app.include_router(subscriptions_router.router)
+    app.include_router(webhooks_router.router)
 
     return app
 

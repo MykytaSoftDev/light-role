@@ -1,6 +1,7 @@
 "use client";
 
 import { OnboardingChecklist } from "@/components/shared/onboarding-checklist";
+import { UsageBanner } from "@/components/shared/usage-banner";
 import { api } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import {
@@ -319,6 +320,16 @@ export default function DashboardPage() {
 
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-8 pb-10">
+      {/* ------------------------------------------------------------------ */}
+      {/* Usage warning banner (free plan, >= 80% AI ops used) */}
+      {/* ------------------------------------------------------------------ */}
+      {!usageLoading && usage != null && (
+        <UsageBanner
+          aiUsed={usage.ai_operations_used}
+          aiLimit={usage.ai_operations_limit}
+        />
+      )}
+
       {/* ------------------------------------------------------------------ */}
       {/* Welcome section */}
       {/* ------------------------------------------------------------------ */}

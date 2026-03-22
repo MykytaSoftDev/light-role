@@ -22,7 +22,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <div className="flex-1" />
 
             {/* Right actions */}
-            <NotificationBell count={0} />
+            <NotificationBell />
             <ThemeToggle />
           </header>
           <main className="flex-1 overflow-auto p-4 xl:p-6">{children}</main>

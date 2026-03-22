@@ -13,7 +13,8 @@ from app.models.subscription import Subscription
 from app.models.usage_log import UsageLog
 from app.models.user import User
 from app.redis import redis_delete, redis_get, redis_set
-from app.schemas.usage import UsageResponse
+from app.schemas.usage import EffectiveLimits, UsageResponse
+from app.services.subscription_service import get_effective_plan
 
 logger = logging.getLogger(__name__)
 
@@ -57,9 +58,9 @@ async def get_usage(user: User, db: Session) -> UsageResponse:
     result = await _compute_usage(user, db)
 
     try:
-        payload = result.model_dump()
-        # datetime is not JSON-serialisable by default; convert to ISO string
-        payload["reset_date"] = result.reset_date.isoformat()
+        # mode='json' serialises enums to their string values, datetime to ISO
+        # strings, and preserves None — safe for json.dumps without extra work.
+        payload = result.model_dump(mode="json")
         await redis_set(cache_key, json.dumps(payload), _USAGE_CACHE_TTL)
     except Exception as exc:
         logger.warning(f"Failed to cache usage for user {user.id}: {exc}")
@@ -82,12 +83,12 @@ async def _compute_usage(user: User, db: Session) -> UsageResponse:
         or 0
     )
 
-    # AI operations limit from subscription plan
+    # Determine effective plan (respects cancellation / past_due grace periods)
     subscription: Optional[Subscription] = (
         db.query(Subscription).filter(Subscription.user_id == user.id).first()
     )
-    plan = subscription.plan if subscription else SubscriptionPlan.FREE
-    ai_limit = _PLAN_LIMITS.get(plan, _PLAN_LIMITS[SubscriptionPlan.FREE])
+    effective_plan = get_effective_plan(subscription)
+    ai_limit = _PLAN_LIMITS.get(effective_plan, _PLAN_LIMITS[SubscriptionPlan.FREE])
 
     # Active jobs: applications not in terminal states
     active_jobs_count = (
@@ -117,9 +118,17 @@ async def _compute_usage(user: User, db: Session) -> UsageResponse:
 
     reset_date = _next_month_reset(now)
 
+    # Build effective limits based on the resolved plan
+    if effective_plan == SubscriptionPlan.PRO:
+        effective_limits = EffectiveLimits(ai_operations=100, active_jobs=None)
+    else:
+        effective_limits = EffectiveLimits(ai_operations=10, active_jobs=10)
+
     return UsageResponse(
         ai_operations_used=ai_used,
         ai_operations_limit=ai_limit,
+        effective_plan=effective_plan,
+        effective_limits=effective_limits,
         reset_date=reset_date,
         active_jobs_count=active_jobs_count,
         applications_this_month=applications_this_month,

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+from datetime import datetime, timezone
 from typing import Optional
 from uuid import UUID
 
@@ -10,6 +11,7 @@ from sqlalchemy.orm import Session
 
 from app.ai.openai_service import OpenAIService
 from app.database import get_db
+from app.dependencies.ai_limit import require_ai_quota
 from app.dependencies.auth import get_verified_user
 from app.models.cover_letter import CoverLetter
 from app.models.enums import OperationType
@@ -25,6 +27,7 @@ from app.schemas.cover_letter import (
     CoverLetterVariantSchema,
     GenerateVariantsResponse,
 )
+from app.redis import increment_usage_count
 from app.services import cover_letter_service, file_service
 from app.services.ai_usage_service import log_ai_operation
 from app.services.cover_letter_service import get_cover_letter_or_404
@@ -52,6 +55,7 @@ async def generate_cover_letter(
     data: CoverLetterGenerateRequest,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_verified_user),
+    _quota: None = Depends(require_ai_quota),
 ) -> GenerateVariantsResponse:
     """
     Generate 3 cover letter variants using AI.
@@ -111,6 +115,9 @@ async def generate_cover_letter(
             )
         except Exception as exc:
             logger.error("Failed to log AI usage for user %s: %s", current_user.id, exc)
+
+    year_month = datetime.now(timezone.utc).strftime("%Y-%m")
+    await increment_usage_count(str(current_user.id), year_month)
 
     await invalidate_usage_cache(str(current_user.id))
 
@@ -223,6 +230,7 @@ async def regenerate_cover_letter(
     data: CoverLetterRegenerateRequest,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_verified_user),
+    _quota: None = Depends(require_ai_quota),
 ) -> GenerateVariantsResponse:
     """
     Regenerate cover letter variants using AI.
@@ -301,6 +309,9 @@ async def regenerate_cover_letter(
             )
         except Exception as exc:
             logger.error("Failed to log AI usage for user %s: %s", current_user.id, exc)
+
+    year_month = datetime.now(timezone.utc).strftime("%Y-%m")
+    await increment_usage_count(str(current_user.id), year_month)
 
     await invalidate_usage_cache(str(current_user.id))
 

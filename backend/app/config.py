@@ -47,5 +47,11 @@ class Settings(BaseSettings):
     google_client_id: str = ""
     google_client_secret: str = ""
 
+    # Paddle
+    paddle_price_monthly: str = ""
+    paddle_price_annual: str = ""
+    paddle_webhook_secret: str = ""
+    paddle_environment: str = "sandbox"
+
 
 settings = Settings()

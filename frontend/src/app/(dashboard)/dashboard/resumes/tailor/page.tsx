@@ -3,6 +3,8 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { UpgradeModal } from "@/components/shared/upgrade-modal";
+import { useUpgradeModal } from "@/hooks/use-upgrade-modal";
 import {
   ArrowLeft,
   ArrowRight,
@@ -24,6 +26,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { api } from "@/lib/api";
 import {
   listResumes,
@@ -32,6 +35,7 @@ import {
   getAnalysisStatus,
   getResume,
   updateResume,
+  LimitReachedError,
 } from "@/lib/resume-api";
 import type { ResumeListItem, ResumeResponse } from "@/types/resume";
 
@@ -328,6 +332,7 @@ interface Step1Props {
   jobs: JobOption[];
   jobsLoading: boolean;
   onNext: () => void;
+  aiAtLimit?: boolean;
 }
 
 function Step1({
@@ -347,6 +352,7 @@ function Step1({
   jobs,
   jobsLoading,
   onNext,
+  aiAtLimit,
 }: Step1Props) {
   const hasExistingResumes = existingResumes.length > 0;
 
@@ -562,10 +568,27 @@ function Step1({
       </div>
 
       <div className="flex justify-end">
-        <Button onClick={validateAndNext} disabled={!canProceed} className="gap-1.5">
-          Analyze Resume
-          <ArrowRight className="h-4 w-4" />
-        </Button>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span>
+                <Button
+                  onClick={validateAndNext}
+                  disabled={!canProceed || aiAtLimit}
+                  className="gap-1.5"
+                >
+                  Analyze Resume
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+              </span>
+            </TooltipTrigger>
+            {aiAtLimit && (
+              <TooltipContent>
+                You&apos;ve reached your AI operation limit. Upgrade to continue.
+              </TooltipContent>
+            )}
+          </Tooltip>
+        </TooltipProvider>
       </div>
     </div>
   );
@@ -894,6 +917,23 @@ export default function TailorResumePage() {
   const [jobs, setJobs] = useState<JobOption[]>([]);
   const [jobsLoading, setJobsLoading] = useState(true);
 
+  // Upgrade modal
+  const { modalState, openAiLimitModal, close: closeModal } = useUpgradeModal();
+
+  // AI usage — used to disable Analyze button when at limit
+  const [aiAtLimit, setAiAtLimit] = useState(false);
+  useEffect(() => {
+    api
+      .get("/api/v1/users/me/usage")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data) {
+          setAiAtLimit(data.ai_operations_used >= data.ai_operations_limit);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
   // Analysis state
   const [analysisResume, setAnalysisResume] = useState<ResumeResponse | null>(null);
   const [activeResumeId, setActiveResumeId] = useState<string | null>(null); // resume being analyzed
@@ -1036,9 +1076,14 @@ export default function TailorResumePage() {
       setTaskId(task_id);
       // Polling is handled by the useEffect above
     } catch (err) {
-      setAnalysisError(
-        err instanceof Error ? err.message : "An unexpected error occurred. Please try again."
-      );
+      if (err instanceof LimitReachedError) {
+        setStep(1); // go back to step 1 so the page doesn't show the analyzing spinner
+        openAiLimitModal(err.detail.current_usage, err.detail.limit, err.detail.reset_date);
+      } else {
+        setAnalysisError(
+          err instanceof Error ? err.message : "An unexpected error occurred. Please try again."
+        );
+      }
       setIsAnalyzing(false);
     }
   };
@@ -1068,6 +1113,17 @@ export default function TailorResumePage() {
 
   return (
     <div className="flex flex-col gap-6 p-6 max-w-2xl mx-auto">
+      {modalState && (
+        <UpgradeModal
+          open={modalState.open}
+          onClose={closeModal}
+          reason={modalState.reason}
+          currentUsage={modalState.currentUsage}
+          limit={modalState.limit}
+          resetDate={modalState.resetDate}
+        />
+      )}
+
       {/* Step indicator */}
       <div className="flex justify-end">
         <StepIndicator current={step} onStepClick={handleStepClick} />
@@ -1096,6 +1152,7 @@ export default function TailorResumePage() {
             jobs={jobs}
             jobsLoading={jobsLoading}
             onNext={handleAnalyze}
+            aiAtLimit={aiAtLimit}
           />
         )}
 

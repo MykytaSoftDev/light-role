@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import logging
 import uuid as uuid_lib
+from datetime import datetime, timezone
 from typing import Optional
 from uuid import UUID
 
@@ -11,6 +12,7 @@ from sqlalchemy.orm import Session
 
 from app.ai.openai_service import OpenAIService
 from app.database import SessionLocal, get_db
+from app.dependencies.ai_limit import require_ai_quota
 from app.dependencies.auth import get_verified_user
 from app.models.enums import FileFormat, NotificationType, OperationType
 from app.models.notification import Notification
@@ -24,6 +26,7 @@ from app.schemas.resume import (
     ResumeResponse,
     ResumeUpdate,
 )
+from app.redis import increment_usage_count
 from app.services import analysis_task_service, file_service, resume_service
 from app.services.ai_usage_service import log_ai_operation
 from app.services.usage_service import invalidate_usage_cache
@@ -187,6 +190,7 @@ async def analyze_resume(
     background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_verified_user),
+    _quota: None = Depends(require_ai_quota),
 ) -> AnalysisTaskResponse:
     """
     Start background AI analysis of a resume against a job description.
@@ -288,6 +292,10 @@ async def _run_analysis_background(
                 )
             except Exception as exc:
                 logger.error("Failed to log AI usage for user %s: %s", user_id, exc)
+
+        # Increment Redis usage counter (only on success)
+        year_month = datetime.now(timezone.utc).strftime("%Y-%m")
+        await increment_usage_count(str(user_id), year_month)
 
         # Invalidate usage cache
         await invalidate_usage_cache(str(user_id))

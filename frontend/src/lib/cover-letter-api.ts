@@ -7,6 +7,7 @@ import type {
   CLTone,
   CLLength,
 } from '@/types/cover-letter';
+import { LimitReachedError } from './resume-api';
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
@@ -36,7 +37,13 @@ export async function generateCoverLetter(data: {
   additional_context: string;
 }): Promise<GenerateVariantsResponse> {
   const res = await api.post('/api/v1/cover-letters/generate', data);
-  if (!res.ok) throw new Error(`Failed to generate cover letter: HTTP ${res.status}`);
+  if (!res.ok) {
+    if (res.status === 403) {
+      const json = await res.json().catch(() => ({}));
+      throw new LimitReachedError(json?.detail ?? { message: "Limit reached", current_usage: 0, limit: 10, reset_date: "" });
+    }
+    throw new Error(`Failed to generate cover letter: HTTP ${res.status}`);
+  }
   return res.json();
 }
 
@@ -50,7 +57,13 @@ export async function regenerateCoverLetter(
   }
 ): Promise<GenerateVariantsResponse> {
   const res = await api.post(`/api/v1/cover-letters/${id}/regenerate`, data);
-  if (!res.ok) throw new Error(`Failed to regenerate cover letter: HTTP ${res.status}`);
+  if (!res.ok) {
+    if (res.status === 403) {
+      const json = await res.json().catch(() => ({}));
+      throw new LimitReachedError(json?.detail ?? { message: "Limit reached", current_usage: 0, limit: 10, reset_date: "" });
+    }
+    throw new Error(`Failed to regenerate cover letter: HTTP ${res.status}`);
+  }
   return res.json();
 }
 

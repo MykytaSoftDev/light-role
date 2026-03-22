@@ -5,6 +5,26 @@ import type {
   ResumeData,
 } from '@/types/resume';
 
+// ---------------------------------------------------------------------------
+// LimitReachedError — thrown when the backend returns 403 (limit exceeded)
+// ---------------------------------------------------------------------------
+
+export interface LimitDetail {
+  message: string;
+  current_usage: number;
+  limit: number;
+  reset_date: string;
+}
+
+export class LimitReachedError extends Error {
+  detail: LimitDetail;
+  constructor(detail: LimitDetail) {
+    super(detail.message ?? "Limit reached");
+    this.name = "LimitReachedError";
+    this.detail = detail;
+  }
+}
+
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 export async function listResumes(): Promise<{ items: ResumeListItem[]; total: number }> {
@@ -87,7 +107,13 @@ export async function analyzeResume(
     credentials: 'include',
     body: JSON.stringify({ resume_id: resumeId, job_id: jobId }),
   });
-  if (!res.ok) throw new Error(await res.text());
+  if (!res.ok) {
+    if (res.status === 403) {
+      const json = await res.json().catch(() => ({}));
+      throw new LimitReachedError(json?.detail ?? { message: "Limit reached", current_usage: 0, limit: 10, reset_date: "" });
+    }
+    throw new Error(await res.text());
+  }
   return res.json();
 }
 

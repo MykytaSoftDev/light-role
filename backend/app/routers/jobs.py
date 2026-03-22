@@ -1,18 +1,24 @@
 from __future__ import annotations
 
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.ai.openai_service import OpenAIService
 from app.database import get_db
+from app.dependencies.ai_limit import require_ai_quota
 from app.dependencies.auth import get_verified_user
-from app.models.enums import ApplicationStatus, OperationType
+from app.models.application import Application
+from app.models.enums import ApplicationStatus, OperationType, SubscriptionPlan
+from app.models.job import Job
+from app.models.subscription import Subscription
 from app.models.user import User
+from app.redis import increment_usage_count
 from app.schemas.job import (
     ApplicationResponse,
     ApplicationStatusUpdate,
@@ -27,6 +33,7 @@ from app.schemas.job import (
 )
 from app.services import job_service
 from app.services.ai_usage_service import log_ai_operation
+from app.services.subscription_service import get_effective_plan
 
 logger = logging.getLogger(__name__)
 
@@ -44,6 +51,7 @@ async def parse_job_description(
     data: JobParseRequest,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_verified_user),
+    _quota: None = Depends(require_ai_quota),
 ) -> JobParseResponse:
     result = await _ai_service.parse_job_description(data.text)
 
@@ -58,6 +66,9 @@ async def parse_job_description(
         except Exception as exc:
             logger.error("Failed to log AI usage for user %s: %s", current_user.id, exc)
 
+        year_month = datetime.now(timezone.utc).strftime("%Y-%m")
+        await increment_usage_count(str(current_user.id), year_month)
+
     parsed = ParsedJobDataResponse(
         job_title=result.data.job_title,
         company=result.data.company,
@@ -68,12 +79,45 @@ async def parse_job_description(
     return JobParseResponse(data=parsed, success=result.success)
 
 
+_ACTIVE_JOB_LIMIT_FREE = 10
+_TERMINAL_STATUSES = [
+    ApplicationStatus.ACCEPTED,
+    ApplicationStatus.REJECTED,
+    ApplicationStatus.WITHDRAWN,
+]
+
+
 @router.post("/jobs", response_model=JobResponse, status_code=status.HTTP_201_CREATED)
 def create_job(
     data: JobCreate,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_verified_user),
 ) -> JobResponse:
+    subscription = db.query(Subscription).filter(Subscription.user_id == current_user.id).first()
+    effective_plan = get_effective_plan(subscription)
+
+    if effective_plan == SubscriptionPlan.FREE:
+        active_count = (
+            db.query(func.count(Job.id))
+            .join(Application, Application.job_id == Job.id)
+            .filter(
+                Job.user_id == current_user.id,
+                Application.status.notin_(_TERMINAL_STATUSES),
+            )
+            .scalar()
+        ) or 0
+
+        if active_count >= _ACTIVE_JOB_LIMIT_FREE:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail={
+                    "message": "Active jobs limit reached",
+                    "current_count": active_count,
+                    "limit": _ACTIVE_JOB_LIMIT_FREE,
+                    "upgrade_url": "/dashboard/settings/billing",
+                },
+            )
+
     job = job_service.create_job(data, current_user, db)
     return job
 

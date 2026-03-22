@@ -3,8 +3,11 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { UpgradeModal } from "@/components/shared/upgrade-modal";
 import { api } from "@/lib/api";
 import { cn } from "@/lib/utils";
+import { useUpgradeModal } from "@/hooks/use-upgrade-modal";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   CircleAlert,
@@ -154,6 +157,23 @@ export default function NewJobPage() {
   // Server-side error
   const [serverError, setServerError] = useState<string | null>(null);
 
+  // Upgrade modal
+  const { modalState, openAiLimitModal, openJobsLimitModal, close: closeModal } = useUpgradeModal();
+
+  // AI usage — used to disable Parse button when at limit
+  const [aiAtLimit, setAiAtLimit] = useState(false);
+  useEffect(() => {
+    api
+      .get("/api/v1/users/me/usage")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data) {
+          setAiAtLimit(data.ai_operations_used >= data.ai_operations_limit);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
   const {
     register,
     handleSubmit,
@@ -247,6 +267,14 @@ export default function NewJobPage() {
         });
         setTags(parsed.requirements ?? []);
         setShowForm(true);
+      } else if (res.status === 403) {
+        const json = await res.json().catch(() => ({}));
+        const detail = json?.detail ?? {};
+        openAiLimitModal(
+          detail.current_usage ?? 0,
+          detail.limit ?? 10,
+          detail.reset_date ?? ""
+        );
       } else {
         setServerError("Failed to parse the job description. Please try again or use Manual mode.");
       }
@@ -279,6 +307,10 @@ export default function NewJobPage() {
 
       if (res.ok || res.status === 201) {
         router.push("/dashboard/jobs");
+      } else if (res.status === 403) {
+        const json = await res.json().catch(() => ({}));
+        const detail = json?.detail ?? {};
+        openJobsLimitModal(detail.current_usage, detail.limit);
       } else if (res.status === 422) {
         setServerError("Some fields are invalid. Please review and try again.");
       } else {
@@ -309,6 +341,16 @@ export default function NewJobPage() {
 
   return (
     <div className="mx-auto max-w-2xl space-y-6 pb-12">
+      {modalState && (
+        <UpgradeModal
+          open={modalState.open}
+          onClose={closeModal}
+          reason={modalState.reason}
+          currentUsage={modalState.currentUsage}
+          limit={modalState.limit}
+          resetDate={modalState.resetDate}
+        />
+      )}
       {/* Page header */}
       <div>
         <h1 className="text-2xl font-semibold tracking-tight text-foreground">Add New Job</h1>
@@ -379,24 +421,37 @@ export default function NewJobPage() {
             )}
 
             {/* Parse button */}
-            <Button
-              type="button"
-              onClick={handleParse}
-              disabled={isParsing || !rawText.trim()}
-              className="w-full sm:w-auto"
-            >
-              {isParsing ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  {loadingMessage}
-                </>
-              ) : (
-                <>
-                  <Sparkles className="h-4 w-4" />
-                  Parse with AI
-                </>
-              )}
-            </Button>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span className="inline-block w-full sm:w-auto">
+                    <Button
+                      type="button"
+                      onClick={handleParse}
+                      disabled={isParsing || !rawText.trim() || aiAtLimit}
+                      className="w-full sm:w-auto"
+                    >
+                      {isParsing ? (
+                        <>
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                          {loadingMessage}
+                        </>
+                      ) : (
+                        <>
+                          <Sparkles className="h-4 w-4" />
+                          Parse with AI
+                        </>
+                      )}
+                    </Button>
+                  </span>
+                </TooltipTrigger>
+                {aiAtLimit && (
+                  <TooltipContent>
+                    You&apos;ve reached your AI operation limit. Upgrade to continue.
+                  </TooltipContent>
+                )}
+              </Tooltip>
+            </TooltipProvider>
           </div>
         )}
 

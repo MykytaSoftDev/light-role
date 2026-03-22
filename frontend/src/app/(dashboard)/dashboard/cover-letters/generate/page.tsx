@@ -3,6 +3,9 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { UpgradeModal } from "@/components/shared/upgrade-modal";
+import { useUpgradeModal } from "@/hooks/use-upgrade-modal";
+import { LimitReachedError } from "@/lib/resume-api";
 import {
   ArrowLeft,
   ArrowRight,
@@ -21,6 +24,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { api } from "@/lib/api";
 import { listJobs } from "@/lib/jobs-api";
 import { listResumes } from "@/lib/resume-api";
 import {
@@ -288,6 +293,23 @@ function VariantSetsDisplay({
 export default function GenerateCoverLetterPage() {
   const router = useRouter();
 
+  // Upgrade modal
+  const { modalState, openAiLimitModal, close: closeModal } = useUpgradeModal();
+
+  // AI usage — used to disable Generate button when at limit
+  const [aiAtLimit, setAiAtLimit] = useState(false);
+  useEffect(() => {
+    api
+      .get("/api/v1/users/me/usage")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data) {
+          setAiAtLimit(data.ai_operations_used >= data.ai_operations_limit);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
   // Step state
   const [step, setStep] = useState<WizardStep>(1);
 
@@ -384,8 +406,12 @@ export default function GenerateCoverLetterPage() {
       setSelectedVariantSetIdx(0);
       setSelectedVariantIdx(0);
       setStep(3);
-    } catch {
-      setGenerateError("Failed to generate cover letter. Please try again.");
+    } catch (err) {
+      if (err instanceof LimitReachedError) {
+        openAiLimitModal(err.detail.current_usage, err.detail.limit, err.detail.reset_date);
+      } else {
+        setGenerateError("Failed to generate cover letter. Please try again.");
+      }
     } finally {
       setIsGenerating(false);
     }
@@ -412,8 +438,12 @@ export default function GenerateCoverLetterPage() {
       setVariantSets((prev) => [...prev, newSet]);
       setSelectedVariantSetIdx(variantSets.length); // point to the new set
       setSelectedVariantIdx(0);
-    } catch {
-      setGenerateError("Failed to regenerate cover letter. Please try again.");
+    } catch (err) {
+      if (err instanceof LimitReachedError) {
+        openAiLimitModal(err.detail.current_usage, err.detail.limit, err.detail.reset_date);
+      } else {
+        setGenerateError("Failed to regenerate cover letter. Please try again.");
+      }
     } finally {
       setIsGenerating(false);
     }
@@ -439,6 +469,17 @@ export default function GenerateCoverLetterPage() {
 
   return (
     <div className="flex flex-col gap-6 p-6 max-w-3xl mx-auto">
+      {modalState && (
+        <UpgradeModal
+          open={modalState.open}
+          onClose={closeModal}
+          reason={modalState.reason}
+          currentUsage={modalState.currentUsage}
+          limit={modalState.limit}
+          resetDate={modalState.resetDate}
+        />
+      )}
+
       {/* Back link */}
       <Link
         href="/dashboard/cover-letters"
@@ -638,23 +679,36 @@ export default function GenerateCoverLetterPage() {
               <ArrowLeft className="h-4 w-4" />
               Back
             </Button>
-            <Button
-              onClick={handleGenerate}
-              disabled={isGenerating}
-              className="gap-1.5"
-            >
-              {isGenerating ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  Generating...
-                </>
-              ) : (
-                <>
-                  <Sparkles className="h-4 w-4" />
-                  Generate
-                </>
-              )}
-            </Button>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span>
+                    <Button
+                      onClick={handleGenerate}
+                      disabled={isGenerating || aiAtLimit}
+                      className="gap-1.5"
+                    >
+                      {isGenerating ? (
+                        <>
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                          Generating...
+                        </>
+                      ) : (
+                        <>
+                          <Sparkles className="h-4 w-4" />
+                          Generate
+                        </>
+                      )}
+                    </Button>
+                  </span>
+                </TooltipTrigger>
+                {aiAtLimit && (
+                  <TooltipContent>
+                    You&apos;ve reached your AI operation limit. Upgrade to continue.
+                  </TooltipContent>
+                )}
+              </Tooltip>
+            </TooltipProvider>
           </div>
         </div>
       )}
@@ -664,25 +718,38 @@ export default function GenerateCoverLetterPage() {
         <div className="rounded-xl border border-border bg-card p-6 flex flex-col gap-5">
           <div className="flex items-center justify-between">
             <h2 className="font-semibold text-base">Review Variants</h2>
-            <Button
-              variant="outline"
-              size="sm"
-              className="gap-1.5 text-xs h-7 px-3"
-              onClick={handleRegenerate}
-              disabled={isGenerating}
-            >
-              {isGenerating ? (
-                <>
-                  <Loader2 className="h-3 w-3 animate-spin" />
-                  Regenerating...
-                </>
-              ) : (
-                <>
-                  <RefreshCw className="h-3 w-3" />
-                  Regenerate
-                </>
-              )}
-            </Button>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="gap-1.5 text-xs h-7 px-3"
+                      onClick={handleRegenerate}
+                      disabled={isGenerating || aiAtLimit}
+                    >
+                      {isGenerating ? (
+                        <>
+                          <Loader2 className="h-3 w-3 animate-spin" />
+                          Regenerating...
+                        </>
+                      ) : (
+                        <>
+                          <RefreshCw className="h-3 w-3" />
+                          Regenerate
+                        </>
+                      )}
+                    </Button>
+                  </span>
+                </TooltipTrigger>
+                {aiAtLimit && (
+                  <TooltipContent>
+                    You&apos;ve reached your AI operation limit. Upgrade to continue.
+                  </TooltipContent>
+                )}
+              </Tooltip>
+            </TooltipProvider>
           </div>
 
           {/* Loading state */}
