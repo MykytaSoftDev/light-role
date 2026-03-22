@@ -11,8 +11,10 @@ from app.ai.interface import (
     AIServiceInterface,
     AIUsageInfo,
     CertificationItem,
+    CoverLetterVariant,
     EducationItem,
     ExperienceItem,
+    GenerateCoverLetterResult,
     ParsedJobData,
     ParseJobResult,
     PersonalInfo,
@@ -122,6 +124,38 @@ Rules:
 - keyword_gaps should list terms that appear in the job description but are absent or weak in the resume.
 - recommendations should be specific, actionable strings (e.g. "Add 'TypeScript' to your skills section").
 - Return ONLY valid JSON — no markdown fences, no extra text.
+"""
+
+
+_COVER_LETTER_SYSTEM_PROMPT = """\
+You are an expert career coach and professional writer specialising in cover letters. You will be given a job description, a resume, style/tone/length preferences, and optional additional context from the applicant.
+
+Your task is to generate exactly 3 cover letter variants. Each variant must:
+- Address the specific job and company from the job description
+- Draw only on experience, skills, and achievements present in the resume — never hallucinate credentials
+- Reflect the requested STYLE:
+    - formal: traditional business language, formal salutations, conservative structure
+    - professional: polished and modern, confident but not stiff, suits most corporate environments
+    - job_matched: analyse the tone of the job posting and mirror it (e.g. casual startup → conversational; finance firm → formal)
+- Reflect the requested TONE:
+    - confident: assertive and self-assured, highlights achievements with authority
+    - humble: modest and appreciative, emphasises eagerness to learn and contribute
+    - enthusiastic: energetic and excited about the role, conveys genuine passion
+- Respect the requested LENGTH:
+    - short: 200–300 words
+    - medium: 300–400 words
+    - long: 400–500 words
+- Take a distinctly different approach or angle from the other variants (e.g. opening hook, emphasis on different skills, different structure) while covering the same key qualifications
+- Incorporate the applicant's additional_context if provided (e.g. relocation plans, specific motivation, preferred start date)
+
+Return ONLY a valid JSON object with this exact structure — no markdown fences, no extra text:
+{
+  "variants": [
+    {"content": "<full cover letter text>", "label": "Variant 1"},
+    {"content": "<full cover letter text>", "label": "Variant 2"},
+    {"content": "<full cover letter text>", "label": "Variant 3"}
+  ]
+}
 """
 
 
@@ -241,6 +275,72 @@ class OpenAIService(AIServiceInterface):
                 usage=None,
                 success=False,
             )
+
+    async def generate_cover_letter(
+        self,
+        job_description: str,
+        resume_text: str,
+        style: str,
+        tone: str,
+        length: str,
+        additional_context: str = "",
+    ) -> GenerateCoverLetterResult:
+        empty_result = GenerateCoverLetterResult(variants=[], usage=None, success=False)
+
+        try:
+            user_content_parts = [
+                f"=== JOB DESCRIPTION ===\n{job_description}",
+                f"\n=== RESUME ===\n{resume_text}",
+                f"\n=== PREFERENCES ===\nStyle: {style}\nTone: {tone}\nLength: {length}",
+            ]
+            if additional_context.strip():
+                user_content_parts.append(
+                    f"\n=== ADDITIONAL CONTEXT FROM APPLICANT ===\n{additional_context}"
+                )
+            user_content = "\n".join(user_content_parts)
+
+            start_ms = time.monotonic()
+
+            response = await self._client.chat.completions.create(
+                model=_MODEL,
+                response_format={"type": "json_object"},
+                timeout=_ANALYZE_TIMEOUT,
+                messages=[
+                    {"role": "system", "content": _COVER_LETTER_SYSTEM_PROMPT},
+                    {"role": "user", "content": user_content},
+                ],
+                temperature=0.7,
+            )
+
+            elapsed_ms = int((time.monotonic() - start_ms) * 1000)
+
+            raw_content = response.choices[0].message.content or ""
+            variants = self._parse_cover_letter_response(raw_content)
+
+            if not variants:
+                logger.warning("OpenAI generate_cover_letter returned no variants")
+                return empty_result
+
+            usage_info = AIUsageInfo(
+                model=response.model,
+                tokens_input=response.usage.prompt_tokens if response.usage else 0,
+                tokens_output=response.usage.completion_tokens if response.usage else 0,
+                response_time_ms=elapsed_ms,
+            )
+
+            logger.info(
+                "Cover letter generation complete: variants=%d tokens_in=%d tokens_out=%d elapsed_ms=%d",
+                len(variants),
+                usage_info.tokens_input,
+                usage_info.tokens_output,
+                elapsed_ms,
+            )
+
+            return GenerateCoverLetterResult(variants=variants, usage=usage_info, success=True)
+
+        except Exception as exc:
+            logger.warning("OpenAI generate_cover_letter failed: %s", exc)
+            return empty_result
 
     # ------------------------------------------------------------------
     # Private helpers
@@ -376,3 +476,27 @@ class OpenAIService(AIServiceInterface):
             languages=languages,
             certifications=certifications,
         )
+
+    def _parse_cover_letter_response(self, content: str) -> list[CoverLetterVariant]:
+        """Parse JSON response from OpenAI into a list of CoverLetterVariant. Returns [] on error."""
+        try:
+            raw: dict[str, Any] = json.loads(content)
+        except json.JSONDecodeError as exc:
+            logger.warning("Failed to decode cover letter JSON response: %s", exc)
+            return []
+
+        variants_raw = raw.get("variants")
+        if not isinstance(variants_raw, list):
+            logger.warning("Cover letter response missing 'variants' list")
+            return []
+
+        variants: list[CoverLetterVariant] = []
+        for i, item in enumerate(variants_raw):
+            if not isinstance(item, dict):
+                continue
+            content_text = str(item.get("content", "")).strip()
+            label = str(item.get("label", f"Variant {i + 1}")).strip()
+            if content_text:
+                variants.append(CoverLetterVariant(content=content_text, label=label))
+
+        return variants

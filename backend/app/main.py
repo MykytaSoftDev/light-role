@@ -13,6 +13,7 @@ from app.config import settings
 from app.logging_config import setup_logging
 from app.redis import close_redis, get_redis_client
 from app.routers import auth as auth_router
+from app.routers import cover_letters as cover_letters_router
 from app.routers import health
 from app.routers import jobs as jobs_router
 from app.routers import resumes as resumes_router
@@ -91,6 +92,7 @@ def create_app() -> FastAPI:
     app.include_router(users_router.router)
     app.include_router(jobs_router.router)
     app.include_router(resumes_router.router)
+    app.include_router(cover_letters_router.router)
 
     return app
 

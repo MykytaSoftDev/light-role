@@ -95,6 +95,23 @@ class ResumeAnalysisResult:
 
 
 # ---------------------------------------------------------------------------
+# Cover letter generation dataclasses
+# ---------------------------------------------------------------------------
+
+@dataclass
+class CoverLetterVariant:
+    content: str
+    label: str  # e.g. "Variant 1", "Variant 2"
+
+
+@dataclass
+class GenerateCoverLetterResult:
+    variants: list[CoverLetterVariant]  # 2-3 variants
+    usage: Optional[AIUsageInfo]
+    success: bool
+
+
+# ---------------------------------------------------------------------------
 # Abstract interface
 # ---------------------------------------------------------------------------
 
@@ -107,4 +124,16 @@ class AIServiceInterface(ABC):
     async def analyze_resume(
         self, resume_text: str, job_description: str
     ) -> ResumeAnalysisResult:
+        ...
+
+    @abstractmethod
+    async def generate_cover_letter(
+        self,
+        job_description: str,
+        resume_text: str,
+        style: str,
+        tone: str,
+        length: str,
+        additional_context: str = "",
+    ) -> GenerateCoverLetterResult:
         ...
