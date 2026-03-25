@@ -27,7 +27,9 @@ class Settings(BaseSettings):
     refresh_token_expire_days: int = 7
 
     # CORS
-    frontend_url: str = "http://localhost:3000"
+    frontend_url: str = "https://dev.lightrole.com"
+    cookie_secure: bool = False
+    cookie_domain: str = ""
 
     # OpenAI
     openai_api_key: str = ""

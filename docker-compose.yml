@@ -51,6 +51,8 @@ services:
       UPLOADS_DIR: /uploads
       FRONTEND_URL: ${FRONTEND_URL}
       ENVIRONMENT: ${ENVIRONMENT}
+      COOKIE_SECURE: ${COOKIE_SECURE:-false}
+      COOKIE_DOMAIN: ${COOKIE_DOMAIN:-}
     volumes:
       - uploads_data:/uploads
       - logs_data:/app/logs
@@ -73,14 +75,22 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       args:
-        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000}
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-https://dev-api.lightrole.com}
         NEXT_PUBLIC_GOOGLE_CLIENT_ID: ${NEXT_PUBLIC_GOOGLE_CLIENT_ID}
+        NEXT_PUBLIC_PADDLE_CLIENT_TOKEN: ${NEXT_PUBLIC_PADDLE_CLIENT_TOKEN}
+        NEXT_PUBLIC_PADDLE_ENVIRONMENT: ${NEXT_PUBLIC_PADDLE_ENVIRONMENT:-sandbox}
+        NEXT_PUBLIC_PADDLE_PRICE_MONTHLY: ${NEXT_PUBLIC_PADDLE_PRICE_MONTHLY}
+        NEXT_PUBLIC_PADDLE_PRICE_ANNUAL: ${NEXT_PUBLIC_PADDLE_PRICE_ANNUAL}
     container_name: lightrole_frontend
     ports:
       - "3000:3000"
     environment:
-      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000}
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-https://dev-api.lightrole.com}
       NEXT_PUBLIC_GOOGLE_CLIENT_ID: ${NEXT_PUBLIC_GOOGLE_CLIENT_ID}
+      NEXT_PUBLIC_PADDLE_CLIENT_TOKEN: ${NEXT_PUBLIC_PADDLE_CLIENT_TOKEN}
+      NEXT_PUBLIC_PADDLE_PRICE_MONTHLY: ${NEXT_PUBLIC_PADDLE_PRICE_MONTHLY}
+      NEXT_PUBLIC_PADDLE_PRICE_ANNUAL: ${NEXT_PUBLIC_PADDLE_PRICE_ANNUAL}
+      PADDLE_WEBHOOK_SECRET: ${PADDLE_WEBHOOK_SECRET}
     networks:
       - lightrole_net
     depends_on:
@@ -91,10 +101,13 @@ services:
     container_name: lightrole_nginx
     ports:
       - "80:80"
+      - "443:443"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./nginx/conf.d:/etc/nginx/conf.d:ro
       - uploads_data:/uploads:ro
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+      - certbot_webroot:/var/www/certbot:ro
     networks:
       - lightrole_net
     depends_on:
@@ -107,6 +120,16 @@ services:
       retries: 3
       start_period: 20s
 
+  certbot:
+    image: certbot/certbot:latest
+    container_name: lightrole_certbot
+    volumes:
+      - /etc/letsencrypt:/etc/letsencrypt
+      - certbot_webroot:/var/www/certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew --quiet --webroot -w /var/www/certbot; sleep 12h & wait $${!}; done;'"
+    networks:
+      - lightrole_net
+
 volumes:
   postgres_data:
     name: lightrole_postgres_data
@@ -114,6 +137,8 @@ volumes:
     name: lightrole_uploads_data
   logs_data:
     name: lightrole_logs_data
+  certbot_webroot:
+    name: lightrole_certbot_webroot
 
 networks:
   lightrole_net:

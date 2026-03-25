@@ -5,6 +5,7 @@ from typing import Optional
 from fastapi import HTTPException, Response, status
 from sqlalchemy.orm import Session
 
+from app.config import settings
 from app.models.enums import AuthProvider, SubscriptionPlan, SubscriptionStatus
 from app.models.subscription import Subscription
 from app.models.user import User
@@ -34,29 +35,33 @@ def set_auth_cookies(response: Response, user_id: str) -> None:
     access_token = create_access_token(user_id)
     refresh_token = create_refresh_token(user_id)
 
+    domain = settings.cookie_domain if settings.cookie_domain else None
     response.set_cookie(
         key=ACCESS_COOKIE,
         value=access_token,
         max_age=COOKIE_MAX_AGE_ACCESS,
         httponly=True,
-        secure=False,   # set True in production
+        secure=settings.cookie_secure,
         samesite="lax",
         path="/",
+        domain=domain,
     )
     response.set_cookie(
         key=REFRESH_COOKIE,
         value=refresh_token,
         max_age=COOKIE_MAX_AGE_REFRESH,
         httponly=True,
-        secure=False,   # set True in production
+        secure=settings.cookie_secure,
         samesite="lax",
         path="/",
+        domain=domain,
     )
 
 
 def clear_auth_cookies(response: Response) -> None:
-    response.delete_cookie(ACCESS_COOKIE, path="/")
-    response.delete_cookie(REFRESH_COOKIE, path="/")
+    domain = settings.cookie_domain if settings.cookie_domain else None
+    response.delete_cookie(ACCESS_COOKIE, path="/", domain=domain, secure=settings.cookie_secure)
+    response.delete_cookie(REFRESH_COOKIE, path="/", domain=domain, secure=settings.cookie_secure)
 
 
 _VERIFY_EMAIL_PREFIX = "verify_email"
