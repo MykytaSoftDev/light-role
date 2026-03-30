@@ -1,7 +1,6 @@
 import { AppSidebar, HamburgerButton } from "@/components/layout/app-sidebar";
 import { DynamicBreadcrumb } from "@/components/layout/dynamic-breadcrumb";
 import { NotificationBell } from "@/components/layout/notification-bell";
-import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { OfflineDetector } from "@/components/shared/offline-detector";
 import { QueryProvider } from "@/components/providers/query-provider";
 
@@ -23,7 +22,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
             {/* Right actions */}
             <NotificationBell />
-            <ThemeToggle />
           </header>
           <main className="flex-1 overflow-auto p-4 xl:p-6">{children}</main>
         </div>

@@ -10,9 +10,10 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
 from app.models.base import TimestampMixin
-from app.models.enums import SubscriptionPlan, SubscriptionStatus
+from app.models.enums import SubscriptionStatus
 
 if TYPE_CHECKING:
+    from app.models.plan import Plan
     from app.models.user import User
 
 
@@ -35,11 +36,10 @@ class Subscription(TimestampMixin, Base):
         unique=True,
         nullable=False,
     )
-    plan: Mapped[SubscriptionPlan] = mapped_column(
-        SAEnum(SubscriptionPlan, name="subscriptionplan", values_callable=lambda obj: [e.value for e in obj]),
+    plan_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("plans.id"),
         nullable=False,
-        default=SubscriptionPlan.FREE,
-        server_default=SubscriptionPlan.FREE.value,
     )
     status: Mapped[SubscriptionStatus] = mapped_column(
         SAEnum(SubscriptionStatus, name="subscriptionstatus", values_callable=lambda obj: [e.value for e in obj]),
@@ -69,4 +69,8 @@ class Subscription(TimestampMixin, Base):
     user: Mapped[User] = relationship(
         "User",
         back_populates="subscription",
+    )
+    plan: Mapped[Plan] = relationship(
+        "Plan",
+        lazy="joined",
     )

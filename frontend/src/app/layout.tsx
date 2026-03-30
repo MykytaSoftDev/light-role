@@ -1,44 +1,38 @@
+import { Providers as TanstackQueryProvider, ThemeProvider } from "@/providers/query.provider";
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Outfit } from "next/font/google";
+import { Toaster } from "sonner";
+
 import "@/styles/globals.css";
 
-const inter = Inter({ subsets: ["latin"] });
+const outfit = Outfit({
+  variable: "--font-outfit-sans",
+  weight: ["400", "700"],
+  subsets: ["latin"],
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "Light Role",
   description: "AI-powered job search management platform",
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function() {
-                try {
-                  var theme = localStorage.getItem('theme');
-                  var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                  var isDark = theme === 'dark' || (theme !== 'light' && prefersDark);
-                  if (isDark) {
-                    document.documentElement.classList.add('dark');
-                    document.documentElement.setAttribute('data-theme', 'dark');
-                  } else {
-                    document.documentElement.classList.remove('dark');
-                    document.documentElement.setAttribute('data-theme', 'light');
-                  }
-                } catch(e) {}
-              })();
-            `,
-          }}
-        />
-      </head>
-      <body className={inter.className}>{children}</body>
+      <body className={`${outfit.variable} antialiased`}>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="light"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <TanstackQueryProvider>
+            {children}
+            <Toaster expand theme="light" richColors position="top-right" duration={6000} />
+          </TanstackQueryProvider>
+        </ThemeProvider>
+      </body>
     </html>
   );
 }

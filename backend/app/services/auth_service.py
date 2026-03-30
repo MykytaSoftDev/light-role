@@ -6,7 +6,8 @@ from fastapi import HTTPException, Response, status
 from sqlalchemy.orm import Session
 
 from app.config import settings
-from app.models.enums import AuthProvider, SubscriptionPlan, SubscriptionStatus
+from app.models.enums import AuthProvider, SubscriptionStatus
+from app.models.plan import Plan
 from app.models.subscription import Subscription
 from app.models.user import User
 from app.redis import delete_token, get_token_user, store_token
@@ -44,7 +45,7 @@ def set_auth_cookies(response: Response, user_id: str) -> None:
         secure=settings.cookie_secure,
         samesite="lax",
         path="/",
-        domain=domain,
+        # domain=domain,
     )
     response.set_cookie(
         key=REFRESH_COOKIE,
@@ -54,7 +55,7 @@ def set_auth_cookies(response: Response, user_id: str) -> None:
         secure=settings.cookie_secure,
         samesite="lax",
         path="/",
-        domain=domain,
+        # domain=domain,
     )
 
 
@@ -80,9 +81,16 @@ async def register_user(data: RegisterRequest, db: Session) -> dict:
     db.add(user)
     db.flush()  # get user.id
 
+    free_plan: Plan | None = db.query(Plan).filter(Plan.slug == "free").first()
+    if free_plan is None:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Free plan not found. Please contact support.",
+        )
+
     subscription = Subscription(
         user_id=user.id,
-        plan=SubscriptionPlan.FREE,
+        plan_id=free_plan.id,
         status=SubscriptionStatus.ACTIVE,
         current_period_start=datetime.now(timezone.utc),
         current_period_end=datetime.now(timezone.utc) + timedelta(days=30),

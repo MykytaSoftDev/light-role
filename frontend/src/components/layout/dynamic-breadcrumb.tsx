@@ -13,6 +13,7 @@ const SEGMENT_LABELS: Record<string, string> = {
   applications: "Applications",
   profile: "Profile",
   notifications: "Notifications",
+  subscription: "Subscription",
 };
 
 const UUID_RE =

@@ -20,7 +20,7 @@ from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.models.application import Application
-from app.models.enums import ApplicationStatus, NotificationType, SubscriptionPlan
+from app.models.enums import ApplicationStatus, NotificationType
 from app.models.job import Job
 from app.models.notification import Notification
 from app.models.subscription import Subscription
@@ -29,11 +29,8 @@ from app.models.user import User
 
 logger = logging.getLogger(__name__)
 
-# Mirror the authoritative plan limits defined in app/dependencies/ai_limit.py
-_PLAN_LIMITS: dict[SubscriptionPlan, int] = {
-    SubscriptionPlan.FREE: 10,
-    SubscriptionPlan.PRO: 100,
-}
+# Fallback AI op limit for users with no subscription / plan record
+_DEFAULT_AI_LIMIT = 10
 
 
 # ---------------------------------------------------------------------------
@@ -266,8 +263,10 @@ async def generate_limit_warning_notifications(db: Session) -> int:
     created = 0
     for sub in subscriptions:
         user_id: uuid.UUID = sub.user_id
-        plan: SubscriptionPlan = sub.plan
-        limit = _PLAN_LIMITS.get(plan, _PLAN_LIMITS[SubscriptionPlan.FREE])
+        limit = sub.plan.max_ai_ops_monthly if sub.plan else _DEFAULT_AI_LIMIT
+        # -1 means unlimited — no warning needed
+        if limit == -1:
+            continue
 
         usage = _get_current_month_usage_from_db(db, user_id)
 
@@ -323,8 +322,7 @@ async def generate_limit_reset_notifications(db: Session) -> int:
     created = 0
     for sub in subscriptions:
         user_id: uuid.UUID = sub.user_id
-        plan: SubscriptionPlan = sub.plan
-        limit = _PLAN_LIMITS.get(plan, _PLAN_LIMITS[SubscriptionPlan.FREE])
+        limit = sub.plan.max_ai_ops_monthly if sub.plan else _DEFAULT_AI_LIMIT
 
         user = db.query(User).filter(User.id == user_id).first()
         if user is None:
@@ -336,13 +334,14 @@ async def generate_limit_reset_notifications(db: Session) -> int:
         if _notification_exists_this_month(db, user_id, NotificationType.LIMIT_RESET):
             continue
 
+        ops_available = "unlimited" if limit == -1 else str(limit)
         notification = Notification(
             user_id=user_id,
             type=NotificationType.LIMIT_RESET,
             title="AI operations reset",
             message=(
                 f"Your monthly AI operation limit has reset. "
-                f"You now have {limit} operations available."
+                f"You now have {ops_available} operations available."
             ),
         )
         db.add(notification)

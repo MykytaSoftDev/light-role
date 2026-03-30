@@ -3,12 +3,12 @@ from datetime import datetime
 
 from pydantic import BaseModel
 
-from app.models.enums import SubscriptionPlan, SubscriptionStatus
+from app.models.enums import SubscriptionStatus
 
 
 class SubscriptionResponse(BaseModel):
     id: uuid.UUID
-    plan: SubscriptionPlan
+    plan: str  # plan slug, e.g. "free" or "pro"
     status: SubscriptionStatus
     current_period_start: datetime
     current_period_end: datetime
@@ -23,7 +23,7 @@ class PlanLimits(BaseModel):
 
 class SubscriptionDetailResponse(BaseModel):
     id: uuid.UUID
-    plan: SubscriptionPlan
+    plan: str  # plan slug
     status: SubscriptionStatus
     current_period_start: datetime
     current_period_end: datetime
@@ -33,3 +33,7 @@ class SubscriptionDetailResponse(BaseModel):
     reset_date: datetime
 
     model_config = {"from_attributes": True}
+
+
+class SaveCustomerIdRequest(BaseModel):
+    paddle_customer_id: str

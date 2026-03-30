@@ -23,6 +23,7 @@ import {
   Briefcase,
   ChevronLeft,
   ChevronRight,
+  CreditCard,
   FileText,
   HelpCircle,
   LayoutDashboard,
@@ -57,6 +58,7 @@ interface User {
 
 const NAV_MAIN = [
   { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard, exact: true },
+  { label: "Subscription", href: "/dashboard/subscription", icon: CreditCard, exact: true },
   { label: "Job Tracking", href: "/dashboard/jobs", icon: Briefcase, exact: false },
   { label: "Tailor Resume", href: "/dashboard/resumes/tailor", icon: FileText, exact: false },
   {
@@ -145,6 +147,7 @@ function NavItem({ href, icon: Icon, label, active, collapsed, onClick }: NavIte
 interface SidebarContentProps {
   collapsed: boolean;
   user: User | null;
+  plan: string | null;
   pathname: string;
   onCollapse: () => void;
   onNavClick?: () => void;
@@ -153,6 +156,7 @@ interface SidebarContentProps {
 function SidebarContent({
   collapsed,
   user,
+  plan,
   pathname,
   onCollapse,
   onNavClick,
@@ -184,18 +188,66 @@ function SidebarContent({
         {!collapsed && (
           <div className="flex items-center gap-2">
             <span className="text-base font-semibold text-sidebar-foreground">Light Role</span>
-            <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
-              Free
-            </span>
+            <Link
+              href={plan === "pro" ? "/dashboard/subscription" : "/dashboard/checkout"}
+              className="transition-opacity hover:opacity-80"
+              aria-label={plan === "pro" ? "Manage subscription" : "Upgrade to Pro"}
+            >
+              {plan === "pro" ? (
+                <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
+                  Pro
+                </span>
+              ) : (
+                <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
+                  Free
+                </span>
+              )}
+            </Link>
           </div>
         )}
-        <button
-          onClick={onCollapse}
-          className="hidden xl:flex items-center justify-center rounded-md p-1.5 text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors"
-          aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-        >
-          {collapsed ? <ChevronRight className="size-4" /> : <ChevronLeft className="size-4" />}
-        </button>
+        {collapsed ? (
+          <TooltipProvider delayDuration={300}>
+            <div className="flex flex-col items-center gap-1">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Link
+                    href={plan === "pro" ? "/dashboard/subscription" : "/dashboard/checkout"}
+                    aria-label={plan === "pro" ? "Pro plan — manage subscription" : "Free plan — upgrade to Pro"}
+                    className="flex items-center justify-center transition-opacity hover:opacity-80"
+                  >
+                    {plan === "pro" ? (
+                      <span className="rounded-full bg-primary/10 px-1.5 py-0.5 text-xs font-medium text-primary">
+                        Pro
+                      </span>
+                    ) : (
+                      <span className="rounded-full bg-muted px-1.5 py-0.5 text-xs font-medium text-muted-foreground">
+                        Free
+                      </span>
+                    )}
+                  </Link>
+                </TooltipTrigger>
+                <TooltipContent side="right" sideOffset={8}>
+                  {plan === "pro" ? "Pro plan — manage subscription" : "Free plan — upgrade to Pro"}
+                </TooltipContent>
+              </Tooltip>
+              <button
+                onClick={onCollapse}
+                className="hidden xl:flex items-center justify-center rounded-md p-1 text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors"
+                aria-label="Expand sidebar"
+              >
+                <ChevronRight className="size-3.5" />
+              </button>
+            </div>
+          </TooltipProvider>
+        ) : (
+          <button
+            onClick={onCollapse}
+            className="hidden xl:flex items-center justify-center rounded-md p-1.5 text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors"
+            aria-label="Collapse sidebar"
+          >
+            <ChevronLeft className="size-4" />
+          </button>
+        )}
       </div>
 
       {/* Navigation */}
@@ -327,10 +379,21 @@ function SidebarContent({
               <Link href="/dashboard/settings/notifications">Notifications</Link>
             </DropdownMenuItem>
 
-            <DropdownMenuItem className="gap-2 font-medium text-primary focus:text-primary">
-              <Star className="size-4" />
-              Upgrade to Pro
-            </DropdownMenuItem>
+            {plan === "pro" ? (
+              <DropdownMenuItem asChild>
+                <Link href="/dashboard/subscription">
+                  <CreditCard className="size-4" />
+                  Manage Subscription
+                </Link>
+              </DropdownMenuItem>
+            ) : (
+              <DropdownMenuItem asChild className="gap-2 font-medium text-primary focus:text-primary">
+                <Link href="/dashboard/checkout">
+                  <Star className="size-4" />
+                  Upgrade to Pro
+                </Link>
+              </DropdownMenuItem>
+            )}
 
             <DropdownMenuSeparator />
 
@@ -357,6 +420,7 @@ export function AppSidebar() {
   const [collapsed, setCollapsed] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
+  const [plan, setPlan] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
 
   // Read persisted state after mount
@@ -380,6 +444,17 @@ export function AppSidebar() {
       .catch(() => {
         // non-critical — sidebar still renders without user data
       });
+  }, []);
+
+  // Fetch current plan
+  useEffect(() => {
+    api
+      .get("/api/v1/subscriptions/current")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data?.plan_slug) setPlan(data.plan_slug);
+      })
+      .catch(() => {});
   }, []);
 
   // Close drawer on route change
@@ -414,6 +489,7 @@ export function AppSidebar() {
         <SidebarContent
           collapsed={mounted ? collapsed : false}
           user={user}
+          plan={plan}
           pathname={pathname}
           onCollapse={toggleCollapse}
         />
@@ -449,6 +525,7 @@ export function AppSidebar() {
         <SidebarContent
           collapsed={false}
           user={user}
+          plan={plan}
           pathname={pathname}
           onCollapse={() => {}}
           onNavClick={() => setDrawerOpen(false)}

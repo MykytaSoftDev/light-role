@@ -7,7 +7,7 @@ from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.models.application import Application
-from app.models.enums import ApplicationStatus, SubscriptionPlan
+from app.models.enums import ApplicationStatus
 from app.models.job import Job
 from app.models.subscription import Subscription
 from app.models.usage_log import UsageLog
@@ -26,10 +26,9 @@ _TERMINAL_STATUSES = {
     ApplicationStatus.WITHDRAWN,
 }
 
-_PLAN_LIMITS: dict[SubscriptionPlan, int] = {
-    SubscriptionPlan.FREE: 10,
-    SubscriptionPlan.PRO: 100,
-}
+# Fallback limits for users with no subscription record
+_DEFAULT_AI_LIMIT = 10
+_DEFAULT_JOBS_LIMIT = 10
 
 
 def _usage_cache_key(user_id: str) -> str:
@@ -58,8 +57,6 @@ async def get_usage(user: User, db: Session) -> UsageResponse:
     result = await _compute_usage(user, db)
 
     try:
-        # mode='json' serialises enums to their string values, datetime to ISO
-        # strings, and preserves None — safe for json.dumps without extra work.
         payload = result.model_dump(mode="json")
         await redis_set(cache_key, json.dumps(payload), _USAGE_CACHE_TTL)
     except Exception as exc:
@@ -83,12 +80,19 @@ async def _compute_usage(user: User, db: Session) -> UsageResponse:
         or 0
     )
 
-    # Determine effective plan (respects cancellation / past_due grace periods)
+    # Load subscription with plan relationship (lazy="joined" handles it automatically)
     subscription: Optional[Subscription] = (
         db.query(Subscription).filter(Subscription.user_id == user.id).first()
     )
     effective_plan = get_effective_plan(subscription)
-    ai_limit = _PLAN_LIMITS.get(effective_plan, _PLAN_LIMITS[SubscriptionPlan.FREE])
+
+    # Get limits from plan or use fallback defaults
+    if subscription and subscription.plan:
+        ai_limit = subscription.plan.max_ai_ops_monthly
+        jobs_limit = subscription.plan.max_active_jobs  # -1 = unlimited
+    else:
+        ai_limit = _DEFAULT_AI_LIMIT
+        jobs_limit = _DEFAULT_JOBS_LIMIT
 
     # Active jobs: applications not in terminal states
     active_jobs_count = (
@@ -118,11 +122,14 @@ async def _compute_usage(user: User, db: Session) -> UsageResponse:
 
     reset_date = _next_month_reset(now)
 
-    # Build effective limits based on the resolved plan
-    if effective_plan == SubscriptionPlan.PRO:
-        effective_limits = EffectiveLimits(ai_operations=100, active_jobs=None)
-    else:
-        effective_limits = EffectiveLimits(ai_operations=10, active_jobs=10)
+    # -1 means unlimited → represented as None in EffectiveLimits
+    ai_ops_effective = None if ai_limit == -1 else ai_limit
+    active_jobs_effective = None if jobs_limit == -1 else jobs_limit
+
+    effective_limits = EffectiveLimits(
+        ai_operations=ai_ops_effective if ai_ops_effective is not None else ai_limit,
+        active_jobs=active_jobs_effective,
+    )
 
     return UsageResponse(
         ai_operations_used=ai_used,

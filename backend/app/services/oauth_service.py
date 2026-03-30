@@ -6,7 +6,8 @@ from fastapi import HTTPException, Response
 from sqlalchemy.orm import Session
 
 from app.config import settings
-from app.models.enums import AuthProvider, SubscriptionPlan, SubscriptionStatus
+from app.models.enums import AuthProvider, SubscriptionStatus
+from app.models.plan import Plan
 from app.models.subscription import Subscription
 from app.models.user import User
 from app.schemas.user import UserResponse
@@ -107,9 +108,16 @@ async def google_oauth_login(
             db.add(user)
             db.flush()  # Populate user.id before creating the subscription row.
 
+            free_plan: Plan | None = db.query(Plan).filter(Plan.slug == "free").first()
+            if free_plan is None:
+                raise HTTPException(
+                    status_code=500,
+                    detail="Free plan not found. Please contact support.",
+                )
+
             subscription = Subscription(
                 user_id=user.id,
-                plan=SubscriptionPlan.FREE,
+                plan_id=free_plan.id,
                 status=SubscriptionStatus.ACTIVE,
                 current_period_start=datetime.now(timezone.utc),
                 current_period_end=datetime.now(timezone.utc) + timedelta(days=30),

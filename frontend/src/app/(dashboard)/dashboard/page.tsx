@@ -4,6 +4,7 @@ import { OnboardingChecklist } from "@/components/shared/onboarding-checklist";
 import { UsageBanner } from "@/components/shared/usage-banner";
 import { api } from "@/lib/api";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import {
   ArrowRight,
   Briefcase,
@@ -14,6 +15,7 @@ import {
   Plus,
   TrendingUp,
   X,
+  Zap,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -239,6 +241,7 @@ export default function DashboardPage() {
   const [usage, setUsage] = useState<UsageStats | null>(null);
   const [recentJobs, setRecentJobs] = useState<Job[]>([]);
   const [hasJobs, setHasJobs] = useState<boolean | null>(null);
+  const [planSlug, setPlanSlug] = useState<string | null>(null);
 
   // Loading states
   const [userLoading, setUserLoading] = useState(true);
@@ -276,6 +279,17 @@ export default function DashboardPage() {
       .finally(() => setUsageLoading(false));
   }, []);
 
+  // Fetch subscription plan
+  useEffect(() => {
+    api
+      .get("/api/v1/subscriptions/current")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data?.plan_slug) setPlanSlug(data.plan_slug);
+      })
+      .catch(() => {});
+  }, []);
+
   // Fetch recent jobs
   useEffect(() => {
     api
@@ -306,6 +320,8 @@ export default function DashboardPage() {
     const month = usage?.applications_this_month ?? 0;
     return `${active} active ${active === 1 ? "job" : "jobs"}, ${month} ${month === 1 ? "application" : "applications"} this month`;
   })();
+
+  const isFreePlan = planSlug === "free";
 
   const aiRemaining =
     usage != null
@@ -426,6 +442,22 @@ export default function DashboardPage() {
                   : undefined
               }
             />
+          </div>
+        )}
+
+        {/* Upgrade nudge — shown when on Free plan and 80%+ AI ops used */}
+        {!usageLoading && usage != null && isFreePlan &&
+          usage.ai_operations_used >= Math.floor(usage.ai_operations_limit * 0.8) && (
+          <div className="mt-3 flex items-center justify-between rounded-md bg-primary/5 border border-primary/20 px-3 py-2">
+            <p className="text-sm text-muted-foreground">
+              {usage.ai_operations_limit - usage.ai_operations_used} AI operations remaining this month
+            </p>
+            <Button size="sm" variant="default" asChild>
+              <Link href="/dashboard/checkout">
+                <Zap className="h-3.5 w-3.5 mr-1" />
+                Upgrade
+              </Link>
+            </Button>
           </div>
         )}
       </section>

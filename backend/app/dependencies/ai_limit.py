@@ -8,7 +8,6 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.dependencies.auth import get_verified_user
-from app.models.enums import SubscriptionPlan
 from app.models.subscription import Subscription
 from app.models.user import User
 from app.redis import get_usage_count
@@ -16,10 +15,8 @@ from app.services.subscription_service import get_effective_plan
 
 logger = logging.getLogger(__name__)
 
-PLAN_LIMITS: dict[SubscriptionPlan, int] = {
-    SubscriptionPlan.FREE: 10,
-    SubscriptionPlan.PRO: 100,
-}
+# Fallback limit when no subscription / plan record exists
+_DEFAULT_AI_LIMIT = 10
 
 
 async def require_ai_quota(
@@ -29,7 +26,7 @@ async def require_ai_quota(
     """
     FastAPI dependency that enforces monthly AI operation limits.
 
-    - Fetches the user's subscription plan from DB.
+    - Fetches the user's subscription plan from DB (plan relationship joined).
     - Reads the current month's usage counter from Redis.
     - Raises HTTP 403 if the user is at or over their plan limit.
     - Fails open (allows the request) on Redis errors.
@@ -44,7 +41,23 @@ async def require_ai_quota(
         .first()
     )
     effective_plan = get_effective_plan(subscription)
-    limit = PLAN_LIMITS.get(effective_plan, PLAN_LIMITS[SubscriptionPlan.FREE])
+
+    # Derive limit from the plan object; fall back to default if no subscription
+    if subscription and subscription.plan:
+        raw_limit = subscription.plan.max_ai_ops_monthly
+    else:
+        raw_limit = _DEFAULT_AI_LIMIT
+
+    # If effective plan has downgraded (e.g. grace period expired on Pro),
+    # cap the limit to the free-plan value stored in the DB for safety.
+    if effective_plan == "free" and subscription and subscription.plan and subscription.plan.slug != "free":
+        limit = _DEFAULT_AI_LIMIT
+    else:
+        limit = raw_limit
+
+    # -1 means unlimited
+    if limit == -1:
+        return
 
     # Read current usage from Redis; get_usage_count returns 0 on error → fail open
     current_usage = await get_usage_count(str(current_user.id), year_month)
@@ -59,7 +72,7 @@ async def require_ai_quota(
         logger.warning(
             "AI quota exceeded: user_id=%s effective_plan=%s usage=%d limit=%d",
             current_user.id,
-            effective_plan.value,
+            effective_plan,
             current_usage,
             limit,
         )

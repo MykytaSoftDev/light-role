@@ -14,7 +14,7 @@ from app.database import get_db
 from app.dependencies.ai_limit import require_ai_quota
 from app.dependencies.auth import get_verified_user
 from app.models.application import Application
-from app.models.enums import ApplicationStatus, OperationType, SubscriptionPlan
+from app.models.enums import ApplicationStatus, OperationType
 from app.models.job import Job
 from app.models.subscription import Subscription
 from app.models.user import User
@@ -96,7 +96,7 @@ def create_job(
     subscription = db.query(Subscription).filter(Subscription.user_id == current_user.id).first()
     effective_plan = get_effective_plan(subscription)
 
-    if effective_plan == SubscriptionPlan.FREE:
+    if effective_plan == "free":
         active_count = (
             db.query(func.count(Job.id))
             .join(Application, Application.job_id == Job.id)

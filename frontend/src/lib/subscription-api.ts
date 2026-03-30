@@ -44,3 +44,10 @@ export async function getSubscription(): Promise<SubscriptionDetail> {
   if (!res.ok) throw new Error('Failed to fetch subscription details');
   return res.json();
 }
+
+export async function saveCustomerId(paddleCustomerId: string): Promise<void> {
+  const res = await api.patch('/api/v1/subscriptions/customer', {
+    paddle_customer_id: paddleCustomerId,
+  });
+  if (!res.ok) throw new Error('Failed to save customer ID');
+}

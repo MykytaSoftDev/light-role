@@ -29,15 +29,11 @@ class OperationType(str, Enum):
     CL_REGENERATE = "cl_regenerate"
 
 
-class SubscriptionPlan(str, Enum):
-    FREE = "free"
-    PRO = "pro"
-
-
 class SubscriptionStatus(str, Enum):
     ACTIVE = "active"
     CANCELLED = "cancelled"
     PAST_DUE = "past_due"
+    PAUSED = "paused"
 
 
 class CLStyle(str, Enum):

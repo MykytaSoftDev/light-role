@@ -1,28 +1,32 @@
 from datetime import datetime, timedelta, timezone
 
-from app.models.enums import SubscriptionPlan, SubscriptionStatus
+from app.models.enums import SubscriptionStatus
 from app.models.subscription import Subscription
 
 GRACE_PERIOD_DAYS = 7  # for past_due
 
 
-def get_effective_plan(subscription: Subscription | None) -> SubscriptionPlan:
+def get_effective_plan(subscription: Subscription | None) -> str:
     """
-    Determine the user's effective plan considering grace periods.
+    Determine the user's effective plan slug considering grace periods.
 
     Rules:
-    - No subscription or FREE plan → FREE
-    - PRO + active → PRO
-    - PRO + cancelled → PRO until current_period_end, then FREE
-    - PRO + past_due → PRO until current_period_end + 7 days, then FREE
+    - No subscription or non-pro plan slug → that slug (or "free")
+    - pro + active → "pro"
+    - pro + cancelled → "pro" until current_period_end, then "free"
+    - pro + past_due → "pro" until current_period_end + 7 days, then "free"
 
-    Returns SubscriptionPlan.FREE or SubscriptionPlan.PRO.
+    Returns the plan slug string: "free" or "pro".
     """
-    if subscription is None or subscription.plan == SubscriptionPlan.FREE:
-        return SubscriptionPlan.FREE
+    if subscription is None:
+        return "free"
+
+    plan_slug = subscription.plan.slug
+    if plan_slug != "pro":
+        return plan_slug
 
     if subscription.status == SubscriptionStatus.ACTIVE:
-        return SubscriptionPlan.PRO
+        return "pro"
 
     now = datetime.now(timezone.utc)
 
@@ -33,11 +37,11 @@ def get_effective_plan(subscription: Subscription | None) -> SubscriptionPlan:
 
     if subscription.status == SubscriptionStatus.CANCELLED:
         # Pro access continues until the billing period ends
-        return SubscriptionPlan.PRO if now < period_end else SubscriptionPlan.FREE
+        return "pro" if now < period_end else "free"
 
     if subscription.status == SubscriptionStatus.PAST_DUE:
         # Pro access continues until period_end + grace period
         grace_end = period_end + timedelta(days=GRACE_PERIOD_DAYS)
-        return SubscriptionPlan.PRO if now < grace_end else SubscriptionPlan.FREE
+        return "pro" if now < grace_end else "free"
 
-    return SubscriptionPlan.FREE
+    return "free"

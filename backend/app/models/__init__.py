@@ -9,11 +9,11 @@ from app.models.enums import (
     FileFormat,
     NotificationType,
     OperationType,
-    SubscriptionPlan,
     SubscriptionStatus,
 )
 from app.models.job import Job
 from app.models.notification import Notification
+from app.models.plan import Plan
 from app.models.resume import Resume
 from app.models.subscription import Subscription
 from app.models.usage_log import UsageLog
@@ -25,7 +25,6 @@ __all__ = [
     "ApplicationStatus",
     "FileFormat",
     "OperationType",
-    "SubscriptionPlan",
     "SubscriptionStatus",
     "CLStyle",
     "CLTone",
@@ -37,6 +36,7 @@ __all__ = [
     "Application",
     "Resume",
     "CoverLetter",
+    "Plan",
     "Subscription",
     "UsageLog",
     "Notification",
