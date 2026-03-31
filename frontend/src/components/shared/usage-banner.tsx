@@ -59,7 +59,7 @@ export function UsageBanner({ aiUsed, aiLimit }: UsageBannerProps) {
                 href="/dashboard/settings/billing"
                 className="font-semibold underline underline-offset-2 hover:no-underline"
               >
-                Upgrade to get 100 operations.
+                Upgrade to get 150 operations.
               </Link>
             </>
           ) : (
@@ -70,7 +70,7 @@ export function UsageBanner({ aiUsed, aiLimit }: UsageBannerProps) {
                 href="/dashboard/settings/billing"
                 className="font-semibold underline underline-offset-2 hover:no-underline"
               >
-                Upgrade to get 100 operations.
+                Upgrade to get 150 operations.
               </Link>
             </>
           )}

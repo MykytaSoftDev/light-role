@@ -1,25 +1,23 @@
-'use client'
+"use client";
 
-import { CheckoutGradients } from '@/components/gradients/checkout-gradients';
-import '@/styles/checkout.css';
-import { CheckoutHeader } from '@/components/checkout/checkout-header';
-import { CheckoutContents } from '@/components/checkout/checkout-contents';
-import { useProfile } from '@/hooks/use-profile'
-
-import { useState } from 'react';
+import { CheckoutContents } from "@/components/checkout/checkout-contents";
+import { CheckoutGradients } from "@/components/gradients/checkout-gradients";
+import { useProfile } from "@/hooks/use-profile";
+import "@/styles/checkout.css";
 
 export function Checkout() {
-  const { data, isLoading } = useProfile()
+  const { data, isLoading } = useProfile();
 
-	return (
-		<div className={'w-full min-h-screen relative overflow-hidden'}>
-			<CheckoutGradients />
-			<div
-				className={'mx-auto max-w-6xl relative px-[16px] md:px-[32px] py-[24px] flex flex-col gap-6 justify-between'}
-			>
-				<CheckoutHeader />
-				<CheckoutContents userEmail={data?.email} />
-			</div>
-		</div>
-	);
+  return (
+    <div className={"relative min-h-screen w-full overflow-hidden"}>
+      <CheckoutGradients />
+      <div
+        className={
+          "relative mx-auto flex max-w-6xl flex-col justify-between gap-6 px-[16px] py-[24px] md:px-[32px]"
+        }
+      >
+        <CheckoutContents userEmail={data?.email} />
+      </div>
+    </div>
+  );
 }
