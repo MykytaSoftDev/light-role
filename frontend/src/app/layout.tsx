@@ -1,6 +1,6 @@
 import { Providers as TanstackQueryProvider, ThemeProvider } from "@/providers/query.provider";
 import type { Metadata } from "next";
-import { Outfit } from "next/font/google";
+import { Modak, Outfit } from "next/font/google";
 import { Toaster } from "sonner";
 
 import "@/styles/globals.css";
@@ -10,6 +10,11 @@ const outfit = Outfit({
   weight: ["400", "700"],
   subsets: ["latin"],
   display: "swap",
+});
+
+export const tangerine = Modak({
+  weight: "400",
+  subsets: ["latin"],
 });
 
 export const metadata: Metadata = {

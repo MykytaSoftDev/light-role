@@ -2,9 +2,9 @@
 
 import { OnboardingChecklist } from "@/components/shared/onboarding-checklist";
 import { UsageBanner } from "@/components/shared/usage-banner";
+import { Button } from "@/components/ui/button";
 import { api } from "@/lib/api";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
 import {
   ArrowRight,
   Briefcase,
@@ -335,15 +335,12 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-5xl flex-col gap-8 pb-10">
+    <div className="mx-auto w-full max-w-5xl flex-1 flex-col gap-8 pb-10">
       {/* ------------------------------------------------------------------ */}
       {/* Usage warning banner (free plan, >= 80% AI ops used) */}
       {/* ------------------------------------------------------------------ */}
       {!usageLoading && usage != null && (
-        <UsageBanner
-          aiUsed={usage.ai_operations_used}
-          aiLimit={usage.ai_operations_limit}
-        />
+        <UsageBanner aiUsed={usage.ai_operations_used} aiLimit={usage.ai_operations_limit} />
       )}
 
       {/* ------------------------------------------------------------------ */}
@@ -446,20 +443,23 @@ export default function DashboardPage() {
         )}
 
         {/* Upgrade nudge — shown when on Free plan and 80%+ AI ops used */}
-        {!usageLoading && usage != null && isFreePlan &&
+        {!usageLoading &&
+          usage != null &&
+          isFreePlan &&
           usage.ai_operations_used >= Math.floor(usage.ai_operations_limit * 0.8) && (
-          <div className="mt-3 flex items-center justify-between rounded-md bg-primary/5 border border-primary/20 px-3 py-2">
-            <p className="text-sm text-muted-foreground">
-              {usage.ai_operations_limit - usage.ai_operations_used} AI operations remaining this month
-            </p>
-            <Button size="sm" variant="default" asChild>
-              <Link href="/dashboard/checkout">
-                <Zap className="h-3.5 w-3.5 mr-1" />
-                Upgrade
-              </Link>
-            </Button>
-          </div>
-        )}
+            <div className="bg-primary/5 border-primary/20 mt-3 flex items-center justify-between rounded-md border px-3 py-2">
+              <p className="text-muted-foreground text-sm">
+                {usage.ai_operations_limit - usage.ai_operations_used} AI operations remaining this
+                month
+              </p>
+              <Button size="sm" variant="default" asChild>
+                <Link href="/dashboard/checkout">
+                  <Zap className="mr-1 h-3.5 w-3.5" />
+                  Upgrade
+                </Link>
+              </Button>
+            </div>
+          )}
       </section>
 
       {/* ------------------------------------------------------------------ */}

@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 
 interface PlanState {
+  subscriptionId: string | null;
   plan: string | null;       // "free" | "pro"
   status: string | null;     // "active" | "cancelled" | "past_due"
   isFreePlan: boolean;
@@ -15,6 +16,7 @@ interface PlanState {
 
 export function usePlan(): PlanState {
   const [state, setState] = useState<PlanState>({
+    subscriptionId: null,
     plan: null,
     status: null,
     isFreePlan: false,
@@ -31,6 +33,7 @@ export function usePlan(): PlanState {
       .then(data => {
         if (!data) return;
         setState({
+          subscriptionId: data.subscription_id,
           plan: data.plan_slug,
           status: data.status,
           isFreePlan: data.plan_slug === "free",
