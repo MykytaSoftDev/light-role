@@ -1,7 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 import { Bell } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -11,11 +12,13 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import {
-  getNotifications,
   markAsRead,
   markAllAsRead,
   type Notification,
+  type NotificationListResponse,
 } from "@/lib/notifications-api";
+import { useNotifications } from "@/hooks/api/useNotifications";
+import { queryKeys } from "@/hooks/api/keys";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -54,37 +57,33 @@ function entityRoute(entityType: string, entityId: string): string | null {
 
 export function NotificationBell({ className }: { className?: string }) {
   const router = useRouter();
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [unreadCount, setUnreadCount] = useState(0);
+  const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const fetchNotifications = useCallback(async () => {
-    try {
-      const data = await getNotifications();
-      setNotifications(data.notifications);
-      setUnreadCount(data.unread_count);
-    } catch {
-      // Silently fail — user may not be logged in yet or network hiccup
-    }
-  }, []);
+  const { data } = useNotifications();
 
-  // Fetch on mount and poll every 30 seconds
-  useEffect(() => {
-    fetchNotifications();
-    intervalRef.current = setInterval(fetchNotifications, 30_000);
-    return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-    };
-  }, [fetchNotifications]);
+  const notifications = data?.notifications ?? [];
+  const unreadCount = data?.unread_count ?? 0;
 
   const handleMarkAsRead = async (notification: Notification) => {
     try {
       await markAsRead(notification.id);
-      setNotifications((prev) =>
-        prev.map((n) => (n.id === notification.id ? { ...n, is_read: true } : n))
+      // Optimistically update the cache
+      queryClient.setQueryData<NotificationListResponse>(
+        queryKeys.user.notifications,
+        (old) => {
+          if (!old) return old;
+          const wasUnread = !notification.is_read;
+          return {
+            notifications: old.notifications.map((n) =>
+              n.id === notification.id ? { ...n, is_read: true } : n
+            ),
+            unread_count: wasUnread
+              ? Math.max(0, old.unread_count - 1)
+              : old.unread_count,
+          };
+        }
       );
-      setUnreadCount((prev) => Math.max(0, prev - (notification.is_read ? 0 : 1)));
     } catch {
       // ignore
     }
@@ -101,8 +100,17 @@ export function NotificationBell({ className }: { className?: string }) {
   const handleMarkAllAsRead = async () => {
     try {
       await markAllAsRead();
-      setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true })));
-      setUnreadCount(0);
+      // Optimistically update the cache
+      queryClient.setQueryData<NotificationListResponse>(
+        queryKeys.user.notifications,
+        (old) => {
+          if (!old) return old;
+          return {
+            notifications: old.notifications.map((n) => ({ ...n, is_read: true })),
+            unread_count: 0,
+          };
+        }
+      );
     } catch {
       // ignore
     }

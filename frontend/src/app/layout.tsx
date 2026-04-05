@@ -1,20 +1,24 @@
 import { Providers as TanstackQueryProvider, ThemeProvider } from "@/providers/query.provider";
 import type { Metadata } from "next";
-import { Modak, Outfit } from "next/font/google";
+import { EB_Garamond, IBM_Plex_Mono, Karla } from "next/font/google";
 import { Toaster } from "sonner";
 
 import "@/styles/globals.css";
 
-const outfit = Outfit({
-  variable: "--font-outfit-sans",
-  weight: ["400", "700"],
+const eb_garamond = EB_Garamond({
   subsets: ["latin"],
-  display: "swap",
+  weight: ["700"],
+  variable: "--display-family",
 });
-
-export const tangerine = Modak({
-  weight: "400",
+const karla = Karla({
   subsets: ["latin"],
+  weight: ["400"],
+  variable: "--body-family",
+});
+const ibm_plex_mono = IBM_Plex_Mono({
+  subsets: ["latin"],
+  weight: ["400"],
+  variable: "--font-mono",
 });
 
 export const metadata: Metadata = {
@@ -25,7 +29,9 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${outfit.variable} antialiased`}>
+      <body
+        className={`${eb_garamond.variable} ${karla.variable} ${ibm_plex_mono.variable} antialiased`}
+      >
         <ThemeProvider
           attribute="class"
           defaultTheme="light"

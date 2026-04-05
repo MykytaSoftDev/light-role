@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { OnboardingChecklist } from "@/components/shared/onboarding-checklist";
 import { UsageBanner } from "@/components/shared/usage-banner";
 import { Button } from "@/components/ui/button";
@@ -18,19 +20,12 @@ import {
   Zap,
 } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useUser } from "@/hooks/api/useUser";
+import { queryKeys } from "@/hooks/api/keys";
 
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
-
-interface User {
-  id: string;
-  first_name: string | null;
-  last_name: string | null;
-  email: string;
-}
 
 interface UsageStats {
   ai_operations_used: number;
@@ -234,80 +229,50 @@ function QuickActionCard({
 // ---------------------------------------------------------------------------
 
 export default function DashboardPage() {
-  const router = useRouter();
-
-  // Data state
-  const [user, setUser] = useState<User | null>(null);
-  const [usage, setUsage] = useState<UsageStats | null>(null);
-  const [recentJobs, setRecentJobs] = useState<Job[]>([]);
-  const [hasJobs, setHasJobs] = useState<boolean | null>(null);
-  const [planSlug, setPlanSlug] = useState<string | null>(null);
-
-  // Loading states
-  const [userLoading, setUserLoading] = useState(true);
-  const [usageLoading, setUsageLoading] = useState(true);
-  const [jobsLoading, setJobsLoading] = useState(true);
-
-  // Banner message
+  // Banner message UI state
   const [banner, setBanner] = useState<string | null>(null);
 
-  // Fetch user
-  useEffect(() => {
-    api
-      .get("/api/v1/users/me")
-      .then((res) => {
-        if (res.ok) return res.json();
-        if (res.status === 401) router.push("/auth/login");
-        return null;
-      })
-      .then((data) => {
-        if (data) setUser(data);
-      })
-      .catch(() => {})
-      .finally(() => setUserLoading(false));
-  }, [router]);
+  // User data
+  const { data: user, isPending: userLoading } = useUser();
 
-  // Fetch usage stats
-  useEffect(() => {
-    api
-      .get("/api/v1/users/me/usage")
-      .then((res) => (res.ok ? res.json() : null))
-      .then((data) => {
-        if (data) setUsage(data);
-      })
-      .catch(() => {})
-      .finally(() => setUsageLoading(false));
-  }, []);
+  // Usage stats
+  const { data: usage, isPending: usageLoading } = useQuery<UsageStats>({
+    queryKey: queryKeys.user.usage,
+    queryFn: async () => {
+      const res = await api.get("/api/v1/users/me/usage");
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    },
+    staleTime: 1000 * 60 * 2,
+  });
 
-  // Fetch subscription plan
-  useEffect(() => {
-    api
-      .get("/api/v1/subscriptions/current")
-      .then((res) => (res.ok ? res.json() : null))
-      .then((data) => {
-        if (data?.plan_slug) setPlanSlug(data.plan_slug);
-      })
-      .catch(() => {});
-  }, []);
+  // Subscription plan slug
+  const { data: subscriptionData } = useQuery<{ plan_slug: string }>({
+    queryKey: queryKeys.user.subscription,
+    queryFn: async () => {
+      const res = await api.get("/api/v1/subscriptions/current");
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    },
+    staleTime: 1000 * 60 * 5,
+  });
 
-  // Fetch recent jobs
-  useEffect(() => {
-    api
-      .get("/api/v1/jobs?limit=5&sort_by=created_at&sort_order=desc")
-      .then((res) => (res.ok ? res.json() : null))
-      .then((data: JobsResponse | null) => {
-        if (data) {
-          setRecentJobs(data.items ?? []);
-          setHasJobs((data.total ?? 0) > 0);
-        } else {
-          setHasJobs(false);
-        }
-      })
-      .catch(() => setHasJobs(false))
-      .finally(() => setJobsLoading(false));
-  }, []);
+  // Recent jobs (last 5, sorted by created_at desc)
+  const { data: jobsData, isPending: jobsLoading } = useQuery<JobsResponse>({
+    queryKey: [...queryKeys.jobs.list({}), "recent"],
+    queryFn: async () => {
+      const res = await api.get("/api/v1/jobs?limit=5&sort_by=created_at&sort_order=desc");
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    },
+    staleTime: 1000 * 60 * 2,
+  });
 
   // Derived values
+  const recentJobs = jobsData?.items ?? [];
+  const hasJobs = jobsData != null ? (jobsData.total ?? 0) > 0 : null;
+  const planSlug = subscriptionData?.plan_slug ?? null;
+
   const greeting = userLoading
     ? null
     : user?.first_name

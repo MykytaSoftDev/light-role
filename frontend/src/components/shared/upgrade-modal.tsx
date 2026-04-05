@@ -8,6 +8,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { Sparkles, Zap } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -41,9 +42,9 @@ interface PricingCardProps {
 
 function PricingCard({ label, price, period, badge, highlight, onSelect }: PricingCardProps) {
   return (
-    <div
+    <Card
       className={cn(
-        "relative flex flex-col gap-3 rounded-xl border p-5 transition-all",
+        "relative flex flex-col gap-3 rounded-xl border p-5 shadow-none transition-all",
         highlight
           ? "border-primary bg-primary/5 ring-2 ring-primary/20"
           : "border-border bg-muted/20"
@@ -79,7 +80,7 @@ function PricingCard({ label, price, period, badge, highlight, onSelect }: Prici
       >
         Upgrade to Pro
       </Button>
-    </div>
+    </Card>
   );
 }
 

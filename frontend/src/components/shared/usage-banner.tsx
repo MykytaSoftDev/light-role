@@ -3,6 +3,7 @@
 import { X, Zap } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -45,13 +46,10 @@ export function UsageBanner({ aiUsed, aiLimit }: UsageBannerProps) {
   const isAtLimit = aiUsed >= aiLimit;
 
   return (
-    <div
-      role="alert"
-      className="flex items-center justify-between gap-3 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm dark:border-amber-700 dark:bg-amber-950/40"
-    >
+    <Alert className="flex items-center justify-between gap-3 border-amber-300 bg-amber-50 px-4 py-3 text-sm dark:border-amber-700 dark:bg-amber-950/40">
       <div className="flex items-center gap-2.5 min-w-0">
         <Zap className="h-4 w-4 shrink-0 text-amber-600 dark:text-amber-400" />
-        <p className="text-amber-800 dark:text-amber-200 text-sm">
+        <AlertDescription className="text-amber-800 dark:text-amber-200 text-sm">
           {isAtLimit ? (
             <>
               You&apos;ve used all <strong>{aiLimit}</strong> AI operations this month.{" "}
@@ -74,7 +72,7 @@ export function UsageBanner({ aiUsed, aiLimit }: UsageBannerProps) {
               </Link>
             </>
           )}
-        </p>
+        </AlertDescription>
       </div>
       <button
         onClick={handleDismiss}
@@ -83,6 +81,6 @@ export function UsageBanner({ aiUsed, aiLimit }: UsageBannerProps) {
       >
         <X className="h-4 w-4" />
       </button>
-    </div>
+    </Alert>
   );
 }

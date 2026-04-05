@@ -2,8 +2,11 @@
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { api } from "@/lib/api";
+import { useCurrentSubscription } from "@/hooks/api/useCurrentSubscription";
+import { useOpenBillingPortal } from "@/hooks/api/useOpenBillingPortal";
+import { useTransactions } from "@/hooks/api/useTransactions";
 import {
   CircleAlert,
   CircleCheck,
@@ -14,7 +17,7 @@ import {
   Zap,
 } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 // ── Types ───────────────────────────────────────────────────────────────────
 
@@ -230,70 +233,94 @@ function PaymentsTable({ items, hasMore, loading, onLoadMore }: PaymentsTablePro
 // ── Page ────────────────────────────────────────────────────────────────────
 
 export default function BillingSettingsPage() {
-  const [sub, setSub] = useState<SubscriptionCurrentResponse | null>(null);
-  const [transactions, setTransactions] = useState<TransactionItem[]>([]);
+  // Cursor-based pagination state for load-more (not covered by the initial useTransactions query)
+  const [extraTransactions, setExtraTransactions] = useState<TransactionItem[]>([]);
   const [hasMore, setHasMore] = useState(false);
   const [nextCursor, setNextCursor] = useState<string | null>(null);
-  const [loadingTxns, setLoadingTxns] = useState(false);
-  const [loadError, setLoadError] = useState<string | null>(null);
-  const [portalLoading, setPortalLoading] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
 
-  // ── Load subscription ──────────────────────────────────────────────────────
+  const {
+    data: subRaw,
+    isLoading: subLoading,
+    isError: subError,
+  } = useCurrentSubscription();
 
-  useEffect(() => {
-    async function load() {
-      const res = await api.get("/api/v1/subscriptions/current");
-      if (res.ok) {
-        const data: SubscriptionCurrentResponse = await res.json();
-        setSub(data);
-        if (data.plan_slug === "pro") {
-          loadTransactions(null, data.plan_slug);
-        }
-      } else {
-        setLoadError("Unable to load your billing information. Please try again.");
-      }
-    }
-    load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  // Cast to the richer local interface — the API returns all fields; the hook
+  // type only declares the subset it needs internally.
+  const sub = subRaw as SubscriptionCurrentResponse | undefined;
 
-  // ── Load transactions ──────────────────────────────────────────────────────
+  const isPro = sub?.plan_slug === "pro";
 
-  async function loadTransactions(cursor: string | null, _planSlug?: string) {
-    setLoadingTxns(true);
-    const url = cursor
-      ? `/api/v1/subscriptions/transactions?per_page=10&after=${cursor}`
-      : "/api/v1/subscriptions/transactions?per_page=10";
-    const res = await api.get(url);
-    if (res.ok) {
-      const data = await res.json();
-      setTransactions((prev) => (cursor ? [...prev, ...data.items] : data.items));
-      setHasMore(data.has_more ?? false);
-      setNextCursor(data.next_cursor ?? null);
-    }
-    setLoadingTxns(false);
-  }
+  const {
+    data: txnsData,
+    isLoading: txnsLoading,
+  } = useTransactions({ perPage: 10 });
+
+  // Merge hook-fetched initial page with any cursor-loaded extra pages
+  const initialTransactions: TransactionItem[] = (txnsData?.items ?? []).map((t) => ({
+    id: t.id,
+    date: (t as unknown as { date?: string; created_at?: string }).date ?? t.created_at ?? "",
+    amount: String(t.amount ?? ""),
+    currency: t.currency,
+    status: t.status,
+    description: (t as unknown as { description?: string | null }).description ?? null,
+  }));
+  const transactions: TransactionItem[] = [...initialTransactions, ...extraTransactions];
+
+  // Sync has_more / next_cursor from initial query when it first loads
+  const resolvedHasMore =
+    extraTransactions.length === 0 ? (txnsData?.has_more ?? false) : hasMore;
+  const resolvedNextCursor =
+    extraTransactions.length === 0 ? (txnsData?.next_cursor ?? null) : nextCursor;
+
+  const openPortal = useOpenBillingPortal();
+  const portalLoading = openPortal.isPending;
 
   // ── Update payment method via portal session ───────────────────────────────
 
-  async function handleUpdatePaymentMethod() {
-    setPortalLoading(true);
-    try {
-      const res = await api.post("/api/v1/subscriptions/portal-session");
-      if (res.ok) {
-        const data = await res.json();
+  function handleUpdatePaymentMethod() {
+    openPortal.mutate(undefined, {
+      onSuccess(data) {
         if (data.url) {
           window.open(data.url, "_blank", "noopener,noreferrer");
         }
+      },
+    });
+  }
+
+  // ── Load more transactions (cursor pagination) ─────────────────────────────
+
+  async function handleLoadMore() {
+    const cursor = resolvedNextCursor;
+    if (!cursor) return;
+    setLoadingMore(true);
+    const url = `/api/v1/subscriptions/transactions?per_page=10&after=${cursor}`;
+    try {
+      const { api } = await import("@/lib/api");
+      const res = await api.get(url);
+      if (res.ok) {
+        const data = await res.json();
+        const mapped: TransactionItem[] = (data.items ?? []).map(
+          (t: Record<string, unknown>) => ({
+            id: String(t.id ?? ""),
+            date: String((t.date ?? t.created_at) ?? ""),
+            amount: t.amount != null ? String(t.amount) : null,
+            currency: String(t.currency ?? ""),
+            status: String(t.status ?? ""),
+            description: t.description != null ? String(t.description) : null,
+          }),
+        );
+        setExtraTransactions((prev) => [...prev, ...mapped]);
+        setHasMore(data.has_more ?? false);
+        setNextCursor(data.next_cursor ?? null);
       }
     } finally {
-      setPortalLoading(false);
+      setLoadingMore(false);
     }
   }
 
   // ── Derived state ──────────────────────────────────────────────────────────
 
-  const isPro = sub?.plan_slug === "pro";
   const isCancelled = sub?.status === "cancelled";
   const isPastDue = sub?.status === "past_due";
 
@@ -308,15 +335,15 @@ export default function BillingSettingsPage() {
       </div>
 
       {/* Load error */}
-      {loadError && (
+      {subError && (
         <div className="border-destructive/20 bg-destructive/10 text-destructive flex items-start gap-2 rounded-md border px-3 py-2.5 text-sm">
           <CircleAlert className="mt-0.5 h-4 w-4 flex-shrink-0" />
-          <span>{loadError}</span>
+          <span>Unable to load your billing information. Please try again.</span>
         </div>
       )}
 
       {/* Past due banner */}
-      {!loadError && sub && isPastDue && (
+      {!subError && sub && isPastDue && (
         <div className="flex items-start gap-3 rounded-md border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:border-amber-700 dark:bg-amber-950/40 dark:text-amber-300">
           <CircleAlert className="mt-0.5 h-4 w-4 flex-shrink-0" />
           <div className="flex-1 space-y-2">
@@ -344,176 +371,190 @@ export default function BillingSettingsPage() {
       )}
 
       {/* Loading skeleton */}
-      {!sub && !loadError && <PageSkeleton />}
+      {subLoading && !subError && <PageSkeleton />}
 
       {/* ── Loaded content ── */}
       {sub && (
         <div className="space-y-6">
           {/* ── PRO: Subscription summary card ── */}
           {isPro && (
-            <div className="border-border bg-card space-y-3 rounded-lg border p-5">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Sparkles className="text-muted-foreground h-4 w-4" />
-                  <h3 className="text-foreground text-sm font-semibold">Current Plan</h3>
+            <Card className="space-y-3 p-5">
+              <CardContent className="p-0">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="text-muted-foreground h-4 w-4" />
+                    <h3 className="text-foreground text-sm font-semibold">Current Plan</h3>
+                  </div>
+                  <Badge className="bg-primary text-primary-foreground">Pro</Badge>
                 </div>
-                <Badge className="bg-primary text-primary-foreground">Pro</Badge>
-              </div>
 
-              {/* Cancelled notice inline */}
-              {isCancelled && sub.current_period_end && (
-                <div className="flex items-start gap-2 rounded-md border border-amber-200 bg-amber-50 px-3 py-2.5 text-sm text-amber-800 dark:border-amber-700 dark:bg-amber-950/40 dark:text-amber-300">
-                  <CircleAlert className="mt-0.5 h-4 w-4 flex-shrink-0" />
-                  <span>
-                    Your Pro plan is active until{" "}
-                    <strong>{formatDate(sub.current_period_end)}</strong>. After that, your account
-                    will revert to the Free plan.
-                  </span>
-                </div>
-              )}
-
-              {/* Billing details */}
-              <div className="text-muted-foreground space-y-0.5 text-sm">
-                {sub.billing_cycle && (
-                  <p>
-                    Billing:{" "}
-                    <span className="text-foreground capitalize">{sub.billing_cycle}</span>
-                  </p>
-                )}
-                {sub.next_payment?.date && !isCancelled && (
-                  <p>
-                    Next payment:{" "}
-                    <span className="text-foreground">{formatDate(sub.next_payment.date)}</span>
-                    {sub.next_payment.amount && (
-                      <span className="text-foreground">
-                        {" "}
-                        ({sub.next_payment.amount}{" "}
-                        {sub.next_payment.currency?.toUpperCase() ?? ""})
-                      </span>
-                    )}
-                  </p>
-                )}
+                {/* Cancelled notice inline */}
                 {isCancelled && sub.current_period_end && (
-                  <p className="text-amber-600 dark:text-amber-400">
-                    Active until {formatDate(sub.current_period_end)}
-                  </p>
+                  <div className="mt-3 flex items-start gap-2 rounded-md border border-amber-200 bg-amber-50 px-3 py-2.5 text-sm text-amber-800 dark:border-amber-700 dark:bg-amber-950/40 dark:text-amber-300">
+                    <CircleAlert className="mt-0.5 h-4 w-4 flex-shrink-0" />
+                    <span>
+                      Your Pro plan is active until{" "}
+                      <strong>{formatDate(sub.current_period_end)}</strong>. After that, your account
+                      will revert to the Free plan.
+                    </span>
+                  </div>
                 )}
-              </div>
 
-              {/* Manage subscription link */}
-              <div className="border-border border-t pt-3">
-                <Button variant="outline" size="sm" asChild>
-                  <Link href="/dashboard/subscription">
-                    <CreditCard className="h-4 w-4" />
-                    Manage Subscription
-                  </Link>
-                </Button>
-                <p className="text-muted-foreground mt-2 text-xs">
-                  Update your payment method, view invoices, or cancel your subscription.
-                </p>
-              </div>
-            </div>
+                {/* Billing details */}
+                <div className="text-muted-foreground mt-3 space-y-0.5 text-sm">
+                  {sub.billing_cycle && (
+                    <p>
+                      Billing:{" "}
+                      <span className="text-foreground capitalize">{sub.billing_cycle}</span>
+                    </p>
+                  )}
+                  {sub.next_payment?.date && !isCancelled && (
+                    <p>
+                      Next payment:{" "}
+                      <span className="text-foreground">{formatDate(sub.next_payment.date)}</span>
+                      {sub.next_payment.amount && (
+                        <span className="text-foreground">
+                          {" "}
+                          ({sub.next_payment.amount}{" "}
+                          {sub.next_payment.currency?.toUpperCase() ?? ""})
+                        </span>
+                      )}
+                    </p>
+                  )}
+                  {isCancelled && sub.current_period_end && (
+                    <p className="text-amber-600 dark:text-amber-400">
+                      Active until {formatDate(sub.current_period_end)}
+                    </p>
+                  )}
+                </div>
+
+                {/* Manage subscription link */}
+                <div className="border-border mt-3 border-t pt-3">
+                  <Button variant="outline" size="sm" asChild>
+                    <Link href="/dashboard/subscription">
+                      <CreditCard className="h-4 w-4" />
+                      Manage Subscription
+                    </Link>
+                  </Button>
+                  <p className="text-muted-foreground mt-2 text-xs">
+                    Update your payment method, view invoices, or cancel your subscription.
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
           )}
 
           {/* ── FREE: Current plan card ── */}
           {!isPro && (
-            <div className="border-border bg-card space-y-4 rounded-lg border p-5">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Sparkles className="text-muted-foreground h-4 w-4" />
-                  <h3 className="text-foreground text-sm font-semibold">Current Plan</h3>
+            <Card className="space-y-4 p-5">
+              <CardContent className="p-0">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="text-muted-foreground h-4 w-4" />
+                    <h3 className="text-foreground text-sm font-semibold">Current Plan</h3>
+                  </div>
+                  <Badge variant="secondary">Free</Badge>
                 </div>
-                <Badge variant="secondary">Free</Badge>
-              </div>
 
-              {sub.reset_date && (
-                <p className="text-muted-foreground text-sm">
-                  Usage resets:{" "}
-                  <span className="text-foreground">{formatDate(sub.reset_date)}</span>
-                </p>
-              )}
-            </div>
+                {sub.reset_date && (
+                  <p className="text-muted-foreground mt-4 text-sm">
+                    Usage resets:{" "}
+                    <span className="text-foreground">{formatDate(sub.reset_date)}</span>
+                  </p>
+                )}
+              </CardContent>
+            </Card>
           )}
 
           {/* ── Usage card (both plans) ── */}
-          <div className="border-border bg-card space-y-4 rounded-lg border p-5">
-            <h3 className="text-foreground text-sm font-semibold">Usage this month</h3>
-            <div className="space-y-4">
-              <UsageBar
-                label="AI Operations"
-                used={sub.ai_ops_used}
-                limit={resolveOpsLimit(sub.ai_ops_limit)}
-              />
-              <UsageBar
-                label="Active Jobs"
-                used={sub.active_jobs}
-                limit={null}
-              />
-            </div>
-          </div>
+          <Card className="space-y-4 p-5">
+            <CardContent className="p-0">
+              <h3 className="text-foreground text-sm font-semibold">Usage this month</h3>
+              <div className="mt-4 space-y-4">
+                <UsageBar
+                  label="AI Operations"
+                  used={sub.ai_ops_used}
+                  limit={resolveOpsLimit(sub.ai_ops_limit)}
+                />
+                <UsageBar
+                  label="Active Jobs"
+                  used={sub.active_jobs}
+                  limit={null}
+                />
+              </div>
+            </CardContent>
+          </Card>
 
           {/* ── FREE: Upgrade card ── */}
           {!isPro && (
-            <div className="border-border bg-card space-y-4 rounded-lg border p-5">
-              <div className="flex items-center gap-2">
-                <Sparkles className="text-primary h-4 w-4" />
-                <h3 className="text-foreground text-sm font-semibold">Upgrade to Pro</h3>
-              </div>
-              <p className="text-muted-foreground text-sm">
-                Unlock {sub.ai_ops_limit > 0 ? "150" : "more"} AI operations/month, unlimited
-                jobs, priority AI processing, PDF &amp; DOCX export, and cover letter generation.
-              </p>
-              <Button asChild>
-                <Link href="/dashboard/checkout">
-                  <Zap className="h-4 w-4" />
-                  Upgrade to Pro
-                </Link>
-              </Button>
-            </div>
+            <Card className="space-y-4 p-5">
+              <CardContent className="p-0">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="text-primary h-4 w-4" />
+                  <h3 className="text-foreground text-sm font-semibold">Upgrade to Pro</h3>
+                </div>
+                <p className="text-muted-foreground mt-4 text-sm">
+                  Unlock {sub.ai_ops_limit > 0 ? "150" : "more"} AI operations/month, unlimited
+                  jobs, priority AI processing, PDF &amp; DOCX export, and cover letter generation.
+                </p>
+                <Button asChild className="mt-4">
+                  <Link href="/dashboard/checkout">
+                    <Zap className="h-4 w-4" />
+                    Upgrade to Pro
+                  </Link>
+                </Button>
+              </CardContent>
+            </Card>
           )}
 
           {/* ── PRO cancelled: Re-subscribe card ── */}
           {isPro && isCancelled && (
-            <div className="border-border bg-card space-y-4 rounded-lg border p-5">
-              <div className="flex items-center gap-2">
-                <CircleCheck className="text-primary h-4 w-4" />
-                <h3 className="text-foreground text-sm font-semibold">Renew your Pro plan</h3>
-              </div>
-              <p className="text-muted-foreground text-sm">
-                Your subscription has been cancelled. Re-subscribe to keep your Pro benefits after
-                your current period ends.
-              </p>
-              <Button asChild>
-                <Link href="/dashboard/checkout">
-                  <Zap className="h-4 w-4" />
-                  Re-subscribe to Pro
-                </Link>
-              </Button>
-            </div>
+            <Card className="space-y-4 p-5">
+              <CardContent className="p-0">
+                <div className="flex items-center gap-2">
+                  <CircleCheck className="text-primary h-4 w-4" />
+                  <h3 className="text-foreground text-sm font-semibold">Renew your Pro plan</h3>
+                </div>
+                <p className="text-muted-foreground mt-4 text-sm">
+                  Your subscription has been cancelled. Re-subscribe to keep your Pro benefits after
+                  your current period ends.
+                </p>
+                <Button asChild className="mt-4">
+                  <Link href="/dashboard/checkout">
+                    <Zap className="h-4 w-4" />
+                    Re-subscribe to Pro
+                  </Link>
+                </Button>
+              </CardContent>
+            </Card>
           )}
 
           {/* ── PRO: Payment history ── */}
           {isPro && (
-            <div className="border-border bg-card space-y-4 rounded-lg border p-5">
-              <h3 className="text-foreground text-sm font-semibold">Payment History</h3>
-              {loadingTxns && transactions.length === 0 ? (
-                <div className="space-y-3">
-                  {[1, 2, 3].map((i) => (
-                    <div key={i} className="flex justify-between">
-                      <Skeleton className="h-4 w-28" />
-                      <Skeleton className="h-4 w-20" />
+            <Card className="space-y-4 p-5">
+              <CardContent className="p-0">
+                <h3 className="text-foreground text-sm font-semibold">Payment History</h3>
+                <div className="mt-4">
+                  {txnsLoading && transactions.length === 0 ? (
+                    <div className="space-y-3">
+                      {[1, 2, 3].map((i) => (
+                        <div key={i} className="flex justify-between">
+                          <Skeleton className="h-4 w-28" />
+                          <Skeleton className="h-4 w-20" />
+                        </div>
+                      ))}
                     </div>
-                  ))}
+                  ) : (
+                    <PaymentsTable
+                      items={transactions}
+                      hasMore={resolvedHasMore}
+                      loading={loadingMore}
+                      onLoadMore={handleLoadMore}
+                    />
+                  )}
                 </div>
-              ) : (
-                <PaymentsTable
-                  items={transactions}
-                  hasMore={hasMore}
-                  loading={loadingTxns}
-                  onLoadMore={() => loadTransactions(nextCursor)}
-                />
-              )}
-            </div>
+              </CardContent>
+            </Card>
           )}
         </div>
       )}

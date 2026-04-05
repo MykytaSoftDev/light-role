@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
@@ -10,8 +10,8 @@ import {
   Edit2,
   Download,
   AlertCircle,
-  X,
 } from "lucide-react";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -23,8 +23,9 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { EmptyState } from "@/components/shared/empty-state";
-import { listCoverLetters, deleteCoverLetter, exportCoverLetter } from "@/lib/cover-letter-api";
+import { listCoverLetters, deleteCoverLetter } from "@/lib/cover-letter-api";
 import { listJobs } from "@/lib/jobs-api";
+import { useExportCoverLetter } from "@/hooks/api/useExportCoverLetter";
 import type { CoverLetterListItem, CLStyle } from "@/types/cover-letter";
 
 // ---------------------------------------------------------------------------
@@ -59,69 +60,6 @@ function getStyleColor(style: CLStyle): string {
     case "professional":
       return "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400";
   }
-}
-
-// ---------------------------------------------------------------------------
-// Toast
-// ---------------------------------------------------------------------------
-
-interface ToastMessage {
-  id: number;
-  message: string;
-  type: "success" | "error";
-}
-
-let toastCounter = 0;
-
-function useToast() {
-  const [toasts, setToasts] = useState<ToastMessage[]>([]);
-
-  const addToast = useCallback(
-    (message: string, type: "success" | "error" = "error") => {
-      const id = ++toastCounter;
-      setToasts((prev) => [...prev, { id, message, type }]);
-      setTimeout(() => {
-        setToasts((prev) => prev.filter((t) => t.id !== id));
-      }, 4000);
-    },
-    []
-  );
-
-  const removeToast = (id: number) =>
-    setToasts((prev) => prev.filter((t) => t.id !== id));
-
-  return { toasts, addToast, removeToast };
-}
-
-function ToastContainer({
-  toasts,
-  onRemove,
-}: {
-  toasts: ToastMessage[];
-  onRemove: (id: number) => void;
-}) {
-  if (toasts.length === 0) return null;
-  return (
-    <div className="fixed bottom-4 right-4 z-50 flex flex-col gap-2">
-      {toasts.map((t) => (
-        <div
-          key={t.id}
-          className={cn(
-            "flex items-center gap-3 rounded-lg border px-4 py-2.5 shadow-lg text-sm",
-            t.type === "error"
-              ? "border-red-200 bg-red-50 text-red-700 dark:border-red-800 dark:bg-red-950/70 dark:text-red-300"
-              : "border-green-200 bg-green-50 text-green-700 dark:border-green-800 dark:bg-green-950/70 dark:text-green-300"
-          )}
-        >
-          {t.type === "error" && <AlertCircle className="h-4 w-4 shrink-0" />}
-          <span>{t.message}</span>
-          <button onClick={() => onRemove(t.id)} aria-label="Dismiss">
-            <X className="h-3.5 w-3.5 opacity-60 hover:opacity-100" />
-          </button>
-        </div>
-      ))}
-    </div>
-  );
 }
 
 // ---------------------------------------------------------------------------
@@ -271,7 +209,6 @@ function CoverLetterCard({
 
 export default function CoverLettersPage() {
   const queryClient = useQueryClient();
-  const { toasts, addToast, removeToast } = useToast();
   const [exportingId, setExportingId] = useState<string | null>(null);
 
   const { data, isLoading, isError } = useQuery({
@@ -288,22 +225,27 @@ export default function CoverLettersPage() {
     mutationFn: (id: string) => deleteCoverLetter(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["cover-letters"] });
-      addToast("Cover letter deleted successfully.", "success");
+      toast.success("Cover letter deleted successfully.");
     },
     onError: () => {
-      addToast("Failed to delete cover letter. Please try again.");
+      toast.error("Failed to delete cover letter. Please try again.");
     },
   });
 
-  const handleExport = async (id: string) => {
+  const exportMutation = useExportCoverLetter();
+
+  const handleExport = (id: string) => {
     setExportingId(id);
-    try {
-      await exportCoverLetter(id, "pdf");
-    } catch {
-      addToast("Failed to export cover letter. Please try again.");
-    } finally {
-      setExportingId(null);
-    }
+    exportMutation.mutate(
+      { id, format: "pdf" },
+      {
+        onSuccess: () => setExportingId(null),
+        onError: () => {
+          setExportingId(null);
+          toast.error("Failed to export cover letter. Please try again.");
+        },
+      }
+    );
   };
 
   // Build a job id → title map for display
@@ -373,7 +315,6 @@ export default function CoverLettersPage() {
         </div>
       )}
 
-      <ToastContainer toasts={toasts} onRemove={removeToast} />
     </div>
   );
 }

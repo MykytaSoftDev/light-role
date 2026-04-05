@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
 import {
   DragDropContext,
   Droppable,
@@ -29,6 +30,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { api } from "@/lib/api";
+import { queryKeys } from "@/hooks/api/keys";
 import { JobContextMenu } from "@/components/jobs/job-context-menu";
 import { EmptyState } from "@/components/shared/empty-state";
 
@@ -978,8 +980,7 @@ export default function JobsPage() {
     for (const s of STATUSES) map[s] = [];
     return map;
   });
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [dndError, setDndError] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>(() => {
     if (typeof window !== "undefined") {
       const stored = localStorage.getItem("jobsView");
@@ -992,34 +993,33 @@ export default function JobsPage() {
   const [collapsedSections, setCollapsedSections] = useState<Set<string>>(new Set());
   const [showEmpty, setShowEmpty] = useState(false);
 
-  // Derive flat array from jobsMap — single source of truth, no duplicate fetch
+  // Fetch jobs via TanStack Query (shared cache key with useJobs hook)
+  const {
+    data: jobsData,
+    isPending: loading,
+    isError,
+  } = useQuery<{ items: Job[] }>({
+    queryKey: queryKeys.jobs.list({}),
+    queryFn: async () => {
+      const res = await api.get("/api/v1/jobs?limit=100");
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    },
+    staleTime: 1000 * 60 * 2,
+  });
+
+  // Sync server data into jobsMap (used as local DnD state)
+  useEffect(() => {
+    if (jobsData?.items) {
+      setJobsMap(groupByStatus(jobsData.items));
+    }
+  }, [jobsData]);
+
+  // Derive flat array from jobsMap — single source of truth for DnD state
   const allJobs = useMemo(() => flattenJobsMap(jobsMap), [jobsMap]);
 
-  // Fetch jobs on mount
-  useEffect(() => {
-    let cancelled = false;
-    api
-      .get("/api/v1/jobs?limit=100")
-      .then((res) => {
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        return res.json();
-      })
-      .then((data: { items: Job[] }) => {
-        if (!cancelled) {
-          setJobsMap(groupByStatus(data.items ?? []));
-          setLoading(false);
-        }
-      })
-      .catch(() => {
-        if (!cancelled) {
-          setError("Failed to load jobs. Please refresh the page.");
-          setLoading(false);
-        }
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  // Surface fetch error via the same error banner used for DnD errors
+  const error = isError ? "Failed to load jobs. Please refresh the page." : dndError;
 
   // Persist view mode
   const switchView = (mode: ViewMode) => {
@@ -1101,7 +1101,7 @@ export default function JobsPage() {
       } catch {
         // Revert
         setJobsMap(prevMap);
-        setError("Failed to update job status. Please try again.");
+        setDndError("Failed to update job status. Please try again.");
       }
     },
     [jobsMap]
@@ -1248,7 +1248,7 @@ export default function JobsPage() {
 
       {/* Error banner */}
       {error && (
-        <ErrorBanner message={error} onDismiss={() => setError(null)} />
+        <ErrorBanner message={error} onDismiss={() => setDndError(null)} />
       )}
     </div>
   );

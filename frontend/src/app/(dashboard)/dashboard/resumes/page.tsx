@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
@@ -10,8 +10,8 @@ import {
   Edit2,
   Star,
   AlertCircle,
-  X,
 } from "lucide-react";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -43,65 +43,6 @@ function getScoreColor(score: number | null): string {
   if (score >= 80) return "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400";
   if (score >= 50) return "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400";
   return "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400";
-}
-
-// ---------------------------------------------------------------------------
-// Toast notification
-// ---------------------------------------------------------------------------
-
-interface ToastMessage {
-  id: number;
-  message: string;
-  type: "success" | "error";
-}
-
-let toastCounter = 0;
-
-function useToast() {
-  const [toasts, setToasts] = useState<ToastMessage[]>([]);
-
-  const addToast = useCallback((message: string, type: "success" | "error" = "error") => {
-    const id = ++toastCounter;
-    setToasts((prev) => [...prev, { id, message, type }]);
-    setTimeout(() => {
-      setToasts((prev) => prev.filter((t) => t.id !== id));
-    }, 4000);
-  }, []);
-
-  const removeToast = (id: number) => setToasts((prev) => prev.filter((t) => t.id !== id));
-
-  return { toasts, addToast, removeToast };
-}
-
-function ToastContainer({
-  toasts,
-  onRemove,
-}: {
-  toasts: ToastMessage[];
-  onRemove: (id: number) => void;
-}) {
-  if (toasts.length === 0) return null;
-  return (
-    <div className="fixed bottom-4 right-4 z-50 flex flex-col gap-2">
-      {toasts.map((t) => (
-        <div
-          key={t.id}
-          className={cn(
-            "flex items-center gap-3 rounded-lg border px-4 py-2.5 shadow-lg text-sm",
-            t.type === "error"
-              ? "border-red-200 bg-red-50 text-red-700 dark:border-red-800 dark:bg-red-950/70 dark:text-red-300"
-              : "border-green-200 bg-green-50 text-green-700 dark:border-green-800 dark:bg-green-950/70 dark:text-green-300"
-          )}
-        >
-          {t.type === "error" && <AlertCircle className="h-4 w-4 shrink-0" />}
-          <span>{t.message}</span>
-          <button onClick={() => onRemove(t.id)} aria-label="Dismiss">
-            <X className="h-3.5 w-3.5 opacity-60 hover:opacity-100" />
-          </button>
-        </div>
-      ))}
-    </div>
-  );
 }
 
 // ---------------------------------------------------------------------------
@@ -254,7 +195,6 @@ function ResumeCard({ resume, onDelete, onSetBase, isSettingBase }: ResumeCardPr
 
 export default function ResumesPage() {
   const queryClient = useQueryClient();
-  const { toasts, addToast, removeToast } = useToast();
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["resumes"],
@@ -265,10 +205,10 @@ export default function ResumesPage() {
     mutationFn: (id: string) => deleteResume(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["resumes"] });
-      addToast("Resume deleted successfully.", "success");
+      toast.success("Resume deleted successfully.");
     },
     onError: () => {
-      addToast("Failed to delete resume. Please try again.");
+      toast.error("Failed to delete resume. Please try again.");
     },
   });
 
@@ -276,10 +216,10 @@ export default function ResumesPage() {
     mutationFn: (id: string) => setBaseResume(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["resumes"] });
-      addToast("Base resume updated.", "success");
+      toast.success("Base resume updated.");
     },
     onError: () => {
-      addToast("Failed to update base resume. Please try again.");
+      toast.error("Failed to update base resume. Please try again.");
     },
   });
 
@@ -337,7 +277,6 @@ export default function ResumesPage() {
         </div>
       )}
 
-      <ToastContainer toasts={toasts} onRemove={removeToast} />
     </div>
   );
 }
