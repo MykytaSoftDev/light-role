@@ -40,7 +40,6 @@ export function SidebarDocuments() {
               <SidebarMenuButton
                 tooltip={item.title}
                 onClick={() => push(item.url)}
-                className={"cursor-pointer"}
               >
                 {item.icon && <item.icon />}
                 <span>{item.title}</span>

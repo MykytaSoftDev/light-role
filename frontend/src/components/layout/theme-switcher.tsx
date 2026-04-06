@@ -17,7 +17,7 @@ export function ThemeSwitcher() {
       type="button"
       variant="outline"
       size="icon"
-      className="cursor-pointer border border-hidden"
+      className="mr-2 cursor-pointer border border-hidden"
       onClick={toggleTheme}
     >
       <Sun className="h-[1.2rem] w-[1.2rem] scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />

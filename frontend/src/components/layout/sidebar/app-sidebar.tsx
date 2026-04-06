@@ -14,8 +14,9 @@ import {
 } from "@/components/ui/sidebar";
 import { DASHBOARD_PAGES } from "@/constants/nav.constants";
 import Image from "next/image";
+import Link from "next/link";
 import { SidebarDocuments } from "./sidebar-documents";
-import { NavSecondary } from "./sidebar-secondary";
+import { SidebarSecondary } from "./sidebar-secondary";
 
 export function AppSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
   return (
@@ -23,8 +24,8 @@ export function AppSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild className={`data-[slot=sidebar-menu-button]:!p-1.5`}>
-              <a href={DASHBOARD_PAGES.HOME}>
+            <SidebarMenuButton asChild>
+              <Link href={DASHBOARD_PAGES.HOME} className="">
                 <Image
                   src="/assets/logo/lightrole-text.svg"
                   width={150}
@@ -32,7 +33,7 @@ export function AppSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
                   priority={true}
                   alt="LightRole Logo"
                 />
-              </a>
+              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
@@ -42,7 +43,7 @@ export function AppSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
         <SidebarDocuments />
       </SidebarContent>
       <SidebarFooter>
-        <NavSecondary />
+        <SidebarSecondary />
         <SidebarUser />
       </SidebarFooter>
       <SidebarRail />

@@ -1,12 +1,15 @@
+"use client"
+
 import { LifeBuoy, Send } from "lucide-react";
 
 import {
-    SidebarGroup,
-    SidebarGroupContent,
-    SidebarMenu,
-    SidebarMenuButton,
-    SidebarMenuItem,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { useRouter } from "next/navigation";
 
 const items = [
   {
@@ -21,18 +24,18 @@ const items = [
   },
 ];
 
-export function NavSecondary() {
+export function SidebarSecondary() {
+  const { push } = useRouter();
+
   return (
     <SidebarGroup>
-      <SidebarGroupContent>
+      <SidebarGroupContent className="flex flex-col gap-2">
         <SidebarMenu>
           {items.map((item) => (
             <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton asChild size="sm">
-                <a href={item.url}>
-                  <item.icon />
-                  <span>{item.title}</span>
-                </a>
+              <SidebarMenuButton tooltip={item.title} onClick={() => push(item.url)}>
+                {item.icon && <item.icon />}
+                <span>{item.title}</span>
               </SidebarMenuButton>
             </SidebarMenuItem>
           ))}
