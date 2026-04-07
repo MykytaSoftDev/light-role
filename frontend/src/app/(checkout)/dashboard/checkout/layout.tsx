@@ -1,3 +1,4 @@
+import { CheckoutGradients } from "@/components/gradients/checkout-gradients";
 import { ChevronLeft } from "lucide-react";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
@@ -27,7 +28,16 @@ export default async function CheckoutLayout({ children }: { children: React.Rea
           <div className="w-32" />
         </div>
       </header>
-      {children}
+      <div className={"relative min-h-screen w-full overflow-hidden"}>
+        <CheckoutGradients />
+        <div
+          className={
+            "relative mx-auto flex max-w-6xl flex-col justify-between gap-6 px-[16px] py-[24px] md:px-[32px]"
+          }
+        >
+          {children}
+        </div>
+      </div>
     </div>
   );
 }

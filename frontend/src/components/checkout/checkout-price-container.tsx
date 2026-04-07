@@ -3,6 +3,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { formatBillingCycle } from "@/utils/paddle/data-helpers";
 import { formatMoney } from "@/utils/paddle/parse-money";
 import { CheckoutEventsData } from "@paddle/paddle-js/types/checkout/events";
+import Image from "next/image";
 
 interface Props {
   checkoutData: CheckoutEventsData | null;
@@ -14,8 +15,8 @@ export function CheckoutPriceContainer({ checkoutData }: Props) {
   return (
     <>
       {/* TODO: Replace with image when logo will be available */}
-      {/* <Image src="/deep.svg" width={300} height={150} alt="DeepolyGo Logo"/> */}
-      <h2>Light Role</h2>
+      <Image src="/assets/logo/lightrole-text.svg" width={300} height={150} alt="LightRole Logo" />
+      {/* <h2>Light Role</h2> */}
       <div className={"mt-15 text-base leading-[20px] font-semibold"}>Order summary</div>
       <CheckoutPriceAmount checkoutData={checkoutData} />
       {recurringTotal !== undefined ? (
