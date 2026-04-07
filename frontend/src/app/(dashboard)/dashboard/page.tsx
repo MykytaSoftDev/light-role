@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
 import { OnboardingChecklist } from "@/components/shared/onboarding-checklist";
 import { UsageBanner } from "@/components/shared/usage-banner";
 import { Button } from "@/components/ui/button";
+import { queryKeys } from "@/hooks/api/keys";
+import { useUser } from "@/hooks/api/useUser";
 import { api } from "@/lib/api";
 import { cn } from "@/lib/utils";
+import { useQuery } from "@tanstack/react-query";
 import {
   ArrowRight,
   Briefcase,
@@ -20,8 +21,7 @@ import {
   Zap,
 } from "lucide-react";
 import Link from "next/link";
-import { useUser } from "@/hooks/api/useUser";
-import { queryKeys } from "@/hooks/api/keys";
+import { useState } from "react";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -151,7 +151,7 @@ interface StatCardProps {
 
 function StatCard({ icon, label, value, sub }: StatCardProps) {
   return (
-    <div className="bg-card flex flex-col gap-1 rounded-xl border p-5">
+    <div data-slot="card" className="bg-card flex flex-col gap-1 rounded-xl border p-5">
       <div className="text-muted-foreground mb-1 flex items-center gap-2">
         {icon}
         <span className="text-xs font-medium tracking-wide uppercase">{label}</span>
@@ -185,11 +185,12 @@ function QuickActionCard({
 }: QuickActionCardProps) {
   const inner = (
     <div
+      data-slot="card"
       className={cn(
-        "group bg-card flex flex-col gap-3 rounded-xl border p-6 transition-all duration-150",
+        "group bg-card flex flex-col gap-3 rounded-xl border p-6 transition-all duration-200",
         disabled
           ? "cursor-pointer opacity-60"
-          : "hover:border-primary/50 cursor-pointer hover:shadow-sm"
+          : "hover:border-primary/50 cursor-pointer hover:-translate-y-1 hover:shadow-md active:translate-y-0 active:shadow-sm"
       )}
     >
       <div
@@ -300,7 +301,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-5xl flex-1 flex-col gap-8 pb-10">
+    <div className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-8 pb-10">
       {/* ------------------------------------------------------------------ */}
       {/* Usage warning banner (free plan, >= 80% AI ops used) */}
       {/* ------------------------------------------------------------------ */}
@@ -450,7 +451,7 @@ export default function DashboardPage() {
           )}
         </div>
 
-        <div className="bg-card divide-border divide-y rounded-xl border">
+        <div data-slot="card" className="bg-card divide-border divide-y rounded-xl border">
           {jobsLoading ? (
             <div className="px-5 py-1">
               {Array.from({ length: 4 }).map((_, i) => (

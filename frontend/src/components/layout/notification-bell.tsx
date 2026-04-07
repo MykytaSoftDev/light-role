@@ -1,24 +1,24 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { useQueryClient } from "@tanstack/react-query";
-import { Bell } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
+import { queryKeys } from "@/hooks/api/keys";
+import { useNotifications } from "@/hooks/api/useNotifications";
 import {
-  markAsRead,
   markAllAsRead,
+  markAsRead,
   type Notification,
   type NotificationListResponse,
 } from "@/lib/notifications-api";
-import { useNotifications } from "@/hooks/api/useNotifications";
-import { queryKeys } from "@/hooks/api/keys";
+import { cn } from "@/lib/utils";
+import { useQueryClient } from "@tanstack/react-query";
+import { Bell } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -69,21 +69,16 @@ export function NotificationBell({ className }: { className?: string }) {
     try {
       await markAsRead(notification.id);
       // Optimistically update the cache
-      queryClient.setQueryData<NotificationListResponse>(
-        queryKeys.user.notifications,
-        (old) => {
-          if (!old) return old;
-          const wasUnread = !notification.is_read;
-          return {
-            notifications: old.notifications.map((n) =>
-              n.id === notification.id ? { ...n, is_read: true } : n
-            ),
-            unread_count: wasUnread
-              ? Math.max(0, old.unread_count - 1)
-              : old.unread_count,
-          };
-        }
-      );
+      queryClient.setQueryData<NotificationListResponse>(queryKeys.user.notifications, (old) => {
+        if (!old) return old;
+        const wasUnread = !notification.is_read;
+        return {
+          notifications: old.notifications.map((n) =>
+            n.id === notification.id ? { ...n, is_read: true } : n
+          ),
+          unread_count: wasUnread ? Math.max(0, old.unread_count - 1) : old.unread_count,
+        };
+      });
     } catch {
       // ignore
     }
@@ -101,16 +96,13 @@ export function NotificationBell({ className }: { className?: string }) {
     try {
       await markAllAsRead();
       // Optimistically update the cache
-      queryClient.setQueryData<NotificationListResponse>(
-        queryKeys.user.notifications,
-        (old) => {
-          if (!old) return old;
-          return {
-            notifications: old.notifications.map((n) => ({ ...n, is_read: true })),
-            unread_count: 0,
-          };
-        }
-      );
+      queryClient.setQueryData<NotificationListResponse>(queryKeys.user.notifications, (old) => {
+        if (!old) return old;
+        return {
+          notifications: old.notifications.map((n) => ({ ...n, is_read: true })),
+          unread_count: 0,
+        };
+      });
     } catch {
       // ignore
     }
@@ -119,32 +111,29 @@ export function NotificationBell({ className }: { className?: string }) {
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>
-        <button
+        <Button
+          type="button"
+          variant="outline"
+          size="icon"
           className={cn(
-            "relative flex items-center justify-center rounded-md p-2 text-foreground/70 hover:bg-accent hover:text-accent-foreground transition-colors",
+            "text-foreground/70 hover:bg-accent hover:text-accent-foreground relative flex items-center justify-center rounded-md p-2 transition-colors",
             className
           )}
-          aria-label={
-            unreadCount > 0 ? `${unreadCount} unread notifications` : "Notifications"
-          }
+          aria-label={unreadCount > 0 ? `${unreadCount} unread notifications` : "Notifications"}
         >
           <Bell className="size-5" />
           {unreadCount > 0 && (
             <span
-              className="absolute right-1 top-1 flex size-4 items-center justify-center rounded-full bg-primary text-[10px] font-medium text-primary-foreground"
+              className="bg-primary text-primary-foreground absolute top-1 right-1 flex size-4 items-center justify-center rounded-full text-[10px] font-medium"
               aria-hidden="true"
             >
               {unreadCount > 99 ? "99+" : unreadCount}
             </span>
           )}
-        </button>
+        </Button>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent
-        align="end"
-        className="w-80 p-0"
-        sideOffset={8}
-      >
+      <DropdownMenuContent align="end" className="w-80 p-0" sideOffset={8}>
         {/* Header */}
         <div className="flex items-center justify-between border-b px-4 py-3">
           <span className="text-sm font-semibold">Notifications</span>
@@ -152,7 +141,7 @@ export function NotificationBell({ className }: { className?: string }) {
             <Button
               variant="ghost"
               size="sm"
-              className="h-auto px-2 py-1 text-xs text-muted-foreground hover:text-foreground"
+              className="text-muted-foreground hover:text-foreground h-auto px-2 py-1 text-xs"
               onClick={handleMarkAllAsRead}
             >
               Mark all as read
@@ -164,15 +153,15 @@ export function NotificationBell({ className }: { className?: string }) {
         <div className="max-h-[360px] overflow-y-auto">
           {notifications.length === 0 ? (
             <div className="flex flex-col items-center justify-center gap-1 py-10 text-center">
-              <Bell className="size-8 text-muted-foreground/40" />
-              <p className="text-sm text-muted-foreground">No notifications</p>
+              <Bell className="text-muted-foreground/40 size-8" />
+              <p className="text-muted-foreground text-sm">No notifications</p>
             </div>
           ) : (
             notifications.map((notification) => (
               <button
                 key={notification.id}
                 className={cn(
-                  "flex w-full flex-col gap-1 border-b px-4 py-3 text-left transition-colors last:border-b-0 hover:bg-accent",
+                  "hover:bg-accent flex w-full flex-col gap-1 border-b px-4 py-3 text-left transition-colors last:border-b-0",
                   !notification.is_read && "bg-primary/5"
                 )}
                 onClick={() => handleMarkAsRead(notification)}
@@ -187,13 +176,11 @@ export function NotificationBell({ className }: { className?: string }) {
                     {notification.title}
                   </span>
                   {!notification.is_read && (
-                    <span className="mt-1 size-2 shrink-0 rounded-full bg-primary" />
+                    <span className="bg-primary mt-1 size-2 shrink-0 rounded-full" />
                   )}
                 </div>
-                <p className="line-clamp-2 text-xs text-muted-foreground">
-                  {notification.message}
-                </p>
-                <span className="text-[11px] text-muted-foreground/70">
+                <p className="text-muted-foreground line-clamp-2 text-xs">{notification.message}</p>
+                <span className="text-muted-foreground/70 text-[11px]">
                   {timeAgo(notification.created_at)}
                 </span>
               </button>

@@ -318,6 +318,7 @@ const SidebarInset = React.forwardRef<HTMLDivElement, React.ComponentProps<"main
     return (
       <main
         ref={ref}
+        data-slot="sidebar-inset"
         className={cn(
           "bg-background relative flex min-w-0 flex-1 flex-col",
           "md:peer-data-[variant=inset]:m-2 md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:rounded-xl md:peer-data-[variant=inset]:shadow md:peer-data-[state=collapsed]:peer-data-[variant=inset]:ml-2",
@@ -550,6 +551,7 @@ const SidebarMenuButton = React.forwardRef<
     const button = (
       <Comp
         ref={ref}
+        data-slot="sidebar-menu-button"
         data-sidebar="menu-button"
         data-size={size}
         data-active={isActive}

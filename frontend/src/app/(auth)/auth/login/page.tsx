@@ -8,6 +8,7 @@ import { api } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CircleAlert, Loader2 } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -27,7 +28,7 @@ export default function LoginPage() {
 
   const handleGoogleSignIn = () => {
     const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
-    console.log(clientId)
+    console.log(clientId);
     if (!clientId) {
       alert("Google OAuth is not configured");
       return;
@@ -74,10 +75,16 @@ export default function LoginPage() {
       >
         {/* Logo */}
         <div className="flex items-center gap-3">
-          <div className="flex h-8 w-8 items-center justify-center rounded-md bg-indigo-500 text-xs font-bold text-white select-none">
+          {/* <div className="flex h-8 w-8 items-center justify-center rounded-md bg-indigo-500 text-xs font-bold text-white select-none">
             LR
-          </div>
-          <span className="text-base font-semibold tracking-tight">Light Role</span>
+          </div> */}
+          <Image
+            src="/assets/logo/lightrole-text.svg"
+            width={250}
+            height={300}
+            alt="LightRole Logo"
+          />
+          {/* <span className="text-base font-semibold tracking-tight">Light Role</span> */}
         </div>
 
         {/* Hero copy */}
@@ -112,14 +119,22 @@ export default function LoginPage() {
       </div>
 
       {/* Right panel */}
-      <div className="bg-background flex flex-1 flex-col items-center justify-center px-6 py-12 sm:px-10 lg:px-16">
+      <div
+        data-slot="card"
+        className="bg-background flex flex-1 flex-col items-center justify-center px-6 py-12 sm:px-10 lg:px-16"
+      >
         <div className="w-full max-w-sm">
           {/* Mobile logo header */}
           <div className="mb-8 flex items-center gap-2 lg:hidden">
-            <div className="flex h-7 w-7 items-center justify-center rounded-md bg-indigo-500 text-xs font-bold text-white select-none">
+            {/* <div className="flex h-7 w-7 items-center justify-center rounded-md bg-indigo-500 text-xs font-bold text-white select-none">
               LR
-            </div>
-            <span className="text-foreground text-sm font-semibold">Light Role</span>
+            </div> */}
+            <Image
+              src="/assets/logo/lightrole-text.svg"
+              width={250}
+              height={300}
+              alt="LightRole Logo"
+            />
           </div>
 
           {/* Page header */}
@@ -152,7 +167,7 @@ export default function LoginPage() {
                 <Label htmlFor="password">Password</Label>
                 <Link
                   href="/auth/forgot-password"
-                  className="text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300 text-xs underline-offset-4 transition-colors hover:underline"
+                  className="text-xs text-indigo-600 underline-offset-4 transition-colors hover:text-indigo-700 hover:underline dark:text-indigo-400 dark:hover:text-indigo-300"
                 >
                   Forgot password?
                 </Link>
@@ -207,7 +222,7 @@ export default function LoginPage() {
           <Button
             type="button"
             variant="outline"
-            className="w-full gap-3 hover:bg-indigo-50 hover:border-indigo-300 hover:text-indigo-700 dark:hover:bg-indigo-950 dark:hover:border-indigo-700 dark:hover:text-indigo-300"
+            className="w-full gap-3 hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-700 dark:hover:border-indigo-700 dark:hover:bg-indigo-950 dark:hover:text-indigo-300"
             onClick={handleGoogleSignIn}
           >
             <GoogleIcon />
@@ -219,7 +234,7 @@ export default function LoginPage() {
             Don&apos;t have an account?{" "}
             <Link
               href="/auth/register"
-              className="text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300 font-medium underline-offset-4 hover:underline"
+              className="font-medium text-indigo-600 underline-offset-4 hover:text-indigo-700 hover:underline dark:text-indigo-400 dark:hover:text-indigo-300"
             >
               Create one
             </Link>
