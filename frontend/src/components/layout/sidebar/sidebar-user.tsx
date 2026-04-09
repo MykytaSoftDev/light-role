@@ -97,7 +97,7 @@ export function SidebarUser() {
               <DropdownMenuGroup>
                 <DropdownMenuItem>
                   <Sparkles />
-                  <Link href={DASHBOARD_PAGES.SUBSCRIPTIONS}>Upgrade your Plan</Link>
+                  <Link href={DASHBOARD_PAGES.UPGRADE}>Upgrade your Plan</Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
               </DropdownMenuGroup>

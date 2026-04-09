@@ -24,6 +24,7 @@ class DASHBOARD {
   BILLING = `${this.SETTINGS}/billing`;
   NOTIFICATIONS = `${this.SETTINGS}/notifications`;
   SUBSCRIPTIONS = `${this.root}/subscriptions`;
+  UPGRADE = `${this.root}/upgrade`;
   CHECKOUT = `${this.root}/checkout`;
   CHECKOUT_SUCCESS = `${this.CHECKOUT}/success`;
   CHECKOUT_UPDATE = `${this.CHECKOUT}/update`;

@@ -2,5 +2,105 @@
   "app": {
     "name": "Light Role",
     "tagline": "AI-powered job search management platform"
+  },
+  "upgrade": {
+    "hero": {
+      "eyebrow": "Upgrade to Pro",
+      "headline": "Unlock the full power of your job search",
+      "subheadline": "Tailor every resume, generate every cover letter, and track unlimited opportunities — all in one place.",
+      "trust": "Cancel anytime · Secure payment via Paddle"
+    },
+    "toggle": {
+      "monthly": "Monthly",
+      "annual": "Annual",
+      "save": "Save {percent}%"
+    },
+    "cards": {
+      "monthly": {
+        "title": "Pro Monthly",
+        "description": "Flexible month-to-month. Cancel anytime.",
+        "billedAs": "Billed monthly",
+        "cta": "Get Pro Monthly"
+      },
+      "annual": {
+        "title": "Pro Annual",
+        "description": "Best value. Pay once, save big.",
+        "billedAs": "Billed annually",
+        "cta": "Get Pro Annual",
+        "savingsBadge": "Save {percent}%",
+        "monthlyEquivalent": "≈ {price} / month"
+      },
+      "features": {
+        "title": "Everything in Pro:",
+        "list": [
+          "150 AI operations per month (vs 10 on Free)",
+          "Unlimited active jobs in your tracker",
+          "AI-tailored resumes for every application",
+          "AI-generated cover letters with multiple variants",
+          "Smart job description parsing — paste and go",
+          "All resume templates unlocked",
+          "Analytics dashboard to track your progress",
+          "Priority AI generation",
+          "Cancel anytime — no questions asked"
+        ]
+      }
+    },
+    "comparison": {
+      "title": "Free vs Pro at a glance",
+      "colFeature": "Feature",
+      "colFree": "Free",
+      "colPro": "Pro"
+    },
+    "trust": {
+      "title": "Why job seekers choose Pro",
+      "items": {
+        "cancel": {
+          "title": "Cancel anytime",
+          "description": "No lock-in contracts. Cancel your subscription instantly from your dashboard, no questions asked."
+        },
+        "refresh": {
+          "title": "Limits reset monthly",
+          "description": "Your AI operation allowance refreshes every billing cycle so you always have capacity when you need it."
+        },
+        "global": {
+          "title": "Works everywhere",
+          "description": "Light Role supports multiple languages and currencies so your job search has no borders."
+        }
+      }
+    },
+    "faq": {
+      "title": "Frequently asked questions",
+      "items": {
+        "cancel": {
+          "q": "Can I cancel anytime?",
+          "a": "Yes. You can cancel your subscription at any time from the billing settings page. Your Pro access continues until the end of the current billing period."
+        },
+        "difference": {
+          "q": "What is the difference between Free and Pro?",
+          "a": "The Free plan gives you 10 AI operations per month and up to 5 active jobs. Pro unlocks 150 AI operations, unlimited active jobs, all resume templates, analytics, and priority AI processing."
+        },
+        "payment": {
+          "q": "How is payment processed?",
+          "a": "Payments are securely handled by Paddle, a trusted Merchant of Record. Your card details are never stored on our servers."
+        },
+        "switch": {
+          "q": "Can I switch between monthly and annual?",
+          "a": "Yes. You can switch billing cycles from the billing settings page at any time. Changes take effect at the start of your next billing period."
+        },
+        "refund": {
+          "q": "Is there a refund policy?",
+          "a": "We offer a 14-day money-back guarantee on annual plans. For monthly plans, you may cancel before the next renewal to avoid being charged again."
+        }
+      }
+    },
+    "footer": {
+      "headline": "Ready to land your next role faster?",
+      "back": "Back to dashboard"
+    },
+    "errors": {
+      "plansLoadFailed": "Could not load plans. Please try again.",
+      "retry": "Try again",
+      "pricesFallback": "Showing default prices. Local currency unavailable."
+    }
   }
 }

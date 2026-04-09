@@ -29,4 +29,7 @@ export const queryKeys = {
     usage: ["user", "usage"] as const,
     notifications: ["user", "notifications"] as const,
   },
+  plans: {
+    all: ["plans"] as const,
+  },
 } as const;

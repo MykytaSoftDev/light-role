@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { DASHBOARD_PAGES } from "@/constants/nav.constants";
 import { useCurrentSubscription } from "@/hooks/api/useCurrentSubscription";
 import { useOpenBillingPortal } from "@/hooks/api/useOpenBillingPortal";
 import { useTransactions } from "@/hooks/api/useTransactions";
@@ -498,7 +499,7 @@ export default function BillingSettingsPage() {
                   jobs, priority AI processing, PDF &amp; DOCX export, and cover letter generation.
                 </p>
                 <Button asChild className="mt-4">
-                  <Link href="/dashboard/checkout">
+                  <Link href={DASHBOARD_PAGES.UPGRADE}>
                     <Zap className="h-4 w-4" />
                     Upgrade to Pro
                   </Link>
@@ -520,7 +521,7 @@ export default function BillingSettingsPage() {
                   your current period ends.
                 </p>
                 <Button asChild className="mt-4">
-                  <Link href="/dashboard/checkout">
+                  <Link href="/dashboard/upgrade">
                     <Zap className="h-4 w-4" />
                     Re-subscribe to Pro
                   </Link>

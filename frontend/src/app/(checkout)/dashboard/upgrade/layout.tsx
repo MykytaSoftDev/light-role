@@ -1,15 +1,34 @@
 import { CheckoutGradients } from "@/components/gradients/checkout-gradients";
-import "@/styles/checkout.css";
 import { ChevronLeft } from "lucide-react";
 import { cookies } from "next/headers";
 import Image from "next/image";
 import { redirect } from "next/navigation";
+import "@/styles/checkout.css";
 
-export default async function CheckoutLayout({ children }: { children: React.ReactNode }) {
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+
+export default async function UpgradeLayout({ children }: { children: React.ReactNode }) {
   const cookieStore = await cookies();
   const token = cookieStore.get("access_token");
+
   if (!token) {
-    redirect("/auth/login");
+    redirect("/auth/login?redirect=/dashboard/upgrade");
+  }
+
+  // Server-side Pro check — redirect Pro users away from the upgrade page
+  try {
+    const res = await fetch(`${BASE_URL}/api/v1/subscriptions/current`, {
+      headers: { Cookie: `access_token=${token.value}` },
+      cache: "no-store",
+    });
+    if (res.ok) {
+      const sub = await res.json();
+      if (sub?.plan_slug === "pro") {
+        redirect("/dashboard/subscription");
+      }
+    }
+  } catch {
+    // Network error — allow the page to render, client-side will handle it
   }
 
   return (
@@ -35,13 +54,9 @@ export default async function CheckoutLayout({ children }: { children: React.Rea
           <div className="w-32" />
         </div>
       </header>
-      <div className={"relative min-h-screen w-full overflow-hidden"}>
+      <div className="relative min-h-screen w-full overflow-hidden">
         <CheckoutGradients />
-        <div
-          className={
-            "relative mx-auto flex max-w-6xl flex-col justify-between gap-6 px-[16px] py-[24px] md:px-[32px]"
-          }
-        >
+        <div className="relative mx-auto flex max-w-6xl flex-col justify-between gap-6 px-[16px] py-[24px] md:px-[32px]">
           {children}
         </div>
       </div>

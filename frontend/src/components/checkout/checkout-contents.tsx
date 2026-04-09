@@ -1,7 +1,6 @@
 "use client";
 
 import { PriceSection } from "@/components/checkout/price-section";
-import { CheckoutFormGradients } from "@/components/gradients/checkout-form-gradients";
 import { DASHBOARD_PAGES } from "@/constants/nav.constants";
 import { useSubscription } from "@/hooks/use-subscription";
 import { type Environments, initializePaddle, type Paddle } from "@paddle/paddle-js";
@@ -109,7 +108,6 @@ export function CheckoutContents({ userEmail }: Props) {
         "md:bg-background/80 relative flex flex-col justify-between rounded-lg border shadow-lg shadow-indigo-400 md:min-h-[400px] md:p-10 md:pt-12 md:pl-16 md:backdrop-blur-[24px]"
       }
     >
-      <CheckoutFormGradients />
       <div className={"flex flex-col gap-8 md:flex-row md:gap-16"}>
         <div className={"w-full md:w-[400px]"}>
           <PriceSection checkoutData={checkoutData} quantity={1} />
