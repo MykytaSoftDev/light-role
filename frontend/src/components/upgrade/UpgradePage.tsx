@@ -3,39 +3,39 @@
 import { Button } from "@/components/ui/button";
 import { usePlans } from "@/hooks/api/usePlans";
 import { usePricePreview } from "@/hooks/usePricePreview";
+import { cn } from "@/lib/utils";
 import { Globe, RefreshCw, ShieldCheck } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { BillingCycleToggle } from "./BillingCycleToggle";
-import { type ComparisonRow } from "./ComparisonTable";
-import { type FaqItem } from "./FaqAccordion";
-import { PricingCard } from "./PricingCard";
+import { FaqAccordion, type FaqItem } from "./FaqAccordion";
+import { PricingCard, type PricingFeature } from "./PricingCard";
 import { type TrustItem } from "./TrustSection";
 
 // ── Static data ──────────────────────────────────────────────────────────────
 
-const FEATURES: string[] = [
-  "150 AI operations per month (vs 10 on Free)",
-  "Unlimited active jobs in your tracker",
-  "AI-tailored resumes for every application",
-  "AI-generated cover letters with multiple variants",
-  "Smart job description parsing — paste and go",
-  "All resume templates unlocked",
-  "Analytics dashboard to track your progress",
-  "Priority AI generation",
-  "Cancel anytime — no questions asked",
+const FREE_FEATURES: PricingFeature[] = [
+  { label: "10 AI operations per month", included: true },
+  { label: "Up to 10 active jobs", included: true },
+  { label: "AI-tailored resumes (limited)", included: true },
+  { label: "AI-generated cover letters (limited)", included: true },
+  { label: "Smart job description parsing (limited)", included: true },
+  { label: "Basic resume template only", included: true },
+  // { label: "Analytics dashboard", included: false },
+  // { label: "Priority AI generation", included: false },
+  // { label: "Cancel anytime — no questions asked", included: true },
 ];
 
-const COMPARISON_ROWS: ComparisonRow[] = [
-  { feature: "Active jobs", free: "5", pro: "Unlimited" },
-  { feature: "AI operations / month", free: "10", pro: "150" },
-  { feature: "Resume templates", free: "1", pro: "All templates" },
-  { feature: "Resume tailoring", free: "Yes", pro: "Yes" },
-  { feature: "Cover letter generation", free: "Yes", pro: "Yes" },
-  { feature: "AI job parsing", free: "Yes", pro: "Yes" },
-  { feature: "Analytics dashboard", free: "—", pro: "Yes" },
-  { feature: "Priority AI processing", free: "—", pro: "Yes" },
-  { feature: "PDF & DOCX export", free: "Yes", pro: "Yes" },
+const PRO_FEATURES: PricingFeature[] = [
+  { label: "150 AI operations per month", included: true },
+  { label: "Unlimited active jobs", included: true },
+  { label: "AI-tailored resumes for every application", included: true },
+  { label: "AI-generated cover letters with multiple variants", included: true },
+  { label: "Smart job description parsing — paste and go", included: true },
+  // { label: "All resume templates unlocked", included: true },
+  // { label: "Analytics dashboard to track your progress", included: true },
+  { label: "Priority AI generation", included: true },
+  { label: "Cancel anytime — no questions asked", included: true },
 ];
 
 const TRUST_ITEMS: TrustItem[] = [
@@ -66,7 +66,7 @@ const FAQ_ITEMS: FaqItem[] = [
   },
   {
     q: "What is the difference between Free and Pro?",
-    a: "The Free plan gives you 10 AI operations per month and up to 5 active jobs. Pro unlocks 150 AI operations, unlimited active jobs, all resume templates, analytics, and priority AI processing.",
+    a: "The Free plan gives you 10 AI operations per month and up to 10 active jobs. Pro unlocks 150 AI operations, unlimited active jobs, all resume templates, analytics, and priority AI processing.",
   },
   {
     q: "How is payment processed?",
@@ -137,12 +137,9 @@ export function UpgradePage() {
   }
 
   return (
-    <div className="flex flex-col items-center gap-16 pb-24">
+    <div className="flex flex-col items-center gap-8">
       {/* ── Hero ── */}
       <section className="flex flex-col items-center gap-3 pt-10 text-center">
-        {/* <span className="text-muted-foreground text-sm font-semibold tracking-wider uppercase">
-          Upgrade to Pro
-        </span> */}
         <h1 className="text-foreground max-w-2xl text-4xl leading-tight font-extrabold md:text-4xl">
           Unlock the full power of your job search
         </h1>
@@ -150,7 +147,6 @@ export function UpgradePage() {
           Tailor every resume, generate every cover letter, and track unlimited opportunities — all
           in one place.
         </p>
-        {/*<p className="text-muted-foreground text-xs">Cancel anytime · Secure payment via Paddle</p> */}
       </section>
 
       {/* ── Billing toggle ── */}
@@ -164,7 +160,7 @@ export function UpgradePage() {
 
       {/* ── Pricing cards ── */}
       {cardLoading ? (
-        <div className="flex w-full max-w-3xl flex-col gap-6 md:flex-row">
+        <div className="grid w-full max-w-3xl grid-cols-1 gap-6 md:grid-cols-2">
           <PricingCard
             loading
             title=""
@@ -172,8 +168,6 @@ export function UpgradePage() {
             formattedPrice=""
             billingCycleLabel=""
             features={[]}
-            ctaLabel=""
-            onCtaClick={() => {}}
             highlighted={false}
           />
           <PricingCard
@@ -183,59 +177,73 @@ export function UpgradePage() {
             formattedPrice=""
             billingCycleLabel=""
             features={[]}
-            ctaLabel=""
-            onCtaClick={() => {}}
             highlighted={false}
           />
         </div>
       ) : (
-        <div className="flex w-full max-w-3xl flex-col gap-6 pt-3 md:flex-row md:items-start">
+        <div className="grid w-full max-w-3xl grid-cols-1 items-stretch gap-6 pt-3 md:grid-cols-2">
           {priceError && (
-            <p className="text-muted-foreground w-full text-center text-xs">
+            <p className="text-muted-foreground col-span-full w-full text-center text-xs">
               Showing default prices. Local currency unavailable.
             </p>
           )}
 
-          {/* Monthly card */}
+          {/* Free card */}
           <PricingCard
-            title="Pro Monthly"
-            description="Flexible month-to-month. Cancel anytime."
-            formattedPrice={monthlyPrice.formatted}
-            billingCycleLabel="Billed monthly"
-            features={FEATURES}
-            ctaLabel="Get Pro Monthly"
-            onCtaClick={() => handleCheckout(proPlan?.paddle_price_id_monthly)}
-            highlighted={billingCycle === "monthly"}
+            title="Free"
+            description="Your current plan"
+            formattedPrice="$0"
+            billingCycleLabel="Forever free"
+            features={FREE_FEATURES}
+            highlighted={false}
+            currentPlanBadge={true}
           />
 
-          {/* Annual card */}
+          {/* Pro card */}
           <PricingCard
-            title="Pro Annual"
-            description="Best value. Pay once, save big."
-            formattedPrice={annualPrice.formatted}
-            billingCycleLabel="Billed annually"
-            // monthlyEquivalent={
-            //   annualMonthlyEquivalent ? `≈ ${annualMonthlyEquivalent} / month` : undefined
-            // }
-            savingsBadge={savingsPercent > 0 ? `Save ${savingsPercent}%` : undefined}
-            features={FEATURES}
-            ctaLabel="Get Pro Annual"
-            onCtaClick={() => handleCheckout(proPlan?.paddle_price_id_annual)}
-            highlighted={billingCycle === "annual"}
+            title="Pro"
+            description={
+              billingCycle === "annual"
+                ? "Best value. Pay once, save big."
+                : "Flexible month-to-month. Cancel anytime."
+            }
+            formattedPrice={
+              billingCycle === "annual" ? annualPrice.formatted : monthlyPrice.formatted
+            }
+            billingCycleLabel={billingCycle === "annual" ? "Billed annually" : "Billed monthly"}
+            monthlyEquivalent={
+              billingCycle === "annual" && annualMonthlyEquivalent
+                ? ` ${annualMonthlyEquivalent} / month`
+                : undefined
+            }
+            savingsBadge={
+              billingCycle === "annual" && savingsPercent > 0
+                ? `Save ${savingsPercent}%`
+                : undefined
+            }
+            features={PRO_FEATURES}
+            highlighted={true}
+            cta={
+              <Button
+                className={cn(
+                  "w-full py-1.5 text-sm font-medium transition-all duration-300",
+                  "bg-indigo-600 text-white hover:bg-indigo-700"
+                )}
+                onClick={() =>
+                  handleCheckout(
+                    billingCycle === "annual"
+                      ? proPlan?.paddle_price_id_annual
+                      : proPlan?.paddle_price_id_monthly
+                  )
+                }
+                // disabled={!!proPlan}
+              >
+                Get Started
+              </Button>
+            }
           />
         </div>
       )}
-
-      {/* ── Comparison table ── */}
-      {/* <div className="w-full max-w-3xl">
-        <ComparisonTable
-          title="Free vs Pro at a glance"
-          colFeature="Feature"
-          colFree="Free"
-          colPro="Pro"
-          rows={COMPARISON_ROWS}
-        />
-      </div> */}
 
       {/* ── Trust section ── */}
       {/* <div className="w-full max-w-3xl">
@@ -243,36 +251,9 @@ export function UpgradePage() {
       </div> */}
 
       {/* ── FAQ ── */}
-      {/* <div className="w-full max-w-3xl">
+      <div className="w-full max-w-3xl">
         <FaqAccordion title="Frequently asked questions" items={FAQ_ITEMS} />
-      </div> */}
-
-      {/* ── Footer CTA ── */}
-      {/* <section className="flex w-full max-w-3xl flex-col items-center gap-4 rounded-2xl border border-border bg-card p-10 text-center">
-        <h2 className="text-foreground text-2xl font-bold">
-          Ready to land your next role faster?
-        </h2>
-        <Button
-          size="lg"
-          className="bg-indigo-600 text-white hover:bg-indigo-700 font-semibold px-8"
-          onClick={() =>
-            handleCheckout(
-              billingCycle === "annual"
-                ? proPlan?.paddle_price_id_annual
-                : proPlan?.paddle_price_id_monthly
-            )
-          }
-          disabled={cardLoading || !proPlan}
-        >
-          {billingCycle === "annual" ? "Get Pro Annual" : "Get Pro Monthly"}
-        </Button>
-        <a
-          href="/dashboard"
-          className="text-muted-foreground hover:text-foreground text-sm transition-colors"
-        >
-          Back to dashboard
-        </a>
-      </section>*/}
+      </div>
     </div>
   );
 }

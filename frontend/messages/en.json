@@ -7,7 +7,7 @@
     "hero": {
       "eyebrow": "Upgrade to Pro",
       "headline": "Unlock the full power of your job search",
-      "subheadline": "Tailor every resume, generate every cover letter, and track unlimited opportunities — all in one place.",
+      "subheadline": "Tailor every resume, generate every cover letter, and track unlimited opportunities - all in one place.",
       "trust": "Cancel anytime · Secure payment via Paddle"
     },
     "toggle": {
@@ -16,19 +16,26 @@
       "save": "Save {percent}%"
     },
     "cards": {
+      "free": {
+        "title": "Free",
+        "description": "Your current plan",
+        "price": "$0",
+        "billedAs": "Forever free",
+        "currentPlanBadge": "Current plan"
+      },
       "monthly": {
         "title": "Pro Monthly",
         "description": "Flexible month-to-month. Cancel anytime.",
         "billedAs": "Billed monthly",
-        "cta": "Get Pro Monthly"
+        "cta": "Get Started"
       },
       "annual": {
         "title": "Pro Annual",
         "description": "Best value. Pay once, save big.",
         "billedAs": "Billed annually",
-        "cta": "Get Pro Annual",
+        "cta": "Get Started",
         "savingsBadge": "Save {percent}%",
-        "monthlyEquivalent": "≈ {price} / month"
+        "monthlyEquivalent": " {price} / month"
       },
       "features": {
         "title": "Everything in Pro:",

@@ -78,11 +78,10 @@ export function usePricePreview({
         const currencyCode = result.data.currencyCode;
 
         for (const item of lineItems) {
-          const rawStr = item.totals.total;
-          const raw = parseFloat(rawStr) * 100; // totals are in major units
+          const rawStr = item.totals.subtotal;
+          const raw = parseFloat(rawStr); // totals are in major units
           const formatted =
-            item.formattedTotals.total ||
-            centsToFormatted(Math.round(raw), currencyCode);
+            item.formattedTotals.subtotal || centsToFormatted(Math.round(raw), currencyCode);
 
           if (item.price.id === monthlyPriceId) {
             setMonthly({ formatted, raw: Math.round(raw) });
@@ -123,9 +122,7 @@ export function usePricePreview({
   }, [monthlyPriceId, annualPriceId]);
 
   const savingsPercent =
-    monthly.raw > 0
-      ? Math.round(((monthly.raw * 12 - annual.raw) / (monthly.raw * 12)) * 100)
-      : 0;
+    monthly.raw > 0 ? Math.round(((monthly.raw * 12 - annual.raw) / (monthly.raw * 12)) * 100) : 0;
 
   return { monthly, annual, savingsPercent, isLoading, isError };
 }
