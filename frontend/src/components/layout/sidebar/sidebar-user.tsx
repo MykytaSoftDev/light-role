@@ -1,6 +1,6 @@
 "use client";
 
-import { BadgeCheck, ChevronsUpDown, CreditCard, Receipt, Sparkles } from "lucide-react";
+import { Bell, ChevronsUpDown, CreditCard, Receipt, Settings, Sparkles } from "lucide-react";
 import Link from "next/link";
 
 import LogoutButton from "@/components/layout/sidebar/logout-button";
@@ -30,11 +30,12 @@ import { useProfile } from "@/hooks/use-profile";
 export function SidebarUser() {
   const { data, isLoading } = useProfile();
   const currentPlan = usePlan();
-
+  console.log(currentPlan);
   const { isMobile } = useSidebar();
   const userName = data?.first_name ? `${data.first_name} ${data.last_name}` : "User";
   const email = data?.email ? data.email : "";
   const plan = currentPlan.plan || "free";
+  const subscriptionId = currentPlan.subscriptionId || "free";
   return (
     <SidebarMenu>
       <SidebarMenuItem>
@@ -106,16 +107,24 @@ export function SidebarUser() {
             )}
             <DropdownMenuGroup>
               <DropdownMenuItem>
-                <BadgeCheck />
-                <Link href={DASHBOARD_PAGES.PROFILE}>Profile</Link>
+                <Settings />
+                <Link href={DASHBOARD_PAGES.SETTINGS}>Settings</Link>
               </DropdownMenuItem>
               <DropdownMenuItem>
-                <CreditCard />
-                <Link href={DASHBOARD_PAGES.PAYMENTS}>Payments</Link>
+                <Bell />
+                <Link href={DASHBOARD_PAGES.NOTIFICATIONS}>Notifications</Link>
               </DropdownMenuItem>
+              {plan !== "free" ? (
+                <DropdownMenuItem>
+                  <CreditCard />
+                  <Link href={DASHBOARD_PAGES.PAYMENTS}>Payments</Link>
+                </DropdownMenuItem>
+              ) : (
+                ""
+              )}
               <DropdownMenuItem>
                 <Receipt />
-                <Link href={`${DASHBOARD_PAGES.SUBSCRIPTIONS}/${currentPlan.subscriptionId}`}>
+                <Link href={`${DASHBOARD_PAGES.SUBSCRIPTIONS}/${subscriptionId}`}>
                   My Subscription
                 </Link>
               </DropdownMenuItem>
