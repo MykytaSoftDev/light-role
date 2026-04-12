@@ -17,9 +17,10 @@ interface PathParams {
 
 interface Props {
   userEmail?: string;
+  userId?: string;
 }
 
-export function CheckoutContents({ userEmail }: Props) {
+export function CheckoutContents({ userEmail, userId }: Props) {
   const { priceId } = useParams<PathParams>();
   const [paddle, setPaddle] = useState<Paddle | null>(null);
   const [checkoutData, setCheckoutData] = useState<CheckoutEventsData | null>(null);
@@ -89,6 +90,7 @@ export function CheckoutContents({ userEmail }: Props) {
           paddle.Checkout.open({
             ...(userEmail && { customer: { email: userEmail } }),
             items: [{ priceId: priceId, quantity: 1 }],
+            ...(userId && { customData: { user_id: userId } }),
           });
         }
       });

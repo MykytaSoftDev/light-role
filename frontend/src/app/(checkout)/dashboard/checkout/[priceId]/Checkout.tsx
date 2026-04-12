@@ -6,5 +6,5 @@ import { useProfile } from "@/hooks/use-profile";
 export function Checkout() {
   const { data, isLoading } = useProfile();
 
-  return <CheckoutContents userEmail={data?.email} />;
+  return <CheckoutContents userEmail={data?.email} userId={data?.id} />;
 }
