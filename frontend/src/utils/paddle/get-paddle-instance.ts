@@ -2,7 +2,7 @@ import { Environment, LogLevel, Paddle, PaddleOptions } from "@paddle/paddle-nod
 
 export function getPaddleInstance() {
   const paddleOptions: PaddleOptions = {
-    environment: (process.env.NEXT_PUBLIC_PADDLE_ENV as Environment) ?? Environment.sandbox,
+    environment: (process.env.NEXT_PUBLIC_PADDLE_ENVIRONMENT as Environment) ?? Environment.sandbox,
     logLevel: LogLevel.error,
   };
 
