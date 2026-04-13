@@ -4,6 +4,7 @@ import { queryKeys } from "./keys";
 
 export interface CurrentSubscription {
   subscription_id: string | null;
+  customer_id: string | null;
   plan_slug: "free" | "pro";
   status: "active" | "cancelled" | "past_due" | "trialing" | "paused" | null;
   ai_ops_used: number;

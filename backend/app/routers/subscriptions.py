@@ -205,6 +205,7 @@ async def get_current_subscription(
 
     return SubscriptionCurrentResponse(
         subscription_id=subscription.paddle_subscription_id,
+        customer_id=subscription.paddle_customer_id,
         plan_name=subscription.plan.name,
         plan_slug=subscription.plan.slug,
         status=subscription.status.value,

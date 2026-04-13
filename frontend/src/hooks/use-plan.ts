@@ -3,8 +3,9 @@ import { useCurrentSubscription } from "@/hooks/api/useCurrentSubscription";
 
 interface PlanState {
   subscriptionId: string | null;
-  plan: string | null;       // "free" | "pro"
-  status: string | null;     // "active" | "cancelled" | "past_due"
+  customerId: string | null;
+  plan: string | null; // "free" | "pro"
+  status: string | null; // "active" | "cancelled" | "past_due"
   isFreePlan: boolean;
   isProPlan: boolean;
   aiOpsUsed: number;
@@ -18,6 +19,7 @@ export function usePlan(): PlanState {
 
   return {
     subscriptionId: data?.subscription_id ?? null,
+    customerId: data?.customer_id ?? null,
     plan: data?.plan_slug ?? null,
     status: data?.status ?? null,
     isFreePlan: data?.plan_slug === "free",

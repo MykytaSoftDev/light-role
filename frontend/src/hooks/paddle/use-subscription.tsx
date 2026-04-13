@@ -89,8 +89,7 @@ export function useSubscription(subscriptionId: string): UseSubscriptionReturn {
         Promise.all([getSubscription(subscriptionId), getTransactions(subscriptionId)]),
         timeoutPromise,
       ])) as [SubscriptionDetailResponse, TransactionResponse];
-      console.log("subscriptionResponse", subscriptionResponse);
-      console.log("transactionsResponse", transactionsResponse);
+
       if (subscriptionResponse?.data) {
         setSubscription(subscriptionResponse);
       } else {

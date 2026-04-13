@@ -1,8 +1,8 @@
 "use client";
 
+import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ChevronRight } from "lucide-react";
 
 const SEGMENT_LABELS: Record<string, string> = {
   dashboard: "Dashboard",
@@ -13,17 +13,24 @@ const SEGMENT_LABELS: Record<string, string> = {
   applications: "Applications",
   profile: "Profile",
   notifications: "Notifications",
-  subscription: "Subscription",
+  subscriptions: "My Subscription",
 };
 
-const UUID_RE =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const ID_RE = /^(sub|txn|ctm|pri|pro|res|job|cl)_[a-z0-9]+$/i;
 
-function resolveLabel(seg: string, parentSeg: string | undefined): string {
-  if (!UUID_RE.test(seg)) return SEGMENT_LABELS[seg] ?? seg;
-  if (parentSeg === "resumes") return "Edit Resume";
-  if (parentSeg === "jobs") return "Job Details";
-  return "Details";
+function isIdSegment(seg: string) {
+  return UUID_RE.test(seg) || ID_RE.test(seg);
+}
+
+function resolveLabel(seg: string, parentSeg: string | undefined): string | null {
+  if (isIdSegment(seg)) {
+    if (parentSeg === "subscriptions") return null;
+    if (parentSeg === "resumes") return "Edit Resume";
+    if (parentSeg === "jobs") return "Job Details";
+    return "Details";
+  }
+  return SEGMENT_LABELS[seg] ?? seg[0].toUpperCase() + seg.slice(1);
 }
 
 export function DynamicBreadcrumb() {
@@ -33,27 +40,27 @@ export function DynamicBreadcrumb() {
   // Don't render on root dashboard page
   if (segments.length <= 1) return null;
 
-  const crumbs = segments.map((seg, idx) => ({
-    label: resolveLabel(seg, segments[idx - 1]),
-    href: "/" + segments.slice(0, idx + 1).join("/"),
-    isLast: idx === segments.length - 1,
-  }));
+  const crumbs = segments
+    .map((seg, idx) => ({
+      label: resolveLabel(seg, segments[idx - 1]),
+      href: "/" + segments.slice(0, idx + 1).join("/"),
+    }))
+    .filter((c): c is { label: string; href: string } => c.label !== null)
+    .map((c, idx, arr) => ({ ...c, isLast: idx === arr.length - 1 }));
 
   return (
     <nav aria-label="Breadcrumb" className="flex items-center gap-1 text-sm">
       {crumbs.map((crumb, idx) => (
         <div key={crumb.href} className="flex items-center gap-1">
-          {idx > 0 && (
-            <ChevronRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-          )}
+          {idx > 0 && <ChevronRight className="text-muted-foreground h-3.5 w-3.5 shrink-0" />}
           {crumb.isLast ? (
-            <span className="font-medium text-foreground truncate max-w-[160px]">
+            <span className="text-foreground max-w-[160px] truncate font-medium">
               {crumb.label}
             </span>
           ) : (
             <Link
               href={crumb.href}
-              className="text-muted-foreground hover:text-foreground transition-colors truncate max-w-[120px]"
+              className="text-muted-foreground hover:text-foreground max-w-[120px] truncate transition-colors"
             >
               {crumb.label}
             </Link>
