@@ -32,4 +32,12 @@ export const queryKeys = {
   plans: {
     all: ["plans"] as const,
   },
+  feedback: {
+    all: ["feedback"] as const,
+    create: () => [...queryKeys.feedback.all, "create"] as const,
+  },
+  support: {
+    all: ["support"] as const,
+    contact: () => [...queryKeys.support.all, "contact"] as const,
+  },
 } as const;

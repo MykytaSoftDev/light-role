@@ -37,6 +37,7 @@ class Settings(BaseSettings):
     # Resend
     resend_api_key: str = ""
     resend_from_email: str = ""
+    support_email: str = "support@lightrole.com"
 
     # Sentry
     sentry_dsn: str = ""

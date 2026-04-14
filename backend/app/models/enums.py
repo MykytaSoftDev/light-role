@@ -60,3 +60,18 @@ class NotificationType(str, Enum):
     LIMIT_WARNING = "limit_warning"
     LIMIT_RESET = "limit_reset"
     RESUME_ANALYSIS_COMPLETE = "resume_analysis_complete"
+
+
+class FeedbackType(str, Enum):
+    BUG = "bug"
+    FEATURE_REQUEST = "feature_request"
+    IMPROVEMENT = "improvement"
+    OTHER = "other"
+
+
+class FeedbackStatus(str, Enum):
+    NEW = "new"
+    REVIEWED = "reviewed"
+    PLANNED = "planned"
+    DONE = "done"
+    DECLINED = "declined"

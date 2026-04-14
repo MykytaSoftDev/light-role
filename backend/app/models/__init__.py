@@ -6,11 +6,14 @@ from app.models.enums import (
     CLLength,
     CLStyle,
     CLTone,
+    FeedbackStatus,
+    FeedbackType,
     FileFormat,
     NotificationType,
     OperationType,
     SubscriptionStatus,
 )
+from app.models.feedback import Feedback
 from app.models.job import Job
 from app.models.notification import Notification
 from app.models.plan import Plan
@@ -30,6 +33,8 @@ __all__ = [
     "CLTone",
     "CLLength",
     "NotificationType",
+    "FeedbackType",
+    "FeedbackStatus",
     # Models
     "User",
     "Job",
@@ -40,4 +45,5 @@ __all__ = [
     "Subscription",
     "UsageLog",
     "Notification",
+    "Feedback",
 ]

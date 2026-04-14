@@ -1,6 +1,8 @@
 import { Providers as TanstackQueryProvider, ThemeProvider } from "@/providers/query.provider";
 import type { Metadata } from "next";
 import { EB_Garamond, IBM_Plex_Mono, Karla } from "next/font/google";
+import { NextIntlClientProvider } from "next-intl";
+import { getMessages } from "next-intl/server";
 import { Toaster } from "sonner";
 
 import "@/styles/globals.css";
@@ -26,7 +28,9 @@ export const metadata: Metadata = {
   description: "AI-powered job search management platform",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const messages = await getMessages();
+
   return (
     <html lang="en" suppressHydrationWarning>
       <body
@@ -38,10 +42,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           enableSystem
           disableTransitionOnChange
         >
-          <TanstackQueryProvider>
-            {children}
-            <Toaster expand theme="light" richColors position="top-right" duration={6000} />
-          </TanstackQueryProvider>
+          <NextIntlClientProvider messages={messages}>
+            <TanstackQueryProvider>
+              {children}
+              <Toaster expand theme="light" richColors position="top-right" duration={6000} />
+            </TanstackQueryProvider>
+          </NextIntlClientProvider>
         </ThemeProvider>
       </body>
     </html>

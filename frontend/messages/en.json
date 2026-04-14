@@ -109,5 +109,63 @@
       "retry": "Try again",
       "pricesFallback": "Showing default prices. Local currency unavailable."
     }
+  },
+  "sidebar": {
+    "feedback": "Send feedback",
+    "support": "Contact support"
+  },
+  "feedback": {
+    "dialog": {
+      "title": "Send feedback",
+      "description": "Help us improve Light Role. Share bugs, ideas, or anything on your mind.",
+      "type": {
+        "label": "Type",
+        "bug": "Bug",
+        "feature_request": "Feature request",
+        "improvement": "Improvement",
+        "other": "Other"
+      },
+      "message": {
+        "label": "Message",
+        "placeholder": "Tell us what is on your mind..."
+      },
+      "submit": "Submit",
+      "cancel": "Cancel"
+    },
+    "toast": {
+      "success": "Thanks for your feedback!"
+    },
+    "error": {
+      "rate_limit": "You can submit feedback once per hour. Please try again later.",
+      "generic": "Something went wrong. Please try again."
+    }
+  },
+  "support": {
+    "dialog": {
+      "title": "Contact support",
+      "description": "We typically reply within 24 hours.",
+      "reply_to_notice": "We will reply to {email}",
+      "category": {
+        "label": "Category",
+        "account": "Account",
+        "billing": "Billing",
+        "technical": "Technical",
+        "other": "Other"
+      },
+      "subject": {
+        "label": "Subject"
+      },
+      "message": {
+        "label": "Message"
+      },
+      "send": "Send"
+    },
+    "toast": {
+      "success": "Your message has been sent. Check your inbox for our reply."
+    },
+    "error": {
+      "rate_limit": "You can contact support once per hour.",
+      "unavailable": "Unable to send message right now. Please email support@lightrole.com directly."
+    }
   }
 }

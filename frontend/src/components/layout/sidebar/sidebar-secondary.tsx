@@ -1,7 +1,8 @@
-"use client"
+"use client";
 
-import { LifeBuoy, Send } from "lucide-react";
-
+import { useState } from "react";
+import { LifeBuoy, MessageSquare } from "lucide-react";
+import { useTranslations } from "next-intl";
 import {
   SidebarGroup,
   SidebarGroupContent,
@@ -9,38 +10,43 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { useRouter } from "next/navigation";
-
-const items = [
-  {
-    title: "Support",
-    url: "#",
-    icon: LifeBuoy,
-  },
-  {
-    title: "Feedback",
-    url: "#",
-    icon: Send,
-  },
-];
+import { FeedbackDialog } from "@/components/feedback/feedback-dialog";
+import { SupportDialog } from "@/components/support/support-dialog";
 
 export function SidebarSecondary() {
-  const { push } = useRouter();
+  const t = useTranslations();
+  const [feedbackOpen, setFeedbackOpen] = useState(false);
+  const [supportOpen, setSupportOpen] = useState(false);
 
   return (
-    <SidebarGroup>
-      <SidebarGroupContent className="flex flex-col gap-2">
-        <SidebarMenu>
-          {items.map((item) => (
-            <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton tooltip={item.title} onClick={() => push(item.url)}>
-                {item.icon && <item.icon />}
-                <span>{item.title}</span>
+    <>
+      <SidebarGroup>
+        <SidebarGroupContent className="flex flex-col gap-2">
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                tooltip={t("sidebar.support")}
+                onClick={() => setSupportOpen(true)}
+              >
+                <LifeBuoy />
+                <span>{t("sidebar.support")}</span>
               </SidebarMenuButton>
             </SidebarMenuItem>
-          ))}
-        </SidebarMenu>
-      </SidebarGroupContent>
-    </SidebarGroup>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                tooltip={t("sidebar.feedback")}
+                onClick={() => setFeedbackOpen(true)}
+              >
+                <MessageSquare />
+                <span>{t("sidebar.feedback")}</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarGroupContent>
+      </SidebarGroup>
+
+      <FeedbackDialog open={feedbackOpen} onOpenChange={setFeedbackOpen} />
+      <SupportDialog open={supportOpen} onOpenChange={setSupportOpen} />
+    </>
   );
 }

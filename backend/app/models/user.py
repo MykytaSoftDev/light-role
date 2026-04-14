@@ -13,6 +13,7 @@ from app.models.enums import AuthProvider
 
 if TYPE_CHECKING:
     from app.models.cover_letter import CoverLetter
+    from app.models.feedback import Feedback
     from app.models.job import Job
     from app.models.notification import Notification
     from app.models.resume import Resume
@@ -110,6 +111,11 @@ class User(TimestampMixin, Base):
     )
     notifications: Mapped[List[Notification]] = relationship(
         "Notification",
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )
+    feedbacks: Mapped[List[Feedback]] = relationship(
+        "Feedback",
         back_populates="user",
         cascade="all, delete-orphan",
     )

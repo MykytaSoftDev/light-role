@@ -16,12 +16,14 @@ from app.redis import close_redis, get_redis_client
 from app.tasks.scheduler import run_notification_scheduler
 from app.routers import auth as auth_router
 from app.routers import cover_letters as cover_letters_router
+from app.routers import feedback as feedback_router
 from app.routers import health
 from app.routers import jobs as jobs_router
 from app.routers import notifications as notifications_router
 from app.routers import plans as plans_router
 from app.routers import resumes as resumes_router
 from app.routers import subscriptions as subscriptions_router
+from app.routers import support as support_router
 from app.routers import users as users_router
 from app.routers import webhooks as webhooks_router
 
@@ -109,6 +111,8 @@ def create_app() -> FastAPI:
     app.include_router(plans_router.router)
     app.include_router(subscriptions_router.router)
     app.include_router(webhooks_router.router)
+    app.include_router(feedback_router.router)
+    app.include_router(support_router.router)
 
     return app
 
