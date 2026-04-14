@@ -2,7 +2,7 @@ import { Providers as TanstackQueryProvider, ThemeProvider } from "@/providers/q
 import type { Metadata } from "next";
 import { EB_Garamond, IBM_Plex_Mono, Karla } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
-import { getMessages } from "next-intl/server";
+import { getLocale, getMessages } from "next-intl/server";
 import { Toaster } from "sonner";
 
 import "@/styles/globals.css";
@@ -29,10 +29,11 @@ export const metadata: Metadata = {
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const locale = await getLocale();
   const messages = await getMessages();
 
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang={locale} suppressHydrationWarning>
       <body
         className={`${eb_garamond.variable} ${karla.variable} ${ibm_plex_mono.variable} antialiased`}
       >

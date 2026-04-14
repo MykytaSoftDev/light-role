@@ -496,3 +496,12 @@ textarea[data-slot="textarea"]:not(:where([data-slot="table-cell"] > form > *)):
     left: 100%;
   }
 }
+
+@layer utilities {
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-none {
+    scrollbar-width: none;
+  }
+}

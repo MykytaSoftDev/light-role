@@ -3,6 +3,7 @@
 import { api } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { Bell, CircleAlert, CircleCheck, Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
 
 // ── Types ────────────────────────────────────────────────────────────────────
@@ -101,9 +102,10 @@ function ToggleRow({ id, label, description, checked, disabled = false, saving =
   );
 }
 
-// ── Page ──────────────────────────────────────────────────────────────────────
+// ── Tab ──────────────────────────────────────────────────────────────────────
 
-export default function NotificationSettingsPage() {
+export function NotificationsTab() {
+  const t = useTranslations("settings");
   const [prefs, setPrefs] = useState<NotificationPreferences | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   // Track which key (if any) is currently being saved
@@ -187,12 +189,10 @@ export default function NotificationSettingsPage() {
 
   return (
     <div className="max-w-2xl space-y-8">
-      {/* Page header */}
+      {/* Tab header */}
       <div>
-        <h2 className="text-xl font-semibold text-foreground">Notification Preferences</h2>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Manage which notifications you receive from Light Role.
-        </p>
+        <h2 className="text-xl font-semibold text-foreground">{t("notifications.heading")}</h2>
+        <p className="mt-1 text-sm text-muted-foreground">{t("notifications.description")}</p>
       </div>
 
       {/* Load error */}

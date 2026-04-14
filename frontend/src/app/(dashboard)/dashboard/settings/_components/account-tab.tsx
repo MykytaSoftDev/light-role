@@ -7,6 +7,7 @@ import { api } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CircleAlert, CircleCheck, Info, Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -28,7 +29,8 @@ const accountSchema = z.object({
 
 type AccountFormValues = z.infer<typeof accountSchema>;
 
-export default function AccountSettingsPage() {
+export function AccountTab() {
+  const t = useTranslations("settings");
   const [user, setUser] = useState<User | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [serverError, setServerError] = useState<string | null>(null);
@@ -113,12 +115,10 @@ export default function AccountSettingsPage() {
 
   return (
     <div className="max-w-2xl space-y-8">
-      {/* Page header */}
+      {/* Tab header */}
       <div>
-        <h2 className="text-xl font-semibold text-foreground">Account</h2>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Manage your name and email address.
-        </p>
+        <h2 className="text-xl font-semibold text-foreground">{t("account.heading")}</h2>
+        <p className="mt-1 text-sm text-muted-foreground">{t("account.description")}</p>
       </div>
 
       {/* Load error */}

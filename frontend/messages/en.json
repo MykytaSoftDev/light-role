@@ -140,6 +140,28 @@
       "generic": "Something went wrong. Please try again."
     }
   },
+  "settings": {
+    "title": "Settings",
+    "subtitle": "Manage your account preferences and security settings.",
+    "tabs": {
+      "ariaLabel": "Settings sections",
+      "account": "Account",
+      "security": "Security",
+      "notifications": "Notifications"
+    },
+    "account": {
+      "heading": "Account",
+      "description": "Update your personal information and email address."
+    },
+    "security": {
+      "heading": "Security",
+      "description": "Manage your password and account security."
+    },
+    "notifications": {
+      "heading": "Notification Preferences",
+      "description": "Manage which notifications you receive from Light Role."
+    }
+  },
   "support": {
     "dialog": {
       "title": "Contact support",

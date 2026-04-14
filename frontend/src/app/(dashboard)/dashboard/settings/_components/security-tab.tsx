@@ -15,6 +15,7 @@ import { api } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CircleAlert, CircleCheck, Loader2, TriangleAlert } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -42,7 +43,8 @@ type ChangePasswordFormValues = z.infer<typeof changePasswordSchema>;
 // Delete flow: step 1 = warning, step 2 = type DELETE confirmation
 type DeleteStep = "warning" | "confirm";
 
-export default function SecuritySettingsPage() {
+export function SecurityTab() {
+  const t = useTranslations("settings");
   const [user, setUser] = useState<User | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
 
@@ -151,12 +153,10 @@ export default function SecuritySettingsPage() {
 
   return (
     <div className="max-w-2xl space-y-10">
-      {/* Page header */}
+      {/* Tab header */}
       <div>
-        <h2 className="text-xl font-semibold text-foreground">Security</h2>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Manage your password and account security.
-        </p>
+        <h2 className="text-xl font-semibold text-foreground">{t("security.heading")}</h2>
+        <p className="mt-1 text-sm text-muted-foreground">{t("security.description")}</p>
       </div>
 
       {/* Load error */}
