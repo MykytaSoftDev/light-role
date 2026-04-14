@@ -114,7 +114,7 @@ def create_job(
                     "message": "Active jobs limit reached",
                     "current_count": active_count,
                     "limit": _ACTIVE_JOB_LIMIT_FREE,
-                    "upgrade_url": "/dashboard/settings/billing",
+                    "upgrade_url": "/dashboard/upgrade",
                 },
             )
 

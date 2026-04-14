@@ -1,11 +1,12 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { DASHBOARD_PAGES } from "@/constants/nav.constants";
 import { api } from "@/lib/api";
 import { CheckCircle, Loader2, RefreshCw } from "lucide-react";
 import Link from "next/link";
-import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
@@ -13,6 +14,7 @@ interface SubscriptionData {
   plan_slug: string;
   status: string;
   current_period_end?: string;
+  subscription_id: string | null;
 }
 
 type PageStatus = "polling" | "confirmed" | "timeout";
@@ -74,7 +76,7 @@ function SuccessContent() {
     return (
       <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center p-4">
         <div className="w-full max-w-md space-y-4 text-center">
-          <Loader2 className="mx-auto h-10 w-10 animate-spin text-muted-foreground" />
+          <Loader2 className="text-muted-foreground mx-auto h-10 w-10 animate-spin" />
           <p className="text-muted-foreground">Processing your payment&hellip;</p>
         </div>
       </div>
@@ -91,12 +93,12 @@ function SuccessContent() {
           to   { transform: scale(1);   opacity: 1; }
         }
       `}</style>
-      <div className="flex justify-center mb-6">
+      <div className="mb-6 flex justify-center">
         <div
-          className="rounded-full bg-primary/10 p-6"
+          className="bg-primary/10 rounded-full p-6"
           style={{ animation: "scale-in 0.5s ease-out forwards" }}
         >
-          <CheckCircle className="h-16 w-16 text-primary" />
+          <CheckCircle className="text-primary h-16 w-16" />
         </div>
       </div>
     </>
@@ -111,7 +113,7 @@ function SuccessContent() {
           <AnimatedCheck />
 
           <div className="space-y-2">
-            <h1 className="text-2xl font-semibold tracking-tight text-foreground">
+            <h1 className="text-foreground text-2xl font-semibold tracking-tight">
               Payment Received!
             </h1>
             <p className="text-muted-foreground">
@@ -141,28 +143,28 @@ function SuccessContent() {
         <AnimatedCheck />
 
         <div className="space-y-2">
-          <h1 className="text-2xl font-semibold tracking-tight text-foreground">
+          <h1 className="text-foreground text-2xl font-semibold tracking-tight">
             Payment Successful!
           </h1>
           <p className="text-muted-foreground">Welcome to Light Role Pro!</p>
         </div>
 
         {/* Transaction details */}
-        <div className="rounded-lg border border-border bg-muted/30 p-4 space-y-2 text-sm text-left">
+        <div className="border-border bg-muted/30 space-y-2 rounded-lg border p-4 text-left text-sm">
           {txnId && (
             <div className="flex justify-between gap-4">
               <span className="text-muted-foreground">Transaction ID</span>
-              <span className="font-mono text-xs text-foreground break-all">{txnId}</span>
+              <span className="text-foreground font-mono text-xs break-all">{txnId}</span>
             </div>
           )}
           <div className="flex justify-between">
             <span className="text-muted-foreground">Plan</span>
-            <span className="font-medium text-foreground">Pro</span>
+            <span className="text-foreground font-medium">Pro</span>
           </div>
           {subscriptionData?.current_period_end && (
             <div className="flex justify-between">
               <span className="text-muted-foreground">Next billing</span>
-              <span className="font-medium text-foreground">
+              <span className="text-foreground font-medium">
                 {new Date(subscriptionData.current_period_end).toLocaleDateString(undefined, {
                   year: "numeric",
                   month: "long",
@@ -179,11 +181,15 @@ function SuccessContent() {
             <Link href="/dashboard">Go to Dashboard</Link>
           </Button>
           <Button variant="outline" asChild>
-            <Link href="/dashboard/settings/billing">View Subscription</Link>
+            <Link
+              href={`${DASHBOARD_PAGES.SUBSCRIPTIONS}/${subscriptionData?.subscription_id || "free"}`}
+            >
+              View Subscription
+            </Link>
           </Button>
         </div>
 
-        <p className="text-xs text-muted-foreground">
+        <p className="text-muted-foreground text-xs">
           A confirmation email will be sent to your inbox.
         </p>
       </div>
@@ -198,7 +204,7 @@ export default function CheckoutSuccessPage() {
     <Suspense
       fallback={
         <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center">
-          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+          <Loader2 className="text-muted-foreground h-8 w-8 animate-spin" />
         </div>
       }
     >

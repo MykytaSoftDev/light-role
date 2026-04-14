@@ -84,6 +84,6 @@ async def require_ai_quota(
                 "current_usage": current_usage,
                 "limit": limit,
                 "reset_date": reset_date,
-                "upgrade_url": "/dashboard/settings/billing",
+                "upgrade_url": "/dashboard/upgrade",
             },
         )

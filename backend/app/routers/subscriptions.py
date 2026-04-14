@@ -142,6 +142,7 @@ async def get_current_subscription(
     if subscription is None or subscription.plan.slug == "free":
         # Free users: return DB data only — no Paddle API call
         return SubscriptionCurrentResponse(
+            subscription_id=subscription.paddle_subscription_id,
             plan_name="Free",
             plan_slug="free",
             status="active",
