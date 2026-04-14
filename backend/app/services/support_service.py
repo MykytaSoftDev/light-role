@@ -107,7 +107,7 @@ async def send_support_email(user: User, data: SupportContactRequest) -> None:
         return
 
     timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
-    sender = settings.resend_from_email or "Light Role <noreply@send.lightrole.com>"
+    sender = settings.resend_from_email or "Light Role <noreply@lightrole.com>"
     subject = f"[Support][{data.category.value}] {data.subject}"
     html_body = _build_support_email_html(user, data, timestamp)
     text_body = _build_support_email_text(user, data, timestamp)

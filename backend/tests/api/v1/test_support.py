@@ -123,7 +123,7 @@ class TestSupportContactEndpoint:
         call_kwargs = mock_resend.Emails.send.call_args[0][0]
 
         # from must be settings.resend_from_email (or fallback)
-        expected_from = settings.resend_from_email or "Light Role <noreply@send.lightrole.com>"
+        expected_from = settings.resend_from_email or "Light Role <noreply@lightrole.com>"
         assert call_kwargs["from"] == expected_from
 
         # to must be the support inbox

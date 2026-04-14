@@ -6,7 +6,7 @@ from app.config import settings
 
 logger = logging.getLogger(__name__)
 
-_SENDER = settings.resend_from_email or "Light Role <noreply@send.lightrole.com>"
+_SENDER = settings.resend_from_email or "Light Role <noreply@lightrole.com>"
 _VERIFY_EMAIL_TTL_HOURS = 24
 _RESET_EMAIL_TTL_HOURS = 1
 
