@@ -50,6 +50,9 @@ class Settings(BaseSettings):
     google_client_id: str = ""
     google_client_secret: str = ""
 
+    # Analytics
+    analytics_cache_version: int = 1
+
     # Paddle
     paddle_api_key: str = ""
     paddle_price_monthly: str = ""       # kept for backwards compat

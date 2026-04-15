@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 from uuid import UUID
 
@@ -158,6 +158,16 @@ def get_application_by_id(app_id: UUID, user: User, db: Session) -> Application:
     return _get_application(app_id, user, db)
 
 
+_RESPONSE_TRIGGER_STATUSES = {
+    ApplicationStatus.SCREENING,
+    ApplicationStatus.INTERVIEW,
+    ApplicationStatus.OFFER,
+    ApplicationStatus.ACCEPTED,
+    ApplicationStatus.REJECTED,
+    ApplicationStatus.WITHDRAWN,
+}
+
+
 def update_application_status(
     app_id: UUID,
     new_status: ApplicationStatus,
@@ -165,6 +175,17 @@ def update_application_status(
     db: Session,
 ) -> Application:
     application = _get_application(app_id, user, db)
+
+    # Populate first_response_at when transitioning from 'applied' to a response
+    # status, but only if a date_applied is set and the field is not yet filled.
+    if (
+        application.status == ApplicationStatus.APPLIED
+        and new_status in _RESPONSE_TRIGGER_STATUSES
+        and application.date_applied is not None
+        and application.first_response_at is None
+    ):
+        application.first_response_at = datetime.now(timezone.utc)
+
     application.status = new_status
     db.commit()
     db.refresh(application)

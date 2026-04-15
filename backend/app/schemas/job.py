@@ -52,6 +52,7 @@ class ApplicationResponse(BaseModel):
     follow_up_date: Optional[datetime] = None
     excitement_level: Optional[int] = None
     notes: Optional[str] = None
+    first_response_at: Optional[datetime] = None
     created_at: datetime
     updated_at: datetime
 

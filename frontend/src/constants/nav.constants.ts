@@ -28,6 +28,7 @@ class DASHBOARD {
   CHECKOUT = `${this.root}/checkout`;
   CHECKOUT_SUCCESS = `${this.CHECKOUT}/success`;
   CHECKOUT_UPDATE = `${this.CHECKOUT}/update`;
+  ANALYTICS = `${this.root}/analytics`;
   ADMIN = `${this.root}/admin`;
   NOT_FOUND = `${this.root}/404`;
 }

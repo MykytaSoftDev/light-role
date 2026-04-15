@@ -1,6 +1,6 @@
 "use client";
 
-import { Briefcase, FileText, LayoutDashboard, PenLine } from "lucide-react";
+import { Briefcase, FileText, LayoutDashboard, PenLine, TrendingUp } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 import {
@@ -33,6 +33,11 @@ const items = [
     title: "Generate Cover Letter",
     url: DASHBOARD_PAGES.GENERATE_COVER_LETTERS,
     icon: PenLine,
+  },
+  {
+    title: "Analytics",
+    url: DASHBOARD_PAGES.ANALYTICS,
+    icon: TrendingUp,
   },
 ];
 

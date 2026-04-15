@@ -14,6 +14,7 @@ from app.config import settings
 from app.logging_config import setup_logging
 from app.redis import close_redis, get_redis_client
 from app.tasks.scheduler import run_notification_scheduler
+from app.routers import analytics as analytics_router
 from app.routers import auth as auth_router
 from app.routers import cover_letters as cover_letters_router
 from app.routers import feedback as feedback_router
@@ -113,6 +114,7 @@ def create_app() -> FastAPI:
     app.include_router(webhooks_router.router)
     app.include_router(feedback_router.router)
     app.include_router(support_router.router)
+    app.include_router(analytics_router.router)
 
     return app
 

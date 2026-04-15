@@ -80,6 +80,10 @@ class Application(TimestampMixin, Base):
         DateTime(timezone=False),
         nullable=True,
     )
+    first_response_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
+    )
     excitement_level: Mapped[int | None] = mapped_column(
         SmallInteger,
         nullable=True,

@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 from typing import Optional
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query, status
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
@@ -31,7 +31,7 @@ from app.schemas.job import (
     JobUpdate,
     ParsedJobDataResponse,
 )
-from app.services import job_service
+from app.services import analytics_service, job_service
 from app.services.ai_usage_service import log_ai_operation
 from app.services.subscription_service import get_effective_plan
 
@@ -88,8 +88,9 @@ _TERMINAL_STATUSES = [
 
 
 @router.post("/jobs", response_model=JobResponse, status_code=status.HTTP_201_CREATED)
-def create_job(
+async def create_job(
     data: JobCreate,
+    background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_verified_user),
 ) -> JobResponse:
@@ -119,6 +120,7 @@ def create_job(
             )
 
     job = job_service.create_job(data, current_user, db)
+    background_tasks.add_task(analytics_service.invalidate_analytics_cache, str(current_user.id))
     return job
 
 
@@ -170,12 +172,14 @@ def update_job(
 
 
 @router.delete("/jobs/{job_id}", status_code=status.HTTP_204_NO_CONTENT, response_model=None)
-def delete_job(
+async def delete_job(
     job_id: UUID,
+    background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_verified_user),
 ) -> None:
     job_service.delete_job(job_id, current_user, db)
+    background_tasks.add_task(analytics_service.invalidate_analytics_cache, str(current_user.id))
 
 
 # ---------------------------------------------------------------------------
@@ -183,20 +187,26 @@ def delete_job(
 # ---------------------------------------------------------------------------
 
 @router.patch("/applications/{application_id}/status", response_model=ApplicationResponse)
-def update_application_status(
+async def update_application_status(
     application_id: UUID,
     data: ApplicationStatusUpdate,
+    background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_verified_user),
 ) -> ApplicationResponse:
-    return job_service.update_application_status(application_id, data.status, current_user, db)
+    result = job_service.update_application_status(application_id, data.status, current_user, db)
+    background_tasks.add_task(analytics_service.invalidate_analytics_cache, str(current_user.id))
+    return result
 
 
 @router.patch("/applications/{application_id}", response_model=ApplicationResponse)
-def update_application(
+async def update_application(
     application_id: UUID,
     data: ApplicationUpdate,
+    background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_verified_user),
 ) -> ApplicationResponse:
-    return job_service.update_application(application_id, data, current_user, db)
+    result = job_service.update_application(application_id, data, current_user, db)
+    background_tasks.add_task(analytics_service.invalidate_analytics_cache, str(current_user.id))
+    return result

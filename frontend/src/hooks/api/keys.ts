@@ -40,4 +40,8 @@ export const queryKeys = {
     all: ["support"] as const,
     contact: () => [...queryKeys.support.all, "contact"] as const,
   },
+  analytics: {
+    all: ["analytics"] as const,
+    detail: (period: string) => ["analytics", period] as const,
+  },
 } as const;
