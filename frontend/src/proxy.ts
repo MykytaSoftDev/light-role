@@ -3,11 +3,12 @@ import type { NextRequest } from 'next/server';
 
 export function proxy(request: NextRequest) {
   const accessToken = request.cookies.get('access_token');
+  const refreshToken = request.cookies.get('refresh_token');
   const { pathname } = request.nextUrl;
 
-  // Protect dashboard routes — redirect to login if no access token
+  // Protect dashboard routes — redirect to login if both tokens are missing
   if (pathname.startsWith('/dashboard')) {
-    if (!accessToken) {
+    if (!accessToken && !refreshToken) {
       const loginUrl = new URL('/auth/login', request.url);
       return NextResponse.redirect(loginUrl);
     }

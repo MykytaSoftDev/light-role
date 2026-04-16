@@ -28,7 +28,7 @@ logger = logging.getLogger(__name__)
 
 ACCESS_COOKIE = "access_token"
 REFRESH_COOKIE = "refresh_token"
-COOKIE_MAX_AGE_ACCESS = 15 * 60          # 15 min in seconds
+COOKIE_MAX_AGE_ACCESS = 120 * 60         # 2 hours in seconds
 COOKIE_MAX_AGE_REFRESH = 7 * 24 * 3600   # 7 days in seconds
 
 

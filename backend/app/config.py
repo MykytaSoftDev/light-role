@@ -23,7 +23,7 @@ class Settings(BaseSettings):
     # JWT
     secret_key: str = "change-me-in-production"
     algorithm: str = "HS256"
-    access_token_expire_minutes: int = 15
+    access_token_expire_minutes: int = 120
     refresh_token_expire_days: int = 7
 
     # CORS
