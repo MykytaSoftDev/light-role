@@ -45,6 +45,19 @@ interface Application {
   cover_letter_id: string | null;
 }
 
+interface JobResumeInfo {
+  id: string;
+  name: string;
+  match_score?: number | null;
+  updated_at: string;
+}
+
+interface JobCoverLetterInfo {
+  id: string;
+  name: string;
+  updated_at: string;
+}
+
 interface Job {
   id: string;
   title: string;
@@ -56,6 +69,8 @@ interface Job {
   is_ai_parsed: boolean;
   created_at: string;
   application: Application;
+  resumes: JobResumeInfo[];
+  cover_letters: JobCoverLetterInfo[];
 }
 
 // ---------------------------------------------------------------------------
@@ -949,65 +964,71 @@ export default function JobDetailPage() {
         <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
           Documents
         </h3>
-        <div className="grid gap-4 sm:grid-cols-2">
-          {/* Resume card */}
-          <div className="flex items-start justify-between gap-4 rounded-xl border border-border bg-card p-5 shadow-sm">
-            <div className="flex items-start gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-indigo-100 dark:bg-indigo-900/30">
-                <FileText className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+        {(() => {
+          const latestResume = job.resumes?.[0];
+          const latestCoverLetter = job.cover_letters?.[0];
+          return (
+            <div className="grid gap-4 sm:grid-cols-2">
+              {/* Resume card */}
+              <div className="flex items-start justify-between gap-4 rounded-xl border border-border bg-card p-5 shadow-sm">
+                <div className="flex items-start gap-3">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-indigo-100 dark:bg-indigo-900/30">
+                    <FileText className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium">Resume</p>
+                    <p className="mt-0.5 text-xs text-muted-foreground">
+                      {latestResume ? "Resume ready" : "No resume tailored yet"}
+                    </p>
+                  </div>
+                </div>
+                {latestResume ? (
+                  <Link href={`/dashboard/resumes/${latestResume.id}`}>
+                    <Button size="sm" variant="outline" className="shrink-0 gap-1.5">
+                      <ExternalLink className="h-3.5 w-3.5" />
+                      View
+                    </Button>
+                  </Link>
+                ) : (
+                  <Link href={`/dashboard/resumes/tailor?job=${job.id}`}>
+                    <Button size="sm" className="shrink-0">
+                      Tailor Resume
+                    </Button>
+                  </Link>
+                )}
               </div>
-              <div>
-                <p className="text-sm font-medium">Resume</p>
-                <p className="mt-0.5 text-xs text-muted-foreground">
-                  {application.resume_id ? "Resume ready" : "No resume tailored yet"}
-                </p>
-              </div>
-            </div>
-            {application.resume_id ? (
-              <Link href={`/dashboard/resumes/${application.resume_id}`}>
-                <Button size="sm" variant="outline" className="shrink-0 gap-1.5">
-                  <ExternalLink className="h-3.5 w-3.5" />
-                  View
-                </Button>
-              </Link>
-            ) : (
-              <Link href={`/dashboard/resumes/tailor?job=${job.id}`}>
-                <Button size="sm" className="shrink-0">
-                  Tailor Resume
-                </Button>
-              </Link>
-            )}
-          </div>
 
-          {/* Cover letter card */}
-          <div className="flex items-start justify-between gap-4 rounded-xl border border-border bg-card p-5 shadow-sm">
-            <div className="flex items-start gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-violet-100 dark:bg-violet-900/30">
-                <FileText className="h-5 w-5 text-violet-600 dark:text-violet-400" />
-              </div>
-              <div>
-                <p className="text-sm font-medium">Cover Letter</p>
-                <p className="mt-0.5 text-xs text-muted-foreground">
-                  {application.cover_letter_id ? "Cover letter ready" : "No cover letter yet"}
-                </p>
+              {/* Cover letter card */}
+              <div className="flex items-start justify-between gap-4 rounded-xl border border-border bg-card p-5 shadow-sm">
+                <div className="flex items-start gap-3">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-violet-100 dark:bg-violet-900/30">
+                    <FileText className="h-5 w-5 text-violet-600 dark:text-violet-400" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium">Cover Letter</p>
+                    <p className="mt-0.5 text-xs text-muted-foreground">
+                      {latestCoverLetter ? "Cover letter ready" : "No cover letter yet"}
+                    </p>
+                  </div>
+                </div>
+                {latestCoverLetter ? (
+                  <Link href={`/dashboard/cover-letters/${latestCoverLetter.id}`}>
+                    <Button size="sm" variant="outline" className="shrink-0 gap-1.5">
+                      <ExternalLink className="h-3.5 w-3.5" />
+                      View
+                    </Button>
+                  </Link>
+                ) : (
+                  <Link href={`/dashboard/cover-letters/generate?job=${job.id}`}>
+                    <Button size="sm" className="shrink-0">
+                      Generate
+                    </Button>
+                  </Link>
+                )}
               </div>
             </div>
-            {application.cover_letter_id ? (
-              <Link href={`/dashboard/cover-letters/${application.cover_letter_id}`}>
-                <Button size="sm" variant="outline" className="shrink-0 gap-1.5">
-                  <ExternalLink className="h-3.5 w-3.5" />
-                  View
-                </Button>
-              </Link>
-            ) : (
-              <Link href={`/dashboard/cover-letters/generate?job=${job.id}`}>
-                <Button size="sm" className="shrink-0">
-                  Generate
-                </Button>
-              </Link>
-            )}
-          </div>
-        </div>
+          );
+        })()}
       </div>
 
       {/* Delete modal */}

@@ -99,7 +99,11 @@ def get_job(job_id: UUID, user: User, db: Session) -> Job:
     """Return a single job, 404 if not found or not owned by this user."""
     job = (
         db.query(Job)
-        .options(joinedload(Job.application))
+        .options(
+            joinedload(Job.application),
+            joinedload(Job.resumes),
+            joinedload(Job.cover_letters),
+        )
         .filter(Job.id == job_id, Job.user_id == user.id)
         .first()
     )

@@ -57,6 +57,23 @@ class ApplicationResponse(BaseModel):
     updated_at: datetime
 
 
+class JobResumeInfo(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: UUID
+    name: str
+    match_score: Optional[int] = None
+    updated_at: datetime
+
+
+class JobCoverLetterInfo(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: UUID
+    name: str
+    updated_at: datetime
+
+
 class JobResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
@@ -72,6 +89,8 @@ class JobResponse(BaseModel):
     created_at: datetime
     updated_at: datetime
     application: Optional[ApplicationResponse] = None
+    resumes: list[JobResumeInfo] = []
+    cover_letters: list[JobCoverLetterInfo] = []
 
 
 class JobListResponse(BaseModel):
