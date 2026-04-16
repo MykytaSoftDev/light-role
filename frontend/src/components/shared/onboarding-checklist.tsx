@@ -6,6 +6,8 @@ import { CheckCircle2, Circle, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
 import { useJobs } from "@/hooks/api/useJobs";
+import { useResumes } from "@/hooks/api/useResumes";
+import { useCoverLetters } from "@/hooks/api/useCoverLetters";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -23,8 +25,6 @@ interface ChecklistStep {
 // ---------------------------------------------------------------------------
 
 const DISMISSED_KEY = "onboarding_dismissed";
-const HAS_RESUME_KEY = "has_uploaded_resume";
-const HAS_CL_KEY = "has_generated_cl";
 
 // ---------------------------------------------------------------------------
 // Component
@@ -41,36 +41,38 @@ export function OnboardingChecklist() {
   const { data: jobsData, isLoading: jobsLoading } = useJobs(
     { limit: 50, sort_by: "created_at", sort_order: "desc" },
   );
+  const { data: resumesData, isLoading: resumesLoading } = useResumes();
+  const { data: clData, isLoading: clLoading } = useCoverLetters();
 
   function handleDismiss() {
     localStorage.setItem(DISMISSED_KEY, "true");
     setDismissed(true);
   }
 
-  // Don't render until localStorage check and jobs query are both settled
-  if (dismissed === null || jobsLoading) return null;
+  // Don't render until localStorage check and all queries are settled
+  if (dismissed === null || jobsLoading || resumesLoading || clLoading) return null;
 
   // Hidden if dismissed
   if (dismissed) return null;
 
-  const hasResume = localStorage.getItem(HAS_RESUME_KEY) === "true";
-  const hasCL = localStorage.getItem(HAS_CL_KEY) === "true";
+  const hasResume = (resumesData?.total ?? 0) > 0;
+  const hasCL = (clData?.total ?? 0) > 0;
   const hasJob = (jobsData?.total ?? 0) > 0;
   // JobOption exposes a top-level `status` field (not nested under `application`)
   const hasApplied = (jobsData?.items ?? []).some((job) => job.status !== "SAVED") ?? false;
 
   const steps: ChecklistStep[] = [
     {
-      id: "upload-resume",
-      label: "Upload a resume",
-      href: "/dashboard/resumes",
-      completed: hasResume,
-    },
-    {
       id: "create-job",
       label: "Create your first job",
       href: "/dashboard/jobs/new",
       completed: hasJob,
+    },
+    {
+      id: "upload-resume",
+      label: "Upload a resume",
+      href: "/dashboard/resumes",
+      completed: hasResume,
     },
     {
       id: "generate-cl",
