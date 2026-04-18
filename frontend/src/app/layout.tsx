@@ -1,23 +1,22 @@
 import { Providers as TanstackQueryProvider, ThemeProvider } from "@/providers/query.provider";
 import type { Metadata } from "next";
-import { EB_Garamond, IBM_Plex_Mono, Karla } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
 import { Toaster } from "sonner";
 
 import "@/styles/globals.css";
-
-const eb_garamond = EB_Garamond({
+import { JetBrains_Mono, Space_Grotesk } from "next/font/google";
+const space_grotesk_display = Space_Grotesk({
   subsets: ["latin"],
   weight: ["700"],
   variable: "--display-family",
 });
-const karla = Karla({
+const space_grotesk_body = Space_Grotesk({
   subsets: ["latin"],
   weight: ["400"],
   variable: "--body-family",
 });
-const ibm_plex_mono = IBM_Plex_Mono({
+const jetbrains_mono = JetBrains_Mono({
   subsets: ["latin"],
   weight: ["400"],
   variable: "--font-mono",
@@ -33,10 +32,12 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const messages = await getMessages();
 
   return (
-    <html lang={locale} suppressHydrationWarning>
-      <body
-        className={`${eb_garamond.variable} ${karla.variable} ${ibm_plex_mono.variable} antialiased`}
-      >
+    <html
+      lang={locale}
+      className={`${space_grotesk_display.variable} ${space_grotesk_body.variable} ${jetbrains_mono.variable}`}
+      suppressHydrationWarning
+    >
+      <body className={`antialiased`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="light"

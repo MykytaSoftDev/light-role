@@ -107,7 +107,7 @@ export function CheckoutContents({ userEmail, userId }: Props) {
   return (
     <div
       className={
-        "md:bg-background/80 relative flex flex-col justify-between rounded-lg border shadow-lg shadow-indigo-400 md:min-h-[400px] md:p-10 md:pt-12 md:pl-16 md:backdrop-blur-[24px]"
+        "md:bg-background/80 relative flex flex-col justify-between rounded-lg border shadow-lg shadow-primary/40 md:min-h-[400px] md:p-10 md:pt-12 md:pl-16 md:backdrop-blur-[24px]"
       }
     >
       <div className={"flex flex-col gap-8 md:flex-row md:gap-16"}>
