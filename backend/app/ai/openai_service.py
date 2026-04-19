@@ -117,6 +117,27 @@ Return a JSON object with exactly these top-level keys:
   "optimized_data": { /* same structure as parsed_data */ }
 }
 
+Experience parsing rules (apply to both parsed_data and optimized_data):
+- "description": One sentence only — a brief high-level summary of what the person did in the role overall. If no clear single-sentence summary exists in the source text, set to "" (empty string).
+- "achievements": Array of individual accomplishments, one per array item. Split on bullet points (•, -, *, etc.), line breaks, or sentence boundaries. Each item is one standalone sentence/bullet. Preserve the original wording exactly in parsed_data; in optimized_data you may rephrase to match job keywords but keep each as a separate array item.
+- If the source text is entirely a list of accomplishments with no separate summary sentence, set description="" and put ALL sentences/bullets into achievements.
+- NEVER leave achievements as [] when the experience entry contains any descriptive or accomplishment text.
+
+Experience example (correct):
+{
+  "company": "Acme Corp",
+  "title": "Software Engineer",
+  "start_date": "Jan 2022",
+  "end_date": null,
+  "current": true,
+  "description": "Designed and maintained backend services using NestJS and TypeScript.",
+  "achievements": [
+    "Optimized API performance, reducing response times by 30% across multiple projects",
+    "Built and customized CMS plugins (WordPress, Shopify), increasing user engagement by 40%",
+    "Integrated payment gateways (Stripe, Paddle), reducing transaction failures"
+  ]
+}
+
 Rules:
 - Never invent experience, education, or credentials not present in the original resume.
 - For optimized_data you may: rephrase bullet points to better match job keywords, reorder achievements for impact, add or expand a professional summary, incorporate job-relevant keywords naturally.

@@ -192,15 +192,26 @@ def _render_experience_item(pdf: _ResumePDF, item: dict[str, Any]) -> None:
     heading_parts = [p for p in (title, company) if p]
     heading_text = " - ".join(heading_parts) if heading_parts else "Untitled Position"
 
-    pdf.set_font("Helvetica", style="B", size=_BODY_SIZE)
-    pdf.set_text_color(*_BLACK)
-    pdf.multi_cell(w=_CONTENT_W, h=6, text=_s(heading_text))
-
     date_parts = [p for p in (start_date, end_date) if p]
-    if date_parts:
+    date_text = _s(" - ".join(date_parts)) if date_parts else ""
+
+    if date_text:
+        pdf.set_font("Helvetica", style="I", size=_SMALL_SIZE)
+        date_w = pdf.get_string_width(date_text) + 2
+        title_w = _CONTENT_W - date_w
+
+        pdf.set_font("Helvetica", style="B", size=_BODY_SIZE)
+        pdf.set_text_color(*_BLACK)
+        pdf.cell(w=title_w, h=6, text=_s(heading_text))
+
         pdf.set_font("Helvetica", style="I", size=_SMALL_SIZE)
         pdf.set_text_color(*_MID)
-        pdf.cell(w=_CONTENT_W, h=5, text=_s(" - ".join(date_parts)), new_x="LMARGIN", new_y="NEXT")
+        pdf.cell(w=date_w, h=6, text=date_text, align="R", new_x="LMARGIN", new_y="NEXT")
+        pdf.set_text_color(*_BLACK)
+    else:
+        pdf.set_font("Helvetica", style="B", size=_BODY_SIZE)
+        pdf.set_text_color(*_BLACK)
+        pdf.multi_cell(w=_CONTENT_W, h=6, text=_s(heading_text))
 
     if description:
         _body(pdf, _s(description))
@@ -227,21 +238,31 @@ def _render_education_item(pdf: _ResumePDF, item: dict[str, Any]) -> None:
     heading_parts = [p for p in (institution, degree_text) if p]
     heading_text = " - ".join(heading_parts) if heading_parts else "Untitled"
 
-    pdf.set_font("Helvetica", style="B", size=_BODY_SIZE)
-    pdf.set_text_color(*_BLACK)
-    pdf.multi_cell(w=_CONTENT_W, h=6, text=_s(heading_text))
-
     meta_parts: list[str] = []
     date_parts = [p for p in (start_date, end_date) if p]
     if date_parts:
         meta_parts.append(" - ".join(date_parts))
     if gpa:
         meta_parts.append(f"GPA: {gpa}")
+    meta_text = _s(" | ".join(meta_parts)) if meta_parts else ""
 
-    if meta_parts:
+    if meta_text:
+        pdf.set_font("Helvetica", style="I", size=_SMALL_SIZE)
+        meta_w = pdf.get_string_width(meta_text) + 2
+        inst_w = _CONTENT_W - meta_w
+
+        pdf.set_font("Helvetica", style="B", size=_BODY_SIZE)
+        pdf.set_text_color(*_BLACK)
+        pdf.cell(w=inst_w, h=6, text=_s(heading_text))
+
         pdf.set_font("Helvetica", style="I", size=_SMALL_SIZE)
         pdf.set_text_color(*_MID)
-        pdf.cell(w=_CONTENT_W, h=5, text=_s(" | ".join(meta_parts)), new_x="LMARGIN", new_y="NEXT")
+        pdf.cell(w=meta_w, h=6, text=meta_text, align="R", new_x="LMARGIN", new_y="NEXT")
+        pdf.set_text_color(*_BLACK)
+    else:
+        pdf.set_font("Helvetica", style="B", size=_BODY_SIZE)
+        pdf.set_text_color(*_BLACK)
+        pdf.multi_cell(w=_CONTENT_W, h=6, text=_s(heading_text))
 
     pdf.ln(2)
 
