@@ -30,8 +30,7 @@ from app.redis import increment_usage_count
 from app.services import analysis_task_service, file_service, resume_service
 from app.services.ai_usage_service import log_ai_operation
 from app.services.usage_service import invalidate_usage_cache
-from app.services.resume_export import get_docx_builder, user_can_use_template
-from app.services.resume_export.types import ResumeData
+from app.services.template_authorization import user_can_use_template
 from app.utils.file_validators import validate_upload_file
 from app.utils.pdf_export import generate_pdf
 from app.utils.resume_parser import compute_content_hash, extract_text_from_file
@@ -344,12 +343,11 @@ def _create_notification(
 @router.post("/{resume_id}/export")
 async def export_resume(
     resume_id: UUID,
-    format: str = Query(default="docx", pattern="^(pdf|docx)$"),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_verified_user),
 ) -> Response:
     """
-    Export a resume as a DOCX or PDF file.
+    Export a resume as a PDF file.
 
     Uses optimized_data when available (post-analysis), falling back to
     parsed_data. Returns the file as an attachment.
@@ -373,32 +371,15 @@ async def export_resume(
 
     safe_name = resume.name.replace(" ", "_") if resume.name else "resume"
 
-    if format == "pdf":
-        pdf_bytes = generate_pdf(export_data)  # still fpdf2, Phase 5 will migrate
-        relative_path = file_service.get_resume_path(
-            current_user.id, resume_id, "pdf", variant="optimized"
-        )
-        await file_service.save_upload(pdf_bytes, relative_path)
-        resume.optimized_file_path = relative_path
-        db.commit()
-        return Response(
-            content=pdf_bytes,
-            media_type="application/pdf",
-            headers={"Content-Disposition": f'attachment; filename="{safe_name}.pdf"'},
-        )
-
-    # format == "docx"
-    resume_data = ResumeData.model_validate(export_data)
-    builder = get_docx_builder(template_id)
-    docx_bytes = builder(resume_data)
+    pdf_bytes = generate_pdf(export_data)  # still fpdf2, Phase 5 will migrate
     relative_path = file_service.get_resume_path(
-        current_user.id, resume_id, "docx", variant="optimized"
+        current_user.id, resume_id, "pdf", variant="optimized"
     )
-    await file_service.save_upload(docx_bytes, relative_path)
+    await file_service.save_upload(pdf_bytes, relative_path)
     resume.optimized_file_path = relative_path
     db.commit()
     return Response(
-        content=docx_bytes,
-        media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-        headers={"Content-Disposition": f'attachment; filename="{safe_name}.docx"'},
+        content=pdf_bytes,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'attachment; filename="{safe_name}.pdf"'},
     )

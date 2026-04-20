@@ -132,22 +132,7 @@ export async function getAnalysisStatus(taskId: string): Promise<{
   return res.json();
 }
 
-/**
- * Export resume as PDF or DOCX and trigger a browser file download.
- */
-export async function exportResume(id: string, format: 'pdf' | 'docx'): Promise<void> {
-  const res = await fetch(`${BASE_URL}/api/v1/resumes/${id}/export?format=${format}`, {
-    method: 'POST',
-    credentials: 'include',
-  });
-
-  if (!res.ok) throw new Error('Export failed');
-
-  const blob = await res.blob();
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `resume.${format}`;
-  a.click();
-  URL.revokeObjectURL(url);
-}
+// Resume export is generated client-side via react-pdf (see the resume
+// editor's handleExportPdf). PDF is the sole export format; there is no
+// server-side resume export endpoint and no corresponding API client
+// function is needed here.

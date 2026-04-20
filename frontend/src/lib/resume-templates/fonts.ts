@@ -80,6 +80,33 @@ Font.register({
 // resume-style short runs (names, dates), so we explicitly disable it.
 Font.registerHyphenationCallback((word) => [word]);
 
+// ── Preload helper (BF-2.1 — preview flicker fix) ────────────────────────────
+// react-pdf lazily loads each registered font face on first use. If the
+// preview mounts before the faces are resolved, it renders with Helvetica
+// fallback, then re-renders per face as each .ttf finishes downloading —
+// producing 5–6 visible flashes on a cold cache. `preloadFonts()` resolves
+// every face we register up front so the preview can be gated behind a
+// single "fonts ready" signal.
+//
+// We deliberately request the exact (family, weight, style) combinations
+// used by the templates. Font.load is idempotent — the browser cache will
+// short-circuit subsequent calls, so this is safe to invoke on every mount.
+let fontsReadyPromise: Promise<void> | null = null;
+export function preloadFonts(): Promise<void> {
+  if (fontsReadyPromise) return fontsReadyPromise;
+  fontsReadyPromise = Promise.all([
+    Font.load({ fontFamily: "Inter", fontWeight: 400 }),
+    Font.load({ fontFamily: "Inter", fontWeight: 400, fontStyle: "italic" }),
+    Font.load({ fontFamily: "Inter", fontWeight: 500 }),
+    Font.load({ fontFamily: "Inter", fontWeight: 600 }),
+    Font.load({ fontFamily: "Inter", fontWeight: 700 }),
+    Font.load({ fontFamily: "Fraunces", fontWeight: 400 }),
+    Font.load({ fontFamily: "Fraunces", fontWeight: 400, fontStyle: "italic" }),
+    Font.load({ fontFamily: "Fraunces", fontWeight: 600 }),
+  ]).then(() => undefined);
+  return fontsReadyPromise;
+}
+
 // ── Glyph-coverage helper ────────────────────────────────────────────────────
 // Cyrillic Unicode block: U+0400–U+04FF (Cyrillic), U+0500–U+052F (Cyrillic
 // Supplement). Any character in this range indicates Fraunces will render as

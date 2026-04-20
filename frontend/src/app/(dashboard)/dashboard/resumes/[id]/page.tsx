@@ -29,15 +29,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { TemplateSelector } from "@/components/resumes/template-selector";
 import type { TemplateId } from "@/lib/resume-templates/types";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { BlobProvider, pdf } from "@react-pdf/renderer";
-import { getResume, updateResume, exportResume } from "@/lib/resume-api";
+import { getResume, updateResume } from "@/lib/resume-api";
 import { getTemplate } from "@/lib/resume-templates/registry";
+import { preloadFonts } from "@/lib/resume-templates/fonts";
 import type {
   ResumeData,
   PersonalInfo,
@@ -570,16 +565,35 @@ function CertificationEditor({
 // react-pdf resume preview (WYSIWYG — same renderer as PDF export)
 // ---------------------------------------------------------------------------
 
+// BF-2.1: `ready` gates the BlobProvider mount. The caller passes `false`
+// until (a) the resume record has been fetched and hydrated into local state
+// and (b) the registered fonts have resolved via preloadFonts(). Without
+// this gate, the preview mounts with an empty document, rebuilds when the
+// real data arrives, and then rebuilds again per font face as each .ttf
+// loads — producing 5–6 visible flashes on a cold cache. When `ready` is
+// false we render a stable skeleton in place of the iframe so the user sees
+// one transition (skeleton → final preview) instead of many.
 function ResumePreviewPdf({
   data,
   sectionsOrder,
   templateId,
+  ready,
 }: {
   data: ResumeData;
   sectionsOrder: string[];
   templateId: string;
+  ready: boolean;
 }) {
   const { Component } = getTemplate(templateId);
+  if (!ready) {
+    return (
+      <div className="bg-gray-100 dark:bg-gray-800 rounded-lg overflow-auto min-h-[600px]">
+        <div className="flex items-center justify-center h-full min-h-[600px]">
+          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="bg-gray-100 dark:bg-gray-800 rounded-lg overflow-auto min-h-[600px]">
       <BlobProvider document={<Component data={data} sectionsOrder={sectionsOrder} />}>
@@ -890,6 +904,14 @@ export default function ResumeEditorPage() {
   const [mobileTab, setMobileTab] = useState<"edit" | "preview">("edit");
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
   const [isExporting, setIsExporting] = useState(false);
+  // BF-2.1: we need *state* (not a ref) for the preview gate so that flipping
+  // it triggers a re-render; `initialized` below stays a ref because it gates
+  // the debounced auto-save which doesn't need to re-render.
+  const [isDataReady, setIsDataReady] = useState(false);
+  // BF-2.1: fonts resolve asynchronously via Font.register's remote fetches.
+  // Pre-resolve once at mount so BlobProvider never renders against an
+  // unresolved family — see frontend/src/lib/resume-templates/fonts.ts.
+  const [fontsReady, setFontsReady] = useState(false);
 
   // Initialize local state once data is fetched
   const initialized = useRef(false);
@@ -902,8 +924,25 @@ export default function ResumeEditorPage() {
         resume.sections_order?.length ? resume.sections_order : DEFAULT_SECTIONS_ORDER
       );
       setTemplate(resume.template ?? "classic");
+      setIsDataReady(true);
     }
   }, [resume]);
+
+  // BF-2.1: preload every registered font face before first preview render.
+  // Without this gate, BlobProvider mounts, renders with Helvetica fallback,
+  // then re-renders once per .ttf as each face resolves (5–6 flashes on a
+  // cold cache). `preloadFonts` memoizes the promise so this is cheap on
+  // subsequent mounts. Cancellation guard handles dev-mode StrictMode
+  // double-mount cleanly.
+  useEffect(() => {
+    let cancelled = false;
+    preloadFonts().then(() => {
+      if (!cancelled) setFontsReady(true);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   // Auto-save mutation
   const saveMutation = useMutation({
@@ -950,25 +989,21 @@ export default function ResumeEditorPage() {
   const updatePersonalInfo = (patch: Partial<PersonalInfo>) =>
     setData((d) => ({ ...d, personal_info: { ...d.personal_info, ...patch } }));
 
-  // Export handler — PDF is generated client-side via react-pdf (WYSIWYG),
-  // DOCX still goes through the backend endpoint.
-  const handleExport = async (format: "pdf" | "docx") => {
+  // Export handler — PDF is generated client-side via react-pdf (WYSIWYG).
+  // PDF is the sole export format for resumes.
+  const handleExportPdf = async () => {
     setIsExporting(true);
     try {
-      if (format === "pdf") {
-        const { Component } = getTemplate(template as TemplateId);
-        const blob = await pdf(
-          <Component data={data} sectionsOrder={sectionsOrder} />
-        ).toBlob();
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = `${resumeName || "resume"}.pdf`;
-        a.click();
-        URL.revokeObjectURL(url);
-      } else {
-        await exportResume(id, format);
-      }
+      const { Component } = getTemplate(template as TemplateId);
+      const blob = await pdf(
+        <Component data={data} sectionsOrder={sectionsOrder} />
+      ).toBlob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${resumeName || "resume"}.pdf`;
+      a.click();
+      URL.revokeObjectURL(url);
     } finally {
       setIsExporting(false);
     }
@@ -1114,33 +1149,21 @@ export default function ResumeEditorPage() {
         {/* Save status */}
         <SaveIndicator status={saveStatus} />
 
-        {/* Export dropdown (Bug #6: PDF + DOCX options) */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              size="sm"
-              variant="outline"
-              className="h-8 px-3 text-xs gap-1.5 shrink-0"
-              disabled={isExporting}
-            >
-              {isExporting ? (
-                <Loader2 className="h-3.5 w-3.5 animate-spin" />
-              ) : (
-                <Download className="h-3.5 w-3.5" />
-              )}
-              Export
-              <ChevronDown className="h-3 w-3 ml-0.5" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => handleExport("pdf")}>
-              Download PDF
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleExport("docx")}>
-              Download DOCX
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        {/* Export button — PDF only */}
+        <Button
+          size="sm"
+          variant="outline"
+          className="h-8 px-3 text-xs gap-1.5 shrink-0"
+          disabled={isExporting}
+          onClick={handleExportPdf}
+        >
+          {isExporting ? (
+            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+          ) : (
+            <Download className="h-3.5 w-3.5" />
+          )}
+          Download PDF
+        </Button>
       </div>
 
       {/* Mobile tab switcher */}
@@ -1219,6 +1242,7 @@ export default function ResumeEditorPage() {
               data={data}
               sectionsOrder={sectionsOrder}
               templateId={template}
+              ready={isDataReady && fontsReady}
             />
           </div>
         </div>

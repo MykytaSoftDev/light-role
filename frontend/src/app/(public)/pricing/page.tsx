@@ -40,7 +40,7 @@ const PRO_FEATURES = [
   "100 AI operations / month",
   "Unlimited active jobs",
   "Priority AI processing",
-  "PDF & DOCX export",
+  "PDF export",
   "Cover letter generation",
   "Advanced resume tailoring",
   "Full job board integration",

@@ -172,8 +172,11 @@ function renderCertifications(data: ResumeData, isFirst: boolean) {
 
 function renderSummary(data: ResumeData, isFirst: boolean) {
   if (!data.summary?.trim()) return null;
+  // Orphan control (BF-1.4): keep section title bound to its first content
+  // block so the heading can't land alone at the bottom of a page. Summary
+  // has only one block, so the whole section stays together.
   return (
-    <View key="summary">
+    <View key="summary" wrap={false} minPresenceAhead={40}>
       <Text
         style={
           isFirst ? styles.mainSectionTitleFirst : styles.mainSectionTitle
@@ -186,87 +189,110 @@ function renderSummary(data: ResumeData, isFirst: boolean) {
   );
 }
 
+function renderExperienceItem(
+  exp: ResumeData["experience"][number],
+  key: number,
+) {
+  const endLabel = exp.current ? "Present" : exp.end_date;
+  const dateParts = [exp.start_date, endLabel].filter(Boolean);
+  const dateLabel = dateParts.join(" \u2013 ");
+  return (
+    <View key={key} style={styles.experienceItem} wrap={false}>
+      {/* Title + dates on one row: title left, dates right-aligned. */}
+      <View style={styles.experienceHeaderRow}>
+        <Text style={styles.experienceTitle}>{exp.title}</Text>
+        {dateLabel ? (
+          <Text style={styles.experienceDates}>{dateLabel}</Text>
+        ) : null}
+      </View>
+      {exp.company ? (
+        <Text style={styles.experienceCompany}>{exp.company}</Text>
+      ) : null}
+      {exp.description?.trim() ? (
+        <Text style={styles.experienceDescription}>{exp.description}</Text>
+      ) : null}
+      {(exp.achievements ?? []).length > 0 && (
+        <View style={styles.achievementsContainer}>
+          {exp.achievements.map((ach, j) => (
+            <View key={j} style={styles.achievementRow}>
+              <Text style={styles.achievementBullet}>{BULLET_CHAR}</Text>
+              <Text style={styles.achievementText}>{ach}</Text>
+            </View>
+          ))}
+        </View>
+      )}
+    </View>
+  );
+}
+
 function renderExperience(data: ResumeData, isFirst: boolean) {
   if (!data.experience.length) return null;
+  const [first, ...rest] = data.experience;
+  // Orphan control (BF-1.4, BF-1.6): only the (section title + first entry)
+  // is wrap={false}-bound. Subsequent entries break freely so tall sections
+  // don't push themselves to the next page and leave a near-empty page.
   return (
     <View key="experience">
-      <Text
-        style={
-          isFirst ? styles.mainSectionTitleFirst : styles.mainSectionTitle
-        }
-      >
-        Experience
-      </Text>
-      {data.experience.map((exp, i) => {
-        const endLabel = exp.current ? "Present" : exp.end_date;
-        const dateParts = [exp.start_date, endLabel].filter(Boolean);
-        const dateLabel = dateParts.join(" \u2013 ");
-        return (
-          <View key={i} style={styles.experienceItem} wrap={false}>
-            {/* Title + dates on one row: title left, dates right-aligned. */}
-            <View style={styles.experienceHeaderRow}>
-              <Text style={styles.experienceTitle}>{exp.title}</Text>
-              {dateLabel ? (
-                <Text style={styles.experienceDates}>{dateLabel}</Text>
-              ) : null}
-            </View>
-            {exp.company ? (
-              <Text style={styles.experienceCompany}>{exp.company}</Text>
-            ) : null}
-            {exp.description?.trim() ? (
-              <Text style={styles.experienceDescription}>
-                {exp.description}
-              </Text>
-            ) : null}
-            {(exp.achievements ?? []).length > 0 && (
-              <View style={styles.achievementsContainer}>
-                {exp.achievements.map((ach, j) => (
-                  <View key={j} style={styles.achievementRow}>
-                    <Text style={styles.achievementBullet}>{BULLET_CHAR}</Text>
-                    <Text style={styles.achievementText}>{ach}</Text>
-                  </View>
-                ))}
-              </View>
-            )}
-          </View>
-        );
-      })}
+      <View wrap={false} minPresenceAhead={40}>
+        <Text
+          style={
+            isFirst ? styles.mainSectionTitleFirst : styles.mainSectionTitle
+          }
+        >
+          Experience
+        </Text>
+        {renderExperienceItem(first, 0)}
+      </View>
+      {rest.map((exp, i) => renderExperienceItem(exp, i + 1))}
+    </View>
+  );
+}
+
+function renderEducationItem(
+  edu: ResumeData["education"][number],
+  key: number,
+) {
+  const dateParts = [edu.start_date, edu.end_date].filter(Boolean);
+  const dateLabel = dateParts.join(" \u2013 ");
+  const degreeParts = [edu.degree, edu.field].filter(Boolean);
+  return (
+    <View key={key} style={styles.educationItem} wrap={false}>
+      <View style={styles.educationHeaderRow}>
+        <Text style={styles.educationInstitution}>{edu.institution}</Text>
+        {dateLabel ? (
+          <Text style={styles.educationDates}>{dateLabel}</Text>
+        ) : null}
+      </View>
+      {degreeParts.length > 0 && (
+        <Text style={styles.educationDegree}>
+          {degreeParts.join(", ")}
+          {edu.gpa ? ` \u00b7 GPA: ${edu.gpa}` : ""}
+        </Text>
+      )}
     </View>
   );
 }
 
 function renderEducation(data: ResumeData, isFirst: boolean) {
   if (!data.education.length) return null;
+  const [first, ...rest] = data.education;
+  // BF-1.6: previous version applied wrap={false} to the whole section which
+  // forced the entire Education block to move to a fresh page when it didn't
+  // fit, leaving a near-empty tail page. Now only (title + first entry) is
+  // bound; later entries break freely across pages.
   return (
     <View key="education">
-      <Text
-        style={
-          isFirst ? styles.mainSectionTitleFirst : styles.mainSectionTitle
-        }
-      >
-        Education
-      </Text>
-      {data.education.map((edu, i) => {
-        const dateParts = [edu.start_date, edu.end_date].filter(Boolean);
-        const dateLabel = dateParts.join(" \u2013 ");
-        const degreeParts = [edu.degree, edu.field].filter(Boolean);
-        return (
-          <View key={i} style={styles.educationItem} wrap={false}>
-            <View style={styles.educationHeaderRow}>
-              <Text style={styles.educationInstitution}>{edu.institution}</Text>
-              {dateLabel ? (
-                <Text style={styles.educationDates}>{dateLabel}</Text>
-              ) : null}
-            </View>
-            {degreeParts.length > 0 && (
-              <Text style={styles.educationDegree}>
-                {degreeParts.join(", ")}
-                {edu.gpa ? ` \u00b7 GPA: ${edu.gpa}` : ""}
-              </Text>
-            )}
-          </View>
-        );
-      })}
+      <View wrap={false} minPresenceAhead={40}>
+        <Text
+          style={
+            isFirst ? styles.mainSectionTitleFirst : styles.mainSectionTitle
+          }
+        >
+          Education
+        </Text>
+        {renderEducationItem(first, 0)}
+      </View>
+      {rest.map((edu, i) => renderEducationItem(edu, i + 1))}
     </View>
   );
 }
