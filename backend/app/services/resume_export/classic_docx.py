@@ -1,73 +1,63 @@
 """
-DOCX export utility for resumes.
+Classic resume template — DOCX builder.
 
-Takes a parsed_data dict (the ResumeData structure stored in the DB) and
-returns a well-formatted DOCX document as bytes.
-
-DEPRECATED: Use app.services.resume_export.get_docx_builder() instead.
-This module is kept for backward compatibility only.
+Ported from app.utils.docx_export, adapted to use the typed ResumeData
+Pydantic model instead of raw dict[str, Any].
 """
 from __future__ import annotations
 
 import io
-from typing import Any
 
 from docx import Document
+from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.oxml.ns import qn
 from docx.shared import Pt, RGBColor
-from docx.enum.text import WD_ALIGN_PARAGRAPH
+
+from app.services.resume_export.types import ResumeData
 
 
 # ---------------------------------------------------------------------------
 # Public API
 # ---------------------------------------------------------------------------
 
-def generate_docx(parsed_data: dict[str, Any]) -> bytes:
+def build_classic_docx(data: ResumeData) -> bytes:
     """
-    Convert a parsed_data dict into a DOCX file and return it as bytes.
+    Render a ResumeData instance as a classic-style DOCX and return bytes.
 
-    Sections are rendered in the order defined by parsed_data keys, which
-    mirrors the sections_order stored on the Resume model:
-      personal_info, summary, experience, education, skills, languages,
-      certifications.
+    Sections rendered: personal_info, summary, experience, education,
+    skills, languages, certifications.
     """
     doc = Document()
     _configure_margins(doc)
 
-    personal_info: dict[str, Any] = parsed_data.get("personal_info") or {}
-    _render_personal_info(doc, personal_info)
+    _render_personal_info(doc, data)
 
-    summary: str | None = parsed_data.get("summary")
+    summary = data.summary
     if summary and summary.strip():
         _render_section_heading(doc, "Summary")
         doc.add_paragraph(summary.strip())
 
-    experience: list[dict] = parsed_data.get("experience") or []
-    if experience:
+    if data.experience:
         _render_section_heading(doc, "Experience")
-        for item in experience:
+        for item in data.experience:
             _render_experience_item(doc, item)
 
-    education: list[dict] = parsed_data.get("education") or []
-    if education:
+    if data.education:
         _render_section_heading(doc, "Education")
-        for item in education:
+        for item in data.education:
             _render_education_item(doc, item)
 
-    skills: list[str] = parsed_data.get("skills") or []
-    if skills:
+    if data.skills:
         _render_section_heading(doc, "Skills")
-        doc.add_paragraph(", ".join(s for s in skills if s))
+        doc.add_paragraph(", ".join(s for s in data.skills if s))
 
-    languages: list[str] = parsed_data.get("languages") or []
-    if languages:
+    if data.languages:
         _render_section_heading(doc, "Languages")
-        doc.add_paragraph(", ".join(l for l in languages if l))
+        doc.add_paragraph(", ".join(lang for lang in data.languages if lang))
 
-    certifications: list[dict] = parsed_data.get("certifications") or []
-    if certifications:
+    if data.certifications:
         _render_section_heading(doc, "Certifications")
-        for cert in certifications:
+        for cert in data.certifications:
             _render_certification_item(doc, cert)
 
     buffer = io.BytesIO()
@@ -75,12 +65,19 @@ def generate_docx(parsed_data: dict[str, Any]) -> bytes:
     return buffer.getvalue()
 
 
+def generate_classic_docx_from_dict(parsed_data: dict) -> bytes:
+    """Convenience wrapper: accepts raw dict, parses to ResumeData, calls builder."""
+    data = ResumeData.model_validate(parsed_data)
+    return build_classic_docx(data)
+
+
 # ---------------------------------------------------------------------------
 # Section renderers
 # ---------------------------------------------------------------------------
 
-def _render_personal_info(doc: Document, info: dict[str, Any]) -> None:
-    name: str = (info.get("name") or "").strip()
+def _render_personal_info(doc: Document, data: ResumeData) -> None:
+    info = data.personal_info
+    name = (info.name or "").strip()
     if name:
         title_para = doc.add_paragraph()
         title_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
@@ -89,10 +86,10 @@ def _render_personal_info(doc: Document, info: dict[str, Any]) -> None:
         run.font.size = Pt(20)
 
     contact_parts: list[str] = []
-    for field in ("email", "phone", "location", "linkedin", "website"):
-        value = (info.get(field) or "").strip()
-        if value:
-            contact_parts.append(value)
+    for value in (info.email, info.phone, info.location, info.linkedin, info.website):
+        stripped = (value or "").strip()
+        if stripped:
+            contact_parts.append(stripped)
 
     if contact_parts:
         contact_para = doc.add_paragraph(" | ".join(contact_parts))
@@ -107,24 +104,18 @@ def _render_section_heading(doc: Document, heading: str) -> None:
     run.bold = True
     run.font.size = Pt(11)
     run.font.color.rgb = RGBColor(0x33, 0x33, 0x33)
-    # Draw a bottom border on the paragraph to act as a divider
     _add_paragraph_bottom_border(para)
 
 
-def _render_experience_item(doc: Document, item: dict[str, Any]) -> None:
-    title: str = (item.get("title") or "").strip()
-    company: str = (item.get("company") or "").strip()
-    start_date: str = (item.get("start_date") or "").strip()
-    end_date: str = ("Present" if item.get("current") else (item.get("end_date") or "")).strip()
-    description: str = (item.get("description") or "").strip()
-    achievements: list[str] = item.get("achievements") or []
+def _render_experience_item(doc: Document, item) -> None:  # item: ExperienceItem
+    title = item.title.strip()
+    company = item.company.strip()
+    start_date = (item.start_date or "").strip()
+    end_date = ("Present" if item.current else (item.end_date or "")).strip()
+    description = item.description.strip()
+    achievements = item.achievements
 
-    # Job title and company on one line
-    heading_parts = []
-    if title:
-        heading_parts.append(title)
-    if company:
-        heading_parts.append(company)
+    heading_parts = [p for p in (title, company) if p]
     heading_text = " — ".join(heading_parts) if heading_parts else "Untitled Position"
 
     para = doc.add_paragraph()
@@ -132,8 +123,6 @@ def _render_experience_item(doc: Document, item: dict[str, Any]) -> None:
     run.bold = True
     run.font.size = Pt(11)
 
-    # Dates on the same paragraph, right-aligned via a tab stop is complex —
-    # append as a separate, lighter line instead.
     date_parts = [p for p in (start_date, end_date) if p]
     if date_parts:
         date_para = doc.add_paragraph(" – ".join(date_parts))
@@ -149,13 +138,13 @@ def _render_experience_item(doc: Document, item: dict[str, Any]) -> None:
             doc.add_paragraph(achievement.strip(), style="List Bullet")
 
 
-def _render_education_item(doc: Document, item: dict[str, Any]) -> None:
-    institution: str = (item.get("institution") or "").strip()
-    degree: str = (item.get("degree") or "").strip()
-    field: str = (item.get("field") or "").strip()
-    start_date: str = (item.get("start_date") or "").strip()
-    end_date: str = (item.get("end_date") or "").strip()
-    gpa: str = (item.get("gpa") or "").strip()
+def _render_education_item(doc: Document, item) -> None:  # item: EducationItem
+    institution = item.institution.strip()
+    degree = item.degree.strip()
+    field = (item.field or "").strip()
+    start_date = (item.start_date or "").strip()
+    end_date = (item.end_date or "").strip()
+    gpa = (item.gpa or "").strip()
 
     degree_parts = [p for p in (degree, field) if p]
     degree_text = ", ".join(degree_parts) if degree_parts else ""
@@ -182,10 +171,10 @@ def _render_education_item(doc: Document, item: dict[str, Any]) -> None:
             run.font.color.rgb = RGBColor(0x55, 0x55, 0x55)
 
 
-def _render_certification_item(doc: Document, item: dict[str, Any]) -> None:
-    name: str = (item.get("name") or "").strip()
-    issuer: str = (item.get("issuer") or "").strip()
-    date: str = (item.get("date") or "").strip()
+def _render_certification_item(doc: Document, item) -> None:  # item: CertificationItem
+    name = item.name.strip()
+    issuer = (item.issuer or "").strip()
+    date = (item.date or "").strip()
 
     parts = [p for p in (name, issuer, date) if p]
     if parts:
@@ -214,6 +203,6 @@ def _add_paragraph_bottom_border(para) -> None:  # type: ignore[no-untyped-def]
     pBdr = etree.SubElement(pPr, qn("w:pBdr"))
     bottom = etree.SubElement(pBdr, qn("w:bottom"))
     bottom.set(qn("w:val"), "single")
-    bottom.set(qn("w:sz"), "4")   # half-points: 4 = 0.5pt
+    bottom.set(qn("w:sz"), "4")    # half-points: 4 = 0.5pt
     bottom.set(qn("w:space"), "1")
     bottom.set(qn("w:color"), "AAAAAA")

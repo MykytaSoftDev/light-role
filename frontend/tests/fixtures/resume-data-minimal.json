@@ -1,0 +1,36 @@
+{
+  "personal_info": {
+    "name": "Jane Smith",
+    "email": "jane@example.com",
+    "phone": null,
+    "location": null,
+    "linkedin": null,
+    "website": null,
+    "summary": null
+  },
+  "summary": null,
+  "experience": [
+    {
+      "company": "Acme Corp",
+      "title": "Developer",
+      "start_date": "2022-01",
+      "end_date": null,
+      "current": true,
+      "description": "",
+      "achievements": []
+    }
+  ],
+  "education": [
+    {
+      "institution": "State University",
+      "degree": "B.Sc.",
+      "field": null,
+      "start_date": null,
+      "end_date": "2021",
+      "gpa": null
+    }
+  ],
+  "skills": ["JavaScript", "Python"],
+  "languages": [],
+  "certifications": []
+}

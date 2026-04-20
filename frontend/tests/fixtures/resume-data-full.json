@@ -1,0 +1,96 @@
+{
+  "personal_info": {
+    "name": "Alex Johnson",
+    "email": "alex.johnson@email.com",
+    "phone": "+1 (415) 555-0192",
+    "location": "San Francisco, CA",
+    "linkedin": "linkedin.com/in/alex-johnson",
+    "website": "alexjohnson.dev",
+    "summary": null
+  },
+  "summary": "Senior software engineer with 8+ years of experience building scalable web applications and distributed systems. Proven track record of leading cross-functional teams and delivering high-impact products used by millions of users. Passionate about clean architecture, developer experience, and mentoring junior engineers.",
+  "experience": [
+    {
+      "company": "Stripe",
+      "title": "Senior Software Engineer",
+      "start_date": "2021-03",
+      "end_date": null,
+      "current": true,
+      "description": "Led development of core payment processing infrastructure serving 500K+ daily transactions. Collaborated with product and design teams to ship new checkout experiences.",
+      "achievements": [
+        "Reduced payment failure rate by 18% by redesigning the retry logic and implementing smarter error classification",
+        "Architected and shipped a new real-time fraud detection pipeline processing 50K events/second with sub-10ms latency",
+        "Mentored 4 junior engineers, 2 of whom were promoted to mid-level within 18 months"
+      ]
+    },
+    {
+      "company": "Airbnb",
+      "title": "Software Engineer II",
+      "start_date": "2018-07",
+      "end_date": "2021-02",
+      "current": false,
+      "description": "Worked on the Search & Discovery team, building ranking models and backend APIs for the host and guest search experience.",
+      "achievements": [
+        "Built a personalized ranking service in Python/Go that increased booking conversion by 12% in A/B tests",
+        "Migrated legacy search infrastructure from Solr to Elasticsearch, reducing query latency by 40%",
+        "Owned the full-stack implementation of the Flexible Dates search feature, used by 30% of monthly active users"
+      ]
+    },
+    {
+      "company": "Pivotal Labs",
+      "title": "Software Engineer",
+      "start_date": "2016-06",
+      "end_date": "2018-06",
+      "current": false,
+      "description": "Consulted for Fortune 500 clients delivering agile software projects using extreme programming practices. Worked across a range of domains including fintech, healthcare, and retail.",
+      "achievements": [
+        "Delivered 6 production applications in 2 years across 4 different client engagements",
+        "Introduced test-driven development practices to a client team of 12 engineers, increasing test coverage from 15% to 82%",
+        "Co-led internal React workshop series attended by 40+ engineers across the company"
+      ]
+    }
+  ],
+  "education": [
+    {
+      "institution": "University of California, Berkeley",
+      "degree": "B.S.",
+      "field": "Computer Science",
+      "start_date": "2012-08",
+      "end_date": "2016-05",
+      "gpa": "3.8"
+    },
+    {
+      "institution": "Coursera / Stanford Online",
+      "degree": "Certificate",
+      "field": "Machine Learning",
+      "start_date": null,
+      "end_date": "2019-11",
+      "gpa": null
+    }
+  ],
+  "skills": [
+    "Python",
+    "Go",
+    "TypeScript",
+    "React",
+    "PostgreSQL",
+    "Redis",
+    "Kubernetes",
+    "AWS",
+    "Elasticsearch",
+    "System Design"
+  ],
+  "languages": ["English (Native)", "Spanish (Conversational)", "Mandarin (Basic)"],
+  "certifications": [
+    {
+      "name": "AWS Certified Solutions Architect – Associate",
+      "issuer": "Amazon Web Services",
+      "date": "2022-09"
+    },
+    {
+      "name": "Certified Kubernetes Administrator (CKA)",
+      "issuer": "Cloud Native Computing Foundation",
+      "date": "2023-04"
+    }
+  ]
+}

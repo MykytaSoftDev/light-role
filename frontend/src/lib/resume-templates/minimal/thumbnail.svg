@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="260" viewBox="0 0 200 260">
+  <!-- Background -->
+  <rect width="200" height="260" fill="#FFFFFF" rx="2"/>
+  <rect width="200" height="260" fill="none" stroke="#E5E7EB" stroke-width="1" rx="2"/>
+
+  <!-- Name block -->
+  <rect x="20" y="28" width="130" height="9" rx="1.5" fill="#111827"/>
+
+  <!-- Contact line -->
+  <rect x="20" y="44" width="90" height="5" rx="1" fill="#9CA3AF"/>
+
+  <!-- Thin divider -->
+  <line x1="20" y1="56" x2="180" y2="56" stroke="#E5E7EB" stroke-width="1"/>
+
+  <!-- Section 1 heading -->
+  <rect x="20" y="68" width="44" height="4" rx="1" fill="#111827"/>
+  <!-- Section 1 body lines -->
+  <rect x="20" y="78" width="155" height="3.5" rx="1" fill="#D1D5DB"/>
+  <rect x="20" y="85" width="140" height="3.5" rx="1" fill="#D1D5DB"/>
+  <rect x="20" y="92" width="110" height="3.5" rx="1" fill="#D1D5DB"/>
+
+  <!-- Section 2 heading -->
+  <rect x="20" y="108" width="52" height="4" rx="1" fill="#111827"/>
+  <!-- Experience item 1 -->
+  <rect x="20" y="118" width="95" height="4" rx="1" fill="#374151"/>
+  <rect x="20" y="126" width="68" height="3.5" rx="1" fill="#9CA3AF"/>
+  <rect x="20" y="133" width="150" height="3" rx="1" fill="#D1D5DB"/>
+  <rect x="20" y="139" width="130" height="3" rx="1" fill="#D1D5DB"/>
+  <!-- Experience item 2 -->
+  <rect x="20" y="150" width="88" height="4" rx="1" fill="#374151"/>
+  <rect x="20" y="158" width="60" height="3.5" rx="1" fill="#9CA3AF"/>
+  <rect x="20" y="165" width="145" height="3" rx="1" fill="#D1D5DB"/>
+
+  <!-- Section 3 heading -->
+  <rect x="20" y="181" width="48" height="4" rx="1" fill="#111827"/>
+  <!-- Education item -->
+  <rect x="20" y="191" width="110" height="4" rx="1" fill="#374151"/>
+  <rect x="20" y="199" width="80" height="3.5" rx="1" fill="#9CA3AF"/>
+
+  <!-- Section 4 heading -->
+  <rect x="20" y="215" width="36" height="4" rx="1" fill="#111827"/>
+  <!-- Skills line -->
+  <rect x="20" y="225" width="145" height="3.5" rx="1" fill="#D1D5DB"/>
+</svg>

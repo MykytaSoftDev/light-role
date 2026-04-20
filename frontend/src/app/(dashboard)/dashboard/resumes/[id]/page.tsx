@@ -27,20 +27,17 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { TemplateSelector } from "@/components/resumes/template-selector";
+import type { TemplateId } from "@/lib/resume-templates/types";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { BlobProvider, pdf } from "@react-pdf/renderer";
 import { getResume, updateResume, exportResume } from "@/lib/resume-api";
+import { getTemplate } from "@/lib/resume-templates/registry";
 import type {
   ResumeData,
   PersonalInfo,
@@ -570,7 +567,55 @@ function CertificationEditor({
 }
 
 // ---------------------------------------------------------------------------
-// Classic resume HTML preview (Bug #5: no disclaimer bar; Bug #7: labeled links)
+// react-pdf resume preview (WYSIWYG — same renderer as PDF export)
+// ---------------------------------------------------------------------------
+
+function ResumePreviewPdf({
+  data,
+  sectionsOrder,
+  name,
+  templateId,
+}: {
+  data: ResumeData;
+  sectionsOrder: string[];
+  name: string;
+  templateId: string;
+}) {
+  const { Component } = getTemplate(templateId);
+  return (
+    <div className="bg-gray-100 dark:bg-gray-800 rounded-lg overflow-auto min-h-[600px]">
+      <BlobProvider document={<Component data={data} sectionsOrder={sectionsOrder} name={name} />}>
+        {({ url, loading, error }) => {
+          if (loading) {
+            return (
+              <div className="flex items-center justify-center h-full min-h-[600px]">
+                <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+              </div>
+            );
+          }
+          if (error || !url) {
+            return (
+              <div className="flex items-center justify-center h-full min-h-[600px]">
+                <p className="text-sm text-muted-foreground">Preview unavailable</p>
+              </div>
+            );
+          }
+          return (
+            <iframe
+              src={url}
+              className="w-full bg-white"
+              style={{ minHeight: "880px", height: "100%", border: "none" }}
+              title="Resume preview"
+            />
+          );
+        }}
+      </BlobProvider>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Classic resume HTML preview — kept as reference fallback (replaced by ResumePreviewPdf above)
 // ---------------------------------------------------------------------------
 
 function ResumePreview({
@@ -907,11 +952,25 @@ export default function ResumeEditorPage() {
   const updatePersonalInfo = (patch: Partial<PersonalInfo>) =>
     setData((d) => ({ ...d, personal_info: { ...d.personal_info, ...patch } }));
 
-  // Export handler (Bug #6: supports pdf and docx)
+  // Export handler — PDF is generated client-side via react-pdf (WYSIWYG),
+  // DOCX still goes through the backend endpoint.
   const handleExport = async (format: "pdf" | "docx") => {
     setIsExporting(true);
     try {
-      await exportResume(id, format);
+      if (format === "pdf") {
+        const { Component } = getTemplate(template as TemplateId);
+        const blob = await pdf(
+          <Component data={data} sectionsOrder={sectionsOrder} name={resumeName} />
+        ).toBlob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `${resumeName || "resume"}.pdf`;
+        a.click();
+        URL.revokeObjectURL(url);
+      } else {
+        await exportResume(id, format);
+      }
     } finally {
       setIsExporting(false);
     }
@@ -1036,14 +1095,11 @@ export default function ResumeEditorPage() {
         <div className="flex-1" />
 
         {/* Template selector */}
-        <Select value={template} onValueChange={setTemplate}>
-          <SelectTrigger className="h-8 w-32 text-xs">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="classic">Classic</SelectItem>
-          </SelectContent>
-        </Select>
+        <TemplateSelector
+          value={template as TemplateId}
+          onChange={(id) => setTemplate(id)}
+          disabled={isExporting}
+        />
 
         {/* Match score badge (Bug #8: consistent score color scale) */}
         {resume.match_score !== null && (
@@ -1113,7 +1169,7 @@ export default function ResumeEditorPage() {
         <div
           className={cn(
             "flex flex-col gap-0 overflow-y-auto p-4",
-            "lg:w-[55%] lg:block",
+            "lg:w-1/2 lg:block",
             mobileTab === "edit" ? "flex-1" : "hidden lg:flex lg:flex-1"
           )}
         >
@@ -1156,15 +1212,16 @@ export default function ResumeEditorPage() {
         <div
           className={cn(
             "border-l border-border overflow-y-auto",
-            "lg:w-[45%] lg:block",
+            "lg:w-1/2 lg:block",
             mobileTab === "preview" ? "flex-1" : "hidden lg:flex lg:flex-1"
           )}
         >
-          <div className="sticky top-0 h-full">
-            <ResumePreview
+          <div className="sticky top-0 w-full">
+            <ResumePreviewPdf
               data={data}
               sectionsOrder={sectionsOrder}
               name={resumeName}
+              templateId={template}
             />
           </div>
         </div>

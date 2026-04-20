@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 260" width="200" height="260">
+  <!-- Background -->
+  <rect width="200" height="260" fill="#FFFFFF" rx="3"/>
+
+  <!-- Name block (centered, bold) -->
+  <rect x="55" y="16" width="90" height="9" rx="2" fill="#1F2937"/>
+
+  <!-- Contact info (narrower, gray) -->
+  <rect x="60" y="30" width="80" height="5" rx="1.5" fill="#9CA3AF"/>
+
+  <!-- Divider line -->
+  <line x1="16" y1="44" x2="184" y2="44" stroke="#E5E7EB" stroke-width="1"/>
+
+  <!-- Section 1: Summary heading -->
+  <rect x="16" y="52" width="60" height="5" rx="1.5" fill="#374151"/>
+  <line x1="16" y1="60" x2="184" y2="60" stroke="#E5E7EB" stroke-width="0.75"/>
+  <!-- Summary text lines -->
+  <rect x="16" y="64" width="168" height="4" rx="1" fill="#D1D5DB"/>
+  <rect x="16" y="71" width="148" height="4" rx="1" fill="#D1D5DB"/>
+
+  <!-- Section 2: Experience heading -->
+  <rect x="16" y="84" width="70" height="5" rx="1.5" fill="#374151"/>
+  <line x1="16" y1="92" x2="184" y2="92" stroke="#E5E7EB" stroke-width="0.75"/>
+  <!-- Exp item 1 -->
+  <rect x="16" y="96" width="100" height="4" rx="1" fill="#374151"/>
+  <rect x="140" y="96" width="44" height="4" rx="1" fill="#D1D5DB"/>
+  <rect x="16" y="103" width="168" height="3.5" rx="1" fill="#D1D5DB"/>
+  <rect x="16" y="109" width="155" height="3.5" rx="1" fill="#D1D5DB"/>
+  <!-- Exp item 2 -->
+  <rect x="16" y="118" width="90" height="4" rx="1" fill="#374151"/>
+  <rect x="148" y="118" width="36" height="4" rx="1" fill="#D1D5DB"/>
+  <rect x="16" y="125" width="168" height="3.5" rx="1" fill="#D1D5DB"/>
+  <rect x="16" y="131" width="130" height="3.5" rx="1" fill="#D1D5DB"/>
+
+  <!-- Section 3: Education heading -->
+  <rect x="16" y="144" width="65" height="5" rx="1.5" fill="#374151"/>
+  <line x1="16" y1="152" x2="184" y2="152" stroke="#E5E7EB" stroke-width="0.75"/>
+  <rect x="16" y="156" width="110" height="4" rx="1" fill="#374151"/>
+  <rect x="152" y="156" width="32" height="4" rx="1" fill="#D1D5DB"/>
+  <rect x="16" y="163" width="140" height="3.5" rx="1" fill="#D1D5DB"/>
+
+  <!-- Section 4: Skills heading -->
+  <rect x="16" y="176" width="45" height="5" rx="1.5" fill="#374151"/>
+  <line x1="16" y1="184" x2="184" y2="184" stroke="#E5E7EB" stroke-width="0.75"/>
+  <rect x="16" y="188" width="168" height="3.5" rx="1" fill="#D1D5DB"/>
+  <rect x="16" y="194" width="120" height="3.5" rx="1" fill="#D1D5DB"/>
+
+  <!-- Section 5: Certifications heading -->
+  <rect x="16" y="207" width="80" height="5" rx="1.5" fill="#374151"/>
+  <line x1="16" y1="215" x2="184" y2="215" stroke="#E5E7EB" stroke-width="0.75"/>
+  <rect x="16" y="219" width="110" height="3.5" rx="1" fill="#D1D5DB"/>
+  <rect x="142" y="219" width="42" height="3.5" rx="1" fill="#D1D5DB"/>
+  <rect x="16" y="226" width="100" height="3.5" rx="1" fill="#D1D5DB"/>
+  <rect x="148" y="226" width="36" height="3.5" rx="1" fill="#D1D5DB"/>
+</svg>

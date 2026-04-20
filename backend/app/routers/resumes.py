@@ -30,7 +30,8 @@ from app.redis import increment_usage_count
 from app.services import analysis_task_service, file_service, resume_service
 from app.services.ai_usage_service import log_ai_operation
 from app.services.usage_service import invalidate_usage_cache
-from app.utils.docx_export import generate_docx
+from app.services.resume_export import get_docx_builder, user_can_use_template
+from app.services.resume_export.types import ResumeData
 from app.utils.file_validators import validate_upload_file
 from app.utils.pdf_export import generate_pdf
 from app.utils.resume_parser import compute_content_hash, extract_text_from_file
@@ -160,6 +161,12 @@ def update_resume(
     current_user: User = Depends(get_verified_user),
 ) -> ResumeResponse:
     """Partially update resume content (name, parsed_data, sections_order, template)."""
+    if data.template is not None:
+        if not user_can_use_template(current_user, data.template):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="This template requires a Pro subscription.",
+            )
     return resume_service.update_resume(resume_id, current_user, data, db)  # type: ignore[return-value]
 
 
@@ -349,17 +356,25 @@ async def export_resume(
     """
     resume = resume_service.get_resume_or_404(resume_id, current_user, db)
 
-    data = resume.optimized_data or resume.parsed_data
-    if not data or (set(data.keys()) <= {"raw_text"}):
+    export_data = resume.optimized_data or resume.parsed_data
+    if not export_data or (set(export_data.keys()) <= {"raw_text"}):
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail="Resume has not been analyzed yet. Please run analysis before exporting.",
         )
 
+    # Authorization check (stub: always passes; enforces when monetization is wired)
+    template_id = resume.template or "classic"
+    if not user_can_use_template(current_user, template_id):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="This template requires a Pro subscription.",
+        )
+
     safe_name = resume.name.replace(" ", "_") if resume.name else "resume"
 
     if format == "pdf":
-        pdf_bytes = generate_pdf(data)
+        pdf_bytes = generate_pdf(export_data)  # still fpdf2, Phase 5 will migrate
         relative_path = file_service.get_resume_path(
             current_user.id, resume_id, "pdf", variant="optimized"
         )
@@ -373,7 +388,9 @@ async def export_resume(
         )
 
     # format == "docx"
-    docx_bytes = generate_docx(data)
+    resume_data = ResumeData.model_validate(export_data)
+    builder = get_docx_builder(template_id)
+    docx_bytes = builder(resume_data)
     relative_path = file_service.get_resume_path(
         current_user.id, resume_id, "docx", variant="optimized"
     )

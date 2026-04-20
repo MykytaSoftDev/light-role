@@ -1,0 +1,136 @@
+{
+  "personal_info": {
+    "name": "Ünïcödë Ñäme-Hyphen",
+    "email": "unicode.user+tag@example-domain.co.uk",
+    "phone": "+1 (555) 123-4567",
+    "location": "São Paulo, Brazil",
+    "linkedin": "linkedin.com/in/unicode-user",
+    "website": "https://unicode-user.io/portfolio",
+    "summary": null
+  },
+  "summary": "A very long summary paragraph that tests text wrapping behavior across multiple lines. This candidate has extensive experience in software engineering, machine learning, data science, and cloud infrastructure. They have led teams of up to 50 people and delivered projects worth over $10 million. Their expertise spans multiple domains including backend development, frontend architecture, DevOps automation, and technical leadership. Additionally, they bring deep knowledge of distributed systems, real-time data pipelines, and enterprise security compliance, making them a uniquely versatile contributor to any organization.",
+  "experience": [
+    {
+      "company": "Extremely Long Company Name International Holdings LLC — Enterprise Division",
+      "title": "Principal Staff Software Engineer & Technical Lead, Platform Infrastructure",
+      "start_date": "2020-01",
+      "end_date": null,
+      "current": true,
+      "description": "Lead a globally distributed team responsible for the core infrastructure platform. Oversee architecture decisions, drive technical roadmap, and manage relationships with executive stakeholders across three continents.",
+      "achievements": [
+        "Reduced cloud infrastructure costs by $2.4M annually through workload right-sizing and reserved instance optimization",
+        "Designed and shipped a multi-region active-active database replication system with 99.999% uptime SLA",
+        "Established engineering-wide observability standards adopted by 200+ engineers across 15 teams",
+        "Led migration of 80 microservices from bare-metal to Kubernetes without any customer-visible downtime",
+        "Authored internal RFC process now used company-wide for all architectural decisions affecting >2 teams",
+        "Grew the platform team from 4 to 18 engineers through structured hiring and onboarding programs",
+        "Negotiated $500K vendor contract saving 30% on third-party monitoring tools",
+        "Presented at KubeCon 2023 on behalf of the company to an audience of 3,000+ engineers"
+      ]
+    },
+    {
+      "company": "AT&T / Verizon — Joint Venture Division",
+      "title": "Senior Engineer",
+      "start_date": "2017-04",
+      "end_date": "2019-12",
+      "current": false,
+      "description": "Worked on network automation tooling for a joint R&D initiative between AT&T and Verizon. Delivered software that managed configuration of 10,000+ network devices.",
+      "achievements": [
+        "Built a configuration management DSL reducing provisioning time from 4 hours to 8 minutes",
+        "Integrated with 3 legacy SOAP APIs, wrapping them in a modern REST facade",
+        "Achieved FIPS 140-2 compliance for all cryptographic operations in the toolchain"
+      ]
+    },
+    {
+      "company": "Müller & Söhne GmbH",
+      "title": "Softwareentwickler (Software Developer)",
+      "start_date": "2015-09",
+      "end_date": "2017-03",
+      "current": false,
+      "description": "Developed internal ERP integrations and reporting dashboards for a mid-sized German manufacturing firm. All documentation written in both English and German.",
+      "achievements": [
+        "Replaced a manual Excel-based reporting process with an automated dashboard, saving 20 hours/week",
+        "Integrated SAP ERP with a custom warehouse management system using RFC/BAPI protocols"
+      ]
+    },
+    {
+      "company": "Résumé & Cité Tech",
+      "title": "Développeur Full-Stack",
+      "start_date": "2014-02",
+      "end_date": "2015-08",
+      "current": false,
+      "description": "Built e-commerce and content platforms for French-speaking clients. Worked primarily in PHP/Laravel and Vue.js. Edge case: company name contains ampersand, accent, and mixed languages.",
+      "achievements": [
+        "Delivered 12 client projects on time and under budget in 18 months",
+        "Introduced CI/CD pipelines reducing deployment time from 2 hours to 15 minutes"
+      ]
+    },
+    {
+      "company": "Startup Inc.",
+      "title": "Intern",
+      "start_date": "2013-06",
+      "end_date": "2013-08",
+      "current": false,
+      "description": "",
+      "achievements": []
+    }
+  ],
+  "education": [
+    {
+      "institution": "Universidade de São Paulo (USP)",
+      "degree": "M.Sc.",
+      "field": "Ciência da Computação",
+      "start_date": "2011-03",
+      "end_date": "2013-12",
+      "gpa": "9.4/10"
+    },
+    {
+      "institution": "Pontifical Catholic University of Rio de Janeiro — PUC-Rio",
+      "degree": "B.Eng.",
+      "field": "Electrical & Computer Engineering",
+      "start_date": "2007-03",
+      "end_date": "2011-02",
+      "gpa": "8.7/10"
+    }
+  ],
+  "skills": [
+    "Python",
+    "Go",
+    "C++",
+    "Node.js",
+    "Vue.js",
+    "TypeScript",
+    "Kubernetes",
+    "Terraform",
+    "PostgreSQL",
+    "Redis",
+    "Apache Kafka",
+    "AWS / GCP",
+    "CI/CD",
+    "System Design",
+    "Technical Leadership"
+  ],
+  "languages": [
+    "English (Native)",
+    "Español (Avanzado)",
+    "Français (Intermédiaire)",
+    "中文 (基础)"
+  ],
+  "certifications": [
+    {
+      "name": "AWS Certified Solutions Architect – Professional",
+      "issuer": "Amazon Web Services",
+      "date": "2023-06"
+    },
+    {
+      "name": "Certified Kubernetes Administrator (CKA)",
+      "issuer": "Cloud Native Computing Foundation",
+      "date": "2022-11"
+    },
+    {
+      "name": "Google Professional Cloud Architect",
+      "issuer": "Google Cloud",
+      "date": "2021-08"
+    }
+  ]
+}
