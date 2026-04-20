@@ -1,44 +1,37 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="200" height="260" viewBox="0 0 200 260">
-  <!-- Background -->
-  <rect width="200" height="260" fill="#FFFFFF" rx="2"/>
-  <rect width="200" height="260" fill="none" stroke="#E5E7EB" stroke-width="1" rx="2"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 260" fill="none" preserveAspectRatio="xMidYMid meet">
+  <!-- Paper -->
+  <rect x="0" y="0" width="200" height="260" fill="#FFFFFF" stroke="#E5E7EB" stroke-width="1"/>
 
-  <!-- Name block -->
-  <rect x="20" y="28" width="130" height="9" rx="1.5" fill="#111827"/>
+  <!-- Name block (serif-suggestive) — large bold rect -->
+  <rect x="30" y="40" width="100" height="10" fill="#0A0A0A"/>
+  <!-- Subtle serif "feet" — 2 tiny rects under first and last letter to hint at serif typography -->
+  <rect x="30" y="50" width="3" height="1.5" fill="#0A0A0A"/>
+  <rect x="127" y="50" width="3" height="1.5" fill="#0A0A0A"/>
 
-  <!-- Contact line -->
-  <rect x="20" y="44" width="90" height="5" rx="1" fill="#9CA3AF"/>
+  <!-- Subtitle (italic-feel, thin) -->
+  <rect x="30" y="57" width="50" height="2" fill="#737373"/>
 
-  <!-- Thin divider -->
-  <line x1="20" y1="56" x2="180" y2="56" stroke="#E5E7EB" stroke-width="1"/>
+  <!-- Hairline rule under header — 1px full column width -->
+  <line x1="30" y1="70" x2="170" y2="70" stroke="#E5E5E5" stroke-width="1"/>
 
-  <!-- Section 1 heading -->
-  <rect x="20" y="68" width="44" height="4" rx="1" fill="#111827"/>
-  <!-- Section 1 body lines -->
-  <rect x="20" y="78" width="155" height="3.5" rx="1" fill="#D1D5DB"/>
-  <rect x="20" y="85" width="140" height="3.5" rx="1" fill="#D1D5DB"/>
-  <rect x="20" y="92" width="110" height="3.5" rx="1" fill="#D1D5DB"/>
+  <!-- Section 1: section title (sentence-case, short) -->
+  <rect x="30" y="84" width="40" height="4" fill="#0A0A0A"/>
+  <!-- Body lines — generous line-height -->
+  <rect x="30" y="96" width="120" height="1.5" fill="#D4D4D8"/>
+  <rect x="30" y="104" width="110" height="1.5" fill="#D4D4D8"/>
+  <rect x="30" y="112" width="115" height="1.5" fill="#D4D4D8"/>
+  <rect x="30" y="120" width="100" height="1.5" fill="#D4D4D8"/>
 
-  <!-- Section 2 heading -->
-  <rect x="20" y="108" width="52" height="4" rx="1" fill="#111827"/>
-  <!-- Experience item 1 -->
-  <rect x="20" y="118" width="95" height="4" rx="1" fill="#374151"/>
-  <rect x="20" y="126" width="68" height="3.5" rx="1" fill="#9CA3AF"/>
-  <rect x="20" y="133" width="150" height="3" rx="1" fill="#D1D5DB"/>
-  <rect x="20" y="139" width="130" height="3" rx="1" fill="#D1D5DB"/>
-  <!-- Experience item 2 -->
-  <rect x="20" y="150" width="88" height="4" rx="1" fill="#374151"/>
-  <rect x="20" y="158" width="60" height="3.5" rx="1" fill="#9CA3AF"/>
-  <rect x="20" y="165" width="145" height="3" rx="1" fill="#D1D5DB"/>
+  <!-- Section 2: gap ~18px, then title -->
+  <rect x="30" y="140" width="44" height="4" fill="#0A0A0A"/>
+  <rect x="30" y="152" width="120" height="1.5" fill="#D4D4D8"/>
+  <rect x="30" y="160" width="110" height="1.5" fill="#D4D4D8"/>
+  <rect x="30" y="168" width="115" height="1.5" fill="#D4D4D8"/>
+  <rect x="30" y="176" width="95" height="1.5" fill="#D4D4D8"/>
 
-  <!-- Section 3 heading -->
-  <rect x="20" y="181" width="48" height="4" rx="1" fill="#111827"/>
-  <!-- Education item -->
-  <rect x="20" y="191" width="110" height="4" rx="1" fill="#374151"/>
-  <rect x="20" y="199" width="80" height="3.5" rx="1" fill="#9CA3AF"/>
-
-  <!-- Section 4 heading -->
-  <rect x="20" y="215" width="36" height="4" rx="1" fill="#111827"/>
-  <!-- Skills line -->
-  <rect x="20" y="225" width="145" height="3.5" rx="1" fill="#D1D5DB"/>
+  <!-- Section 3: gap ~18px, then title -->
+  <rect x="30" y="196" width="36" height="4" fill="#0A0A0A"/>
+  <rect x="30" y="208" width="120" height="1.5" fill="#D4D4D8"/>
+  <rect x="30" y="216" width="105" height="1.5" fill="#D4D4D8"/>
+  <rect x="30" y="224" width="110" height="1.5" fill="#D4D4D8"/>
 </svg>

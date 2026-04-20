@@ -30,7 +30,7 @@ function getPdfLinkLabel(url: string | null): { label: string; href: string } | 
 
 // ── Section renderers ────────────────────────────────────────────────────────
 
-function renderPersonalInfo(data: ResumeData, name?: string) {
+function renderPersonalInfo(data: ResumeData) {
   const info = data.personal_info;
   const basicParts = [info.email, info.phone, info.location].filter(Boolean) as string[];
   const linkedinLink = getPdfLinkLabel(info.linkedin);
@@ -45,14 +45,18 @@ function renderPersonalInfo(data: ResumeData, name?: string) {
   if (linkedinLink) contactParts.push({ type: "link", label: linkedinLink.label, href: linkedinLink.href });
   if (websiteLink) contactParts.push({ type: "link", label: websiteLink.label, href: websiteLink.href });
 
+  const nameText = info.name?.trim();
+  const displayName = nameText || "Your Name";
+  const nameStyle = nameText ? styles.headerName : [styles.headerName, { color: "#9CA3AF" }];
+
   return (
     <View style={styles.headerSection} key="personal_info">
-      <Text style={styles.headerName}>{info.name || name || "Your Name"}</Text>
+      <Text style={nameStyle}>{displayName}</Text>
       {hasContact && (
         <View style={styles.headerContact}>
           {contactParts.map((part, i) => (
             <View key={i} style={{ flexDirection: "row" }}>
-              {i > 0 && <Text style={styles.headerContactText}> \u00b7 </Text>}
+              {i > 0 && <Text style={styles.headerContactText}>{" \u00b7 "}</Text>}
               {part.type === "text" ? (
                 <Text style={styles.headerContactText}>{part.value}</Text>
               ) : (
@@ -188,13 +192,13 @@ function renderCertifications(data: ResumeData) {
 
 // ── Main component ────────────────────────────────────────────────────────────
 
-export function ClassicTemplate({ data, sectionsOrder, name }: TemplateComponentProps) {
+export function ClassicTemplate({ data, sectionsOrder }: TemplateComponentProps) {
   const order = sectionsOrder?.length ? sectionsOrder : DEFAULT_ORDER;
 
   function renderSection(key: string) {
     switch (key) {
       case "personal_info":
-        return renderPersonalInfo(data, name);
+        return renderPersonalInfo(data);
       case "summary":
         return renderSummary(data);
       case "experience":

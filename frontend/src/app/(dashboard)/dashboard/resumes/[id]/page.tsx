@@ -573,18 +573,16 @@ function CertificationEditor({
 function ResumePreviewPdf({
   data,
   sectionsOrder,
-  name,
   templateId,
 }: {
   data: ResumeData;
   sectionsOrder: string[];
-  name: string;
   templateId: string;
 }) {
   const { Component } = getTemplate(templateId);
   return (
     <div className="bg-gray-100 dark:bg-gray-800 rounded-lg overflow-auto min-h-[600px]">
-      <BlobProvider document={<Component data={data} sectionsOrder={sectionsOrder} name={name} />}>
+      <BlobProvider document={<Component data={data} sectionsOrder={sectionsOrder} />}>
         {({ url, loading, error }) => {
           if (loading) {
             return (
@@ -960,7 +958,7 @@ export default function ResumeEditorPage() {
       if (format === "pdf") {
         const { Component } = getTemplate(template as TemplateId);
         const blob = await pdf(
-          <Component data={data} sectionsOrder={sectionsOrder} name={resumeName} />
+          <Component data={data} sectionsOrder={sectionsOrder} />
         ).toBlob();
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
@@ -1220,7 +1218,6 @@ export default function ResumeEditorPage() {
             <ResumePreviewPdf
               data={data}
               sectionsOrder={sectionsOrder}
-              name={resumeName}
               templateId={template}
             />
           </div>

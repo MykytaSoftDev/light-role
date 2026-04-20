@@ -1,158 +1,311 @@
+// Minimal template — editorial redesign (RTV-3.1).
+//
+// Typography-first aesthetic: serif display (Fraunces) for name + section
+// titles, sans body (Inter) for everything else. Premium signal comes from
+// restraint, font pairing, and vertical rhythm — NOT color or decoration.
+//
+// Palette (from spec): near-black + neutral scale only. No pure #000000.
+//   #0A0A0A — primary ink
+//   #262626 — body
+//   #525252 — secondary/meta
+//   #737373 — tertiary/dates
+//   #A3A3A3 — em-dash bullets
+//   #E5E5E5 — the single hairline rule under header
+//
+// Layout: A4 page, 64pt top/bottom, 72pt left/right. Single column.
+// The only horizontal rule is the 1pt hairline under the header block.
+
 import { StyleSheet } from "@react-pdf/renderer";
 
 export const styles = StyleSheet.create({
   page: {
-    fontFamily: "Helvetica",
-    fontSize: 10,
-    paddingTop: 60,
-    paddingBottom: 60,
-    paddingLeft: 60,
-    paddingRight: 60,
+    fontFamily: "Inter",
+    fontSize: 10.5,
+    paddingTop: 64,
+    paddingBottom: 64,
+    paddingLeft: 72,
+    paddingRight: 72,
     backgroundColor: "#FFFFFF",
-    color: "#111827",
+    color: "#262626",
   },
 
   // ── Header ──────────────────────────────────────────────────────────────────
   headerSection: {
-    marginBottom: 20,
+    marginBottom: 8,
   },
   headerName: {
-    fontSize: 28,
-    fontFamily: "Helvetica-Bold",
-    color: "#111827",
-    marginBottom: 4,
+    fontFamily: "Fraunces",
+    fontWeight: 600,
+    fontSize: 36,
+    letterSpacing: -1,
+    color: "#0A0A0A",
+    lineHeight: 1.1,
+  },
+  // Cyrillic fallback: Fraunces lacks a Cyrillic subset on fontsource, so for
+  // names containing Cyrillic letters we swap to Inter 600 at the same size.
+  // It's sans, not serif, but legible — documented trade-off per RTV-3.1.
+  headerNameCyrillic: {
+    fontFamily: "Inter",
+    fontWeight: 600,
+    fontSize: 36,
+    letterSpacing: -1,
+    color: "#0A0A0A",
+    lineHeight: 1.1,
+  },
+  headerNamePlaceholder: {
+    color: "#A3A3A3",
   },
   headerRole: {
+    fontFamily: "Inter",
+    fontWeight: 400,
+    fontStyle: "italic",
     fontSize: 14,
-    color: "#6B7280",
-    fontFamily: "Helvetica",
-    marginBottom: 6,
+    color: "#525252",
+    marginTop: 4,
   },
   headerContact: {
-    fontSize: 10,
-    color: "#6B7280",
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 0,
+    marginTop: 10,
   },
   headerContactText: {
+    fontFamily: "Inter",
+    fontWeight: 400,
     fontSize: 10,
-    color: "#6B7280",
+    color: "#525252",
   },
   headerContactLink: {
+    fontFamily: "Inter",
+    fontWeight: 400,
     fontSize: 10,
-    color: "#6B7280",
+    color: "#525252",
     textDecoration: "none",
   },
   headerDivider: {
     borderBottomWidth: 1,
-    borderBottomColor: "#E5E7EB",
+    borderBottomColor: "#E5E5E5",
     borderBottomStyle: "solid",
-    marginTop: 12,
+    marginTop: 14,
   },
 
-  // ── Section ──────────────────────────────────────────────────────────────────
+  // ── Section container + heading ─────────────────────────────────────────────
   sectionContainer: {
-    marginBottom: 16,
+    marginTop: 24, // 24pt gap before each section title (vertical rhythm)
   },
   sectionHeading: {
+    fontFamily: "Fraunces",
+    fontWeight: 600,
     fontSize: 11,
-    fontFamily: "Helvetica-Bold",
-    textTransform: "uppercase",
-    letterSpacing: 2,
-    color: "#111827",
-    marginBottom: 8,
-    marginTop: 4,
+    color: "#0A0A0A",
+    marginBottom: 12,
+    // Note: sentence case ("Experience"), NOT uppercase. No letterSpacing.
+  },
+  // Cyrillic fallback for section headings (if ever localized). Not used for
+  // the hard-coded English section titles below, but kept for completeness.
+  sectionHeadingCyrillic: {
+    fontFamily: "Inter",
+    fontWeight: 600,
+    fontSize: 11,
+    color: "#0A0A0A",
+    marginBottom: 12,
   },
 
-  // ── Summary ──────────────────────────────────────────────────────────────────
+  // ── Summary ─────────────────────────────────────────────────────────────────
   summaryText: {
-    fontSize: 10,
-    color: "#374151",
+    fontFamily: "Inter",
+    fontWeight: 400,
+    fontSize: 10.5,
+    color: "#262626",
     lineHeight: 1.6,
   },
 
-  // ── Experience ───────────────────────────────────────────────────────────────
-  experienceList: { flexDirection: "column", gap: 12 },
-  experienceItem: { marginBottom: 4 },
+  // ── Experience ──────────────────────────────────────────────────────────────
+  experienceList: {
+    flexDirection: "column",
+    gap: 14,
+  },
+  experienceItem: {
+    flexDirection: "column",
+  },
   experienceHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "flex-start",
-    marginBottom: 2,
+    alignItems: "baseline",
+    marginBottom: 4,
+  },
+  experienceTitleLine: {
+    flex: 1,
+    marginRight: 12,
+    fontSize: 11,
+    color: "#0A0A0A",
+    lineHeight: 1.4,
   },
   experienceTitle: {
+    fontFamily: "Inter",
+    fontWeight: 600,
     fontSize: 11,
-    fontFamily: "Helvetica-Bold",
-    color: "#111827",
-    flex: 1,
-    marginRight: 8,
+    color: "#0A0A0A",
   },
   experienceCompany: {
-    fontSize: 10,
-    color: "#6B7280",
-    marginBottom: 2,
+    fontFamily: "Inter",
+    fontWeight: 400,
+    fontSize: 11,
+    color: "#0A0A0A",
+  },
+  experienceSeparator: {
+    fontFamily: "Inter",
+    fontWeight: 400,
+    fontSize: 11,
+    color: "#737373",
   },
   experienceDates: {
-    fontSize: 9,
-    color: "#6B7280",
+    fontFamily: "Inter",
+    fontWeight: 400,
+    fontStyle: "italic",
+    fontSize: 10,
+    color: "#737373",
     flexShrink: 0,
   },
   experienceDescription: {
-    fontSize: 10,
-    color: "#374151",
-    lineHeight: 1.5,
-    marginBottom: 3,
+    fontFamily: "Inter",
+    fontWeight: 400,
+    fontSize: 10.5,
+    color: "#262626",
+    lineHeight: 1.6,
+    marginTop: 4,
   },
-  achievementRow: { flexDirection: "row", marginBottom: 2 },
+  achievementsList: {
+    flexDirection: "column",
+    marginTop: 4,
+  },
+  // Bullets: em-dash '—' in neutral-400, using a row with hanging indent.
+  // Chosen over plain-paragraph style because em-dash reads as editorial
+  // punctuation (matches the 'Fraunces editorial' concept) while keeping
+  // the spec's 'no filled circles' rule.
+  achievementRow: {
+    flexDirection: "row",
+    marginBottom: 2,
+  },
   achievementBullet: {
-    fontSize: 10,
-    color: "#6B7280",
-    width: 16,
+    fontFamily: "Inter",
+    fontWeight: 400,
+    fontSize: 10.5,
+    color: "#A3A3A3",
+    width: 14,
     flexShrink: 0,
+    lineHeight: 1.6,
   },
   achievementText: {
-    fontSize: 10,
-    color: "#374151",
-    lineHeight: 1.5,
+    fontFamily: "Inter",
+    fontWeight: 400,
+    fontSize: 10.5,
+    color: "#262626",
+    lineHeight: 1.6,
     flex: 1,
   },
 
-  // ── Education ────────────────────────────────────────────────────────────────
-  educationList: { flexDirection: "column", gap: 8 },
-  educationItem: { marginBottom: 2 },
+  // ── Education ───────────────────────────────────────────────────────────────
+  educationList: {
+    flexDirection: "column",
+    gap: 10,
+  },
+  educationItem: {
+    flexDirection: "column",
+  },
   educationHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "flex-start",
-    marginBottom: 1,
+    alignItems: "baseline",
+    marginBottom: 2,
   },
   educationInstitution: {
+    fontFamily: "Inter",
+    fontWeight: 600,
     fontSize: 11,
-    fontFamily: "Helvetica-Bold",
-    color: "#111827",
+    color: "#0A0A0A",
     flex: 1,
-    marginRight: 8,
+    marginRight: 12,
   },
-  educationDates: { fontSize: 9, color: "#6B7280", flexShrink: 0 },
-  educationDegree: { fontSize: 10, color: "#6B7280" },
+  educationDates: {
+    fontFamily: "Inter",
+    fontWeight: 400,
+    fontStyle: "italic",
+    fontSize: 10,
+    color: "#737373",
+    flexShrink: 0,
+  },
+  educationDegree: {
+    fontFamily: "Inter",
+    fontWeight: 400,
+    fontSize: 10.5,
+    color: "#262626",
+    lineHeight: 1.6,
+  },
 
-  // ── Skills / Languages ───────────────────────────────────────────────────────
-  bodyText: { fontSize: 10, color: "#374151", lineHeight: 1.5 },
+  // ── Skills / Languages (labeled-group line) ─────────────────────────────────
+  // Renders as 'Skills — JavaScript, TypeScript, …' with the label slightly
+  // darker than the value to add editorial hierarchy without a bullet run.
+  labeledLine: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    flexWrap: "wrap",
+  },
+  labeledLabel: {
+    fontFamily: "Inter",
+    fontWeight: 500,
+    fontSize: 10.5,
+    color: "#0A0A0A",
+  },
+  labeledDash: {
+    fontFamily: "Inter",
+    fontWeight: 400,
+    fontSize: 10.5,
+    color: "#A3A3A3",
+  },
+  labeledValue: {
+    fontFamily: "Inter",
+    fontWeight: 400,
+    fontSize: 10.5,
+    color: "#262626",
+    lineHeight: 1.6,
+    flex: 1,
+  },
 
-  // ── Certifications ───────────────────────────────────────────────────────────
-  certificationRow: {
+  // ── Certifications ──────────────────────────────────────────────────────────
+  certificationItem: {
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "flex-start",
+    alignItems: "baseline",
     marginBottom: 4,
   },
   certificationName: {
-    fontSize: 10,
-    fontFamily: "Helvetica-Bold",
-    color: "#111827",
+    fontFamily: "Inter",
+    fontWeight: 600,
+    fontSize: 10.5,
+    color: "#0A0A0A",
     flex: 1,
-    marginRight: 8,
+    marginRight: 12,
   },
-  certificationMeta: { fontSize: 10, color: "#6B7280", flexShrink: 0 },
+  certificationMeta: {
+    fontFamily: "Inter",
+    fontWeight: 400,
+    fontStyle: "italic",
+    fontSize: 10,
+    color: "#737373",
+    flexShrink: 0,
+  },
+
+  // ── Page number (pages 2+ only) ─────────────────────────────────────────────
+  pageNumber: {
+    position: "absolute",
+    bottom: 16,
+    left: 0,
+    right: 0,
+    textAlign: "center",
+    fontFamily: "Fraunces",
+    fontWeight: 400,
+    fontStyle: "italic",
+    fontSize: 9,
+    color: "#737373",
+  },
 });

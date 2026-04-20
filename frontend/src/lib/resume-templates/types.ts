@@ -15,7 +15,6 @@ export type TemplateId = "classic" | "modern" | "minimal";
 export interface TemplateComponentProps {
   data: ResumeData;
   sectionsOrder?: string[];
-  name?: string;
 }
 
 export interface TemplateMeta {
