@@ -1,23 +1,18 @@
 // Shared font registration for react-pdf resume templates.
 //
-// Why a shared module: both Minimal (RTV-3.1) and the in-progress Modern rewrite
-// (RTV-2.x) need Inter. Fraunces is Minimal-only for now. Registering once here
-// avoids duplicate Font.register calls and keeps a single source of truth for
-// font URLs and fallback decisions.
+// Inter-only: after the visual-overhaul redesign (tasks-resume-templates-
+// visual-overhaul.json), both Modern and Minimal use Inter exclusively.
+// Classic also uses Inter. A single family with six weights covers every
+// template's needs.
 //
-// Delivery: jsDelivr CDN for @fontsource static .ttf files. Variable fonts are
-// intentionally avoided — react-pdf's fontkit pipeline does not fully resolve
-// variable-axis weights, so static per-weight files are required.
+// Delivery: jsDelivr CDN for @fontsource static .ttf files. Variable fonts
+// are intentionally avoided — react-pdf's fontkit pipeline does not fully
+// resolve variable-axis weights, so static per-weight files are required.
 //
-// Glyph coverage:
-//   - Fraunces: jsDelivr/@fontsource ships Fraunces in `latin` and `latin-ext`
-//     subsets only — there is NO cyrillic subset available. We register the
-//     `latin-ext` files which cover Polish diacritics (ł, ż, ó, ń, ś, ć, ź,
-//     ą, ę) cleanly. For Cyrillic text (e.g. "Андрей"), callers should detect
-//     it and route those runs to Inter — see `isCyrillic` below.
-//   - Inter: registered with `latin-ext` for Polish and `cyrillic` fallback
-//     under the same family. react-pdf selects the first font whose subset
-//     contains the glyph, so mixed Latin/Cyrillic strings in Inter just work.
+// Glyph coverage: latin-ext (Polish diacritics ł/ż/ó/ń/ś/ć/ź/ą/ę) and
+// cyrillic subsets are both registered under the same family. react-pdf
+// selects the first font whose subset contains the glyph, so mixed Latin/
+// Cyrillic strings just work.
 //
 // Registration is triggered by importing this module from each template's
 // index.tsx. Font.register is idempotent in react-pdf, so multiple imports
@@ -27,34 +22,12 @@ import { Font } from "@react-pdf/renderer";
 
 const CDN = "https://cdn.jsdelivr.net/fontsource/fonts";
 
-// ── Fraunces (serif display — name + section titles in Minimal) ──────────────
-// Static weights 400 / 600, regular + italic, latin-ext subset (Polish OK,
-// Cyrillic NOT covered by this subset).
-Font.register({
-  family: "Fraunces",
-  fonts: [
-    {
-      src: `${CDN}/fraunces@latest/latin-ext-400-normal.ttf`,
-      fontWeight: 400,
-    },
-    {
-      src: `${CDN}/fraunces@latest/latin-ext-400-italic.ttf`,
-      fontWeight: 400,
-      fontStyle: "italic",
-    },
-    {
-      src: `${CDN}/fraunces@latest/latin-ext-600-normal.ttf`,
-      fontWeight: 600,
-    },
-  ],
-});
-
-// ── Inter (sans body — used everywhere non-display, and as Cyrillic fallback)─
-// Weights 400, 500, 600, plus 400-italic. Two subsets per weight so the same
-// family renders both Polish and Cyrillic without caller intervention.
 Font.register({
   family: "Inter",
   fonts: [
+    // 300 light — Modern uses 300 for the wide-letter-spaced name
+    { src: `${CDN}/inter@latest/latin-ext-300-normal.ttf`, fontWeight: 300 },
+    { src: `${CDN}/inter@latest/cyrillic-300-normal.ttf`, fontWeight: 300 },
     // 400 regular
     { src: `${CDN}/inter@latest/latin-ext-400-normal.ttf`, fontWeight: 400 },
     { src: `${CDN}/inter@latest/cyrillic-400-normal.ttf`, fontWeight: 400 },
@@ -70,9 +43,12 @@ Font.register({
     // 600 regular
     { src: `${CDN}/inter@latest/latin-ext-600-normal.ttf`, fontWeight: 600 },
     { src: `${CDN}/inter@latest/cyrillic-600-normal.ttf`, fontWeight: 600 },
-    // 700 regular — Modern template uses 700 for the large name heading
+    // 700 regular
     { src: `${CDN}/inter@latest/latin-ext-700-normal.ttf`, fontWeight: 700 },
     { src: `${CDN}/inter@latest/cyrillic-700-normal.ttf`, fontWeight: 700 },
+    // 800 extrabold — Minimal uses 800 for the heavy uppercase name
+    { src: `${CDN}/inter@latest/latin-ext-800-normal.ttf`, fontWeight: 800 },
+    { src: `${CDN}/inter@latest/cyrillic-800-normal.ttf`, fontWeight: 800 },
   ],
 });
 
@@ -87,35 +63,29 @@ Font.registerHyphenationCallback((word) => [word]);
 // producing 5–6 visible flashes on a cold cache. `preloadFonts()` resolves
 // every face we register up front so the preview can be gated behind a
 // single "fonts ready" signal.
-//
-// We deliberately request the exact (family, weight, style) combinations
-// used by the templates. Font.load is idempotent — the browser cache will
-// short-circuit subsequent calls, so this is safe to invoke on every mount.
 let fontsReadyPromise: Promise<void> | null = null;
 export function preloadFonts(): Promise<void> {
   if (fontsReadyPromise) return fontsReadyPromise;
   fontsReadyPromise = Promise.all([
+    Font.load({ fontFamily: "Inter", fontWeight: 300 }),
     Font.load({ fontFamily: "Inter", fontWeight: 400 }),
     Font.load({ fontFamily: "Inter", fontWeight: 400, fontStyle: "italic" }),
     Font.load({ fontFamily: "Inter", fontWeight: 500 }),
     Font.load({ fontFamily: "Inter", fontWeight: 600 }),
     Font.load({ fontFamily: "Inter", fontWeight: 700 }),
-    Font.load({ fontFamily: "Fraunces", fontWeight: 400 }),
-    Font.load({ fontFamily: "Fraunces", fontWeight: 400, fontStyle: "italic" }),
-    Font.load({ fontFamily: "Fraunces", fontWeight: 600 }),
+    Font.load({ fontFamily: "Inter", fontWeight: 800 }),
   ]).then(() => undefined);
   return fontsReadyPromise;
 }
 
 // ── Glyph-coverage helper ────────────────────────────────────────────────────
 // Cyrillic Unicode block: U+0400–U+04FF (Cyrillic), U+0500–U+052F (Cyrillic
-// Supplement). Any character in this range indicates Fraunces will render as
-// .notdef boxes and we must fall back to Inter for the entire run.
+// Supplement). Retained as a utility for any caller that needs to detect
+// cyrillic runs (e.g. for locale-specific styling), though the Inter
+// registration now covers cyrillic natively so no fallback routing is needed.
 export function isCyrillic(text: string | null | undefined): boolean {
   if (!text) return false;
   return /[\u0400-\u052F]/.test(text);
 }
 
-// Convenience exports so templates use tokens instead of literal strings.
-export const FONT_SERIF = "Fraunces";
 export const FONT_SANS = "Inter";

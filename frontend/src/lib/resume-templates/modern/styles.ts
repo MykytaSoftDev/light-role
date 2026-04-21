@@ -1,349 +1,475 @@
+// Modern template — "Anna Johnson" dark-sidebar editorial (VO-1.1).
+//
+// Concept: a grayscale-only editorial resume. A full-width header band at the
+// top of page 1 carries a wide-letter-spaced uppercase name in LIGHT weight
+// (the elegance comes from the spacing, not the weight), followed by a light
+// gray subtitle band with the role title. Below that, a two-column body:
+//   - Left sidebar (190pt, ~32%) in dark charcoal #1A1A1A with pale text.
+//   - Right main column (flex:1, ~68%) on white with dark text.
+//
+// No accent hues. No decorative elements. The dark sidebar IS the brand.
+//
+// Palette (exhaustive — any other color in this file is a bug):
+//   #1A1A1A — charcoal: sidebar background + name + main section titles +
+//             main bullets + main job titles
+//   #262626 — body text (main column)
+//   #4A4A4A — rule color under sidebar section titles
+//   #525252 — company/date meta + subtitle role text
+//   #999999 — sidebar labels + sidebar date de-emphasis + placeholder name
+//   #D4D4D4 — header hairline rule + rule under main section titles
+//   #E5E5E5 — sidebar value text (near-white, softer than pure #FFFFFF) +
+//             sidebar bullets + contact icons
+//   #F5F5F5 — subtitle band background (light gray)
+//   #FFFFFF — sidebar section titles + paper background
+//
+// Typography: Inter only. Weights 300, 400, 500, 600, 700. letterSpacing is
+// measured in points (react-pdf interprets it as absolute pt-spacing between
+// glyphs, which matches CSS letter-spacing in px at the PDF scale).
+
 import { StyleSheet } from "@react-pdf/renderer";
 
-// Modern template — sidebar-as-feature.
-//
-// Layout: 180pt lavender-gray sidebar at paper edge, flex:1 white main column.
-// A 3pt indigo vertical accent bar runs flush-left inside the sidebar. The
-// name lives at the TOP of the main column, not in the sidebar. All fonts are
-// Inter (registered in ../fonts.ts); bullets use the '›' chevron in indigo.
-
-const COLOR_INDIGO = "#4F46E5"; // accent + section headings + role title
-const COLOR_SLATE_900 = "#0F172A"; // name
-const COLOR_SLATE_800 = "#1E293B"; // body
-const COLOR_SLATE_500 = "#64748B"; // dates + muted labels
-const COLOR_BORDER = "#E2E8F0"; // skill-pill border
-const COLOR_SIDEBAR_BG = "#F1F2F7"; // soft lavender-gray
+const COLOR_CHARCOAL = "#1A1A1A";
+const COLOR_BODY = "#262626";
+const COLOR_RULE_DARK = "#4A4A4A";
+const COLOR_META = "#525252";
+const COLOR_MUTED = "#999999";
+const COLOR_RULE_LIGHT = "#D4D4D4";
+const COLOR_SIDEBAR_TEXT = "#E5E5E5";
+const COLOR_BAND_BG = "#F5F5F5";
 const COLOR_WHITE = "#FFFFFF";
-const COLOR_NAME_PLACEHOLDER = "#CBD5E1"; // muted slate for empty-name state
+
+const FONT = "Inter";
+
+// Layout constants — referenced from index.tsx for the absolute-positioned
+// sidebar background on subsequent pages, so keep them here as the single
+// source of truth.
+export const SIDEBAR_WIDTH = 190;
+export const HEADER_NAME_BLOCK_HEIGHT = 90; // white area with name
+export const HEADER_SUBTITLE_BAND_HEIGHT = 34; // light-gray band with role
+export const HEADER_BAND_HEIGHT = HEADER_NAME_BLOCK_HEIGHT + HEADER_SUBTITLE_BAND_HEIGHT;
 
 export const styles = StyleSheet.create({
   // ── Page ────────────────────────────────────────────────────────────────────
-  // Zero outer padding — the sidebar reaches the paper edges. Paper is always
-  // white regardless of app theme.
+  // Zero outer padding — the sidebar reaches the left paper edge.
   page: {
-    fontFamily: "Inter",
+    fontFamily: FONT,
     fontSize: 10,
     paddingTop: 0,
     paddingBottom: 0,
     paddingLeft: 0,
     paddingRight: 0,
     backgroundColor: COLOR_WHITE,
-    color: COLOR_SLATE_800,
+    color: COLOR_BODY,
   },
 
-  // ── Two-column body ─────────────────────────────────────────────────────────
-  columnsContainer: {
-    flexDirection: "row",
-    flex: 1,
-  },
-
-  // ── Left sidebar ────────────────────────────────────────────────────────────
-  // Fixed 180pt width, full paper height, soft lavender-gray background.
-  // Extra bottom padding so the fixed page-number footer never clashes with
-  // content on long resumes.
-  sidebar: {
-    width: 180,
-    backgroundColor: COLOR_SIDEBAR_BG,
-    paddingTop: 32,
-    paddingLeft: 32,
-    paddingRight: 24,
-    paddingBottom: 48,
-    position: "relative",
-  },
-  // 3pt indigo vertical accent bar flush-left, full sidebar height.
-  sidebarAccent: {
+  // ── Sidebar background (painted on every page via `fixed`) ─────────────────
+  // A full-height, left-anchored charcoal rectangle behind the sidebar column.
+  // Rendered with position:"absolute" + the `fixed` prop on a standalone View
+  // so the dark fill persists on pages 2+ even though the sidebar content
+  // itself lives inside the flow and only renders on page 1.
+  sidebarBackground: {
     position: "absolute",
     left: 0,
     top: 0,
     bottom: 0,
-    width: 3,
-    backgroundColor: COLOR_INDIGO,
+    width: SIDEBAR_WIDTH,
+    backgroundColor: COLOR_CHARCOAL,
   },
 
-  sidebarSectionTitle: {
-    fontSize: 9,
-    fontFamily: "Inter",
-    fontWeight: 600,
-    textTransform: "uppercase",
-    letterSpacing: 1.2,
-    color: COLOR_INDIGO,
-    marginTop: 18,
-    marginBottom: 6,
+  // ── Header band (page 1 only) ──────────────────────────────────────────────
+  // Spans full paper width. Contains (1) white block with centered name and
+  // (2) light-gray subtitle band with role. A 1pt #D4D4D4 rule separates them.
+  headerBand: {
+    width: "100%",
   },
-  sidebarSectionTitleFirst: {
-    fontSize: 9,
-    fontFamily: "Inter",
-    fontWeight: 600,
-    textTransform: "uppercase",
-    letterSpacing: 1.2,
-    color: COLOR_INDIGO,
-    marginTop: 0,
-    marginBottom: 6,
-  },
-
-  // Contact
-  contactRow: {
-    marginBottom: 8,
-  },
-  contactLabel: {
-    fontSize: 8,
-    fontFamily: "Inter",
-    fontWeight: 500,
-    textTransform: "uppercase",
-    letterSpacing: 0.8,
-    color: COLOR_SLATE_500,
-    marginBottom: 1,
-  },
-  contactValue: {
-    fontSize: 9,
-    fontFamily: "Inter",
-    fontWeight: 400,
-    color: COLOR_SLATE_800,
-    lineHeight: 1.4,
-  },
-  contactLink: {
-    fontSize: 9,
-    fontFamily: "Inter",
-    fontWeight: 400,
-    color: COLOR_INDIGO,
-    textDecoration: "none",
-    lineHeight: 1.4,
-  },
-
-  // Skills — pill-shaped tags
-  skillsContainer: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 4,
-  },
-  skillPill: {
-    fontSize: 9,
-    fontFamily: "Inter",
-    fontWeight: 400,
-    color: COLOR_SLATE_800,
+  headerNameBlock: {
+    height: HEADER_NAME_BLOCK_HEIGHT,
     backgroundColor: COLOR_WHITE,
-    borderWidth: 1,
-    borderColor: COLOR_BORDER,
-    borderStyle: "solid",
-    borderRadius: 3,
-    paddingTop: 3,
-    paddingBottom: 3,
-    paddingLeft: 8,
-    paddingRight: 8,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingTop: 26,
+    paddingBottom: 18,
+    paddingLeft: 32,
+    paddingRight: 32,
   },
-
-  // Languages / simple list
-  sidebarBody: {
-    fontSize: 9,
-    fontFamily: "Inter",
+  name: {
+    fontFamily: FONT,
+    fontWeight: 300,
+    fontSize: 36,
+    letterSpacing: 8,
+    color: COLOR_CHARCOAL,
+    textTransform: "uppercase",
+    textAlign: "center",
+    // LineHeight intentionally tight — spacing is horizontal, not vertical.
+    lineHeight: 1.15,
+  },
+  nameEmpty: {
+    fontFamily: FONT,
+    fontWeight: 300,
+    fontSize: 36,
+    letterSpacing: 8,
+    color: COLOR_MUTED,
+    textTransform: "uppercase",
+    textAlign: "center",
+    lineHeight: 1.15,
+  },
+  headerDivider: {
+    width: "100%",
+    height: 1,
+    backgroundColor: COLOR_RULE_LIGHT,
+  },
+  headerSubtitleBand: {
+    height: HEADER_SUBTITLE_BAND_HEIGHT,
+    backgroundColor: COLOR_BAND_BG,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingLeft: 32,
+    paddingRight: 32,
+  },
+  roleTitle: {
+    fontFamily: FONT,
     fontWeight: 400,
-    color: COLOR_SLATE_800,
-    lineHeight: 1.5,
+    fontSize: 11,
+    letterSpacing: 4,
+    color: COLOR_META,
+    textTransform: "uppercase",
+    textAlign: "center",
   },
 
-  // Certifications
-  certificationItem: {
-    marginBottom: 6,
-  },
-  certificationName: {
-    fontSize: 9,
-    fontFamily: "Inter",
-    fontWeight: 600,
-    color: COLOR_SLATE_900,
-    lineHeight: 1.4,
-  },
-  certificationMeta: {
-    fontSize: 8,
-    fontFamily: "Inter",
-    fontWeight: 400,
-    color: COLOR_SLATE_500,
-    lineHeight: 1.4,
+  // ── Body: two-column layout below the header ───────────────────────────────
+  // flex:1 ensures the columns fill remaining page height so the sidebar
+  // background lines up visually with the flow content.
+  body: {
+    flexDirection: "row",
+    flex: 1,
   },
 
-  // ── Right main column ───────────────────────────────────────────────────────
+  // Left column — 190pt, dark charcoal, only renders flow content on page 1.
+  // On subsequent pages the charcoal is painted by the `fixed` background.
+  sidebar: {
+    width: SIDEBAR_WIDTH,
+    // Transparent: the actual dark fill is the fixed-background View. Keeping
+    // this View transparent avoids double-drawing and lets layout flow
+    // naturally without creating a second dark rectangle in the flow.
+    backgroundColor: "transparent",
+    paddingTop: 28,
+    paddingBottom: 28,
+    paddingLeft: 24,
+    paddingRight: 24,
+  },
+
+  // Right column — white, flex:1. Wraps across pages; sidebar does not.
   main: {
     flex: 1,
     backgroundColor: COLOR_WHITE,
-    paddingTop: 36,
-    paddingLeft: 40,
-    paddingRight: 40,
-    paddingBottom: 48,
+    paddingTop: 28,
+    paddingBottom: 28,
+    paddingLeft: 32,
+    paddingRight: 32,
   },
 
-  // Name block at top of main column
-  nameBlock: {
-    marginBottom: 20,
-  },
-  name: {
-    fontSize: 28,
-    fontFamily: "Inter",
-    fontWeight: 700,
-    letterSpacing: -0.5,
-    color: COLOR_SLATE_900,
-    lineHeight: 1.1,
-  },
-  nameEmpty: {
-    fontSize: 28,
-    fontFamily: "Inter",
-    fontWeight: 700,
-    letterSpacing: -0.5,
-    color: COLOR_NAME_PLACEHOLDER,
-    lineHeight: 1.1,
-  },
-  roleTitle: {
-    fontSize: 14,
-    fontFamily: "Inter",
-    fontWeight: 500,
-    color: COLOR_INDIGO,
-    marginTop: 4,
-    lineHeight: 1.2,
-  },
-
-  // Section titles on main — label only, no underline, no divider.
-  mainSectionTitle: {
-    fontSize: 10,
-    fontFamily: "Inter",
+  // ── Sidebar section titles & rule ─────────────────────────────────────────
+  sidebarSectionTitle: {
+    fontFamily: FONT,
     fontWeight: 600,
+    fontSize: 10,
+    letterSpacing: 2,
+    color: COLOR_WHITE,
     textTransform: "uppercase",
-    letterSpacing: 1.5,
-    color: COLOR_INDIGO,
-    marginTop: 18,
+    marginTop: 22,
+    marginBottom: 6,
+  },
+  sidebarSectionTitleFirst: {
+    fontFamily: FONT,
+    fontWeight: 600,
+    fontSize: 10,
+    letterSpacing: 2,
+    color: COLOR_WHITE,
+    textTransform: "uppercase",
+    marginTop: 0,
+    marginBottom: 6,
+  },
+  sidebarSectionRule: {
+    height: 1,
+    backgroundColor: COLOR_RULE_DARK,
+    marginBottom: 12,
+  },
+
+  // ── Sidebar contact rows ──────────────────────────────────────────────────
+  contactRow: {
+    flexDirection: "row",
+    alignItems: "flex-start",
     marginBottom: 8,
+  },
+  contactIconBox: {
+    width: 14,
+    height: 14,
+    marginRight: 8,
+    alignItems: "center",
+    justifyContent: "center",
+    // Align icon visually with first line of text (~9pt @ 1.4 lh).
+    marginTop: 0.5,
+  },
+  contactValue: {
+    fontFamily: FONT,
+    fontWeight: 400,
+    fontSize: 9,
+    color: COLOR_SIDEBAR_TEXT,
+    lineHeight: 1.4,
+    flex: 1,
+  },
+  contactLink: {
+    fontFamily: FONT,
+    fontWeight: 400,
+    fontSize: 9,
+    color: COLOR_SIDEBAR_TEXT,
+    lineHeight: 1.4,
+    flex: 1,
+    textDecoration: "none",
+  },
+
+  // ── Sidebar education (if placed in sidebar) ──────────────────────────────
+  sidebarEduItem: {
+    marginBottom: 10,
+  },
+  sidebarEduDegree: {
+    fontFamily: FONT,
+    fontWeight: 600,
+    fontSize: 9,
+    letterSpacing: 1,
+    color: COLOR_WHITE,
+    textTransform: "uppercase",
+    lineHeight: 1.3,
+    marginBottom: 1,
+  },
+  sidebarEduInstitution: {
+    fontFamily: FONT,
+    fontWeight: 400,
+    fontSize: 9,
+    color: COLOR_SIDEBAR_TEXT,
+    lineHeight: 1.4,
+  },
+  sidebarEduDates: {
+    fontFamily: FONT,
+    fontWeight: 400,
+    fontSize: 9,
+    color: COLOR_MUTED,
+    lineHeight: 1.4,
+    marginTop: 1,
+  },
+
+  // ── Sidebar skills ─────────────────────────────────────────────────────────
+  sidebarSubHeading: {
+    fontFamily: FONT,
+    fontWeight: 600,
+    fontSize: 9,
+    letterSpacing: 1,
+    color: COLOR_WHITE,
+    textTransform: "uppercase",
+    marginTop: 6,
+    marginBottom: 4,
+  },
+  sidebarSubHeadingFirst: {
+    fontFamily: FONT,
+    fontWeight: 600,
+    fontSize: 9,
+    letterSpacing: 1,
+    color: COLOR_WHITE,
+    textTransform: "uppercase",
+    marginTop: 0,
+    marginBottom: 4,
+  },
+  sidebarBulletRow: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    marginBottom: 2,
+  },
+  sidebarBullet: {
+    fontFamily: FONT,
+    fontWeight: 400,
+    fontSize: 9,
+    color: COLOR_SIDEBAR_TEXT,
+    width: 8,
+    flexShrink: 0,
+    lineHeight: 1.4,
+  },
+  sidebarBulletText: {
+    fontFamily: FONT,
+    fontWeight: 400,
+    fontSize: 9,
+    color: COLOR_SIDEBAR_TEXT,
+    lineHeight: 1.4,
+    flex: 1,
+  },
+
+  // ── Main column: section titles & rule ────────────────────────────────────
+  mainSectionTitle: {
+    fontFamily: FONT,
+    fontWeight: 600,
+    fontSize: 10,
+    letterSpacing: 2,
+    color: COLOR_CHARCOAL,
+    textTransform: "uppercase",
+    marginTop: 18,
+    marginBottom: 6,
   },
   mainSectionTitleFirst: {
-    fontSize: 10,
-    fontFamily: "Inter",
+    fontFamily: FONT,
     fontWeight: 600,
+    fontSize: 10,
+    letterSpacing: 2,
+    color: COLOR_CHARCOAL,
     textTransform: "uppercase",
-    letterSpacing: 1.5,
-    color: COLOR_INDIGO,
     marginTop: 0,
-    marginBottom: 8,
+    marginBottom: 6,
+  },
+  mainSectionRule: {
+    height: 1,
+    backgroundColor: COLOR_RULE_LIGHT,
+    marginBottom: 12,
   },
 
-  // Summary
-  summaryText: {
-    fontSize: 10,
-    fontFamily: "Inter",
+  // ── Profile (summary) ──────────────────────────────────────────────────────
+  profileText: {
+    fontFamily: FONT,
     fontWeight: 400,
-    color: COLOR_SLATE_800,
+    fontSize: 10,
+    color: COLOR_BODY,
     lineHeight: 1.5,
   },
 
-  // Experience
+  // ── Experience ─────────────────────────────────────────────────────────────
   experienceItem: {
     marginBottom: 12,
   },
-  experienceHeaderRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "baseline",
-  },
   experienceTitle: {
-    fontSize: 11,
-    fontFamily: "Inter",
-    fontWeight: 600,
-    color: COLOR_SLATE_900,
-    flex: 1,
-    paddingRight: 8,
+    fontFamily: FONT,
+    fontWeight: 700,
+    fontSize: 10.5,
+    letterSpacing: 0.5,
+    color: COLOR_CHARCOAL,
+    textTransform: "uppercase",
+    lineHeight: 1.3,
   },
-  experienceDates: {
-    fontSize: 9,
-    fontFamily: "Inter",
-    fontWeight: 500,
-    color: COLOR_SLATE_500,
-  },
-  experienceCompany: {
-    fontSize: 10,
-    fontFamily: "Inter",
-    fontWeight: 500,
-    color: COLOR_INDIGO,
-    marginTop: 1,
-  },
-  experienceLocation: {
-    fontSize: 9,
-    fontFamily: "Inter",
+  // "Company | Dates" on its own line beneath the job title, #525252.
+  experienceMeta: {
+    fontFamily: FONT,
     fontWeight: 400,
-    color: COLOR_SLATE_500,
+    fontSize: 9.5,
+    color: COLOR_META,
     marginTop: 1,
+    marginBottom: 4,
+    lineHeight: 1.4,
   },
   experienceDescription: {
-    fontSize: 10,
-    fontFamily: "Inter",
+    fontFamily: FONT,
     fontWeight: 400,
-    color: COLOR_SLATE_800,
+    fontSize: 10,
+    color: COLOR_BODY,
     lineHeight: 1.5,
-    marginTop: 4,
+    marginTop: 2,
   },
   achievementsContainer: {
     marginTop: 4,
   },
   achievementRow: {
     flexDirection: "row",
+    alignItems: "flex-start",
     marginBottom: 2,
   },
   achievementBullet: {
-    fontSize: 9,
-    fontFamily: "Inter",
-    fontWeight: 600,
-    color: COLOR_INDIGO,
+    fontFamily: FONT,
+    fontWeight: 400,
+    fontSize: 10,
+    color: COLOR_CHARCOAL,
     width: 10,
     flexShrink: 0,
     lineHeight: 1.5,
   },
   achievementText: {
-    fontSize: 10,
-    fontFamily: "Inter",
+    fontFamily: FONT,
     fontWeight: 400,
-    color: COLOR_SLATE_800,
+    fontSize: 10,
+    color: COLOR_BODY,
     lineHeight: 1.5,
     flex: 1,
   },
 
-  // Education
-  educationItem: {
-    marginBottom: 8,
+  // ── Education in main column (when at least one entry has description) ────
+  mainEduItem: {
+    marginBottom: 10,
   },
-  educationHeaderRow: {
+  mainEduHeaderRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "baseline",
   },
-  educationInstitution: {
-    fontSize: 11,
-    fontFamily: "Inter",
-    fontWeight: 600,
-    color: COLOR_SLATE_900,
+  mainEduInstitution: {
+    fontFamily: FONT,
+    fontWeight: 700,
+    fontSize: 10.5,
+    letterSpacing: 0.5,
+    color: COLOR_CHARCOAL,
+    textTransform: "uppercase",
     flex: 1,
     paddingRight: 8,
+    lineHeight: 1.3,
   },
-  educationDates: {
-    fontSize: 9,
-    fontFamily: "Inter",
-    fontWeight: 500,
-    color: COLOR_SLATE_500,
-  },
-  educationDegree: {
-    fontSize: 10,
-    fontFamily: "Inter",
+  mainEduDates: {
+    fontFamily: FONT,
     fontWeight: 400,
-    color: COLOR_SLATE_800,
+    fontSize: 9.5,
+    color: COLOR_META,
+  },
+  mainEduDegree: {
+    fontFamily: FONT,
+    fontWeight: 400,
+    fontSize: 9.5,
+    color: COLOR_META,
     marginTop: 1,
+    marginBottom: 4,
     lineHeight: 1.4,
   },
-
-  // ── Fixed page-number footer ────────────────────────────────────────────────
-  // Absolute + `fixed` keeps it out of content flow. Only rendered when
-  // totalPages > 1 (see index.tsx).
-  footer: {
-    position: "absolute",
-    bottom: 18,
-    left: 0,
-    right: 0,
-    textAlign: "center",
-    fontSize: 8,
-    fontFamily: "Inter",
+  mainEduDescription: {
+    fontFamily: FONT,
     fontWeight: 400,
-    color: COLOR_SLATE_500,
+    fontSize: 10,
+    color: COLOR_BODY,
+    lineHeight: 1.5,
+    marginTop: 2,
+  },
+
+  // ── Certifications (main column) ──────────────────────────────────────────
+  certificationItem: {
+    marginBottom: 6,
+  },
+  certificationName: {
+    fontFamily: FONT,
+    fontWeight: 700,
+    fontSize: 10,
+    color: COLOR_CHARCOAL,
+    lineHeight: 1.4,
+  },
+  certificationMeta: {
+    fontFamily: FONT,
+    fontWeight: 400,
+    fontSize: 9.5,
+    color: COLOR_META,
+    lineHeight: 1.4,
+    marginTop: 1,
+  },
+
+  // ── Page number footer ────────────────────────────────────────────────────
+  // Right-aligned in the main column area (leaves the sidebar clean).
+  pageNumber: {
+    position: "absolute",
+    bottom: 20,
+    left: SIDEBAR_WIDTH + 32,
+    right: 32,
+    textAlign: "right",
+    fontFamily: FONT,
+    fontWeight: 400,
+    fontSize: 8,
+    color: COLOR_MUTED,
   },
 });

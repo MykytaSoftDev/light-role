@@ -2,36 +2,79 @@
   <!-- Paper -->
   <rect x="0" y="0" width="200" height="260" fill="#FFFFFF" stroke="#E5E7EB" stroke-width="1"/>
 
-  <!-- Name block (serif-suggestive) — large bold rect -->
-  <rect x="30" y="40" width="100" height="10" fill="#0A0A0A"/>
-  <!-- Subtle serif "feet" — 2 tiny rects under first and last letter to hint at serif typography -->
-  <rect x="30" y="50" width="3" height="1.5" fill="#0A0A0A"/>
-  <rect x="127" y="50" width="3" height="1.5" fill="#0A0A0A"/>
+  <!-- Header: bold uppercase name (solid dark block suggests heavy Inter 800) -->
+  <rect x="18" y="26" width="120" height="14" fill="#0F172A"/>
+  <!-- Role (uppercase, letter-spaced, smaller) -->
+  <rect x="18" y="44" width="54" height="4" fill="#0F172A"/>
+  <!-- Full-width 1.5pt rule under header -->
+  <rect x="18" y="56" width="164" height="1.5" fill="#0F172A"/>
 
-  <!-- Subtitle (italic-feel, thin) -->
-  <rect x="30" y="57" width="50" height="2" fill="#737373"/>
+  <!-- ── Two-column body ──────────────────────────────────────────────────── -->
 
-  <!-- Hairline rule under header — 1px full column width -->
-  <line x1="30" y1="70" x2="170" y2="70" stroke="#E5E5E5" stroke-width="1"/>
+  <!-- LEFT SIDEBAR (Contact / Skills / Languages) -->
+  <!-- Section title "CONTACT" -->
+  <rect x="18" y="72" width="30" height="3" fill="#0F172A"/>
+  <!-- 40pt-wide rule under sidebar title, scaled down proportionally -->
+  <rect x="18" y="77" width="16" height="1" fill="#0F172A"/>
+  <!-- Contact rows: icon + text line (3 rows) -->
+  <circle cx="21" cy="86" r="1.5" fill="#0F172A"/>
+  <rect x="26" y="85" width="36" height="2" fill="#334155"/>
+  <circle cx="21" cy="93" r="1.5" fill="#0F172A"/>
+  <rect x="26" y="92" width="40" height="2" fill="#334155"/>
+  <circle cx="21" cy="100" r="1.5" fill="#0F172A"/>
+  <rect x="26" y="99" width="30" height="2" fill="#334155"/>
 
-  <!-- Section 1: section title (sentence-case, short) -->
-  <rect x="30" y="84" width="40" height="4" fill="#0A0A0A"/>
-  <!-- Body lines — generous line-height -->
-  <rect x="30" y="96" width="120" height="1.5" fill="#D4D4D8"/>
-  <rect x="30" y="104" width="110" height="1.5" fill="#D4D4D8"/>
-  <rect x="30" y="112" width="115" height="1.5" fill="#D4D4D8"/>
-  <rect x="30" y="120" width="100" height="1.5" fill="#D4D4D8"/>
+  <!-- Section title "SKILLS" -->
+  <rect x="18" y="116" width="24" height="3" fill="#0F172A"/>
+  <rect x="18" y="121" width="16" height="1" fill="#0F172A"/>
+  <!-- Bulleted rows: filled dot + line (4 items) -->
+  <circle cx="20" cy="130" r="1" fill="#0F172A"/>
+  <rect x="24" y="129" width="40" height="2" fill="#0F172A"/>
+  <circle cx="20" cy="137" r="1" fill="#0F172A"/>
+  <rect x="24" y="136" width="36" height="2" fill="#0F172A"/>
+  <circle cx="20" cy="144" r="1" fill="#0F172A"/>
+  <rect x="24" y="143" width="42" height="2" fill="#0F172A"/>
+  <circle cx="20" cy="151" r="1" fill="#0F172A"/>
+  <rect x="24" y="150" width="32" height="2" fill="#0F172A"/>
 
-  <!-- Section 2: gap ~18px, then title -->
-  <rect x="30" y="140" width="44" height="4" fill="#0A0A0A"/>
-  <rect x="30" y="152" width="120" height="1.5" fill="#D4D4D8"/>
-  <rect x="30" y="160" width="110" height="1.5" fill="#D4D4D8"/>
-  <rect x="30" y="168" width="115" height="1.5" fill="#D4D4D8"/>
-  <rect x="30" y="176" width="95" height="1.5" fill="#D4D4D8"/>
+  <!-- Section title "LANGUAGES" -->
+  <rect x="18" y="166" width="38" height="3" fill="#0F172A"/>
+  <rect x="18" y="171" width="16" height="1" fill="#0F172A"/>
+  <circle cx="20" cy="180" r="1" fill="#0F172A"/>
+  <rect x="24" y="179" width="30" height="2" fill="#0F172A"/>
+  <circle cx="20" cy="187" r="1" fill="#0F172A"/>
+  <rect x="24" y="186" width="34" height="2" fill="#0F172A"/>
 
-  <!-- Section 3: gap ~18px, then title -->
-  <rect x="30" y="196" width="36" height="4" fill="#0A0A0A"/>
-  <rect x="30" y="208" width="120" height="1.5" fill="#D4D4D8"/>
-  <rect x="30" y="216" width="105" height="1.5" fill="#D4D4D8"/>
-  <rect x="30" y="224" width="110" height="1.5" fill="#D4D4D8"/>
+  <!-- ── RIGHT MAIN COLUMN — timeline + circular section icons ────────────── -->
+  <!-- Vertical timeline line (1pt #CBD5E1) running through section icons -->
+  <line x1="92" y1="80" x2="92" y2="232" stroke="#CBD5E1" stroke-width="1"/>
+
+  <!-- Section 1: Profile -->
+  <circle cx="92" cy="80" r="5" fill="#0F172A"/>
+  <!-- Title -->
+  <rect x="102" y="78" width="28" height="3" fill="#0F172A"/>
+  <!-- Body lines -->
+  <rect x="102" y="87" width="72" height="1.5" fill="#334155"/>
+  <rect x="102" y="92" width="78" height="1.5" fill="#334155"/>
+  <rect x="102" y="97" width="64" height="1.5" fill="#334155"/>
+
+  <!-- Section 2: Work Experience -->
+  <circle cx="92" cy="132" r="5" fill="#0F172A"/>
+  <rect x="102" y="130" width="44" height="3" fill="#0F172A"/>
+  <!-- Job title line + dates on same row -->
+  <rect x="102" y="139" width="40" height="2" fill="#0F172A"/>
+  <rect x="160" y="139" width="20" height="2" fill="#334155"/>
+  <!-- Company line -->
+  <rect x="102" y="144" width="30" height="1.5" fill="#334155"/>
+  <!-- Description lines -->
+  <rect x="102" y="151" width="74" height="1.5" fill="#334155"/>
+  <rect x="102" y="156" width="64" height="1.5" fill="#334155"/>
+  <rect x="102" y="161" width="70" height="1.5" fill="#334155"/>
+
+  <!-- Section 3: Education -->
+  <circle cx="92" cy="188" r="5" fill="#0F172A"/>
+  <rect x="102" y="186" width="34" height="3" fill="#0F172A"/>
+  <rect x="102" y="195" width="50" height="2" fill="#0F172A"/>
+  <rect x="160" y="195" width="20" height="2" fill="#334155"/>
+  <rect x="102" y="200" width="36" height="1.5" fill="#334155"/>
 </svg>
