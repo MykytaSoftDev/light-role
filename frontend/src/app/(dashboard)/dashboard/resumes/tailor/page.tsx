@@ -1,23 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback, useEffect } from "react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { UpgradeModal } from "@/components/shared/upgrade-modal";
-import { useUpgradeModal } from "@/hooks/use-upgrade-modal";
-import {
-  ArrowLeft,
-  ArrowRight,
-  Upload,
-  FileText,
-  X,
-  CheckCircle,
-  AlertCircle,
-  Loader2,
-  Sparkles,
-  Star,
-} from "lucide-react";
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -27,17 +10,34 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { useUpgradeModal } from "@/hooks/use-upgrade-modal";
 import { api } from "@/lib/api";
 import {
-  listResumes,
-  uploadResume,
   analyzeResume,
   getAnalysisStatus,
   getResume,
-  updateResume,
   LimitReachedError,
+  listResumes,
+  updateResume,
+  uploadResume,
 } from "@/lib/resume-api";
+import { cn } from "@/lib/utils";
 import type { ResumeListItem, ResumeResponse } from "@/types/resume";
+import {
+  AlertCircle,
+  ArrowLeft,
+  ArrowRight,
+  CheckCircle,
+  FileText,
+  Loader2,
+  Sparkles,
+  Star,
+  Upload,
+  X,
+} from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -92,12 +92,6 @@ function getScoreColor(score: number): { bg: string; text: string; ring: string 
 // Step indicator
 // ---------------------------------------------------------------------------
 
-const STEP_LABELS: Record<WizardStep, string> = {
-  1: "Select",
-  2: "Analysis",
-  3: "Review",
-};
-
 function StepIndicator({
   current,
   onStepClick,
@@ -105,52 +99,50 @@ function StepIndicator({
   current: WizardStep;
   onStepClick: (step: WizardStep) => void;
 }) {
-  const steps: WizardStep[] = [1, 2, 3];
+  const labels = ["Select Resume & Job", "AI Analysis", "Review Changes"];
+  const total = labels.length;
   return (
-    <div className="flex items-center gap-2">
-      {steps.map((step, idx) => {
-        const done = step < current;
-        const active = step === current;
+    <div className="flex items-center gap-0">
+      {Array.from({ length: total }, (_, i) => {
+        const step = (i + 1) as WizardStep;
+        const isCompleted = step < current;
+        const isActive = step === current;
+        const circleClasses = cn(
+          "flex h-8 w-8 items-center justify-center rounded-full text-sm font-semibold transition-colors",
+          isCompleted
+            ? "bg-primary text-primary-foreground"
+            : isActive
+            ? "bg-primary text-primary-foreground ring-4 ring-primary/20"
+            : "bg-muted text-muted-foreground"
+        );
         return (
-          <div key={step} className="flex items-center gap-2">
-            <div className="flex items-center gap-2">
-              {done ? (
+          <div key={step} className="flex items-center">
+            <div className="flex flex-col items-center">
+              {isCompleted ? (
                 <button
-                  type="button"
+                  type="button" 
                   onClick={() => onStepClick(step)}
-                  className={cn(
-                    "flex h-7 w-7 items-center justify-center rounded-full text-xs font-semibold transition-colors",
-                    "bg-primary text-primary-foreground hover:opacity-80"
-                  )}
+                  className={cn(circleClasses, "hover:opacity-80")}
                   aria-label={`Go back to step ${step}`}
                 >
                   <CheckCircle className="h-4 w-4" />
                 </button>
               ) : (
-                <div
-                  className={cn(
-                    "flex h-7 w-7 items-center justify-center rounded-full text-xs font-semibold transition-colors border",
-                    active
-                      ? "bg-primary text-primary-foreground ring-2 ring-primary/30 ring-offset-2 border-primary"
-                      : "bg-muted text-muted-foreground border-border"
-                  )}
-                >
-                  {step}
-                </div>
+                <div className={circleClasses}>{step}</div>
               )}
               <span
                 className={cn(
-                  "hidden sm:inline text-sm font-medium",
-                  active ? "text-foreground" : "text-muted-foreground"
+                  "mt-1 text-[10px] font-medium whitespace-nowrap",
+                  isActive ? "text-primary" : "text-muted-foreground"
                 )}
               >
-                {STEP_LABELS[step]}
+                {labels[i]}
               </span>
             </div>
-            {idx < steps.length - 1 && (
+            {i < total - 1 && (
               <div
                 className={cn(
-                  "h-px w-10 transition-colors",
+                  "mx-2 mb-4 h-px w-12 sm:w-20 transition-colors",
                   step < current ? "bg-primary" : "bg-border"
                 )}
               />
@@ -197,7 +189,7 @@ function MatchScoreCircle({ score }: { score: number }) {
       </svg>
       <div className="relative flex flex-col items-center">
         <span className={cn("text-2xl font-bold", colors.text)}>{score}</span>
-        <span className="text-[10px] text-muted-foreground font-medium">/ 100</span>
+        <span className="text-muted-foreground text-[10px] font-medium">/ 100</span>
       </div>
     </div>
   );
@@ -255,8 +247,8 @@ function FileDropZone({ file, onFile, onClear, error }: FileDropZoneProps) {
           dragging
             ? "border-primary bg-primary/5"
             : file
-            ? "border-green-400 bg-green-50/50 dark:bg-green-900/10"
-            : "border-border bg-muted/30 cursor-pointer hover:border-primary/50 hover:bg-muted/40",
+              ? "border-green-400 bg-green-50/50 dark:bg-green-900/10"
+              : "border-border bg-muted/30 hover:border-primary/50 hover:bg-muted/40 cursor-pointer",
           error && "border-destructive"
         )}
       >
@@ -272,8 +264,8 @@ function FileDropZone({ file, onFile, onClear, error }: FileDropZoneProps) {
           <div className="flex flex-col items-center gap-2">
             <FileText className="h-10 w-10 text-green-600 dark:text-green-400" />
             <div>
-              <p className="font-semibold text-sm">{file.name}</p>
-              <p className="text-xs text-muted-foreground">{formatBytes(file.size)}</p>
+              <p className="text-sm font-semibold">{file.name}</p>
+              <p className="text-muted-foreground text-xs">{formatBytes(file.size)}</p>
             </div>
             <button
               type="button"
@@ -281,7 +273,7 @@ function FileDropZone({ file, onFile, onClear, error }: FileDropZoneProps) {
                 e.stopPropagation();
                 onClear();
               }}
-              className="mt-1 inline-flex items-center gap-1 rounded px-2 py-1 text-xs text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+              className="text-muted-foreground hover:bg-muted hover:text-foreground mt-1 inline-flex items-center gap-1 rounded px-2 py-1 text-xs transition-colors"
             >
               <X className="h-3 w-3" />
               Remove
@@ -289,17 +281,17 @@ function FileDropZone({ file, onFile, onClear, error }: FileDropZoneProps) {
           </div>
         ) : (
           <div className="flex flex-col items-center gap-2">
-            <Upload className="h-10 w-10 text-muted-foreground" />
+            <Upload className="text-muted-foreground h-10 w-10" />
             <div>
-              <p className="font-semibold text-sm">Drag & drop your resume here</p>
-              <p className="text-xs text-muted-foreground">or click to browse</p>
+              <p className="text-sm font-semibold">Drag & drop your resume here</p>
+              <p className="text-muted-foreground text-xs">or click to browse</p>
             </div>
-            <p className="text-[11px] text-muted-foreground">PDF or DOCX, max 10 MB</p>
+            <p className="text-muted-foreground text-[11px]">PDF or DOCX, max 10 MB</p>
           </div>
         )}
       </div>
       {error && (
-        <p className="flex items-center gap-1 text-xs text-destructive">
+        <p className="text-destructive flex items-center gap-1 text-xs">
           <AlertCircle className="h-3.5 w-3.5 shrink-0" />
           {error}
         </p>
@@ -375,7 +367,7 @@ function Step1({
     <div className="flex flex-col gap-6">
       <div>
         <h2 className="text-lg font-semibold">Choose Your Resume</h2>
-        <p className="mt-1 text-sm text-muted-foreground">
+        <p className="text-muted-foreground mt-1 text-sm">
           Select an existing resume or upload a new file, then pick the job to tailor it for.
         </p>
       </div>
@@ -390,7 +382,7 @@ function Step1({
             {baseResume && (
               <label
                 className={cn(
-                  "flex items-center gap-3 rounded-lg border p-3.5 cursor-pointer transition-colors",
+                  "flex cursor-pointer items-center gap-3 rounded-lg border p-3.5 transition-colors",
                   resumeSource === "base"
                     ? "border-primary bg-primary/5"
                     : "border-border hover:border-primary/40"
@@ -404,11 +396,11 @@ function Step1({
                   onChange={() => onResumeSource("base")}
                   className="accent-primary shrink-0"
                 />
-                <div className="flex items-center gap-2 min-w-0">
-                  <FileText className="h-4 w-4 text-muted-foreground shrink-0" />
-                  <span className="text-sm font-medium truncate">{baseResume.name}</span>
-                  <Star className="h-3.5 w-3.5 text-amber-500 shrink-0" aria-label="Base resume" />
-                  <span className="text-xs text-muted-foreground uppercase shrink-0">
+                <div className="flex min-w-0 items-center gap-2">
+                  <FileText className="text-muted-foreground h-4 w-4 shrink-0" />
+                  <span className="truncate text-sm font-medium">{baseResume.name}</span>
+                  <Star className="h-3.5 w-3.5 shrink-0 text-amber-500" aria-label="Base resume" />
+                  <span className="text-muted-foreground shrink-0 text-xs uppercase">
                     {baseResume.original_file_format}
                   </span>
                 </div>
@@ -417,19 +409,17 @@ function Step1({
 
             {/* Auto-suggest text when base is selected */}
             {resumeSource === "base" && baseResume && (
-              <p className="text-xs text-muted-foreground pl-1">
+              <p className="text-muted-foreground pl-1 text-xs">
                 Using your base resume:{" "}
-                <span className="font-medium text-foreground">
-                  &quot;{baseResume.name}&quot;
-                </span>{" "}
-                <Star className="inline h-3 w-3 text-amber-500 mb-0.5" />
+                <span className="text-foreground font-medium">&quot;{baseResume.name}&quot;</span>{" "}
+                <Star className="mb-0.5 inline h-3 w-3 text-amber-500" />
               </p>
             )}
 
             {/* Option 2: Select from existing */}
             <label
               className={cn(
-                "flex items-start gap-3 rounded-lg border p-3.5 cursor-pointer transition-colors",
+                "flex cursor-pointer items-start gap-3 rounded-lg border p-3.5 transition-colors",
                 resumeSource === "existing"
                   ? "border-primary bg-primary/5"
                   : "border-border hover:border-primary/40"
@@ -441,15 +431,12 @@ function Step1({
                 value="existing"
                 checked={resumeSource === "existing"}
                 onChange={() => onResumeSource("existing")}
-                className="accent-primary shrink-0 mt-0.5"
+                className="accent-primary mt-0.5 shrink-0"
               />
-              <div className="flex flex-col gap-2 flex-1 min-w-0">
+              <div className="flex min-w-0 flex-1 flex-col gap-2">
                 <span className="text-sm font-medium">Select from my resumes</span>
                 {resumeSource === "existing" && (
-                  <Select
-                    value={selectedResumeId ?? ""}
-                    onValueChange={onSelectedResumeId}
-                  >
+                  <Select value={selectedResumeId ?? ""} onValueChange={onSelectedResumeId}>
                     <SelectTrigger className="h-9 text-sm" onClick={(e) => e.stopPropagation()}>
                       <SelectValue placeholder="Choose a resume..." />
                     </SelectTrigger>
@@ -458,11 +445,11 @@ function Step1({
                         <SelectItem key={r.id} value={r.id}>
                           <span className="flex items-center gap-2">
                             <span>{r.name}</span>
-                            <span className="text-xs text-muted-foreground uppercase">
+                            <span className="text-muted-foreground text-xs uppercase">
                               ({r.original_file_format})
                             </span>
                             {r.match_score !== null && (
-                              <span className="text-xs text-muted-foreground">
+                              <span className="text-muted-foreground text-xs">
                                 · {r.match_score}% match
                               </span>
                             )}
@@ -478,7 +465,7 @@ function Step1({
             {/* Option 3: Upload new file */}
             <label
               className={cn(
-                "flex items-center gap-3 rounded-lg border p-3.5 cursor-pointer transition-colors",
+                "flex cursor-pointer items-center gap-3 rounded-lg border p-3.5 transition-colors",
                 resumeSource === "upload"
                   ? "border-primary bg-primary/5"
                   : "border-border hover:border-primary/40"
@@ -531,14 +518,14 @@ function Step1({
 
       {/* Loading skeleton for resumes */}
       {resumesLoading && (
-        <div className="h-12 rounded-lg border border-border bg-muted/20 animate-pulse" />
+        <div className="border-border bg-muted/20 h-12 animate-pulse rounded-lg border" />
       )}
 
       {/* Job selector */}
       <div className="flex flex-col gap-2">
         <label className="text-sm font-medium">Target Job</label>
         {jobsLoading ? (
-          <div className="h-9 rounded-md border border-border bg-muted/20 animate-pulse" />
+          <div className="border-border bg-muted/20 h-9 animate-pulse rounded-md border" />
         ) : (
           <Select value={jobId ?? ""} onValueChange={onJobId}>
             <SelectTrigger>
@@ -546,9 +533,9 @@ function Step1({
             </SelectTrigger>
             <SelectContent>
               {jobs.length === 0 ? (
-                <div className="px-2 py-3 text-sm text-muted-foreground text-center">
+                <div className="text-muted-foreground px-2 py-3 text-center text-sm">
                   No jobs found.{" "}
-                  <Link href="/dashboard/jobs/new" className="underline text-primary">
+                  <Link href="/dashboard/jobs/new" className="text-primary underline">
                     Create one first.
                   </Link>
                 </div>
@@ -562,7 +549,7 @@ function Step1({
             </SelectContent>
           </Select>
         )}
-        <p className="text-xs text-muted-foreground">
+        <p className="text-muted-foreground text-xs">
           The AI will tailor your resume to match this job description.
         </p>
       </div>
@@ -630,14 +617,14 @@ function Step2({
       <div className="flex items-center gap-3">
         <button
           onClick={onBack}
-          className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
+          className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1 text-sm transition-colors"
         >
           <ArrowLeft className="h-4 w-4" />
           Back
         </button>
         <div>
           <h2 className="text-lg font-semibold">AI Analysis</h2>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-muted-foreground text-sm">
             Review the analysis results and recommendations.
           </p>
         </div>
@@ -645,22 +632,22 @@ function Step2({
 
       {/* Loading state */}
       {isAnalyzing && (
-        <div className="flex flex-col items-center gap-4 rounded-xl border border-border bg-muted/20 px-6 py-12">
-          <Loader2 className="h-10 w-10 animate-spin text-primary" />
-          <p className="text-sm font-medium text-muted-foreground animate-pulse">{loadingMsg}</p>
+        <div className="border-border bg-muted/20 flex flex-col items-center gap-4 rounded-xl border px-6 py-12">
+          <Loader2 className="text-primary h-10 w-10 animate-spin" />
+          <p className="text-muted-foreground animate-pulse text-sm font-medium">{loadingMsg}</p>
         </div>
       )}
 
       {/* Error state */}
       {analysisError && !isAnalyzing && (
-        <div className="rounded-xl border border-destructive/30 bg-destructive/5 px-4 py-4 flex items-start gap-3">
-          <AlertCircle className="h-5 w-5 shrink-0 text-destructive mt-0.5" />
+        <div className="border-destructive/30 bg-destructive/5 flex items-start gap-3 rounded-xl border px-4 py-4">
+          <AlertCircle className="text-destructive mt-0.5 h-5 w-5 shrink-0" />
           <div>
-            <p className="text-sm font-medium text-destructive">Analysis failed</p>
-            <p className="mt-0.5 text-xs text-muted-foreground">{analysisError}</p>
+            <p className="text-destructive text-sm font-medium">Analysis failed</p>
+            <p className="text-muted-foreground mt-0.5 text-xs">{analysisError}</p>
             <button
               onClick={onBack}
-              className="mt-2 text-xs underline text-muted-foreground hover:text-foreground"
+              className="text-muted-foreground hover:text-foreground mt-2 text-xs underline"
             >
               Go back and try again
             </button>
@@ -672,18 +659,18 @@ function Step2({
       {analysis && !isAnalyzing && (
         <>
           {/* Match score */}
-          <div className="flex flex-col sm:flex-row items-center gap-6 rounded-xl border border-border bg-card p-5">
+          <div className="border-border bg-card flex flex-col items-center gap-6 rounded-xl border p-5 sm:flex-row">
             <MatchScoreCircle score={analysis.match_score} />
             <div>
               <p className="font-semibold">Match Score</p>
-              <p className="mt-1 text-sm text-muted-foreground">
+              <p className="text-muted-foreground mt-1 text-sm">
                 {analysis.match_score >= 90
                   ? "Excellent match! Your resume is very well-tailored for this role."
                   : analysis.match_score >= 70
-                  ? "Good match. A few improvements could strengthen your application."
-                  : analysis.match_score >= 40
-                  ? "Moderate match. Optimization is recommended to improve your chances."
-                  : "Your resume needs significant optimization to match this role."}
+                    ? "Good match. A few improvements could strengthen your application."
+                    : analysis.match_score >= 40
+                      ? "Moderate match. Optimization is recommended to improve your chances."
+                      : "Your resume needs significant optimization to match this role."}
               </p>
             </div>
           </div>
@@ -696,7 +683,7 @@ function Step2({
                 {analysis.keyword_gaps.map((kw) => (
                   <span
                     key={kw}
-                    className="rounded-full px-2.5 py-0.5 text-xs font-medium bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300"
+                    className="rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-700 dark:bg-red-900/30 dark:text-red-300"
                   >
                     {kw}
                   </span>
@@ -712,10 +699,10 @@ function Step2({
               <ol className="flex flex-col gap-2">
                 {analysis.recommendations.map((rec, i) => (
                   <li key={i} className="flex items-start gap-3">
-                    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/10 text-[10px] font-bold text-primary mt-0.5">
+                    <span className="bg-primary/10 text-primary mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold">
                       {i + 1}
                     </span>
-                    <span className="text-sm text-muted-foreground">{rec}</span>
+                    <span className="text-muted-foreground text-sm">{rec}</span>
                   </li>
                 ))}
               </ol>
@@ -769,9 +756,9 @@ function SectionDiff({ label, original, optimized, onApply, applied }: SectionDi
           onClick={onApply}
           disabled={applied}
           className={cn(
-            "text-xs font-medium px-2.5 py-1 rounded-md transition-colors",
+            "rounded-md px-2.5 py-1 text-xs font-medium transition-colors",
             applied
-              ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 cursor-default"
+              ? "cursor-default bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
               : "bg-primary/10 text-primary hover:bg-primary/20"
           )}
         >
@@ -785,7 +772,7 @@ function SectionDiff({ label, original, optimized, onApply, applied }: SectionDi
           )}
         </button>
       </div>
-      <p className="mt-1 text-xs text-muted-foreground">
+      <p className="text-muted-foreground mt-1 text-xs">
         AI has optimized this section with better keywords and phrasing.
       </p>
     </div>
@@ -832,14 +819,14 @@ function Step3({ analysisResume, onBack, onApplyAll, onSkip, isApplying }: Step3
       <div className="flex items-center gap-3">
         <button
           onClick={onBack}
-          className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
+          className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1 text-sm transition-colors"
         >
           <ArrowLeft className="h-4 w-4" />
           Back
         </button>
         <div>
           <h2 className="text-lg font-semibold">Review Optimizations</h2>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-muted-foreground text-sm">
             {changedSections.length} section{changedSections.length !== 1 ? "s" : ""} optimized by
             AI. Apply all or pick individual sections.
           </p>
@@ -847,10 +834,10 @@ function Step3({ analysisResume, onBack, onApplyAll, onSkip, isApplying }: Step3
       </div>
 
       {changedSections.length === 0 ? (
-        <div className="rounded-xl border border-border bg-muted/20 px-6 py-10 text-center">
+        <div className="border-border bg-muted/20 rounded-xl border px-6 py-10 text-center">
           <CheckCircle className="mx-auto h-10 w-10 text-green-500" />
           <p className="mt-3 text-sm font-medium">Your resume is already well-optimized!</p>
-          <p className="mt-1 text-xs text-muted-foreground">
+          <p className="text-muted-foreground mt-1 text-xs">
             No significant changes were recommended.
           </p>
         </div>
@@ -1004,9 +991,7 @@ export default function TailorResumePage() {
         }
       } catch (err) {
         clearInterval(interval);
-        setAnalysisError(
-          err instanceof Error ? err.message : "An unexpected error occurred."
-        );
+        setAnalysisError(err instanceof Error ? err.message : "An unexpected error occurred.");
         setIsAnalyzing(false);
       }
     }, 3000);
@@ -1112,7 +1097,7 @@ export default function TailorResumePage() {
   };
 
   return (
-    <div className="flex flex-col gap-6 p-6 max-w-2xl mx-auto">
+    <div className="mx-auto flex max-w-2xl flex-col gap-6 p-6">
       {modalState && (
         <UpgradeModal
           open={modalState.open}
@@ -1124,13 +1109,30 @@ export default function TailorResumePage() {
         />
       )}
 
+      {/* Back link */}
+      <Link
+        href="/dashboard/resumes"
+        className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors w-fit"
+      >
+        <ArrowLeft className="h-3.5 w-3.5" />
+        Back to Resumes
+      </Link>
+
+      {/* Page title */}
+      <div>
+        <h1 className="text-2xl font-bold tracking-tight">Tailor Resume</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
+          AI-powered resume optimization tailored to the job.
+        </p>
+      </div>
+
       {/* Step indicator */}
-      <div className="flex justify-end">
+      <div className="flex justify-center">
         <StepIndicator current={step} onStepClick={handleStepClick} />
       </div>
 
       {/* Wizard step content */}
-      <div className="rounded-xl border border-border bg-card p-6">
+      <div className="border-border bg-card rounded-xl border p-6">
         {step === 1 && (
           <Step1
             file={file}
