@@ -60,7 +60,7 @@ export function PricingCard({
       className={cn(
         "relative flex h-full flex-col transition-all duration-200",
         highlighted
-          ? "pricing-card-gradient-featured ring-1 ring-indigo-400/50"
+          ? "pricing-card-gradient-featured ring-primary/50 ring-1"
           : "pricing-card-gradient"
       )}
     >
@@ -99,7 +99,7 @@ export function PricingCard({
           {features.map((feature, i) => (
             <li key={i} className="flex items-start gap-2.5 text-sm">
               {feature.included ? (
-                <Check className="mt-0.5 h-4 w-4 shrink-0 text-indigo-500" />
+                <Check className="text-primary mt-0.5 h-4 w-4 shrink-0" />
               ) : (
                 <Minus className="text-muted-foreground mt-0.5 h-4 w-4 shrink-0" />
               )}

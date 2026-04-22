@@ -95,7 +95,7 @@ export default function ForgotPasswordPage() {
               Remember your password?{' '}
               <Link
                 href="/auth/login"
-                className="font-medium text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300 underline-offset-4 hover:underline"
+                className="text-primary hover:text-primary/80 font-medium underline-offset-4 hover:underline"
               >
                 Back to sign in
               </Link>
@@ -112,7 +112,7 @@ export default function ForgotPasswordPage() {
             </p>
             <Link
               href="/auth/login"
-              className="mt-6 inline-block text-sm font-medium text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300 underline-offset-4 hover:underline"
+              className="text-primary hover:text-primary/80 mt-6 inline-block text-sm font-medium underline-offset-4 hover:underline"
             >
               Back to sign in
             </Link>

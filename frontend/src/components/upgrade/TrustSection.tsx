@@ -25,8 +25,8 @@ export function TrustSection({ title, items }: TrustSectionProps) {
               key={i}
               className="flex flex-col items-center rounded-xl border border-border bg-card p-6 text-center"
             >
-              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-indigo-50 dark:bg-indigo-950">
-                <Icon className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
+              <div className="bg-primary/10 mb-4 flex h-12 w-12 items-center justify-center rounded-full">
+                <Icon className="text-primary h-6 w-6" />
               </div>
               <h3 className="text-foreground mb-2 text-base font-semibold">{item.title}</h3>
               <p className="text-muted-foreground text-sm leading-relaxed">{item.description}</p>

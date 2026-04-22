@@ -227,7 +227,7 @@ export function UpgradePage() {
               <Button
                 className={cn(
                   "w-full py-1.5 text-sm font-medium transition-all duration-300",
-                  "bg-indigo-600 text-white hover:bg-indigo-700"
+                  "bg-primary text-primary-foreground hover:bg-primary/90"
                 )}
                 onClick={() =>
                   handleCheckout(

@@ -29,7 +29,7 @@ export function BillingCycleToggle({
         aria-checked={value === "monthly"}
         onClick={() => onChange("monthly")}
         className={cn(
-          "rounded-md px-4 py-1.5 text-sm font-medium transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none",
+          "rounded-md px-4 py-1.5 text-sm font-medium transition-all focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none",
           value === "monthly"
             ? "bg-background text-foreground shadow-sm"
             : "text-muted-foreground hover:text-foreground"
@@ -44,7 +44,7 @@ export function BillingCycleToggle({
         aria-checked={value === "annual"}
         onClick={() => onChange("annual")}
         className={cn(
-          "flex items-center gap-2 rounded-md px-4 py-1.5 text-sm font-medium transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none",
+          "flex items-center gap-2 rounded-md px-4 py-1.5 text-sm font-medium transition-all focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none",
           value === "annual"
             ? "bg-background text-foreground shadow-sm"
             : "text-muted-foreground hover:text-foreground"

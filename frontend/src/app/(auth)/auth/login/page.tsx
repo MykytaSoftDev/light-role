@@ -1,5 +1,6 @@
 "use client";
 
+import { AUTH_PANEL_GRADIENT } from "@/app/(auth)/_lib/auth-panel";
 import { GoogleIcon } from "@/components/shared/google-icon";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -67,15 +68,12 @@ export default function LoginPage() {
     <div className="flex min-h-screen">
       {/* Left branding panel — always dark, hidden on mobile/tablet */}
       <div
-        className="hidden flex-col justify-between p-12 text-white lg:flex lg:w-[45%]"
-        style={{
-          background:
-            "radial-gradient(ellipse 80% 60% at 50% -20%, #312e81 0%, transparent 70%), #030712",
-        }}
+        className="dark text-foreground hidden flex-col justify-between p-12 lg:flex lg:w-[45%]"
+        style={{ background: AUTH_PANEL_GRADIENT }}
       >
         {/* Logo */}
         <div className="flex items-center gap-3">
-          {/* <div className="flex h-8 w-8 items-center justify-center rounded-md bg-indigo-500 text-xs font-bold text-white select-none">
+          {/* <div className="bg-primary text-primary-foreground flex h-8 w-8 items-center justify-center rounded-md text-xs font-bold select-none">
             LR
           </div> */}
           <Image
@@ -94,7 +92,7 @@ export default function LoginPage() {
             <br />
             with AI.
           </h1>
-          <p className="max-w-xs text-base leading-relaxed text-white/60">
+          <p className="text-muted-foreground max-w-xs text-base leading-relaxed">
             Optimize your resume for every role, generate tailored cover letters, and track every
             application - all in one place.
           </p>
@@ -102,17 +100,17 @@ export default function LoginPage() {
 
         {/* Testimonial */}
         <div className="space-y-3">
-          <blockquote className="text-sm leading-relaxed text-white/70 italic">
+          <blockquote className="text-muted-foreground text-sm leading-relaxed italic">
             &ldquo;Light Role helped me tailor my resume for every application. I went from zero
             callbacks to three offers in six weeks.&rdquo;
           </blockquote>
           <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/10 text-xs font-medium text-white/80 select-none">
+            <div className="bg-muted text-muted-foreground flex h-8 w-8 items-center justify-center rounded-full text-xs font-medium select-none">
               MK
             </div>
             <div>
-              <p className="text-xs font-medium text-white/90">Marcus K.</p>
-              <p className="text-xs text-white/50">Software Engineer</p>
+              <p className="text-foreground text-xs font-medium">Marcus K.</p>
+              <p className="text-muted-foreground text-xs">Software Engineer</p>
             </div>
           </div>
         </div>
@@ -126,7 +124,7 @@ export default function LoginPage() {
         <div className="w-full max-w-sm">
           {/* Mobile logo header */}
           <div className="mb-8 flex items-center gap-2 lg:hidden">
-            {/* <div className="flex h-7 w-7 items-center justify-center rounded-md bg-indigo-500 text-xs font-bold text-white select-none">
+            {/* <div className="bg-primary text-primary-foreground flex h-7 w-7 items-center justify-center rounded-md text-xs font-bold select-none">
               LR
             </div> */}
             <Image
@@ -167,7 +165,7 @@ export default function LoginPage() {
                 <Label htmlFor="password">Password</Label>
                 <Link
                   href="/auth/forgot-password"
-                  className="text-xs text-indigo-600 underline-offset-4 transition-colors hover:text-indigo-700 hover:underline dark:text-indigo-400 dark:hover:text-indigo-300"
+                  className="text-primary hover:text-primary/80 text-xs underline-offset-4 transition-colors hover:underline"
                 >
                   Forgot password?
                 </Link>
@@ -222,7 +220,7 @@ export default function LoginPage() {
           <Button
             type="button"
             variant="outline"
-            className="w-full gap-3 hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-700 dark:hover:border-indigo-700 dark:hover:bg-indigo-950 dark:hover:text-indigo-300"
+            className="hover:border-primary hover:bg-primary/10 hover:text-primary w-full gap-3"
             onClick={handleGoogleSignIn}
           >
             <GoogleIcon />
@@ -234,7 +232,7 @@ export default function LoginPage() {
             Don&apos;t have an account?{" "}
             <Link
               href="/auth/register"
-              className="font-medium text-indigo-600 underline-offset-4 hover:text-indigo-700 hover:underline dark:text-indigo-400 dark:hover:text-indigo-300"
+              className="text-primary hover:text-primary/80 font-medium underline-offset-4 hover:underline"
             >
               Create one
             </Link>

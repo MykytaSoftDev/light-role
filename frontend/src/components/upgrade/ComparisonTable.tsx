@@ -18,7 +18,7 @@ export interface ComparisonTableProps {
 
 function CellValue({ value }: { value: string }) {
   if (value === "Yes" || value === "true") {
-    return <Check className="mx-auto h-4 w-4 text-indigo-500" aria-label="Yes" />;
+    return <Check className="text-primary mx-auto h-4 w-4" aria-label="Yes" />;
   }
   if (value === "—" || value === "-" || value === "No") {
     return <span className="text-muted-foreground">{value === "No" ? "—" : value}</span>;
@@ -44,7 +44,7 @@ export function ComparisonTable({
             <tr className="bg-muted text-muted-foreground">
               <th className="px-6 py-3 text-left font-semibold">{colFeature}</th>
               <th className="px-6 py-3 text-center font-semibold">{colFree}</th>
-              <th className="px-6 py-3 text-center font-semibold text-indigo-600 dark:text-indigo-400">
+              <th className="text-primary px-6 py-3 text-center font-semibold">
                 {colPro}
               </th>
             </tr>
@@ -88,9 +88,9 @@ export function ComparisonTable({
         </div>
 
         {/* Pro card */}
-        <div className="rounded-xl border-2 border-indigo-500 overflow-hidden">
-          <div className="bg-indigo-50 dark:bg-indigo-950 px-4 py-2">
-            <span className="text-sm font-semibold text-indigo-600 dark:text-indigo-400">
+        <div className="border-primary overflow-hidden rounded-xl border-2">
+          <div className="bg-primary/10 px-4 py-2">
+            <span className="text-primary text-sm font-semibold">
               {colPro}
             </span>
           </div>
