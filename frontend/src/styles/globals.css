@@ -243,3 +243,32 @@
     scrollbar-width: none;
   }
 }
+
+.ls-streaks,
+.ls-glow {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.ls-streaks {
+  animation: ls-drift 18s ease-in-out infinite;
+}
+.ls-glow {
+  animation: ls-drift 26s ease-in-out infinite;
+}
+
+@keyframes ls-drift {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(-5px, -7px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ls-streaks,
+  .ls-glow {
+    animation: none;
+  }
+}

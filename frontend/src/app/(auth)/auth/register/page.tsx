@@ -1,6 +1,6 @@
 "use client";
 
-import { AUTH_PANEL_GRADIENT } from "@/app/(auth)/_lib/auth-panel";
+import AuthStreakBackground from "@/app/(auth)/_components/auth-streak-background";
 import { GoogleIcon } from "@/components/shared/google-icon";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -90,11 +90,12 @@ export default function RegisterPage() {
     <div className="flex min-h-screen">
       {/* Left branding panel — always dark, hidden on mobile/tablet */}
       <div
-        className="dark text-foreground hidden flex-col justify-between p-12 lg:flex lg:w-[45%]"
-        style={{ background: AUTH_PANEL_GRADIENT }}
+        className="dark text-foreground relative hidden flex-col justify-between overflow-hidden p-12 lg:flex lg:w-[45%]"
+        style={{ background: "oklch(10% 0.01 286)" }}
       >
+        <AuthStreakBackground />
         {/* Logo */}
-        <div className="flex items-center gap-3">
+        <div className="relative z-10 flex items-center gap-3">
           <div className="bg-primary text-primary-foreground flex h-8 w-8 items-center justify-center rounded-md text-xs font-bold select-none">
             LR
           </div>
@@ -102,7 +103,7 @@ export default function RegisterPage() {
         </div>
 
         {/* Hero copy */}
-        <div className="space-y-4">
+        <div className="relative z-10 space-y-4">
           <h1 className="text-3xl leading-tight font-semibold tracking-tight">
             Manage your job search
             <br />
@@ -115,7 +116,7 @@ export default function RegisterPage() {
         </div>
 
         {/* Testimonial */}
-        <div className="space-y-3">
+        <div className="relative z-10 space-y-3">
           <blockquote className="text-muted-foreground text-sm leading-relaxed italic">
             &ldquo;Light Role helped me tailor my resume for every application. I went from zero
             callbacks to three offers in six weeks.&rdquo;
