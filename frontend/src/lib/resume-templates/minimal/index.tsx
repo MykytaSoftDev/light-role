@@ -31,7 +31,6 @@ import type { TemplateComponentProps } from "../types";
 import type { ResumeData } from "@/types/resume";
 
 const DEFAULT_ORDER = [
-  "personal_info",
   "summary",
   "experience",
   "education",

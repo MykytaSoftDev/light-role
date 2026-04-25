@@ -5,11 +5,26 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
-  DragDropContext,
-  Droppable,
-  Draggable,
-  DropResult,
-} from "@hello-pangea/dnd";
+  DndContext,
+  DragOverlay,
+  PointerSensor,
+  KeyboardSensor,
+  useSensor,
+  useSensors,
+  closestCenter,
+  defaultDropAnimationSideEffects,
+  type DragEndEvent,
+  type DragStartEvent,
+} from "@dnd-kit/core";
+import type { SyntheticListenerMap } from "@dnd-kit/core/dist/hooks/utilities";
+import {
+  SortableContext,
+  useSortable,
+  verticalListSortingStrategy,
+  sortableKeyboardCoordinates,
+  arrayMove,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import {
   ArrowLeft,
   GripVertical,
@@ -46,7 +61,6 @@ import type {
 // ---------------------------------------------------------------------------
 
 const DEFAULT_SECTIONS_ORDER = [
-  "personal_info",
   "summary",
   "experience",
   "education",
@@ -140,7 +154,7 @@ function SaveIndicator({ status }: { status: SaveStatus }) {
 
 interface SectionPanelProps {
   sectionKey: string;
-  dragHandleProps?: React.HTMLAttributes<HTMLDivElement>;
+  dragHandleProps?: SyntheticListenerMap | undefined;
   children: React.ReactNode;
 }
 
@@ -152,14 +166,17 @@ function SectionPanel({ sectionKey, dragHandleProps, children }: SectionPanelPro
     <div className="rounded-lg border border-border overflow-hidden">
       {/* Header */}
       <div className="flex items-center gap-2 bg-muted/30 px-3 py-2.5">
-        {/* Drag handle */}
-        <div
-          {...dragHandleProps}
-          className="cursor-grab text-muted-foreground/50 hover:text-muted-foreground transition-colors touch-none shrink-0"
-          aria-label={`Drag ${label} section`}
-        >
-          <GripVertical className="h-4 w-4" />
-        </div>
+        {/* Drag handle — omitted entirely when this section is non-draggable
+            (e.g., the pinned Personal Info card). */}
+        {dragHandleProps && (
+          <div
+            {...dragHandleProps}
+            className="cursor-grab text-muted-foreground/50 hover:text-muted-foreground transition-colors touch-none shrink-0"
+            aria-label={`Drag ${label} section`}
+          >
+            <GripVertical className="h-4 w-4" />
+          </div>
+        )}
 
         {/* Label */}
         <button
@@ -594,9 +611,16 @@ function ResumePreviewPdf({
       </div>
     );
   }
+  // Remount BlobProvider on structural changes (section reorder / template
+  // switch) so react-pdf's stateful reconciler can't leak phantom views from
+  // prior trees. Text-only edits stay on the same instance for smooth diffing.
+  const remountKey = `${templateId}|${sectionsOrder.join("|")}`;
   return (
     <div className="bg-gray-100 dark:bg-gray-800 rounded-lg overflow-auto min-h-[600px]">
-      <BlobProvider document={<Component data={data} sectionsOrder={sectionsOrder} />}>
+      <BlobProvider
+        key={remountKey}
+        document={<Component data={data} sectionsOrder={sectionsOrder} />}
+      >
         {({ url, loading, error }) => {
           if (loading) {
             return (
@@ -882,6 +906,58 @@ function InlineNameEditor({
 }
 
 // ---------------------------------------------------------------------------
+// Sortable wrapper — bridges @dnd-kit's useSortable to SectionPanel.
+// `attributes` go on the wrapper (focus/aria), but `listeners` are passed
+// down as `dragHandleProps` so only the GripVertical icon area inside
+// SectionPanel becomes the actual drag handle (preserves prior UX).
+// ---------------------------------------------------------------------------
+
+function SortableSectionPanel({
+  sectionKey,
+  children,
+}: {
+  sectionKey: string;
+  children: React.ReactNode;
+}) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: sectionKey });
+
+  const style: React.CSSProperties = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    // Hide the original entirely while it's being dragged — the DragOverlay
+    // renders the floating clone in a portal. Keep it in the layout flow
+    // (no display:none) so reflow math stays correct.
+    opacity: isDragging ? 0 : 1,
+  };
+
+  return (
+    <div ref={setNodeRef} style={style} {...attributes}>
+      <SectionPanel sectionKey={sectionKey} dragHandleProps={listeners}>
+        {children}
+      </SectionPanel>
+    </div>
+  );
+}
+
+// DragOverlay drop animation — slight overshoot via cubic-bezier > 1 for a
+// natural "settle" feel. Active item fades to 0.4 during the drop tween so
+// it visually merges with the reflowing destination.
+const dropAnimation = {
+  duration: 250,
+  easing: "cubic-bezier(0.18, 0.67, 0.6, 1.22)",
+  sideEffects: defaultDropAnimationSideEffects({
+    styles: { active: { opacity: "0.4" } },
+  }),
+};
+
+// ---------------------------------------------------------------------------
 // Main editor page
 // ---------------------------------------------------------------------------
 
@@ -912,6 +988,8 @@ export default function ResumeEditorPage() {
   // Pre-resolve once at mount so BlobProvider never renders against an
   // unresolved family — see frontend/src/lib/resume-templates/fonts.ts.
   const [fontsReady, setFontsReady] = useState(false);
+  // Currently dragged section key — drives the floating DragOverlay clone.
+  const [activeSectionKey, setActiveSectionKey] = useState<string | null>(null);
 
   // Initialize local state once data is fetched
   const initialized = useRef(false);
@@ -920,9 +998,20 @@ export default function ResumeEditorPage() {
       initialized.current = true;
       setResumeName(resume.name);
       setData(resume.parsed_data ?? emptyResumeData);
-      setSectionsOrder(
-        resume.sections_order?.length ? resume.sections_order : DEFAULT_SECTIONS_ORDER
-      );
+      // Self-heal persisted sections_order: drop any legacy "personal_info"
+      // entry (header is now a pinned, non-draggable block) and dedupe. If
+      // empty after cleanup, fall back to DEFAULT_SECTIONS_ORDER. The next
+      // debounced auto-save persists the cleaned array; if the persisted
+      // value was already clean, state is referentially unchanged on subsequent
+      // initializations and no extra round-trip occurs.
+      const persisted = resume.sections_order ?? [];
+      const cleaned: string[] = [];
+      for (const key of persisted) {
+        if (key === "personal_info") continue;
+        if (cleaned.includes(key)) continue;
+        cleaned.push(key);
+      }
+      setSectionsOrder(cleaned.length ? cleaned : DEFAULT_SECTIONS_ORDER);
       setTemplate(resume.template ?? "classic");
       setIsDataReady(true);
     }
@@ -976,13 +1065,30 @@ export default function ResumeEditorPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data, sectionsOrder, resumeName, template]);
 
-  // Section drag & drop
-  const onDragEnd = (result: DropResult) => {
-    if (!result.destination) return;
-    const next = Array.from(sectionsOrder);
-    const [moved] = next.splice(result.source.index, 1);
-    next.splice(result.destination.index, 0, moved);
-    setSectionsOrder(next);
+  // Section drag & drop (dnd-kit)
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  );
+
+  const handleDragStart = (event: DragStartEvent) => {
+    setActiveSectionKey(event.active.id as string);
+  };
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    setActiveSectionKey(null);
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    setSectionsOrder((prev) => {
+      const oldIndex = prev.indexOf(active.id as string);
+      const newIndex = prev.indexOf(over.id as string);
+      if (oldIndex === -1 || newIndex === -1) return prev;
+      return arrayMove(prev, oldIndex, newIndex);
+    });
+  };
+
+  const handleDragCancel = () => {
+    setActiveSectionKey(null);
   };
 
   // Update helpers
@@ -1194,39 +1300,53 @@ export default function ResumeEditorPage() {
             mobileTab === "edit" ? "flex-1" : "hidden lg:flex lg:flex-1"
           )}
         >
-          <DragDropContext onDragEnd={onDragEnd}>
-            <Droppable droppableId="sections">
-              {(provided) => (
-                <div
-                  ref={provided.innerRef}
-                  {...provided.droppableProps}
-                  className="flex flex-col gap-3"
-                >
-                  {sectionsOrder.map((key, index) => (
-                    <Draggable key={key} draggableId={key} index={index}>
-                      {(drag, snapshot) => (
-                        <div
-                          ref={drag.innerRef}
-                          {...drag.draggableProps}
-                          className={cn(
-                            snapshot.isDragging && "opacity-80 shadow-lg ring-2 ring-primary/30"
-                          )}
-                        >
-                          <SectionPanel
-                            sectionKey={key}
-                            dragHandleProps={drag.dragHandleProps ?? undefined}
-                          >
-                            {renderSectionEditor(key)}
-                          </SectionPanel>
-                        </div>
-                      )}
-                    </Draggable>
+          <div className="flex flex-col gap-3">
+            {/* Personal Info — pinned, non-draggable, always-first block.
+                Rendered with SectionPanel directly (no SortableSectionPanel)
+                so the GripVertical handle is omitted but collapse/expand
+                and the existing edit form remain. The header is also pinned
+                at the top of every PDF template, so editor and preview match. */}
+            <SectionPanel sectionKey="personal_info" dragHandleProps={undefined}>
+              {renderSectionEditor("personal_info")}
+            </SectionPanel>
+
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragStart={handleDragStart}
+              onDragEnd={handleDragEnd}
+              onDragCancel={handleDragCancel}
+            >
+              <SortableContext
+                items={sectionsOrder}
+                strategy={verticalListSortingStrategy}
+              >
+                <div className="flex flex-col gap-3">
+                  {sectionsOrder.map((key) => (
+                    <SortableSectionPanel key={key} sectionKey={key}>
+                      {renderSectionEditor(key)}
+                    </SortableSectionPanel>
                   ))}
-                  {provided.placeholder}
                 </div>
-              )}
-            </Droppable>
-          </DragDropContext>
+              </SortableContext>
+
+              {/* Floating clone of the dragged panel, portaled out of the
+                  document layout. Eliminates the visual overlap between the
+                  in-place dragged panel and the reflowing destination panels. */}
+              <DragOverlay dropAnimation={dropAnimation}>
+                {activeSectionKey ? (
+                  <div className="rounded-lg border border-border bg-background shadow-lg ring-2 ring-primary/30 cursor-grabbing">
+                    <SectionPanel
+                      sectionKey={activeSectionKey}
+                      dragHandleProps={undefined}
+                    >
+                      {renderSectionEditor(activeSectionKey)}
+                    </SectionPanel>
+                  </div>
+                ) : null}
+              </DragOverlay>
+            </DndContext>
+          </div>
         </div>
 
         {/* Preview column */}

@@ -19,7 +19,6 @@ from app.services import file_service
 logger = logging.getLogger(__name__)
 
 _DEFAULT_SECTIONS_ORDER = [
-    "personal_info",
     "summary",
     "experience",
     "education",

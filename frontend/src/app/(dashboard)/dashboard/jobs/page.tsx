@@ -5,11 +5,27 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import {
-  DragDropContext,
-  Droppable,
-  Draggable,
-  DropResult,
-} from "@hello-pangea/dnd";
+  DndContext,
+  DragOverlay,
+  PointerSensor,
+  KeyboardSensor,
+  useSensor,
+  useSensors,
+  useDroppable,
+  closestCorners,
+  defaultDropAnimationSideEffects,
+  type DragStartEvent,
+  type DragOverEvent,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  arrayMove,
+  rectSortingStrategy,
+  sortableKeyboardCoordinates,
+  useSortable,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import {
   LayoutGrid,
@@ -142,6 +158,37 @@ const STATUS_BADGE: Record<
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 // ---------------------------------------------------------------------------
+// DnD ARIA live announcements (English; i18n once next-intl baseline lands)
+// ---------------------------------------------------------------------------
+
+const announcements = {
+  onDragStart: ({ active }: { active: { id: string | number } }) =>
+    `Picked up job ${active.id}.`,
+  onDragOver: ({
+    active,
+    over,
+  }: {
+    active: { id: string | number };
+    over: { id: string | number } | null;
+  }) =>
+    over
+      ? `Job ${active.id} is over ${over.id}.`
+      : `Job ${active.id} is no longer over a droppable area.`,
+  onDragEnd: ({
+    active,
+    over,
+  }: {
+    active: { id: string | number };
+    over: { id: string | number } | null;
+  }) =>
+    over
+      ? `Job ${active.id} was dropped over ${over.id}.`
+      : `Job ${active.id} was dropped.`,
+  onDragCancel: ({ active }: { active: { id: string | number } }) =>
+    `Dragging job ${active.id} was cancelled.`,
+};
+
+// ---------------------------------------------------------------------------
 // Sort config
 // ---------------------------------------------------------------------------
 
@@ -190,6 +237,17 @@ function flattenJobsMap(jobsMap: JobsMap): Job[] {
     }
   }
   return jobs;
+}
+
+// Resolves which Status section a draggable id belongs to.
+// - If `id` is itself a Status string, returns it directly (droppable container id).
+// - Otherwise treats `id` as a Job UUID and searches each section.
+function findContainer(id: string, map: JobsMap): Status | null {
+  if ((STATUSES as readonly string[]).includes(id)) return id as Status;
+  for (const status of STATUSES) {
+    if (map[status].some((j) => j.id === id)) return status;
+  }
+  return null;
 }
 
 function formatDate(iso: string | null): string {
@@ -301,76 +359,106 @@ function StatusBadge({ status }: { status: string }) {
 }
 
 // ---------------------------------------------------------------------------
-// JobCard (Kanban)
+// JobCardPresentation — pure visual card (no DnD wiring)
+// ---------------------------------------------------------------------------
+
+interface JobCardPresentationProps {
+  job: Job;
+  isDragging?: boolean;
+  onDelete: (jobId: string) => void;
+}
+
+function JobCardPresentation({
+  job,
+  isDragging = false,
+  onDelete,
+}: JobCardPresentationProps) {
+  return (
+    <div
+      className={cn(
+        "group rounded-lg border border-border bg-card p-3 shadow-sm select-none",
+        "transition-shadow duration-150",
+        isDragging && "shadow-lg ring-2 ring-primary/30 rotate-1"
+      )}
+    >
+      {/* Title row */}
+      <div className="flex items-start justify-between gap-1">
+        <Link
+          href={`/dashboard/jobs/${job.id}`}
+          className="flex-1 font-semibold text-sm leading-snug hover:underline"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {job.title}
+        </Link>
+        <JobContextMenu
+          job={job}
+          onDelete={onDelete}
+          trigger={
+            <button
+              onClick={(e) => e.stopPropagation()}
+              className="rounded p-0.5 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-muted focus:opacity-100 focus:outline-none"
+              aria-label="Open job menu"
+            >
+              <MoreHorizontal className="h-4 w-4 text-muted-foreground" />
+            </button>
+          }
+        />
+      </div>
+
+      {/* Company */}
+      <p className="mt-0.5 text-xs text-muted-foreground truncate">
+        {job.company}
+      </p>
+
+      {/* Footer row */}
+      <div className="mt-2 flex items-center justify-between">
+        <span className="text-xs text-muted-foreground">
+          {formatDateShort(job.created_at)}
+        </span>
+        <div className="flex items-center gap-1.5">
+          {job.is_ai_parsed && (
+            <span className="inline-flex items-center gap-0.5 rounded-full bg-violet-100 px-1.5 py-0.5 text-[10px] font-medium text-violet-700 dark:bg-violet-900/30 dark:text-violet-300">
+              <Sparkles className="h-2.5 w-2.5" />
+              AI
+            </span>
+          )}
+          <ExcitementStars level={job.application.excitement_level} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// JobCard (Kanban) — wraps presentation in a useSortable for @dnd-kit.
 // ---------------------------------------------------------------------------
 
 interface JobCardProps {
   job: Job;
-  index: number;
   onDelete: (jobId: string) => void;
 }
 
-function JobCard({ job, index, onDelete }: JobCardProps) {
+function JobCard({ job, onDelete }: JobCardProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: job.id });
+
+  const style: React.CSSProperties = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    // The DragOverlay shows the clone — hide the original to avoid double cards.
+    opacity: isDragging ? 0 : 1,
+  };
+
   return (
-    <Draggable draggableId={job.id} index={index}>
-      {(provided, snapshot) => (
-        <div
-          ref={provided.innerRef}
-          {...provided.draggableProps}
-          {...provided.dragHandleProps}
-          className={cn(
-            "group rounded-lg border border-border bg-card p-3 shadow-sm select-none",
-            "transition-shadow duration-150",
-            snapshot.isDragging && "shadow-lg ring-2 ring-primary/30 rotate-1"
-          )}
-        >
-          {/* Title row */}
-          <div className="flex items-start justify-between gap-1">
-            <Link
-              href={`/dashboard/jobs/${job.id}`}
-              className="flex-1 font-semibold text-sm leading-snug hover:underline"
-              onClick={(e) => e.stopPropagation()}
-            >
-              {job.title}
-            </Link>
-            <JobContextMenu
-              job={job}
-              onDelete={onDelete}
-              trigger={
-                <button
-                  onClick={(e) => e.stopPropagation()}
-                  className="rounded p-0.5 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-muted focus:opacity-100 focus:outline-none"
-                  aria-label="Open job menu"
-                >
-                  <MoreHorizontal className="h-4 w-4 text-muted-foreground" />
-                </button>
-              }
-            />
-          </div>
-
-          {/* Company */}
-          <p className="mt-0.5 text-xs text-muted-foreground truncate">
-            {job.company}
-          </p>
-
-          {/* Footer row */}
-          <div className="mt-2 flex items-center justify-between">
-            <span className="text-xs text-muted-foreground">
-              {formatDateShort(job.created_at)}
-            </span>
-            <div className="flex items-center gap-1.5">
-              {job.is_ai_parsed && (
-                <span className="inline-flex items-center gap-0.5 rounded-full bg-violet-100 px-1.5 py-0.5 text-[10px] font-medium text-violet-700 dark:bg-violet-900/30 dark:text-violet-300">
-                  <Sparkles className="h-2.5 w-2.5" />
-                  AI
-                </span>
-              )}
-              <ExcitementStars level={job.application.excitement_level} />
-            </div>
-          </div>
-        </div>
-      )}
-    </Draggable>
+    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+      <JobCardPresentation job={job} onDelete={onDelete} />
+    </div>
   );
 }
 
@@ -395,6 +483,10 @@ function KanbanSection({
 }: KanbanSectionProps) {
   const dotColor = COLUMN_COLORS[status];
   const label = status.toUpperCase();
+
+  // Single useDroppable per render (Hooks rules) — branch which JSX node
+  // receives the ref via the `collapsed` flag below.
+  const { setNodeRef, isOver } = useDroppable({ id: status });
 
   return (
     <div className="flex flex-col">
@@ -428,61 +520,56 @@ function KanbanSection({
         </button>
       </div>
 
-      {/* Droppable card grid */}
-      <Droppable droppableId={status} direction="horizontal">
-        {(provided, snapshot) => (
+      {/* Card grid (expanded) or collapsed drop placeholder */}
+      <div
+        className={cn(
+          "mt-3 transition-colors duration-150",
+          collapsed && "mt-0"
+        )}
+      >
+        {!collapsed && (
+          <SortableContext
+            id={status}
+            items={jobs.map((j) => j.id)}
+            strategy={rectSortingStrategy}
+          >
+            <div
+              ref={setNodeRef}
+              className={cn(
+                "grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4",
+                isOver && "rounded-lg bg-muted/50 p-2"
+              )}
+            >
+              {jobs.map((job) => (
+                <JobCard key={job.id} job={job} onDelete={onDelete} />
+              ))}
+              {/* Drop zone placeholder when section is empty */}
+              {jobs.length === 0 && !isOver && (
+                <div className="col-span-full flex items-center justify-center rounded-lg border border-dashed border-border bg-muted/20 text-xs text-muted-foreground min-h-[60px]">
+                  Drop jobs here
+                </div>
+              )}
+            </div>
+          </SortableContext>
+        )}
+
+        {/* When collapsed, render a minimal droppable area so drops still
+            target the collapsed section */}
+        {collapsed && (
           <div
-            ref={provided.innerRef}
-            {...provided.droppableProps}
+            ref={setNodeRef}
             className={cn(
-              "mt-3 transition-colors duration-150",
-              collapsed && "mt-0"
+              "mt-1 rounded-lg border border-dashed border-transparent min-h-[4px] transition-all duration-150",
+              isOver &&
+                "min-h-[60px] border-border bg-muted/50 flex items-center justify-center mt-2"
             )}
           >
-            {!collapsed && (
-              <div
-                className={cn(
-                  "grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4",
-                  snapshot.isDraggingOver && "rounded-lg bg-muted/50 p-2"
-                )}
-              >
-                {jobs.map((job, index) => (
-                  <JobCard
-                    key={job.id}
-                    job={job}
-                    index={index}
-                    onDelete={onDelete}
-                  />
-                ))}
-                {/* Drop zone placeholder when section is empty */}
-                {jobs.length === 0 && !snapshot.isDraggingOver && (
-                  <div className="col-span-full flex items-center justify-center rounded-lg border border-dashed border-border bg-muted/20 text-xs text-muted-foreground min-h-[60px]">
-                    Drop jobs here
-                  </div>
-                )}
-                {provided.placeholder}
-              </div>
-            )}
-
-            {/* When collapsed, still render a minimal droppable area so
-                drag-and-drop targets work even on collapsed sections */}
-            {collapsed && (
-              <div
-                className={cn(
-                  "mt-1 rounded-lg border border-dashed border-transparent min-h-[4px] transition-all duration-150",
-                  snapshot.isDraggingOver &&
-                    "min-h-[60px] border-border bg-muted/50 flex items-center justify-center mt-2"
-                )}
-              >
-                {snapshot.isDraggingOver && (
-                  <span className="text-xs text-muted-foreground">Drop here</span>
-                )}
-                {provided.placeholder}
-              </div>
+            {isOver && (
+              <span className="text-xs text-muted-foreground">Drop here</span>
             )}
           </div>
         )}
-      </Droppable>
+      </div>
     </div>
   );
 }
@@ -969,6 +1056,20 @@ function ErrorBanner({
 }
 
 // ---------------------------------------------------------------------------
+// DragOverlay drop animation — slight overshoot via cubic-bezier > 1 for a
+// playful settle. Active item fades to 0.4 during the drop tween so the
+// landing spot is visually obvious. Module scope — value is stable.
+// ---------------------------------------------------------------------------
+
+const dropAnimation = {
+  duration: 250,
+  easing: "cubic-bezier(0.18, 0.67, 0.6, 1.22)",
+  sideEffects: defaultDropAnimationSideEffects({
+    styles: { active: { opacity: "0.4" } },
+  }),
+};
+
+// ---------------------------------------------------------------------------
 // Main page
 // ---------------------------------------------------------------------------
 
@@ -992,6 +1093,26 @@ export default function JobsPage() {
   // Kanban-specific UI state
   const [collapsedSections, setCollapsedSections] = useState<Set<string>>(new Set());
   const [showEmpty, setShowEmpty] = useState(false);
+
+  // DnD state
+  const [activeJob, setActiveJob] = useState<Job | null>(null);
+  // Snapshot of jobsMap captured at drag start; consumed by handleDragEnd /
+  // handleDragCancel to roll back the optimistic cross-section move applied
+  // in handleDragOver if the drop is invalid or the backend PATCH fails.
+  const [preDragSnapshot, setPreDragSnapshot] = useState<JobsMap | null>(null);
+
+  // Sensors: pointer requires 5px of movement before drag starts so that
+  // clicking the card (to navigate) and clicking the context menu trigger
+  // both still work as clicks. Keyboard sensor uses sortable's coordinate
+  // getter so arrow keys move between sortable items.
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: { distance: 5 },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
   // Fetch jobs via TanStack Query (shared cache key with useJobs hook)
   const {
@@ -1042,70 +1163,163 @@ export default function JobsPage() {
     });
   }, []);
 
-  // Drag & drop handler
-  const onDragEnd = useCallback(
-    async (result: DropResult) => {
-      const { source, destination, draggableId } = result;
-      if (!destination) return;
-      if (
-        source.droppableId === destination.droppableId &&
-        source.index === destination.index
-      )
-        return;
+  // -------------------------------------------------------------------------
+  // DnD handlers (Phase 3: DND-006/007/008).
+  //
+  //   handleDragStart  — locates the dragged Job, sets the DragOverlay subject,
+  //                      and snapshots jobsMap for potential rollback.
+  //   handleDragOver   — applies optimistic cross-section moves to jobsMap so
+  //                      @dnd-kit animates the reflow between renders. Also
+  //                      auto-expands a collapsed destination section.
+  //   handleDragEnd    — same-section: arrayMove reorder (no backend call).
+  //                      cross-section: PATCH the application status; rollback
+  //                      to preDragSnapshot on failure.
+  //   handleDragCancel — rolls back to preDragSnapshot and clears DnD state.
+  //
+  // Note: handlers are NOT wrapped in useCallback. DndContext re-binds its
+  // listeners every render anyway, and the handlers must read fresh state
+  // (jobsMap, preDragSnapshot) directly from the component closure.
+  // -------------------------------------------------------------------------
 
-      const srcStatus = source.droppableId as Status;
-      const dstStatus = destination.droppableId as Status;
+  function handleDragStart(event: DragStartEvent) {
+    const activeId = event.active.id as string;
+    const container = findContainer(activeId, jobsMap);
+    const found = container
+      ? jobsMap[container].find((j) => j.id === activeId) ?? null
+      : null;
+    setActiveJob(found);
+    setPreDragSnapshot(jobsMap);
+  }
 
-      // Auto-expand the destination section if it was collapsed
-      setCollapsedSections((prev) => {
-        if (prev.has(dstStatus)) {
-          const next = new Set(prev);
-          next.delete(dstStatus);
-          return next;
-        }
-        return prev;
-      });
+  function handleDragOver(event: DragOverEvent) {
+    const { active, over } = event;
+    if (!over) return;
+    const activeId = active.id as string;
+    const overId = over.id as string;
 
-      // Find the job
-      const srcJobs = Array.from(jobsMap[srcStatus]);
-      const [movedJob] = srcJobs.splice(source.index, 1);
-      const dstJobs =
-        srcStatus === dstStatus
-          ? srcJobs
-          : Array.from(jobsMap[dstStatus]);
-      dstJobs.splice(destination.index, 0, {
-        ...movedJob,
-        application: { ...movedJob.application, status: dstStatus },
-      });
+    setJobsMap((prev) => {
+      const activeContainer = findContainer(activeId, prev);
+      const overContainer = findContainer(overId, prev);
+      if (!activeContainer || !overContainer) return prev;
+      // Intra-section moves are deferred to handleDragEnd so we don't fight
+      // with the SortableContext's own animated reorder during drag.
+      if (activeContainer === overContainer) return prev;
 
-      // Optimistic update
-      const prevMap = jobsMap;
-      setJobsMap((prev) => ({
+      const activeItems = prev[activeContainer];
+      const overItems = prev[overContainer];
+      const activeIndex = activeItems.findIndex((j) => j.id === activeId);
+      if (activeIndex === -1) return prev;
+
+      // If we're hovering the section container itself (overId === Status),
+      // findIndex returns -1 → append to end.
+      const overIndex = overItems.findIndex((j) => j.id === overId);
+      const insertIndex = overIndex === -1 ? overItems.length : overIndex;
+
+      const movedJob = activeItems[activeIndex];
+      return {
         ...prev,
-        [srcStatus]: srcStatus === dstStatus ? dstJobs : srcJobs,
-        [dstStatus]: dstJobs,
-      }));
-
-      // Persist to backend
-      try {
-        const res = await fetch(
-          `${BASE_URL}/api/v1/applications/${movedJob.application.id}/status`,
+        [activeContainer]: activeItems.filter((_, i) => i !== activeIndex),
+        [overContainer]: [
+          ...overItems.slice(0, insertIndex),
           {
-            method: "PATCH",
-            headers: { "Content-Type": "application/json" },
-            credentials: "include",
-            body: JSON.stringify({ status: dstStatus }),
+            ...movedJob,
+            application: { ...movedJob.application, status: overContainer },
+          },
+          ...overItems.slice(insertIndex),
+        ],
+      };
+    });
+
+    // Auto-expand the destination section if it was collapsed. Outer check
+    // is a perf optimization; the inner setter is functional so it's safe.
+    const overContainer = findContainer(overId, jobsMap);
+    if (overContainer && collapsedSections.has(overContainer)) {
+      setCollapsedSections((prev) => {
+        if (!prev.has(overContainer)) return prev;
+        const next = new Set(prev);
+        next.delete(overContainer);
+        return next;
+      });
+    }
+  }
+
+  function handleDragCancel() {
+    if (preDragSnapshot) setJobsMap(preDragSnapshot);
+    setActiveJob(null);
+    setPreDragSnapshot(null);
+  }
+
+  async function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event;
+    const startContainer = preDragSnapshot
+      ? findContainer(active.id as string, preDragSnapshot)
+      : null;
+
+    // Drop outside any droppable: roll back the optimistic move.
+    if (!over) {
+      if (preDragSnapshot) setJobsMap(preDragSnapshot);
+      setActiveJob(null);
+      setPreDragSnapshot(null);
+      return;
+    }
+
+    const finalContainer = findContainer(active.id as string, jobsMap);
+
+    // Failsafe — should not happen if state is consistent.
+    if (!startContainer || !finalContainer) {
+      setActiveJob(null);
+      setPreDragSnapshot(null);
+      return;
+    }
+
+    // Same section: intra-section reorder via arrayMove (no backend call —
+    // server doesn't persist within-column ordering today).
+    if (startContainer === finalContainer) {
+      const overId = over.id as string;
+      if (overId !== active.id) {
+        setJobsMap((prev) => {
+          const items = prev[finalContainer];
+          const oldIndex = items.findIndex((j) => j.id === active.id);
+          const newIndex = items.findIndex((j) => j.id === overId);
+          if (oldIndex === -1 || newIndex === -1 || oldIndex === newIndex) {
+            return prev;
           }
-        );
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      } catch {
-        // Revert
-        setJobsMap(prevMap);
-        setDndError("Failed to update job status. Please try again.");
+          return {
+            ...prev,
+            [finalContainer]: arrayMove(items, oldIndex, newIndex),
+          };
+        });
       }
-    },
-    [jobsMap]
-  );
+      setActiveJob(null);
+      setPreDragSnapshot(null);
+      return;
+    }
+
+    // Cross-section: handleDragOver has already applied the optimistic move.
+    // Now persist to backend, rolling back on failure.
+    const movedJob = jobsMap[finalContainer].find((j) => j.id === active.id);
+    const snapshot = preDragSnapshot;
+    setActiveJob(null);
+    setPreDragSnapshot(null);
+
+    if (!movedJob) return;
+
+    try {
+      const res = await fetch(
+        `${BASE_URL}/api/v1/applications/${movedJob.application.id}/status`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ status: finalContainer }),
+        }
+      );
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    } catch {
+      if (snapshot) setJobsMap(snapshot);
+      setDndError("Failed to update job status. Please try again.");
+    }
+  }
 
   // Delete handler — called by JobContextMenu after a successful DELETE request.
   const handleDelete = useCallback((jobId: string) => {
@@ -1230,7 +1444,15 @@ export default function JobsPage() {
           />
         </div>
       ) : (
-        <DragDropContext onDragEnd={onDragEnd}>
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCorners}
+          onDragStart={handleDragStart}
+          onDragOver={handleDragOver}
+          onDragEnd={handleDragEnd}
+          onDragCancel={handleDragCancel}
+          accessibility={{ announcements }}
+        >
           <div className="flex flex-col gap-6">
             {visibleStatuses.map((status) => (
               <KanbanSection
@@ -1243,7 +1465,16 @@ export default function JobsPage() {
               />
             ))}
           </div>
-        </DragDropContext>
+          <DragOverlay dropAnimation={dropAnimation}>
+            {activeJob ? (
+              <JobCardPresentation
+                job={activeJob}
+                isDragging
+                onDelete={handleDelete}
+              />
+            ) : null}
+          </DragOverlay>
+        </DndContext>
       )}
 
       {/* Error banner */}

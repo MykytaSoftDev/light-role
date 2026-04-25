@@ -18,7 +18,7 @@ if TYPE_CHECKING:
     from app.models.user import User
 
 _SECTIONS_ORDER_DEFAULT = (
-    '\'["personal_info", "summary", "experience", "education", '
+    '\'["summary", "experience", "education", '
     '"skills", "languages", "certifications"]\'::jsonb'
 )
 

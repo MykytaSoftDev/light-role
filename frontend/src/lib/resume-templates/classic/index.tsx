@@ -4,7 +4,6 @@ import type { TemplateComponentProps } from "../types";
 import type { ResumeData } from "@/types/resume";
 
 const DEFAULT_ORDER = [
-  "personal_info",
   "summary",
   "experience",
   "education",
@@ -193,12 +192,17 @@ function renderCertifications(data: ResumeData) {
 // ── Main component ────────────────────────────────────────────────────────────
 
 export function ClassicTemplate({ data, sectionsOrder }: TemplateComponentProps) {
-  const order = sectionsOrder?.length ? sectionsOrder : DEFAULT_ORDER;
+  // Defensive: drop any stray "personal_info" entry from sectionsOrder.
+  // The header is rendered unconditionally as the first block below, so
+  // letting "personal_info" slip into the loop would render it twice. This
+  // protects against persisted rows that bypass the editor's self-heal or
+  // any other call site that includes the legacy key.
+  const order = (sectionsOrder?.length ? sectionsOrder : DEFAULT_ORDER).filter(
+    (k) => k !== "personal_info",
+  );
 
   function renderSection(key: string) {
     switch (key) {
-      case "personal_info":
-        return renderPersonalInfo(data);
       case "summary":
         return renderSummary(data);
       case "experience":
@@ -219,6 +223,8 @@ export function ClassicTemplate({ data, sectionsOrder }: TemplateComponentProps)
   return (
     <Document>
       <Page size="A4" style={styles.page}>
+        {/* Header is pinned, always-first, never draggable. */}
+        <View key="personal_info">{renderPersonalInfo(data)}</View>
         {order.map((key) => {
           const section = renderSection(key);
           if (!section) return null;
