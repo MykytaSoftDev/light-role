@@ -83,7 +83,7 @@ async def get_subscription(
     # we still use the subscription's stored plan limits for display — the
     # real enforcement is handled by usage_service.  For the subscription
     # detail we show limits based on what the user can actually use right now.
-    if effective_plan != plan.slug:
+    if effective_plan != plan.code:
         # User's grace period has expired; show free-tier limits
         limits = PlanLimits(ai_operations=10, active_jobs=10)
     else:
@@ -139,7 +139,7 @@ async def get_current_subscription(
     )
     usage = await get_usage(current_user, db)
 
-    if subscription is None or subscription.plan.slug == "free":
+    if subscription is None or subscription.plan.code == "free":
         # Free users: return DB data only — no Paddle API call
         return SubscriptionCurrentResponse(
             subscription_id=subscription.paddle_subscription_id,
@@ -208,7 +208,7 @@ async def get_current_subscription(
         subscription_id=subscription.paddle_subscription_id,
         customer_id=subscription.paddle_customer_id,
         plan_name=subscription.plan.name,
-        plan_slug=subscription.plan.slug,
+        plan_slug=subscription.plan.code,
         status=subscription.status.value,
         billing_cycle=billing_cycle,
         current_period_start=(

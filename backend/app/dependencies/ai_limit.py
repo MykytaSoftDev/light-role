@@ -50,7 +50,7 @@ async def require_ai_quota(
 
     # If effective plan has downgraded (e.g. grace period expired on Pro),
     # cap the limit to the free-plan value stored in the DB for safety.
-    if effective_plan == "free" and subscription and subscription.plan and subscription.plan.slug != "free":
+    if effective_plan == "free" and subscription and subscription.plan and subscription.plan.code != "free":
         limit = _DEFAULT_AI_LIMIT
     else:
         limit = raw_limit

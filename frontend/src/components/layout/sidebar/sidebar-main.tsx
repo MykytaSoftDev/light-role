@@ -1,6 +1,6 @@
 "use client";
 
-import { Briefcase, FileText, LayoutDashboard, PenLine, TrendingUp } from "lucide-react";
+import { Briefcase, FileText, LayoutDashboard, PenLine, TrendingUp, UserCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 import {
@@ -18,6 +18,11 @@ const items = [
     title: "Dashboard",
     url: DASHBOARD_PAGES.HOME,
     icon: LayoutDashboard,
+  },
+  {
+    title: "Profile",
+    url: DASHBOARD_PAGES.PROFILE,
+    icon: UserCircle,
   },
   {
     title: "Job Tracking",

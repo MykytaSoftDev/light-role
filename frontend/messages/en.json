@@ -162,6 +162,25 @@
       "description": "Manage which notifications you receive from Light Role."
     }
   },
+  "profile": {
+    "title": "Profile",
+    "subtitle": "Manage the source-of-truth information used to tailor your resumes and cover letters.",
+    "resetButton": "Reset Profile",
+    "comingSoon": "Coming soon",
+    "tabs": {
+      "ariaLabel": "Profile sections",
+      "personal-info": "Personal Info",
+      "skills": "Skills",
+      "profile-summary": "Profile Summary",
+      "employment": "Employment",
+      "education": "Education",
+      "languages": "Languages",
+      "certificates": "Certificates",
+      "projects": "Projects",
+      "achievements": "Achievements",
+      "volunteer": "Volunteer"
+    }
+  },
   "analytics": {
     "page_title": "Analytics",
     "page_subtitle": "Track your job search progress and performance over time.",

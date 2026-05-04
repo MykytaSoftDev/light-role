@@ -108,7 +108,7 @@ async def google_oauth_login(
             db.add(user)
             db.flush()  # Populate user.id before creating the subscription row.
 
-            free_plan: Plan | None = db.query(Plan).filter(Plan.slug == "free").first()
+            free_plan: Plan | None = db.query(Plan).filter(Plan.code == "free").first()
             if free_plan is None:
                 raise HTTPException(
                     status_code=500,

@@ -21,7 +21,7 @@ def get_effective_plan(subscription: Subscription | None) -> str:
     if subscription is None:
         return "free"
 
-    plan_slug = subscription.plan.slug
+    plan_slug = subscription.plan.code
     if plan_slug != "pro":
         return plan_slug
 

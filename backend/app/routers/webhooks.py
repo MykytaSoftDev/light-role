@@ -147,7 +147,7 @@ async def _handle_subscription_created(data: dict) -> None:
 
         if resolved_plan is None:
             # Fall back to pro plan when price_id doesn't match any known plan
-            resolved_plan = db.query(Plan).filter(Plan.slug == "pro").first()
+            resolved_plan = db.query(Plan).filter(Plan.code == "pro").first()
 
         if resolved_plan is None:
             logger.error("subscription.created: Pro plan not found in plans table")
@@ -167,7 +167,7 @@ async def _handle_subscription_created(data: dict) -> None:
         db.commit()
         logger.info(
             f"Subscription created/upgraded for user_id={user_id_raw}, "
-            f"paddle_sub_id={paddle_sub_id}, plan_slug={resolved_plan.slug}"
+            f"paddle_sub_id={paddle_sub_id}, plan_slug={resolved_plan.code}"
         )
         await invalidate_usage_cache(str(user_uuid))
     except Exception as exc:
@@ -220,7 +220,7 @@ async def _handle_subscription_updated(data: dict) -> None:
                 if subscription.plan_id != updated_plan.id:
                     logger.info(
                         f"subscription.updated: plan change detected for "
-                        f"paddle_sub_id={paddle_sub_id}, new plan_slug={updated_plan.slug}"
+                        f"paddle_sub_id={paddle_sub_id}, new plan_slug={updated_plan.code}"
                     )
                 subscription.plan_id = updated_plan.id
 
@@ -372,7 +372,7 @@ async def _handle_subscription_resumed(data: dict) -> None:
 
         # Restore Pro plan if subscription has no plan or is on free
         if subscription.plan_id is None:
-            pro_plan: Plan | None = db.query(Plan).filter(Plan.slug == "pro").first()
+            pro_plan: Plan | None = db.query(Plan).filter(Plan.code == "pro").first()
             if pro_plan is not None:
                 subscription.plan_id = pro_plan.id
 

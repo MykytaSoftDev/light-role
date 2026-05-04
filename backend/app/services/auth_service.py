@@ -81,7 +81,7 @@ async def register_user(data: RegisterRequest, db: Session) -> dict:
     db.add(user)
     db.flush()  # get user.id
 
-    free_plan: Plan | None = db.query(Plan).filter(Plan.slug == "free").first()
+    free_plan: Plan | None = db.query(Plan).filter(Plan.code == "free").first()
     if free_plan is None:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
