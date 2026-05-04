@@ -10,11 +10,11 @@ router = APIRouter(prefix="/api/v1/plans", tags=["plans"])
 
 @router.get("", response_model=PlanListResponse)
 def list_plans(db: Session = Depends(get_db)) -> PlanListResponse:
-    """Return all active subscription plans sorted by sort_order. Public endpoint."""
+    """Return all active subscription plans sorted by display_order. Public endpoint."""
     plans = (
         db.query(Plan)
         .filter(Plan.is_active.is_(True))
-        .order_by(Plan.sort_order)
+        .order_by(Plan.display_order)
         .all()
     )
     return PlanListResponse(data=[PlanResponse.model_validate(p) for p in plans])

@@ -26,11 +26,9 @@ from app.models.notification import Notification
 from app.models.subscription import Subscription
 from app.models.usage_log import UsageLog
 from app.models.user import User
+from app.services.subscription_service import get_plan_ai_limit
 
 logger = logging.getLogger(__name__)
-
-# Fallback AI op limit for users with no subscription / plan record
-_DEFAULT_AI_LIMIT = 10
 
 
 # ---------------------------------------------------------------------------
@@ -263,7 +261,7 @@ async def generate_limit_warning_notifications(db: Session) -> int:
     created = 0
     for sub in subscriptions:
         user_id: uuid.UUID = sub.user_id
-        limit = sub.plan.max_ai_ops_monthly if sub.plan else _DEFAULT_AI_LIMIT
+        limit = get_plan_ai_limit(sub.plan)
         # -1 means unlimited — no warning needed
         if limit == -1:
             continue
@@ -322,7 +320,7 @@ async def generate_limit_reset_notifications(db: Session) -> int:
     created = 0
     for sub in subscriptions:
         user_id: uuid.UUID = sub.user_id
-        limit = sub.plan.max_ai_ops_monthly if sub.plan else _DEFAULT_AI_LIMIT
+        limit = get_plan_ai_limit(sub.plan)
 
         user = db.query(User).filter(User.id == user_id).first()
         if user is None:

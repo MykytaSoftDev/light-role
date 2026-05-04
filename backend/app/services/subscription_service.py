@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta, timezone
 
 from app.models.enums import SubscriptionStatus
+from app.models.plan import Plan
 from app.models.subscription import Subscription
 
 GRACE_PERIOD_DAYS = 7  # for past_due
@@ -45,3 +46,29 @@ def get_effective_plan(subscription: Subscription | None) -> str:
         return "pro" if now < grace_end else "free"
 
     return "free"
+
+
+def get_plan_ai_limit(plan: Plan | None, fallback: int = 10) -> int:
+    """Derive a single AI-ops monthly limit from the v2 split-credit model.
+
+    Returns -1 (unlimited) when either credit column is NULL on the plan.
+    Returns the sum of the two credit columns otherwise. Falls back to
+    `fallback` when no plan is provided. This is a v1-compatibility shim
+    used by code that hasn't been rewritten for split credits yet —
+    see ARCH-12 in tasks-architecture.json.
+    """
+    if plan is None:
+        return fallback
+    if plan.resume_credits_per_cycle is None or plan.cl_credits_per_cycle is None:
+        return -1
+    return plan.resume_credits_per_cycle + plan.cl_credits_per_cycle
+
+
+def get_plan_active_jobs_limit(plan: Plan | None, fallback: int = 10) -> int:
+    """Translate v2 `max_active_jobs` (NULL = unlimited) to the -1 sentinel
+    expected by v1 consumers. Returns `fallback` if no plan."""
+    if plan is None:
+        return fallback
+    if plan.max_active_jobs is None:
+        return -1
+    return plan.max_active_jobs

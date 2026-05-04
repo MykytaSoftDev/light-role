@@ -14,7 +14,11 @@ from app.models.usage_log import UsageLog
 from app.models.user import User
 from app.redis import redis_delete, redis_get, redis_set
 from app.schemas.usage import EffectiveLimits, UsageResponse
-from app.services.subscription_service import get_effective_plan
+from app.services.subscription_service import (
+    get_effective_plan,
+    get_plan_active_jobs_limit,
+    get_plan_ai_limit,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -25,10 +29,6 @@ _TERMINAL_STATUSES = {
     ApplicationStatus.REJECTED,
     ApplicationStatus.WITHDRAWN,
 }
-
-# Fallback limits for users with no subscription record
-_DEFAULT_AI_LIMIT = 10
-_DEFAULT_JOBS_LIMIT = 10
 
 
 def _usage_cache_key(user_id: str) -> str:
@@ -86,13 +86,11 @@ async def _compute_usage(user: User, db: Session) -> UsageResponse:
     )
     effective_plan = get_effective_plan(subscription)
 
-    # Get limits from plan or use fallback defaults
-    if subscription and subscription.plan:
-        ai_limit = subscription.plan.max_ai_ops_monthly
-        jobs_limit = subscription.plan.max_active_jobs  # -1 = unlimited
-    else:
-        ai_limit = _DEFAULT_AI_LIMIT
-        jobs_limit = _DEFAULT_JOBS_LIMIT
+    # Get limits from plan or use fallback defaults (helpers translate v2
+    # NULL-means-unlimited semantics to the -1 sentinel used downstream).
+    plan = subscription.plan if subscription else None
+    ai_limit = get_plan_ai_limit(plan)
+    jobs_limit = get_plan_active_jobs_limit(plan)  # -1 = unlimited
 
     # Active jobs: applications not in terminal states
     active_jobs_count = (

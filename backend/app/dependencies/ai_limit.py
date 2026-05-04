@@ -11,12 +11,14 @@ from app.dependencies.auth import get_verified_user
 from app.models.subscription import Subscription
 from app.models.user import User
 from app.redis import get_usage_count
-from app.services.subscription_service import get_effective_plan
+from app.services.subscription_service import get_effective_plan, get_plan_ai_limit
 
 logger = logging.getLogger(__name__)
 
-# Fallback limit when no subscription / plan record exists
-_DEFAULT_AI_LIMIT = 10
+# Free-plan AI quota cap used when an effective plan downgrades to "free"
+# during the past_due grace period. Mirrors the seed values in migration
+# 016 (Free: resume_credits_per_cycle=3 + cl_credits_per_cycle=3 = 6).
+_FREE_FALLBACK = 6
 
 
 async def require_ai_quota(
@@ -43,15 +45,12 @@ async def require_ai_quota(
     effective_plan = get_effective_plan(subscription)
 
     # Derive limit from the plan object; fall back to default if no subscription
-    if subscription and subscription.plan:
-        raw_limit = subscription.plan.max_ai_ops_monthly
-    else:
-        raw_limit = _DEFAULT_AI_LIMIT
+    raw_limit = get_plan_ai_limit(subscription.plan if subscription else None)
 
     # If effective plan has downgraded (e.g. grace period expired on Pro),
-    # cap the limit to the free-plan value stored in the DB for safety.
+    # cap the limit to the free-plan value for safety.
     if effective_plan == "free" and subscription and subscription.plan and subscription.plan.code != "free":
-        limit = _DEFAULT_AI_LIMIT
+        limit = _FREE_FALLBACK
     else:
         limit = raw_limit
 

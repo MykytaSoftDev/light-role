@@ -7,20 +7,17 @@ from pydantic import BaseModel
 class PlanResponse(BaseModel):
     id: uuid.UUID
     name: str
-    slug: str
+    code: str
     description: str | None
     paddle_price_id_monthly: str | None
     paddle_price_id_annual: str | None
     price_monthly_cents: int
     price_annual_cents: int
-    currency: str
-    max_active_jobs: int
-    max_ai_ops_monthly: int
-    max_resume_templates: int
-    has_analytics: bool
-    has_priority_ai: bool
-    features_json: list
-    sort_order: int
+    max_active_jobs: int | None
+    resume_credits_per_cycle: int | None
+    cl_credits_per_cycle: int | None
+    analytics_enabled: bool
+    display_order: int
     is_active: bool
     created_at: datetime
     updated_at: datetime

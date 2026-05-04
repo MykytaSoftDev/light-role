@@ -19,7 +19,11 @@ from app.schemas.paddle import (
 )
 from app.schemas.subscription import PlanLimits, SaveCustomerIdRequest, SubscriptionDetailResponse
 from app.services.paddle_client import paddle_client
-from app.services.subscription_service import get_effective_plan
+from app.services.subscription_service import (
+    get_effective_plan,
+    get_plan_active_jobs_limit,
+    get_plan_ai_limit,
+)
 from app.services.usage_service import get_usage
 
 logger = logging.getLogger(__name__)
@@ -76,8 +80,8 @@ async def get_subscription(
 
     # Build limits from the effective plan's values (plan relationship is joined)
     plan = subscription.plan
-    ai_limit = plan.max_ai_ops_monthly
-    jobs_limit = plan.max_active_jobs
+    ai_limit = get_plan_ai_limit(plan)
+    jobs_limit = get_plan_active_jobs_limit(plan)  # -1 = unlimited
 
     # When the effective plan is downgraded to free (grace period expired)
     # we still use the subscription's stored plan limits for display — the
