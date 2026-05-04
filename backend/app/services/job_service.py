@@ -101,7 +101,6 @@ def get_job(job_id: UUID, user: User, db: Session) -> Job:
         db.query(Job)
         .options(
             joinedload(Job.application),
-            joinedload(Job.resumes),
             joinedload(Job.cover_letters),
         )
         .filter(Job.id == job_id, Job.user_id == user.id)

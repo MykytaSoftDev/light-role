@@ -5,7 +5,7 @@ from datetime import datetime
 from typing import TYPE_CHECKING
 
 from sqlalchemy import DateTime, Enum as SAEnum, ForeignKey, Index, String
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
@@ -62,6 +62,20 @@ class Subscription(TimestampMixin, Base):
     )
     paddle_subscription_id: Mapped[str | None] = mapped_column(
         String(255),
+        nullable=True,
+    )
+    # PRD 6.11 — anchor timestamp for credit cycle calculations. Python
+    # default ensures the column is populated on INSERT even when the
+    # caller doesn't pass it explicitly.
+    cycle_anchor_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=False),
+        nullable=False,
+        default=datetime.utcnow,
+    )
+    # PRD 6.11 — pending plan change (downgrade or upgrade scheduled for
+    # the next renewal). NULL = no scheduled change.
+    scheduled_change: Mapped[dict | None] = mapped_column(
+        JSONB,
         nullable=True,
     )
 

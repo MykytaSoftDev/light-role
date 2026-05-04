@@ -44,7 +44,6 @@ class ApplicationResponse(BaseModel):
 
     id: UUID
     job_id: UUID
-    resume_id: Optional[UUID] = None
     cover_letter_id: Optional[UUID] = None
     status: ApplicationStatus
     date_applied: Optional[datetime] = None
@@ -54,15 +53,6 @@ class ApplicationResponse(BaseModel):
     notes: Optional[str] = None
     first_response_at: Optional[datetime] = None
     created_at: datetime
-    updated_at: datetime
-
-
-class JobResumeInfo(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-
-    id: UUID
-    name: str
-    match_score: Optional[int] = None
     updated_at: datetime
 
 
@@ -89,7 +79,6 @@ class JobResponse(BaseModel):
     created_at: datetime
     updated_at: datetime
     application: Optional[ApplicationResponse] = None
-    resumes: list[JobResumeInfo] = []
     cover_letters: list[JobCoverLetterInfo] = []
 
 

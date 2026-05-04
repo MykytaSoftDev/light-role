@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 import uuid
+from datetime import datetime
 from typing import TYPE_CHECKING, List
 
-from sqlalchemy import Boolean, Enum as SAEnum, String, text
+from sqlalchemy import Boolean, DateTime, Enum as SAEnum, String, text
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -12,12 +13,14 @@ from app.models.base import TimestampMixin
 from app.models.enums import AuthProvider
 
 if TYPE_CHECKING:
+    from app.models.ai_quality_rating import AIQualityRating
     from app.models.cover_letter import CoverLetter
     from app.models.feedback import Feedback
     from app.models.job import Job
     from app.models.notification import Notification
-    from app.models.resume import Resume
+    from app.models.profile import UserProfile
     from app.models.subscription import Subscription
+    from app.models.tailored_resume import TailoredResume
     from app.models.usage_log import UsageLog
 
 _NOTIFICATION_PREFS_DEFAULT = (
@@ -25,6 +28,33 @@ _NOTIFICATION_PREFS_DEFAULT = (
     '"inactivity_nudges": true, "limit_warnings": true, '
     '"limit_reset": true}\'::jsonb'
 )
+
+# PRD 6.3 — default resume_preferences for new users. Mirrors the
+# server_default written in migration 013.
+_RESUME_PREFERENCES_DEFAULT_JSON = (
+    '\'{"sections_order": ["summary", "employment", "education", '
+    '"projects", "skills", "certificates", "languages", "achievements", '
+    '"volunteer"], "font": "Inter", "template": "classic"}\'::jsonb'
+)
+
+
+def _resume_preferences_default() -> dict:
+    """Python-side default for `resume_preferences` (PRD 6.3)."""
+    return {
+        "sections_order": [
+            "summary",
+            "employment",
+            "education",
+            "projects",
+            "skills",
+            "certificates",
+            "languages",
+            "achievements",
+            "volunteer",
+        ],
+        "font": "Inter",
+        "template": "classic",
+    }
 
 
 class User(TimestampMixin, Base):
@@ -81,15 +111,20 @@ class User(TimestampMixin, Base):
         default=False,
         server_default="FALSE",
     )
+    resume_preferences: Mapped[dict] = mapped_column(
+        JSONB,
+        nullable=False,
+        default=_resume_preferences_default,
+        server_default=text(_RESUME_PREFERENCES_DEFAULT_JSON),
+    )
+    complete_steps_dismissed_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=False),
+        nullable=True,
+    )
 
     # Relationships
     jobs: Mapped[List[Job]] = relationship(
         "Job",
-        back_populates="user",
-        cascade="all, delete-orphan",
-    )
-    resumes: Mapped[List[Resume]] = relationship(
-        "Resume",
         back_populates="user",
         cascade="all, delete-orphan",
     )
@@ -116,6 +151,22 @@ class User(TimestampMixin, Base):
     )
     feedbacks: Mapped[List[Feedback]] = relationship(
         "Feedback",
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )
+    profile: Mapped[UserProfile | None] = relationship(
+        "UserProfile",
+        back_populates="user",
+        cascade="all, delete-orphan",
+        uselist=False,
+    )
+    tailored_resumes: Mapped[List[TailoredResume]] = relationship(
+        "TailoredResume",
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )
+    ai_quality_ratings: Mapped[List[AIQualityRating]] = relationship(
+        "AIQualityRating",
         back_populates="user",
         cascade="all, delete-orphan",
     )

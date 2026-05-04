@@ -11,7 +11,6 @@ from sqlalchemy.orm import Session
 from app.models.application import Application
 from app.models.enums import ApplicationStatus, OperationType
 from app.models.job import Job
-from app.models.resume import Resume
 from app.models.usage_log import UsageLog
 from app.redis import get_redis_client
 from app.schemas.analytics import (
@@ -191,57 +190,23 @@ def get_resume_performance(
     user_id: uuid.UUID,
     db: Session,
 ) -> ResumePerformanceData:
-    """Return performance stats for the last 10 tailored (non-base) scored resumes."""
-    resumes = (
-        db.query(Resume)
-        .filter(
-            Resume.user_id == user_id,
-            Resume.is_base.is_(False),
-            Resume.match_score.isnot(None),
-        )
-        .order_by(Resume.created_at.desc())
-        .limit(10)
-        .all()
-    )
+    """
+    Return performance stats for tailored resumes.
 
-    if not resumes:
-        return ResumePerformanceData(
-            avg_score=None,
-            sparkline=[],
-            best_resume_id=None,
-            best_resume_name=None,
-            best_score=None,
-            worst_resume_id=None,
-            worst_resume_name=None,
-            worst_score=None,
-            trend=None,
-        )
-
-    sparkline = [
-        ResumeSparklinePoint(
-            score=r.match_score,
-            resume_id=str(r.id),
-            resume_name=r.name,
-        )
-        for r in resumes
-    ]
-
-    scores = [r.match_score for r in resumes]
-    avg_score = round(sum(scores) / len(scores), 1)
-
-    best = max(resumes, key=lambda r: r.match_score)
-    worst = min(resumes, key=lambda r: r.match_score)
-
+    NOTE (ARCH-1): The legacy Resume model has been removed. This endpoint
+    returns an empty/null payload until Phase 4 reimplements it on top of
+    the new `tailored_resumes` table (see PRD 6.6).
+    """
     return ResumePerformanceData(
-        avg_score=avg_score,
-        sparkline=sparkline,
-        best_resume_id=str(best.id),
-        best_resume_name=best.name,
-        best_score=best.match_score,
-        worst_resume_id=str(worst.id),
-        worst_resume_name=worst.name,
-        worst_score=worst.match_score,
-        trend=None,  # filled by insight generator
+        avg_score=None,
+        sparkline=[],
+        best_resume_id=None,
+        best_resume_name=None,
+        best_score=None,
+        worst_resume_id=None,
+        worst_resume_name=None,
+        worst_score=None,
+        trend=None,
     )
 
 
@@ -377,15 +342,9 @@ def get_data_sufficiency(
         .scalar()
     ) or 0
 
-    total_scored_resumes: int = (
-        db.query(func.count(Resume.id))
-        .filter(
-            Resume.user_id == user_id,
-            Resume.is_base.is_(False),
-            Resume.match_score.isnot(None),
-        )
-        .scalar()
-    ) or 0
+    # NOTE (ARCH-1): scored-resume count temporarily reports 0 until the new
+    # tailored_resumes pipeline is wired up in Phase 4.
+    total_scored_resumes: int = 0
 
     return DataSufficiency(
         total_jobs=total_jobs,

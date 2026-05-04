@@ -22,7 +22,6 @@ from app.routers import health
 from app.routers import jobs as jobs_router
 from app.routers import notifications as notifications_router
 from app.routers import plans as plans_router
-from app.routers import resumes as resumes_router
 from app.routers import subscriptions as subscriptions_router
 from app.routers import support as support_router
 from app.routers import users as users_router
@@ -106,7 +105,6 @@ def create_app() -> FastAPI:
     app.include_router(auth_router.router)
     app.include_router(users_router.router)
     app.include_router(jobs_router.router)
-    app.include_router(resumes_router.router)
     app.include_router(cover_letters_router.router)
     app.include_router(notifications_router.router)
     app.include_router(plans_router.router)

@@ -22,6 +22,8 @@ class FileFormat(str, Enum):
     DOCX = "docx"
 
 
+# DEPRECATED — replaced by VARCHAR string in usage_log v2.1 ARCH-9; kept
+# temporarily, remove in cleanup pass.
 class OperationType(str, Enum):
     JOB_PARSE = "job_parse"
     RESUME_ANALYZE = "resume_analyze"

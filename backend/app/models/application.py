@@ -15,7 +15,6 @@ from app.models.enums import ApplicationStatus
 if TYPE_CHECKING:
     from app.models.cover_letter import CoverLetter
     from app.models.job import Job
-    from app.models.resume import Resume
 
 
 class Application(TimestampMixin, Base):
@@ -41,16 +40,6 @@ class Application(TimestampMixin, Base):
         ForeignKey("jobs.id", ondelete="CASCADE"),
         unique=True,
         nullable=False,
-    )
-    resume_id: Mapped[uuid.UUID | None] = mapped_column(
-        UUID(as_uuid=True),
-        ForeignKey(
-            "resumes.id",
-            ondelete="SET NULL",
-            use_alter=True,
-            name="fk_application_resume",
-        ),
-        nullable=True,
     )
     cover_letter_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True),
@@ -97,11 +86,6 @@ class Application(TimestampMixin, Base):
     job: Mapped[Job] = relationship(
         "Job",
         back_populates="application",
-    )
-    resume: Mapped[Resume | None] = relationship(
-        "Resume",
-        back_populates="applications",
-        foreign_keys=[resume_id],
     )
     cover_letter: Mapped[CoverLetter | None] = relationship(
         "CoverLetter",

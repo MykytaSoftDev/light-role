@@ -13,7 +13,7 @@ from app.models.base import TimestampMixin
 if TYPE_CHECKING:
     from app.models.application import Application
     from app.models.cover_letter import CoverLetter
-    from app.models.resume import Resume
+    from app.models.tailored_resume import TailoredResume
     from app.models.user import User
 
 
@@ -78,15 +78,15 @@ class Job(TimestampMixin, Base):
         cascade="all, delete-orphan",
         uselist=False,
     )
-    resumes: Mapped[List[Resume]] = relationship(
-        "Resume",
-        back_populates="job",
-        foreign_keys="Resume.job_id",
-        passive_deletes=True,
-    )
     cover_letters: Mapped[List[CoverLetter]] = relationship(
         "CoverLetter",
         back_populates="job",
         foreign_keys="CoverLetter.job_id",
         passive_deletes=True,
+    )
+    tailored_resume: Mapped[TailoredResume | None] = relationship(
+        "TailoredResume",
+        back_populates="job",
+        cascade="all, delete-orphan",
+        uselist=False,
     )

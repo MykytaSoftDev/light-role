@@ -1,3 +1,4 @@
+from app.models.ai_quality_rating import AIQualityRating
 from app.models.application import Application
 from app.models.cover_letter import CoverLetter
 from app.models.enums import (
@@ -17,8 +18,9 @@ from app.models.feedback import Feedback
 from app.models.job import Job
 from app.models.notification import Notification
 from app.models.plan import Plan
-from app.models.resume import Resume
+from app.models.profile import UserProfile
 from app.models.subscription import Subscription
+from app.models.tailored_resume import TailoredResume
 from app.models.usage_log import UsageLog
 from app.models.user import User
 
@@ -37,10 +39,12 @@ __all__ = [
     "FeedbackStatus",
     # Models
     "User",
+    "UserProfile",
     "Job",
     "Application",
-    "Resume",
+    "TailoredResume",
     "CoverLetter",
+    "AIQualityRating",
     "Plan",
     "Subscription",
     "UsageLog",

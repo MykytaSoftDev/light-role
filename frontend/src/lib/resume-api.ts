@@ -1,13 +1,12 @@
-import { api } from './api';
-import type {
-  ResumeListItem,
-  ResumeResponse,
-  ResumeData,
-} from '@/types/resume';
+// STUB FILE — created in ARCH-1 (Phase 3.1) to keep cover-letter UI compiling
+// after the legacy resume editor and `lib/resume-api.ts` were deleted.
+//
+// The cover-letter UI is reworked in Phase 4. Until then, these stubs
+// preserve the type surface so TypeScript compiles. Calls will throw at
+// runtime — the cover-letter routes are expected to be unreachable in v2.1
+// during the transition.
 
-// ---------------------------------------------------------------------------
-// LimitReachedError — thrown when the backend returns 403 (limit exceeded)
-// ---------------------------------------------------------------------------
+import type { ResumeListItem, ResumeResponse } from '@/types/resume';
 
 export interface LimitDetail {
   message: string;
@@ -19,120 +18,52 @@ export interface LimitDetail {
 export class LimitReachedError extends Error {
   detail: LimitDetail;
   constructor(detail: LimitDetail) {
-    super(detail.message ?? "Limit reached");
-    this.name = "LimitReachedError";
+    super(detail.message ?? 'Limit reached');
+    this.name = 'LimitReachedError';
     this.detail = detail;
   }
 }
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+const NOT_AVAILABLE = 'Resume API removed in ARCH-1; rework in Phase 4';
 
 export async function listResumes(): Promise<{ items: ResumeListItem[]; total: number }> {
-  const res = await api.get('/api/v1/resumes?limit=100');
-  if (!res.ok) throw new Error(`Failed to fetch resumes: HTTP ${res.status}`);
-  return res.json();
+  return { items: [], total: 0 };
 }
 
-export async function getResume(id: string): Promise<ResumeResponse> {
-  const res = await api.get(`/api/v1/resumes/${id}`);
-  if (!res.ok) throw new Error(`Failed to fetch resume: HTTP ${res.status}`);
-  return res.json();
+export async function getResume(_id: string): Promise<ResumeResponse> {
+  throw new Error(NOT_AVAILABLE);
 }
 
-/**
- * Upload a resume file via multipart/form-data.
- * Cannot use api.post() as that sends JSON; we use raw fetch with FormData.
- */
-export async function uploadResume(file: File, jobId?: string): Promise<ResumeResponse> {
-  const formData = new FormData();
-  formData.append('file', file);
-
-  const url = jobId
-    ? `${BASE_URL}/api/v1/resumes/upload?job_id=${encodeURIComponent(jobId)}`
-    : `${BASE_URL}/api/v1/resumes/upload`;
-
-  const res = await fetch(url, {
-    method: 'POST',
-    credentials: 'include',
-    // Do NOT set Content-Type header — browser sets it with the boundary automatically
-    body: formData,
-  });
-
-  if (!res.ok) {
-    const errorText = await res.text().catch(() => '');
-    throw new Error(`Failed to upload resume: HTTP ${res.status}${errorText ? ` — ${errorText}` : ''}`);
-  }
-  return res.json();
+export async function uploadResume(_file: File, _jobId?: string): Promise<ResumeResponse> {
+  throw new Error(NOT_AVAILABLE);
 }
 
 export async function updateResume(
-  id: string,
-  data: Partial<{
-    name: string;
-    parsed_data: ResumeData;
-    sections_order: string[];
-    template: string;
-  }>
+  _id: string,
+  _data: Partial<{ name: string; sections_order: string[]; template: string }>,
 ): Promise<ResumeResponse> {
-  const res = await api.patch(`/api/v1/resumes/${id}`, data);
-  if (!res.ok) throw new Error(`Failed to update resume: HTTP ${res.status}`);
-  return res.json();
+  throw new Error(NOT_AVAILABLE);
 }
 
-export async function deleteResume(id: string): Promise<void> {
-  const res = await api.delete(`/api/v1/resumes/${id}`);
-  if (!res.ok && res.status !== 204) {
-    throw new Error(`Failed to delete resume: HTTP ${res.status}`);
-  }
+export async function deleteResume(_id: string): Promise<void> {
+  throw new Error(NOT_AVAILABLE);
 }
 
-export async function setBaseResume(id: string): Promise<ResumeResponse> {
-  const res = await api.patch(`/api/v1/resumes/${id}/set-base`);
-  if (!res.ok) throw new Error(`Failed to set base resume: HTTP ${res.status}`);
-  return res.json();
+export async function setBaseResume(_id: string): Promise<ResumeResponse> {
+  throw new Error(NOT_AVAILABLE);
 }
 
-/**
- * Start an async resume analysis job.
- * Returns 202 Accepted with task_id and resume_id immediately.
- * Poll getAnalysisStatus() until status === 'completed' or 'failed'.
- */
 export async function analyzeResume(
-  resumeId: string,
-  jobId: string
+  _resumeId: string,
+  _jobId: string,
 ): Promise<{ task_id: string; resume_id: string }> {
-  const res = await fetch(`${BASE_URL}/api/v1/resumes/analyze`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    credentials: 'include',
-    body: JSON.stringify({ resume_id: resumeId, job_id: jobId }),
-  });
-  if (!res.ok) {
-    if (res.status === 403) {
-      const json = await res.json().catch(() => ({}));
-      throw new LimitReachedError(json?.detail ?? { message: "Limit reached", current_usage: 0, limit: 10, reset_date: "" });
-    }
-    throw new Error(await res.text());
-  }
-  return res.json();
+  throw new Error(NOT_AVAILABLE);
 }
 
-/**
- * Poll the status of an ongoing analysis task.
- */
-export async function getAnalysisStatus(taskId: string): Promise<{
+export async function getAnalysisStatus(_taskId: string): Promise<{
   status: 'pending' | 'processing' | 'completed' | 'failed';
   resume_id: string;
   error?: string;
 }> {
-  const res = await fetch(`${BASE_URL}/api/v1/resumes/analysis-status/${taskId}`, {
-    credentials: 'include',
-  });
-  if (!res.ok) throw new Error(await res.text());
-  return res.json();
+  throw new Error(NOT_AVAILABLE);
 }
-
-// Resume export is generated client-side via react-pdf (see the resume
-// editor's handleExportPdf). PDF is the sole export format; there is no
-// server-side resume export endpoint and no corresponding API client
-// function is needed here.

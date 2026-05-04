@@ -7,7 +7,6 @@ from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.models.cover_letter import CoverLetter
-from app.models.resume import Resume
 from app.models.user import User
 from app.services import file_service
 
@@ -29,11 +28,9 @@ def get_cover_letter_or_404(cl_id: UUID, user: User, db: Session) -> CoverLetter
     return cl
 
 
-def get_resume_text(resume: Resume) -> str:
-    """Retrieve the raw text stored in the resume's parsed_data. Returns '' if absent."""
-    if not isinstance(resume.parsed_data, dict):
-        return ""
-    return resume.parsed_data.get("raw_text", "")
+# NOTE: get_resume_text() previously returned the raw text stored on a Resume's
+# parsed_data. Removed in ARCH-1; the cover-letter flow is fully re-architected
+# in Phase 4 to read from user_profiles + tailored_resumes instead.
 
 
 def list_cover_letters(
