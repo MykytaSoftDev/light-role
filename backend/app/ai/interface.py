@@ -112,6 +112,23 @@ class GenerateCoverLetterResult:
 
 
 # ---------------------------------------------------------------------------
+# Profile parsing dataclass (PROFILE-2)
+# ---------------------------------------------------------------------------
+
+@dataclass
+class ParseResumeProfileResult:
+    """Result of parsing a resume file into the v2.1 ProfileData JSONB shape.
+
+    `profile_data` is a JSON-serialisable dict that conforms to
+    `app.schemas.profile.ProfileData`. The router/service layer is expected to
+    call `ProfileData.model_validate(...)` if it needs the typed model.
+    """
+    profile_data: dict
+    usage: Optional[AIUsageInfo]
+    success: bool
+
+
+# ---------------------------------------------------------------------------
 # Abstract interface
 # ---------------------------------------------------------------------------
 
@@ -136,4 +153,29 @@ class AIServiceInterface(ABC):
         length: str,
         additional_context: str = "",
     ) -> GenerateCoverLetterResult:
+        ...
+
+    @abstractmethod
+    async def parse_resume_to_profile(
+        self,
+        file_bytes: bytes,
+        file_format: str,
+    ) -> "ParseResumeProfileResult":
+        """Extract a v2.1 ProfileData JSONB structure from an uploaded resume.
+
+        Args:
+            file_bytes: Raw PDF or DOCX file bytes (held in memory only).
+            file_format: "pdf" or "docx" (case-insensitive, leading dot tolerated).
+
+        Returns:
+            ParseResumeProfileResult with `profile_data` matching
+            `app.schemas.profile.ProfileData` (validated dict).
+
+        Raises:
+            ValueError: If the file format is unsupported, the file is corrupted,
+                or extracted text is too short to be a real resume. Router should
+                map to HTTP 422.
+            Exception: Any OpenAI/network/validation failure. Router should map
+                to HTTP 502 (upstream AI service failure).
+        """
         ...

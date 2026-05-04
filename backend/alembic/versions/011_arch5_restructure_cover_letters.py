@@ -98,6 +98,8 @@ def upgrade() -> None:
         "SET content = '{}' "
         "WHERE content IS NULL OR content = ''"
     )
+    # Drop the TEXT default before the type change — Postgres can't auto-cast ''::text to jsonb.
+    op.execute("ALTER TABLE cover_letters ALTER COLUMN content DROP DEFAULT")
     # USING expression: if the existing TEXT already looks like JSON
     # (starts with '{' or '['), cast it directly; otherwise wrap the
     # plain text into a minimal valid Tiptap doc so we never lose data
@@ -144,6 +146,8 @@ def downgrade() -> None:
         existing_nullable=False,
         postgresql_using="content::text",
     )
+    # Restore the original TEXT default declared in migration 001.
+    op.execute("ALTER TABLE cover_letters ALTER COLUMN content SET DEFAULT ''")
 
     # Reverse step 5: drop the unique constraint.
     op.drop_constraint(

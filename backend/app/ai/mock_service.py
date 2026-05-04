@@ -7,6 +7,7 @@ from app.ai.interface import (
     GenerateCoverLetterResult,
     ParsedJobData,
     ParseJobResult,
+    ParseResumeProfileResult,
     ResumeAnalysisResult,
     ResumeData,
 )
@@ -89,3 +90,60 @@ class MockAIService(AIServiceInterface):
             ),
         ]
         return GenerateCoverLetterResult(variants=variants, usage=usage, success=True)
+
+    async def parse_resume_to_profile(
+        self,
+        file_bytes: bytes,
+        file_format: str,
+    ) -> ParseResumeProfileResult:
+        # Predictable, schema-valid mock for tests / dev without an OpenAI key.
+        profile_data: dict = {
+            "personal_info": {
+                "full_name": "Jane Doe",
+                "email": "jane.doe@example.com",
+                "phone": "+1-555-0100",
+                "location": "Berlin, Germany",
+                "social_links": [
+                    {"platform": "LinkedIn", "url": "https://linkedin.com/in/janedoe"},
+                    {"platform": "GitHub", "url": "https://github.com/janedoe"},
+                ],
+            },
+            "summary": "Senior software engineer with 8 years of backend experience.",
+            "employment": [
+                {
+                    "role": "Senior Backend Engineer",
+                    "company": "Acme Corp",
+                    "location": "Berlin, Germany",
+                    "start_date": "2022-01",
+                    "end_date": None,
+                    "is_current": True,
+                    "details": [
+                        "Designed and shipped a payment platform processing $10M/month.",
+                        "Mentored 3 junior engineers.",
+                    ],
+                },
+            ],
+            "education": [
+                {
+                    "degree": "B.Sc. Computer Science",
+                    "institution": "TU Berlin",
+                    "field_of_study": "Computer Science",
+                    "location": "Berlin, Germany",
+                    "start_date": "2014-09",
+                    "end_date": "2018-07",
+                    "is_current": False,
+                    "description": None,
+                },
+            ],
+            "skills": [{"name": "Python"}, {"name": "FastAPI"}, {"name": "PostgreSQL"}],
+            "projects": [],
+            "languages": [{"name": "English"}, {"name": "German"}],
+            "certificates": [],
+            "achievements": [],
+            "volunteer": [],
+        }
+        return ParseResumeProfileResult(
+            profile_data=profile_data,
+            usage=None,
+            success=True,
+        )

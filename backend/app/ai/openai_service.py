@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 import logging
 import time
-from typing import Any
+from typing import Any, Optional
 
 from openai import AsyncOpenAI
 
@@ -17,6 +17,7 @@ from app.ai.interface import (
     GenerateCoverLetterResult,
     ParsedJobData,
     ParseJobResult,
+    ParseResumeProfileResult,
     PersonalInfo,
     ResumeAnalysisResult,
     ResumeData,
@@ -28,6 +29,7 @@ logger = logging.getLogger(__name__)
 _MODEL = "gpt-4o-mini"
 _TIMEOUT = 30.0        # seconds — for simple calls (job parsing)
 _ANALYZE_TIMEOUT = 120.0  # seconds — for the heavy combined resume analysis call
+_PROFILE_PARSE_TIMEOUT = 60.0  # seconds — for resume → ProfileData parsing (PROFILE-2)
 
 _JOB_PARSE_SYSTEM_PROMPT = """\
 You are an expert recruiter and job description analyst. Your task is to extract structured information from job descriptions provided by the user.
@@ -145,6 +147,135 @@ Rules:
 - keyword_gaps should list terms that appear in the job description but are absent or weak in the resume.
 - recommendations should be specific, actionable strings (e.g. "Add 'TypeScript' to your skills section").
 - Return ONLY valid JSON — no markdown fences, no extra text.
+"""
+
+
+_PROFILE_PARSE_SYSTEM_PROMPT = """\
+You are an expert resume parser. Extract a complete, structured user profile from the resume text provided by the user.
+
+The resume may be in any format and any language. Read it carefully and map every piece of information to the correct section of the profile schema below.
+
+Return ONLY a valid JSON object with EXACTLY these top-level keys (no extras, no missing keys):
+
+{
+  "personal_info": {
+    "full_name": string,
+    "email": string,
+    "phone": string,
+    "location": string | null,
+    "social_links": [
+      {"platform": string, "url": string}
+    ]
+  },
+  "summary": string,
+  "employment": [
+    {
+      "role": string,
+      "company": string,
+      "location": string | null,
+      "start_date": string,
+      "end_date": string | null,
+      "is_current": boolean,
+      "details": [string]
+    }
+  ],
+  "education": [
+    {
+      "degree": string,
+      "institution": string,
+      "field_of_study": string | null,
+      "location": string | null,
+      "start_date": string,
+      "end_date": string | null,
+      "is_current": boolean,
+      "description": string | null
+    }
+  ],
+  "skills": [
+    {"name": string}
+  ],
+  "projects": [
+    {
+      "name": string,
+      "description": string,
+      "role": string | null,
+      "start_date": string | null,
+      "end_date": string | null,
+      "is_current": boolean,
+      "technologies": [string],
+      "url": string | null,
+      "repository_url": string | null,
+      "details": [string]
+    }
+  ],
+  "languages": [
+    {"name": string}
+  ],
+  "certificates": [
+    {
+      "name": string,
+      "issuer": string | null,
+      "issue_date": string | null,
+      "expiry_date": string | null,
+      "credential_url": string | null
+    }
+  ],
+  "achievements": [
+    {
+      "title": string,
+      "description": string | null,
+      "date": string | null,
+      "issuer": string | null
+    }
+  ],
+  "volunteer": [
+    {
+      "role": string,
+      "organization": string,
+      "location": string | null,
+      "start_date": string,
+      "end_date": string | null,
+      "is_current": boolean,
+      "details": [string]
+    }
+  ]
+}
+
+CRITICAL RULES:
+
+1. NEVER invent or hallucinate jobs, education, skills, projects, certifications, achievements, languages, or any other data not literally present in the resume text. If a section is missing from the resume, return an empty array for it.
+
+2. Do NOT generate or include any `id` field on any item — IDs are assigned by the frontend.
+
+3. Date format: Use "YYYY-MM" (year-month) for all date fields (start_date, end_date, issue_date, expiry_date, date). If only a year is given, use "YYYY-01" for start dates and "YYYY-12" for end dates. If a date is genuinely missing, use null (or empty string only where the schema requires a string — see rules 6 and 8).
+
+4. Current positions: If a role/study/project says "Present", "Current", "Now", "to date" or has no end date listed for an ongoing item, set is_current=true AND end_date=null.
+
+5. employment.details and volunteer.details and project.details: Each is an array of bullet-point strings. Split the source on bullet markers (•, -, *, ▪) or line breaks. Keep each bullet as one separate string. Preserve original wording. If only a paragraph is given (no bullets), put it as a single-element array.
+
+6. personal_info.email: REQUIRED string. If the resume contains no email, use empty string "" (NOT null). The user can fix this after upload.
+
+7. personal_info.phone: REQUIRED string. If missing, use empty string "" (NOT null).
+
+8. personal_info.full_name: REQUIRED string. Use the candidate's name as it appears in the resume (typically the heading). If genuinely absent, use empty string "".
+
+9. employment[].start_date and education[].start_date and volunteer[].start_date are REQUIRED strings. If the resume omits a start date for an entry, use empty string "" — do NOT invent dates.
+
+10. summary: A plain-text string. Extract any "Profile", "Summary", "Professional Summary", "About Me", or "Objective" section. If none exists, use empty string "".
+
+11. social_links: Extract any LinkedIn, GitHub, personal website, X (Twitter), portfolio, blog, or other social URLs found anywhere in the resume. For the `platform` field, use one of these whitelisted values that best fits: "LinkedIn", "GitHub", "X", "Portfolio", "Website", "Blog", "Facebook", "Instagram", "YouTube", "Dribbble", "Behance", "Custom". Use "Custom" if no other option matches. The `url` field is the URL exactly as it appears (or with "https://" prepended if it is a bare domain).
+
+12. skills: Each is just `{"name": "<skill>"}` — do NOT include category or level. Split comma-separated or pipe-separated skill lists into individual items.
+
+13. languages: Each is just `{"name": "<language>"}` — extract the language name only (e.g. "English", "German"). Do NOT include proficiency levels in the name field.
+
+14. projects: Include personal projects, open-source contributions, side projects, hackathon projects. `description` is a one-paragraph summary; `details` is the array of bullet points (achievements/features). If the source only has bullets, put them in `details` and use the first bullet (or a brief synthesis) as `description`.
+
+15. achievements: Include awards, hackathon wins, published works, recognitions, scholarships. NOT job-related accomplishments — those go into employment[].details.
+
+16. certificates: Include only items the resume labels as certifications, certificates, or licenses (e.g. "AWS Certified Solutions Architect"). Do NOT promote skills or courses to certificates.
+
+17. Output ONLY valid JSON — no markdown fences, no commentary, no preamble, no trailing text.
 """
 
 
@@ -363,6 +494,81 @@ class OpenAIService(AIServiceInterface):
             logger.warning("OpenAI generate_cover_letter failed: %s", exc)
             return empty_result
 
+    async def parse_resume_to_profile(
+        self,
+        file_bytes: bytes,
+        file_format: str,
+    ) -> ParseResumeProfileResult:
+        """Extract a v2.1 ProfileData JSONB structure from an uploaded resume.
+
+        File bytes are processed entirely in-memory (BytesIO) — no temp files
+        are written to disk (PRD 3.3.16).
+
+        Raises:
+            ValueError: Unsupported format, corrupted file, or text too short
+                to be a real resume. The router maps this to HTTP 422.
+            Exception: OpenAI/network/validation failures are re-raised
+                untouched so the router can map them to HTTP 502.
+        """
+        # Step A: Extract text in-memory. ValueError here means bad input → 422.
+        try:
+            text = self._extract_resume_text(file_bytes, file_format)
+        except ValueError:
+            raise
+        except Exception as exc:
+            # pdfplumber / python-docx parse failure → corrupted file → 422
+            logger.warning("Resume text extraction failed: %s", exc)
+            raise ValueError(f"Could not read {file_format} file: {exc}") from exc
+
+        if not text or len(text.strip()) < 50:
+            raise ValueError("File contains no extractable text or is too short")
+
+        # Step B: Call OpenAI with structured output. Exceptions re-raised → 502.
+        start_ms = time.monotonic()
+
+        response = await self._client.chat.completions.create(
+            model=settings.ai_model_parse_resume,
+            response_format={"type": "json_object"},
+            timeout=_PROFILE_PARSE_TIMEOUT,
+            messages=[
+                {"role": "system", "content": _PROFILE_PARSE_SYSTEM_PROMPT},
+                {"role": "user", "content": text},
+            ],
+            temperature=0,
+        )
+
+        elapsed_ms = int((time.monotonic() - start_ms) * 1000)
+
+        raw_content = response.choices[0].message.content or ""
+        profile_dict = self._parse_profile_response(raw_content)
+
+        # Validate against ProfileData (raises pydantic.ValidationError on schema
+        # mismatch). Imported lazily so the AI module stays import-light.
+        from app.schemas.profile import ProfileData
+
+        validated = ProfileData.model_validate(profile_dict)
+        validated_dict = validated.model_dump(mode="json")
+
+        usage_info = AIUsageInfo(
+            model=response.model,
+            tokens_input=response.usage.prompt_tokens if response.usage else 0,
+            tokens_output=response.usage.completion_tokens if response.usage else 0,
+            response_time_ms=elapsed_ms,
+        )
+
+        logger.info(
+            "Resume → ProfileData parse complete: tokens_in=%d tokens_out=%d elapsed_ms=%d",
+            usage_info.tokens_input,
+            usage_info.tokens_output,
+            elapsed_ms,
+        )
+
+        return ParseResumeProfileResult(
+            profile_data=validated_dict,
+            usage=usage_info,
+            success=True,
+        )
+
     # ------------------------------------------------------------------
     # Private helpers
     # ------------------------------------------------------------------
@@ -521,3 +727,272 @@ class OpenAIService(AIServiceInterface):
                 variants.append(CoverLetterVariant(content=content_text, label=label))
 
         return variants
+
+    # ------------------------------------------------------------------
+    # Profile parsing helpers (PROFILE-2)
+    # ------------------------------------------------------------------
+
+    def _extract_resume_text(self, file_bytes: bytes, file_format: str) -> str:
+        """Extract plain text from PDF or DOCX bytes. NO temp files written.
+
+        Raises ValueError for unsupported formats. Lower-level library errors
+        propagate (the caller wraps them into ValueError).
+        """
+        from io import BytesIO
+
+        fmt = (file_format or "").lower().lstrip(".")
+
+        if fmt == "pdf":
+            import pdfplumber
+
+            text_parts: list[str] = []
+            with pdfplumber.open(BytesIO(file_bytes)) as pdf:
+                for page in pdf.pages:
+                    page_text = page.extract_text() or ""
+                    if page_text:
+                        text_parts.append(page_text)
+            return "\n\n".join(text_parts)
+
+        if fmt == "docx":
+            from docx import Document
+
+            doc = Document(BytesIO(file_bytes))
+            text_parts: list[str] = [p.text for p in doc.paragraphs if p.text.strip()]
+            for table in doc.tables:
+                for row in table.rows:
+                    for cell in row.cells:
+                        cell_text = cell.text.strip()
+                        if cell_text:
+                            text_parts.append(cell_text)
+            return "\n".join(text_parts)
+
+        raise ValueError(f"Unsupported file format: {file_format!r} (expected 'pdf' or 'docx')")
+
+    def _parse_profile_response(self, content: str) -> dict[str, Any]:
+        """Parse the OpenAI JSON response into a ProfileData-shaped dict.
+
+        Tolerates type oddities (defensive coercion). Strips entries that have
+        no meaningful content. Raises ValueError on JSON decode failure so the
+        caller can surface a clean error.
+        """
+        try:
+            raw: dict[str, Any] = json.loads(content)
+        except json.JSONDecodeError as exc:
+            raise ValueError(f"AI returned invalid JSON: {exc}") from exc
+
+        if not isinstance(raw, dict):
+            raise ValueError("AI response was not a JSON object")
+
+        return {
+            "personal_info": self._coerce_personal_info(raw.get("personal_info")),
+            "summary": _str_default(raw.get("summary"), ""),
+            "employment": self._coerce_employment_list(raw.get("employment")),
+            "education": self._coerce_education_list(raw.get("education")),
+            "skills": self._coerce_named_list(raw.get("skills")),
+            "projects": self._coerce_project_list(raw.get("projects")),
+            "languages": self._coerce_named_list(raw.get("languages")),
+            "certificates": self._coerce_certificate_list(raw.get("certificates")),
+            "achievements": self._coerce_achievement_list(raw.get("achievements")),
+            "volunteer": self._coerce_volunteer_list(raw.get("volunteer")),
+        }
+
+    def _coerce_personal_info(self, raw: Any) -> dict[str, Any]:
+        if not isinstance(raw, dict):
+            raw = {}
+        social_links_raw = raw.get("social_links") or []
+        social_links: list[dict[str, str]] = []
+        if isinstance(social_links_raw, list):
+            for item in social_links_raw:
+                if not isinstance(item, dict):
+                    continue
+                platform = _str_default(item.get("platform"), "").strip()
+                url = _str_default(item.get("url"), "").strip()
+                if platform and url:
+                    social_links.append({"platform": platform, "url": url})
+        return {
+            "full_name": _str_default(raw.get("full_name"), ""),
+            "email": _str_default(raw.get("email"), ""),
+            "phone": _str_default(raw.get("phone"), ""),
+            "location": _nullable_str(raw.get("location")),
+            "social_links": social_links,
+        }
+
+    def _coerce_employment_list(self, raw: Any) -> list[dict[str, Any]]:
+        items: list[dict[str, Any]] = []
+        if not isinstance(raw, list):
+            return items
+        for item in raw:
+            if not isinstance(item, dict):
+                continue
+            role = _str_default(item.get("role"), "").strip()
+            company = _str_default(item.get("company"), "").strip()
+            if not role and not company:
+                # Skip empty entries.
+                continue
+            items.append({
+                "role": role,
+                "company": company,
+                "location": _nullable_str(item.get("location")),
+                "start_date": _str_default(item.get("start_date"), ""),
+                "end_date": _nullable_str(item.get("end_date")),
+                "is_current": bool(item.get("is_current", False)),
+                "details": _coerce_str_list(item.get("details")),
+            })
+        return items
+
+    def _coerce_education_list(self, raw: Any) -> list[dict[str, Any]]:
+        items: list[dict[str, Any]] = []
+        if not isinstance(raw, list):
+            return items
+        for item in raw:
+            if not isinstance(item, dict):
+                continue
+            degree = _str_default(item.get("degree"), "").strip()
+            institution = _str_default(item.get("institution"), "").strip()
+            if not degree and not institution:
+                continue
+            items.append({
+                "degree": degree,
+                "institution": institution,
+                "field_of_study": _nullable_str(item.get("field_of_study")),
+                "location": _nullable_str(item.get("location")),
+                "start_date": _str_default(item.get("start_date"), ""),
+                "end_date": _nullable_str(item.get("end_date")),
+                "is_current": bool(item.get("is_current", False)),
+                "description": _nullable_str(item.get("description")),
+            })
+        return items
+
+    def _coerce_named_list(self, raw: Any) -> list[dict[str, str]]:
+        """For skills/languages — each item is just {'name': ...}."""
+        items: list[dict[str, str]] = []
+        if not isinstance(raw, list):
+            return items
+        for item in raw:
+            name: str = ""
+            if isinstance(item, dict):
+                name = _str_default(item.get("name"), "").strip()
+            elif isinstance(item, str):
+                name = item.strip()
+            if name:
+                items.append({"name": name})
+        return items
+
+    def _coerce_project_list(self, raw: Any) -> list[dict[str, Any]]:
+        items: list[dict[str, Any]] = []
+        if not isinstance(raw, list):
+            return items
+        for item in raw:
+            if not isinstance(item, dict):
+                continue
+            name = _str_default(item.get("name"), "").strip()
+            description = _str_default(item.get("description"), "").strip()
+            if not name and not description:
+                continue
+            items.append({
+                "name": name,
+                "description": description,
+                "role": _nullable_str(item.get("role")),
+                "start_date": _nullable_str(item.get("start_date")),
+                "end_date": _nullable_str(item.get("end_date")),
+                "is_current": bool(item.get("is_current", False)),
+                "technologies": _coerce_str_list(item.get("technologies")),
+                "url": _nullable_str(item.get("url")),
+                "repository_url": _nullable_str(item.get("repository_url")),
+                "details": _coerce_str_list(item.get("details")),
+            })
+        return items
+
+    def _coerce_certificate_list(self, raw: Any) -> list[dict[str, Any]]:
+        items: list[dict[str, Any]] = []
+        if not isinstance(raw, list):
+            return items
+        for item in raw:
+            if not isinstance(item, dict):
+                continue
+            name = _str_default(item.get("name"), "").strip()
+            if not name:
+                continue
+            items.append({
+                "name": name,
+                "issuer": _nullable_str(item.get("issuer")),
+                "issue_date": _nullable_str(item.get("issue_date")),
+                "expiry_date": _nullable_str(item.get("expiry_date")),
+                "credential_url": _nullable_str(item.get("credential_url")),
+            })
+        return items
+
+    def _coerce_achievement_list(self, raw: Any) -> list[dict[str, Any]]:
+        items: list[dict[str, Any]] = []
+        if not isinstance(raw, list):
+            return items
+        for item in raw:
+            if not isinstance(item, dict):
+                continue
+            title = _str_default(item.get("title"), "").strip()
+            if not title:
+                continue
+            items.append({
+                "title": title,
+                "description": _nullable_str(item.get("description")),
+                "date": _nullable_str(item.get("date")),
+                "issuer": _nullable_str(item.get("issuer")),
+            })
+        return items
+
+    def _coerce_volunteer_list(self, raw: Any) -> list[dict[str, Any]]:
+        items: list[dict[str, Any]] = []
+        if not isinstance(raw, list):
+            return items
+        for item in raw:
+            if not isinstance(item, dict):
+                continue
+            role = _str_default(item.get("role"), "").strip()
+            organization = _str_default(item.get("organization"), "").strip()
+            if not role and not organization:
+                continue
+            items.append({
+                "role": role,
+                "organization": organization,
+                "location": _nullable_str(item.get("location")),
+                "start_date": _str_default(item.get("start_date"), ""),
+                "end_date": _nullable_str(item.get("end_date")),
+                "is_current": bool(item.get("is_current", False)),
+                "details": _coerce_str_list(item.get("details")),
+            })
+        return items
+
+
+# ---------------------------------------------------------------------------
+# Module-level coercion helpers (used by profile parsing)
+# ---------------------------------------------------------------------------
+
+def _str_default(val: Any, default: str) -> str:
+    if val is None:
+        return default
+    if isinstance(val, str):
+        return val
+    return str(val)
+
+
+def _nullable_str(val: Any) -> Optional[str]:
+    if val is None:
+        return None
+    if isinstance(val, str):
+        s = val.strip()
+        return s if s else None
+    return str(val)
+
+
+def _coerce_str_list(val: Any) -> list[str]:
+    if not isinstance(val, list):
+        return []
+    out: list[str] = []
+    for item in val:
+        if item is None:
+            continue
+        s = item if isinstance(item, str) else str(item)
+        s = s.strip()
+        if s:
+            out.append(s)
+    return out

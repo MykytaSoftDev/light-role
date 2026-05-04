@@ -33,6 +33,7 @@ class Settings(BaseSettings):
 
     # OpenAI
     openai_api_key: str = ""
+    ai_model_parse_resume: str = "gpt-4o-mini"
 
     # Resend
     resend_api_key: str = ""
