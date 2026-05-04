@@ -2,13 +2,6 @@
 
 import { Button } from "@/components/ui/button";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -20,10 +13,16 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useTranslations } from "next-intl";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { AchievementsTab } from "./tabs/achievements-tab";
+import { CertificatesTab } from "./tabs/certificates-tab";
+import { EducationTab } from "./tabs/education-tab";
+import { EmploymentTab } from "./tabs/employment-tab";
 import { LanguagesTab } from "./tabs/languages-tab";
 import { PersonalInfoTab } from "./tabs/personal-info-tab";
 import { ProfileSummaryTab } from "./tabs/profile-summary-tab";
+import { ProjectsTab } from "./tabs/projects-tab";
 import { SkillsTab } from "./tabs/skills-tab";
+import { VolunteerTab } from "./tabs/volunteer-tab";
 
 type TabValue =
   | "personal-info"
@@ -44,15 +43,6 @@ const VALID_TABS: readonly TabValue[] = [
   "employment",
   "education",
   "languages",
-  "certificates",
-  "projects",
-  "achievements",
-  "volunteer",
-] as const;
-
-const PLACEHOLDER_TABS: readonly TabValue[] = [
-  "employment",
-  "education",
   "certificates",
   "projects",
   "achievements",
@@ -163,19 +153,28 @@ export function ProfileTabs({ initialTab }: ProfileTabsProps) {
           <LanguagesTab onDirtyChange={(d) => setDirty("languages", d)} />
         </TabsContent>
 
-        {PLACEHOLDER_TABS.map((key) => (
-          <TabsContent key={key} value={key} className="mt-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-xl">{t(`tabs.${key}`)}</CardTitle>
-                <CardDescription>{t("comingSoon")}</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="h-32 rounded-md border border-dashed" />
-              </CardContent>
-            </Card>
-          </TabsContent>
-        ))}
+        <TabsContent value="employment" className="mt-6">
+          <EmploymentTab onDirtyChange={(d) => setDirty("employment", d)} />
+        </TabsContent>
+        <TabsContent value="education" className="mt-6">
+          <EducationTab onDirtyChange={(d) => setDirty("education", d)} />
+        </TabsContent>
+        <TabsContent value="certificates" className="mt-6">
+          <CertificatesTab
+            onDirtyChange={(d) => setDirty("certificates", d)}
+          />
+        </TabsContent>
+        <TabsContent value="projects" className="mt-6">
+          <ProjectsTab onDirtyChange={(d) => setDirty("projects", d)} />
+        </TabsContent>
+        <TabsContent value="achievements" className="mt-6">
+          <AchievementsTab
+            onDirtyChange={(d) => setDirty("achievements", d)}
+          />
+        </TabsContent>
+        <TabsContent value="volunteer" className="mt-6">
+          <VolunteerTab onDirtyChange={(d) => setDirty("volunteer", d)} />
+        </TabsContent>
       </Tabs>
 
       <Dialog

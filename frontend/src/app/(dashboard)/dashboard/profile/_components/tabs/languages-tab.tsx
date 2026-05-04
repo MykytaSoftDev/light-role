@@ -56,7 +56,7 @@ export function LanguagesTab({ onDirtyChange }: LanguagesTabProps) {
   useEffect(() => {
     if (!data) return;
     reset({
-      languages: (data.profile_data.languages ?? []).map((l) => ({
+      languages: (data.profile_data?.languages ?? []).map((l) => ({
         id: l.id,
         name: l.name,
       })),

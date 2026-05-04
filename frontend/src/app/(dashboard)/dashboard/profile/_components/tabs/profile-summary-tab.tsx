@@ -46,7 +46,7 @@ export function ProfileSummaryTab({ onDirtyChange }: ProfileSummaryTabProps) {
 
   useEffect(() => {
     if (!data) return;
-    reset({ summary: data.profile_data.summary ?? "" });
+    reset({ summary: data.profile_data?.summary ?? "" });
   }, [data, reset]);
 
   useEffect(() => {

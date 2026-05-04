@@ -56,7 +56,7 @@ export function SkillsTab({ onDirtyChange }: SkillsTabProps) {
   useEffect(() => {
     if (!data) return;
     reset({
-      skills: (data.profile_data.skills ?? []).map((s) => ({
+      skills: (data.profile_data?.skills ?? []).map((s) => ({
         id: s.id,
         name: s.name,
       })),

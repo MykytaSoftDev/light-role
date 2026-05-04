@@ -90,7 +90,7 @@ export function PersonalInfoTab({ onDirtyChange }: PersonalInfoTabProps) {
   // Hydrate the form once profile data arrives
   useEffect(() => {
     if (!data) return;
-    const pi = data.profile_data.personal_info;
+    const pi = data.profile_data?.personal_info;
     reset({
       full_name: pi?.full_name ?? "",
       email: pi?.email ?? "",
