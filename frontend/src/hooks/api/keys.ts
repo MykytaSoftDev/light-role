@@ -44,4 +44,7 @@ export const queryKeys = {
     all: ["analytics"] as const,
     detail: (period: string) => ["analytics", period] as const,
   },
+  profile: {
+    all: ["profile"] as const,
+  },
 } as const;

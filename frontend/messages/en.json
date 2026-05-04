@@ -179,6 +179,53 @@
       "projects": "Projects",
       "achievements": "Achievements",
       "volunteer": "Volunteer"
+    },
+    "common": {
+      "saveButton": "Save Changes",
+      "savingButton": "Saving...",
+      "savedToast": "Changes saved.",
+      "saveErrorToast": "Couldn't save your changes. Please try again.",
+      "loadErrorMessage": "Couldn't load your profile. Please refresh the page."
+    },
+    "unsavedDialog": {
+      "title": "Unsaved changes",
+      "description": "You have unsaved changes. Discard them?",
+      "cancelButton": "Cancel",
+      "discardButton": "Discard"
+    },
+    "personalInfo": {
+      "heading": "Personal Information",
+      "description": "Your contact details and links. Used as the header on every resume and cover letter.",
+      "fullNameLabel": "Full Name",
+      "emailLabel": "Email",
+      "phoneLabel": "Phone",
+      "locationLabel": "Location",
+      "socialLinksLabel": "Social Links",
+      "addSocialLink": "Add Social Link",
+      "platformLabel": "Platform",
+      "urlLabel": "URL",
+      "removeSocialLink": "Remove social link"
+    },
+    "skills": {
+      "heading": "Skills",
+      "description": "List the skills you want to showcase. Reorder later in the resume editor.",
+      "nameLabel": "Skill",
+      "addSkill": "Add Skill",
+      "removeSkill": "Remove skill"
+    },
+    "profileSummary": {
+      "heading": "Profile Summary",
+      "description": "A short paragraph that introduces you. The AI uses this as a starting point when tailoring resumes.",
+      "label": "Summary",
+      "charactersCount": "{count} characters",
+      "placeholder": "Senior software engineer with 8 years building distributed systems..."
+    },
+    "languages": {
+      "heading": "Languages",
+      "description": "Languages you speak — written and spoken. Optional proficiency levels arrive in a future update.",
+      "nameLabel": "Language",
+      "addLanguage": "Add Language",
+      "removeLanguage": "Remove language"
     }
   },
   "analytics": {
