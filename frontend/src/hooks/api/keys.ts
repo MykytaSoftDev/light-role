@@ -45,6 +45,12 @@ export const queryKeys = {
     detail: (period: string) => ["analytics", period] as const,
   },
   profile: {
-    all: ["profile"] as const,
+    // NOTE: cannot be `["profile"]` — collides with the legacy `hooks/use-profile.ts`
+    // which uses that exact key for `getUserData()` (a User object, not a ProfileResponse).
+    // The old hook is consumed by sidebar-user / use-subscription / Checkout, so it
+    // mounts first on every dashboard page and primes the cache. Without the rename,
+    // GET /api/v1/profile is never fired (cache hit on the User object) and the profile
+    // form sees `data` as a truthy User with no `profile_data` field.
+    all: ["user-profile"] as const,
   },
 } as const;

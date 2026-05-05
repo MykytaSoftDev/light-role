@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useProfile } from "@/hooks/api/useProfile";
 import { useUpdateProfile } from "@/hooks/api/useUpdateProfile";
+import type { ProfileResponse } from "@/lib/profile-api";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CircleAlert, CircleCheck, Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -23,10 +24,50 @@ interface ProfileSummaryTabProps {
   onDirtyChange?: (isDirty: boolean) => void;
 }
 
+/** See personal-info-tab.tsx for the wrapper-gates-on-data rationale. */
 export function ProfileSummaryTab({ onDirtyChange }: ProfileSummaryTabProps) {
   const tCommon = useTranslations("profile.common");
-  const tSection = useTranslations("profile.profileSummary");
   const { data, isLoading, isError } = useProfile();
+
+  if (isLoading || !data) {
+    return (
+      <div className="space-y-4">
+        <div className="h-4 w-24 animate-pulse rounded bg-muted" />
+        <div className="h-40 w-full animate-pulse rounded-md bg-muted" />
+        <div className="h-10 w-32 animate-pulse rounded-md bg-muted" />
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="flex items-start gap-2 rounded-md border border-destructive/20 bg-destructive/10 px-3 py-2.5 text-sm text-destructive">
+        <CircleAlert className="mt-0.5 h-4 w-4 flex-shrink-0" />
+        <span>{tCommon("loadErrorMessage")}</span>
+      </div>
+    );
+  }
+
+  return (
+    <ProfileSummaryForm
+      key={`${data.id}:${data.updated_at}`}
+      initialData={data}
+      onDirtyChange={onDirtyChange}
+    />
+  );
+}
+
+interface ProfileSummaryFormProps {
+  initialData: ProfileResponse;
+  onDirtyChange?: (isDirty: boolean) => void;
+}
+
+function ProfileSummaryForm({
+  initialData,
+  onDirtyChange,
+}: ProfileSummaryFormProps) {
+  const tCommon = useTranslations("profile.common");
+  const tSection = useTranslations("profile.profileSummary");
   const updateProfile = useUpdateProfile();
   const [serverError, setServerError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -39,15 +80,10 @@ export function ProfileSummaryTab({ onDirtyChange }: ProfileSummaryTabProps) {
     formState: { isSubmitting, isDirty },
   } = useForm<ProfileSummaryFormValues>({
     resolver: zodResolver(profileSummarySchema),
-    defaultValues: { summary: "" },
+    defaultValues: { summary: initialData.profile_data?.summary ?? "" },
   });
 
   const summaryValue = watch("summary") ?? "";
-
-  useEffect(() => {
-    if (!data) return;
-    reset({ summary: data.profile_data?.summary ?? "" });
-  }, [data, reset]);
 
   useEffect(() => {
     onDirtyChange?.(isDirty);
@@ -68,25 +104,6 @@ export function ProfileSummaryTab({ onDirtyChange }: ProfileSummaryTabProps) {
       setServerError(tCommon("saveErrorToast"));
       toast.error(tCommon("saveErrorToast"));
     }
-  }
-
-  if (isLoading) {
-    return (
-      <div className="space-y-4">
-        <div className="h-4 w-24 animate-pulse rounded bg-muted" />
-        <div className="h-40 w-full animate-pulse rounded-md bg-muted" />
-        <div className="h-10 w-32 animate-pulse rounded-md bg-muted" />
-      </div>
-    );
-  }
-
-  if (isError) {
-    return (
-      <div className="flex items-start gap-2 rounded-md border border-destructive/20 bg-destructive/10 px-3 py-2.5 text-sm text-destructive">
-        <CircleAlert className="mt-0.5 h-4 w-4 flex-shrink-0" />
-        <span>{tCommon("loadErrorMessage")}</span>
-      </div>
-    );
   }
 
   return (

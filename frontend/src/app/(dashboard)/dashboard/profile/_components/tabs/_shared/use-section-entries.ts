@@ -94,11 +94,24 @@ export function useSectionEntries<K extends SectionKey>({
   // Hydrate / re-hydrate local state from server data. We can't drive this
   // straight from `data` because we also hold optimistic state during a
   // pending PATCH and need to revert it on failure.
+  //
+  // Entries that lack an `id` (e.g. fresh AI-parsed entries — the parser does
+  // not stamp UUIDs) get one assigned on the way in. This is load-bearing for
+  // the EntryList/SortableEntryCard DnD wiring: SortableContext registers an
+  // empty string here and useSortable registers something else there, which
+  // silently breaks reordering. Stamping IDs at hydration keeps the data
+  // internally consistent and the IDs round-trip back to the server on the
+  // next save.
   useEffect(() => {
     if (!data) return;
     const fromServer = (data.profile_data?.[sectionKey] ?? []) as unknown as T[];
+    const hydrated = fromServer.map((entry) => {
+      const e = entry as T & { id?: string | null };
+      if (e.id) return entry;
+      return { ...entry, id: crypto.randomUUID() } as T;
+    });
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    setEntries(fromServer);
+    setEntries(hydrated);
   }, [data, sectionKey]);
 
   /**

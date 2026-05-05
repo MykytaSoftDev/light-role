@@ -12,7 +12,11 @@ import {
 } from "@/components/ui/select";
 import { useProfile } from "@/hooks/api/useProfile";
 import { useUpdateProfile } from "@/hooks/api/useUpdateProfile";
-import type { PersonalInfo, SocialLink } from "@/lib/profile-api";
+import type {
+  PersonalInfo,
+  ProfileResponse,
+  SocialLink,
+} from "@/lib/profile-api";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CircleAlert, CircleCheck, Loader2, Plus, Trash2 } from "lucide-react";
@@ -37,6 +41,10 @@ const SOCIAL_PLATFORMS = [
   "Custom",
 ] as const;
 
+// `id` is `nullish()` (not `optional()`) — the backend serializes Pydantic
+// `Optional[UUID] = None` as JSON `null`, and Zod's `optional()` rejects
+// `null`, which would silently break Save. See languages-tab.tsx for the
+// full write-up.
 const personalInfoSchema = z.object({
   full_name: z.string().min(1, "Full name is required"),
   email: z.string().min(1, "Email is required"),
@@ -44,7 +52,7 @@ const personalInfoSchema = z.object({
   location: z.string().optional(),
   social_links: z.array(
     z.object({
-      id: z.string().optional(),
+      id: z.string().nullish(),
       platform: z.string(),
       url: z.string(),
     })
@@ -57,101 +65,18 @@ interface PersonalInfoTabProps {
   onDirtyChange?: (isDirty: boolean) => void;
 }
 
+/**
+ * Wrapper: gates rendering on the profile fetch. The actual form is mounted
+ * only after `data` is available so React Hook Form's `defaultValues` are
+ * derived from real data at mount time. This avoids a hard-reload race where
+ * uncontrolled inputs registered with empty defaults (because `data` was
+ * still loading) never picked up the populated `values` prop afterwards.
+ */
 export function PersonalInfoTab({ onDirtyChange }: PersonalInfoTabProps) {
   const tCommon = useTranslations("profile.common");
-  const tSection = useTranslations("profile.personalInfo");
   const { data, isLoading, isError } = useProfile();
-  const updateProfile = useUpdateProfile();
-  const [serverError, setServerError] = useState<string | null>(null);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  const {
-    register,
-    handleSubmit,
-    reset,
-    control,
-    formState: { errors, isSubmitting, isDirty },
-  } = useForm<PersonalInfoFormValues>({
-    resolver: zodResolver(personalInfoSchema),
-    defaultValues: {
-      full_name: "",
-      email: "",
-      phone: "",
-      location: "",
-      social_links: [],
-    },
-  });
-
-  const { fields, append, remove } = useFieldArray({
-    control,
-    name: "social_links",
-  });
-
-  // Hydrate the form once profile data arrives
-  useEffect(() => {
-    if (!data) return;
-    const pi = data.profile_data?.personal_info;
-    reset({
-      full_name: pi?.full_name ?? "",
-      email: pi?.email ?? "",
-      phone: pi?.phone ?? "",
-      location: pi?.location ?? "",
-      social_links: (pi?.social_links ?? []).map((s) => ({
-        id: s.id,
-        platform: s.platform,
-        url: s.url,
-      })),
-    });
-  }, [data, reset]);
-
-  // Notify parent of dirty state changes for the unsaved-changes guard
-  useEffect(() => {
-    onDirtyChange?.(isDirty);
-  }, [isDirty, onDirtyChange]);
-
-  async function onSubmit(values: PersonalInfoFormValues) {
-    setServerError(null);
-    setSuccessMessage(null);
-
-    // Strip social_link rows where url is blank
-    const cleanedSocialLinks: SocialLink[] = (values.social_links ?? [])
-      .filter((s) => s.url.trim() !== "")
-      .map((s) => ({
-        id: s.id,
-        platform: s.platform,
-        url: s.url.trim(),
-      }));
-
-    const personal_info: PersonalInfo = {
-      full_name: values.full_name.trim(),
-      email: values.email.trim(),
-      phone: values.phone.trim(),
-      location: values.location?.trim() ? values.location.trim() : null,
-      social_links: cleanedSocialLinks,
-    };
-
-    try {
-      await updateProfile.mutateAsync({ personal_info });
-      reset({
-        full_name: personal_info.full_name,
-        email: personal_info.email,
-        phone: personal_info.phone,
-        location: personal_info.location ?? "",
-        social_links: cleanedSocialLinks.map((s) => ({
-          id: s.id,
-          platform: s.platform,
-          url: s.url,
-        })),
-      });
-      setSuccessMessage(tCommon("savedToast"));
-      toast.success(tCommon("savedToast"));
-    } catch {
-      setServerError(tCommon("saveErrorToast"));
-      toast.error(tCommon("saveErrorToast"));
-    }
-  }
-
-  if (isLoading) {
+  if (isLoading || !data) {
     return (
       <div className="space-y-6">
         {[1, 2, 3, 4].map((i) => (
@@ -172,6 +97,113 @@ export function PersonalInfoTab({ onDirtyChange }: PersonalInfoTabProps) {
         <span>{tCommon("loadErrorMessage")}</span>
       </div>
     );
+  }
+
+  // Mount the form with a key tied to the profile id so a Reset Profile (which
+  // doesn't change the id but does update `updated_at`) forces a clean remount
+  // — guaranteeing `defaultValues` re-derive from the latest server payload.
+  return (
+    <PersonalInfoForm
+      key={`${data.id}:${data.updated_at}`}
+      initialData={data}
+      onDirtyChange={onDirtyChange}
+    />
+  );
+}
+
+interface PersonalInfoFormProps {
+  initialData: ProfileResponse;
+  onDirtyChange?: (isDirty: boolean) => void;
+}
+
+function deriveDefaults(data: ProfileResponse): PersonalInfoFormValues {
+  const pi = data.profile_data?.personal_info;
+  return {
+    full_name: pi?.full_name ?? "",
+    email: pi?.email ?? "",
+    phone: pi?.phone ?? "",
+    location: pi?.location ?? "",
+    // Stamp UUIDs on any links that arrive without one (the AI parser does
+    // not assign IDs). Stable ids let RHF useFieldArray track rows correctly
+    // and round-trip back to the server on the next save.
+    social_links: (pi?.social_links ?? []).map((s) => ({
+      id: s.id ?? crypto.randomUUID(),
+      platform: s.platform,
+      url: s.url,
+    })),
+  };
+}
+
+function PersonalInfoForm({ initialData, onDirtyChange }: PersonalInfoFormProps) {
+  const tCommon = useTranslations("profile.common");
+  const tSection = useTranslations("profile.personalInfo");
+  const updateProfile = useUpdateProfile();
+  const [serverError, setServerError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+  const defaults = deriveDefaults(initialData);
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    control,
+    formState: { errors, isSubmitting, isDirty },
+  } = useForm<PersonalInfoFormValues>({
+    resolver: zodResolver(personalInfoSchema),
+    defaultValues: defaults,
+  });
+
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "social_links",
+  });
+
+  // Notify parent of dirty state changes for the unsaved-changes guard
+  useEffect(() => {
+    onDirtyChange?.(isDirty);
+  }, [isDirty, onDirtyChange]);
+
+  async function onSubmit(values: PersonalInfoFormValues) {
+    setServerError(null);
+    setSuccessMessage(null);
+
+    // Strip social_link rows where url is blank
+    const cleanedSocialLinks: SocialLink[] = (values.social_links ?? [])
+      .filter((s) => s.url.trim() !== "")
+      .map((s) => ({
+        id: s.id ?? crypto.randomUUID(),
+        platform: s.platform,
+        url: s.url.trim(),
+      }));
+
+    const personal_info: PersonalInfo = {
+      full_name: values.full_name.trim(),
+      email: values.email.trim(),
+      phone: values.phone.trim(),
+      location: values.location?.trim() ? values.location.trim() : null,
+      social_links: cleanedSocialLinks,
+    };
+
+    try {
+      await updateProfile.mutateAsync({ personal_info });
+      reset({
+        full_name: personal_info.full_name,
+        email: personal_info.email,
+        phone: personal_info.phone,
+        location: personal_info.location ?? "",
+        social_links: cleanedSocialLinks.map((s) => ({
+          id: s.id ?? crypto.randomUUID(),
+          platform: s.platform,
+          url: s.url,
+        })),
+      });
+      setSuccessMessage(tCommon("savedToast"));
+      toast.success(tCommon("savedToast"));
+    } catch {
+      setServerError(tCommon("saveErrorToast"));
+      toast.error(tCommon("saveErrorToast"));
+    }
   }
 
   return (
@@ -304,7 +336,13 @@ export function PersonalInfoTab({ onDirtyChange }: PersonalInfoTabProps) {
             type="button"
             variant="outline"
             size="sm"
-            onClick={() => append({ platform: "LinkedIn", url: "" })}
+            onClick={() =>
+              append({
+                id: crypto.randomUUID(),
+                platform: "LinkedIn",
+                url: "",
+              })
+            }
           >
             <Plus className="h-4 w-4" />
             {tSection("addSocialLink")}

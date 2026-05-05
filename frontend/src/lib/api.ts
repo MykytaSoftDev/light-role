@@ -44,4 +44,12 @@ export const api = {
       method: 'DELETE',
       credentials: 'include',
     }),
+  postMultipart: (path: string, formData: FormData) =>
+    fetchWithRefresh(`${BASE_URL}${path}`, {
+      method: 'POST',
+      // NOTE: do not set Content-Type — the browser must add the multipart
+      // boundary parameter automatically.
+      credentials: 'include',
+      body: formData,
+    }),
 };

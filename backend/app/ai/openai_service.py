@@ -31,6 +31,30 @@ _TIMEOUT = 30.0        # seconds — for simple calls (job parsing)
 _ANALYZE_TIMEOUT = 120.0  # seconds — for the heavy combined resume analysis call
 _PROFILE_PARSE_TIMEOUT = 60.0  # seconds — for resume → ProfileData parsing (PROFILE-2)
 
+# Hosts whose profile URLs always require a path component. A bare root URL
+# like "https://www.linkedin.com" with no /in/<username> is not a profile and
+# must be rejected from the parsed social_links.
+_PLATFORM_ROOT_HOSTS: frozenset[str] = frozenset({
+    "linkedin.com",
+    "www.linkedin.com",
+    "github.com",
+    "www.github.com",
+    "x.com",
+    "www.x.com",
+    "twitter.com",
+    "www.twitter.com",
+    "facebook.com",
+    "www.facebook.com",
+    "instagram.com",
+    "www.instagram.com",
+    "youtube.com",
+    "www.youtube.com",
+    "dribbble.com",
+    "www.dribbble.com",
+    "behance.net",
+    "www.behance.net",
+})
+
 _JOB_PARSE_SYSTEM_PROMPT = """\
 You are an expert recruiter and job description analyst. Your task is to extract structured information from job descriptions provided by the user.
 
@@ -263,7 +287,7 @@ CRITICAL RULES:
 
 10. summary: A plain-text string. Extract any "Profile", "Summary", "Professional Summary", "About Me", or "Objective" section. If none exists, use empty string "".
 
-11. social_links: Extract any LinkedIn, GitHub, personal website, X (Twitter), portfolio, blog, or other social URLs found anywhere in the resume. For the `platform` field, use one of these whitelisted values that best fits: "LinkedIn", "GitHub", "X", "Portfolio", "Website", "Blog", "Facebook", "Instagram", "YouTube", "Dribbble", "Behance", "Custom". Use "Custom" if no other option matches. The `url` field is the URL exactly as it appears (or with "https://" prepended if it is a bare domain).
+11. social_links: Extract any LinkedIn, GitHub, personal website, X (Twitter), portfolio, blog, or other social URLs found anywhere in the resume. For the `platform` field, use one of these whitelisted values that best fits: "LinkedIn", "GitHub", "X", "Portfolio", "Website", "Blog", "Facebook", "Instagram", "YouTube", "Dribbble", "Behance", "Custom". Use "Custom" if no other option matches. The `url` field MUST be a real, complete URL extracted from the resume — typically containing "://" or a domain like "linkedin.com/in/xyz" or "github.com/xyz". If the resume only mentions a platform name (e.g. just the word "LinkedIn" or a logo) WITHOUT an accompanying URL or username, OMIT that social_link entry entirely. NEVER use the platform name as the URL value, and NEVER invent or guess URLs. If you only have a username (e.g. "@johndoe" on GitHub), construct the canonical URL ("https://github.com/johndoe"). If you have a bare domain ("portfolio.dev"), prepend "https://". The user message may include a section labeled "[DETECTED_URLS]" near the end — these are URLs extracted from the document's hyperlink annotations (often hidden under icons or short visible text like "LinkedIn"). Use these URLs to populate `social_links` whenever you can correlate a URL to its platform by domain (linkedin.com → LinkedIn, github.com → GitHub, twitter.com or x.com → X, etc.). Prefer FULL profile URLs from [DETECTED_URLS] over short visible text. NEVER output a bare root-domain URL like "https://linkedin.com" or "https://www.github.com" — those have no profile path and are useless. If the resume gives you only a root domain with no username/path, OMIT the social_link entry entirely.
 
 12. skills: Each is just `{"name": "<skill>"}` — do NOT include category or level. Split comma-separated or pipe-separated skill lists into individual items.
 
@@ -746,12 +770,46 @@ class OpenAIService(AIServiceInterface):
             import pdfplumber
 
             text_parts: list[str] = []
+            detected_urls: list[str] = []
             with pdfplumber.open(BytesIO(file_bytes)) as pdf:
                 for page in pdf.pages:
                     page_text = page.extract_text() or ""
                     if page_text:
                         text_parts.append(page_text)
-            return "\n\n".join(text_parts)
+                    # Collect any hyperlink URIs embedded in the PDF.
+                    try:
+                        hyperlinks = page.hyperlinks or []
+                        for link in hyperlinks:
+                            uri = link.get("uri") if isinstance(link, dict) else None
+                            if uri and isinstance(uri, str):
+                                detected_urls.append(uri.strip())
+                        if not hyperlinks:
+                            # Fall back to annotations if hyperlinks list is empty.
+                            for annot in (page.annots or []):
+                                if not isinstance(annot, dict):
+                                    continue
+                                uri = annot.get("uri")
+                                if not uri:
+                                    data = annot.get("data") or {}
+                                    if isinstance(data, dict):
+                                        a = data.get("A") or {}
+                                        if isinstance(a, dict):
+                                            uri = a.get("URI")
+                                if uri and isinstance(uri, (str, bytes)):
+                                    if isinstance(uri, bytes):
+                                        try:
+                                            uri = uri.decode("utf-8", "ignore")
+                                        except Exception:
+                                            uri = ""
+                                    if uri:
+                                        detected_urls.append(uri.strip())
+                    except Exception:
+                        pass  # be defensive — never let hyperlink extraction break text extraction
+            body = "\n\n".join(text_parts)
+            if detected_urls:
+                unique_urls = list(dict.fromkeys(detected_urls))  # dedupe, keep order
+                body += "\n\n[DETECTED_URLS]\n" + "\n".join(unique_urls)
+            return body
 
         if fmt == "docx":
             from docx import Document
@@ -764,7 +822,22 @@ class OpenAIService(AIServiceInterface):
                         cell_text = cell.text.strip()
                         if cell_text:
                             text_parts.append(cell_text)
-            return "\n".join(text_parts)
+            # Collect hyperlink URIs from the DOCX relationships.
+            detected_urls: list[str] = []
+            try:
+                for rel in doc.part.rels.values():
+                    reltype = getattr(rel, "reltype", "") or ""
+                    if "hyperlink" in reltype.lower():
+                        target = getattr(rel, "target_ref", "") or ""
+                        if target and isinstance(target, str):
+                            detected_urls.append(target.strip())
+            except Exception:
+                pass  # be defensive — never let hyperlink extraction break text extraction
+            body = "\n".join(text_parts)
+            if detected_urls:
+                unique_urls = list(dict.fromkeys(detected_urls))
+                body += "\n\n[DETECTED_URLS]\n" + "\n".join(unique_urls)
+            return body
 
         raise ValueError(f"Unsupported file format: {file_format!r} (expected 'pdf' or 'docx')")
 
@@ -807,8 +880,22 @@ class OpenAIService(AIServiceInterface):
                     continue
                 platform = _str_default(item.get("platform"), "").strip()
                 url = _str_default(item.get("url"), "").strip()
-                if platform and url:
-                    social_links.append({"platform": platform, "url": url})
+                if not platform or not url:
+                    continue
+                # Reject pseudo-URLs the model occasionally emits (e.g. url == platform name)
+                if url.casefold() == platform.casefold():
+                    continue
+                if len(url) < 5:
+                    continue
+                if "." not in url and "://" not in url:
+                    continue
+                # Reject bare root-domain URLs for platforms that require a profile path.
+                # e.g. "https://www.linkedin.com" with no /in/<username> is not a profile.
+                _normalised = url.lower().split("://", 1)[-1]  # strip scheme
+                _normalised = _normalised.rstrip("/")
+                if _normalised in _PLATFORM_ROOT_HOSTS:
+                    continue
+                social_links.append({"platform": platform, "url": url})
         return {
             "full_name": _str_default(raw.get("full_name"), ""),
             "email": _str_default(raw.get("email"), ""),

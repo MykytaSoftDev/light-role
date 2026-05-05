@@ -20,6 +20,13 @@ import { Plus } from "lucide-react";
 import type { ReactNode } from "react";
 
 interface EntryListItem {
+  // Optional at the type level because the underlying domain types
+  // (EmploymentEntry, etc.) keep `id` optional for client-side new entries
+  // pre-submit. In practice, by the time items reach EntryList they MUST have
+  // an id — `useSectionEntries` stamps a UUID on hydration, and modal Save
+  // handlers stamp one before calling `saveEntries`. Anything reaching this
+  // component without an id is a bug — DnD wiring needs matching, non-empty
+  // ids on both SortableContext and each useSortable.
   id?: string;
 }
 
@@ -74,7 +81,21 @@ export function EntryList<T extends EntryListItem>({
     onReorder(arrayMove(items, oldIndex, newIndex));
   }
 
-  const ids = items.map((it) => it.id ?? "").filter(Boolean);
+  // Defensive: dev-time warning if we ever land here with a missing id.
+  // We still emit a (non-empty) fallback so React keys + dnd-kit don't break
+  // visually, but this signals a hydration bug upstream.
+  const ids = items.map((it, idx) => {
+    if (!it.id) {
+      // eslint-disable-next-line no-console
+      console.warn(
+        "[EntryList] item missing id — DnD will not work for this entry; " +
+          "useSectionEntries should have stamped one on hydration",
+        { index: idx }
+      );
+      return `__missing_${idx}`;
+    }
+    return it.id;
+  });
 
   return (
     <div className="max-w-2xl space-y-6">
@@ -102,7 +123,7 @@ export function EntryList<T extends EntryListItem>({
           <SortableContext items={ids} strategy={verticalListSortingStrategy}>
             <ul className="space-y-2">
               {items.map((item, index) => (
-                <li key={item.id ?? index}>{renderCard(item, index)}</li>
+                <li key={ids[index]}>{renderCard(item, index)}</li>
               ))}
             </ul>
           </SortableContext>

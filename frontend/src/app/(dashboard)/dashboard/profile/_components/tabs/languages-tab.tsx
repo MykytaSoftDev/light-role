@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useProfile } from "@/hooks/api/useProfile";
 import { useUpdateProfile } from "@/hooks/api/useUpdateProfile";
-import type { LanguageEntry } from "@/lib/profile-api";
+import type { LanguageEntry, ProfileResponse } from "@/lib/profile-api";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CircleAlert, CircleCheck, Loader2, Plus, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -14,10 +14,15 @@ import { useFieldArray, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 
+// `id` is `nullish()` (not just `optional()`) because the backend serializes
+// `Optional[UUID] = None` as the JSON value `null`, not `undefined`. With
+// plain `.optional()`, Zod rejects `null` and `handleSubmit` silently
+// short-circuits — the Save button appears to do nothing. See PROFILE bug
+// hunt 2026-05-05.
 const languagesSchema = z.object({
   languages: z.array(
     z.object({
-      id: z.string().optional(),
+      id: z.string().nullish(),
       name: z.string(),
     })
   ),
@@ -29,64 +34,12 @@ interface LanguagesTabProps {
   onDirtyChange?: (isDirty: boolean) => void;
 }
 
+/** See personal-info-tab.tsx for the wrapper-gates-on-data rationale. */
 export function LanguagesTab({ onDirtyChange }: LanguagesTabProps) {
   const tCommon = useTranslations("profile.common");
-  const tSection = useTranslations("profile.languages");
   const { data, isLoading, isError } = useProfile();
-  const updateProfile = useUpdateProfile();
-  const [serverError, setServerError] = useState<string | null>(null);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  const {
-    register,
-    handleSubmit,
-    reset,
-    control,
-    formState: { isSubmitting, isDirty },
-  } = useForm<LanguagesFormValues>({
-    resolver: zodResolver(languagesSchema),
-    defaultValues: { languages: [] },
-  });
-
-  const { fields, append, remove } = useFieldArray({
-    control,
-    name: "languages",
-  });
-
-  useEffect(() => {
-    if (!data) return;
-    reset({
-      languages: (data.profile_data?.languages ?? []).map((l) => ({
-        id: l.id,
-        name: l.name,
-      })),
-    });
-  }, [data, reset]);
-
-  useEffect(() => {
-    onDirtyChange?.(isDirty);
-  }, [isDirty, onDirtyChange]);
-
-  async function onSubmit(values: LanguagesFormValues) {
-    setServerError(null);
-    setSuccessMessage(null);
-
-    const cleaned: LanguageEntry[] = (values.languages ?? [])
-      .filter((l) => l.name.trim() !== "")
-      .map((l) => ({ id: l.id, name: l.name.trim() }));
-
-    try {
-      await updateProfile.mutateAsync({ languages: cleaned });
-      reset({ languages: cleaned.map((l) => ({ id: l.id, name: l.name })) });
-      setSuccessMessage(tCommon("savedToast"));
-      toast.success(tCommon("savedToast"));
-    } catch {
-      setServerError(tCommon("saveErrorToast"));
-      toast.error(tCommon("saveErrorToast"));
-    }
-  }
-
-  if (isLoading) {
+  if (isLoading || !data) {
     return (
       <div className="space-y-4">
         {[1, 2, 3].map((i) => (
@@ -104,6 +57,86 @@ export function LanguagesTab({ onDirtyChange }: LanguagesTabProps) {
         <span>{tCommon("loadErrorMessage")}</span>
       </div>
     );
+  }
+
+  return (
+    <LanguagesForm
+      key={`${data.id}:${data.updated_at}`}
+      initialData={data}
+      onDirtyChange={onDirtyChange}
+    />
+  );
+}
+
+interface LanguagesFormProps {
+  initialData: ProfileResponse;
+  onDirtyChange?: (isDirty: boolean) => void;
+}
+
+function deriveDefaults(data: ProfileResponse): LanguagesFormValues {
+  // Stamp a UUID on any entry that arrives without one (the AI parser does
+  // not assign IDs). This way the next PATCH preserves a stable id per row
+  // instead of regenerating one on every save.
+  return {
+    languages: (data.profile_data?.languages ?? []).map((l) => ({
+      id: l.id ?? crypto.randomUUID(),
+      name: l.name,
+    })),
+  };
+}
+
+function LanguagesForm({ initialData, onDirtyChange }: LanguagesFormProps) {
+  const tCommon = useTranslations("profile.common");
+  const tSection = useTranslations("profile.languages");
+  const updateProfile = useUpdateProfile();
+  const [serverError, setServerError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    control,
+    formState: { isSubmitting, isDirty },
+  } = useForm<LanguagesFormValues>({
+    resolver: zodResolver(languagesSchema),
+    defaultValues: deriveDefaults(initialData),
+  });
+
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "languages",
+  });
+
+  useEffect(() => {
+    onDirtyChange?.(isDirty);
+  }, [isDirty, onDirtyChange]);
+
+  async function onSubmit(values: LanguagesFormValues) {
+    setServerError(null);
+    setSuccessMessage(null);
+
+    const cleaned: LanguageEntry[] = (values.languages ?? [])
+      .filter((l) => l.name.trim() !== "")
+      .map((l) => ({
+        id: l.id ?? crypto.randomUUID(),
+        name: l.name.trim(),
+      }));
+
+    try {
+      await updateProfile.mutateAsync({ languages: cleaned });
+      reset({
+        languages: cleaned.map((l) => ({
+          id: l.id ?? crypto.randomUUID(),
+          name: l.name,
+        })),
+      });
+      setSuccessMessage(tCommon("savedToast"));
+      toast.success(tCommon("savedToast"));
+    } catch {
+      setServerError(tCommon("saveErrorToast"));
+      toast.error(tCommon("saveErrorToast"));
+    }
   }
 
   return (
@@ -149,7 +182,7 @@ export function LanguagesTab({ onDirtyChange }: LanguagesTabProps) {
             type="button"
             variant="outline"
             size="sm"
-            onClick={() => append({ name: "" })}
+            onClick={() => append({ id: crypto.randomUUID(), name: "" })}
           >
             <Plus className="h-4 w-4" />
             {tSection("addLanguage")}

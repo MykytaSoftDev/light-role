@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { getTranslations } from "next-intl/server";
-import { ProfileTabs } from "./_components/profile-tabs";
+import { ProfileShell } from "./_components/profile-shell";
 import { ResetProfileButton } from "./_components/reset-profile-button";
 
 type TabValue =
@@ -52,7 +52,7 @@ export default async function ProfilePage({
       </div>
 
       <Suspense fallback={<ProfileTabsSkeleton />}>
-        <ProfileTabs initialTab={initialTab} />
+        <ProfileShell initialTab={initialTab} />
       </Suspense>
     </div>
   );

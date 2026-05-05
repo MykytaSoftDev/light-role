@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useProfile } from "@/hooks/api/useProfile";
 import { useUpdateProfile } from "@/hooks/api/useUpdateProfile";
-import type { SkillEntry } from "@/lib/profile-api";
+import type { ProfileResponse, SkillEntry } from "@/lib/profile-api";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CircleAlert, CircleCheck, Loader2, Plus, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -14,10 +14,11 @@ import { useFieldArray, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 
+// See languages-tab.tsx for why `id` must be `nullish()` and not `optional()`.
 const skillsSchema = z.object({
   skills: z.array(
     z.object({
-      id: z.string().optional(),
+      id: z.string().nullish(),
       name: z.string(),
     })
   ),
@@ -29,64 +30,12 @@ interface SkillsTabProps {
   onDirtyChange?: (isDirty: boolean) => void;
 }
 
+/** See personal-info-tab.tsx for the wrapper-gates-on-data rationale. */
 export function SkillsTab({ onDirtyChange }: SkillsTabProps) {
   const tCommon = useTranslations("profile.common");
-  const tSection = useTranslations("profile.skills");
   const { data, isLoading, isError } = useProfile();
-  const updateProfile = useUpdateProfile();
-  const [serverError, setServerError] = useState<string | null>(null);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  const {
-    register,
-    handleSubmit,
-    reset,
-    control,
-    formState: { isSubmitting, isDirty },
-  } = useForm<SkillsFormValues>({
-    resolver: zodResolver(skillsSchema),
-    defaultValues: { skills: [] },
-  });
-
-  const { fields, append, remove } = useFieldArray({
-    control,
-    name: "skills",
-  });
-
-  useEffect(() => {
-    if (!data) return;
-    reset({
-      skills: (data.profile_data?.skills ?? []).map((s) => ({
-        id: s.id,
-        name: s.name,
-      })),
-    });
-  }, [data, reset]);
-
-  useEffect(() => {
-    onDirtyChange?.(isDirty);
-  }, [isDirty, onDirtyChange]);
-
-  async function onSubmit(values: SkillsFormValues) {
-    setServerError(null);
-    setSuccessMessage(null);
-
-    const cleaned: SkillEntry[] = (values.skills ?? [])
-      .filter((s) => s.name.trim() !== "")
-      .map((s) => ({ id: s.id, name: s.name.trim() }));
-
-    try {
-      await updateProfile.mutateAsync({ skills: cleaned });
-      reset({ skills: cleaned.map((s) => ({ id: s.id, name: s.name })) });
-      setSuccessMessage(tCommon("savedToast"));
-      toast.success(tCommon("savedToast"));
-    } catch {
-      setServerError(tCommon("saveErrorToast"));
-      toast.error(tCommon("saveErrorToast"));
-    }
-  }
-
-  if (isLoading) {
+  if (isLoading || !data) {
     return (
       <div className="space-y-4">
         {[1, 2, 3].map((i) => (
@@ -104,6 +53,87 @@ export function SkillsTab({ onDirtyChange }: SkillsTabProps) {
         <span>{tCommon("loadErrorMessage")}</span>
       </div>
     );
+  }
+
+  return (
+    <SkillsForm
+      key={`${data.id}:${data.updated_at}`}
+      initialData={data}
+      onDirtyChange={onDirtyChange}
+    />
+  );
+}
+
+interface SkillsFormProps {
+  initialData: ProfileResponse;
+  onDirtyChange?: (isDirty: boolean) => void;
+}
+
+function deriveDefaults(data: ProfileResponse): SkillsFormValues {
+  // Stamp a UUID on any entry that arrives without one (the AI parser does
+  // not assign IDs). This way the next PATCH preserves a stable id per row.
+  return {
+    skills: (data.profile_data?.skills ?? []).map((s) => ({
+      id: s.id ?? crypto.randomUUID(),
+      name: s.name,
+    })),
+  };
+}
+
+function SkillsForm({ initialData, onDirtyChange }: SkillsFormProps) {
+  const tCommon = useTranslations("profile.common");
+  const tSection = useTranslations("profile.skills");
+  const updateProfile = useUpdateProfile();
+  const [serverError, setServerError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+  const defaults = deriveDefaults(initialData);
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    control,
+    formState: { isSubmitting, isDirty },
+  } = useForm<SkillsFormValues>({
+    resolver: zodResolver(skillsSchema),
+    defaultValues: defaults,
+  });
+
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "skills",
+  });
+
+  useEffect(() => {
+    onDirtyChange?.(isDirty);
+  }, [isDirty, onDirtyChange]);
+
+  async function onSubmit(values: SkillsFormValues) {
+    setServerError(null);
+    setSuccessMessage(null);
+
+    const cleaned: SkillEntry[] = (values.skills ?? [])
+      .filter((s) => s.name.trim() !== "")
+      .map((s) => ({
+        id: s.id ?? crypto.randomUUID(),
+        name: s.name.trim(),
+      }));
+
+    try {
+      await updateProfile.mutateAsync({ skills: cleaned });
+      reset({
+        skills: cleaned.map((s) => ({
+          id: s.id ?? crypto.randomUUID(),
+          name: s.name,
+        })),
+      });
+      setSuccessMessage(tCommon("savedToast"));
+      toast.success(tCommon("savedToast"));
+    } catch {
+      setServerError(tCommon("saveErrorToast"));
+      toast.error(tCommon("saveErrorToast"));
+    }
   }
 
   return (
@@ -149,7 +179,7 @@ export function SkillsTab({ onDirtyChange }: SkillsTabProps) {
             type="button"
             variant="outline"
             size="sm"
-            onClick={() => append({ name: "" })}
+            onClick={() => append({ id: crypto.randomUUID(), name: "" })}
           >
             <Plus className="h-4 w-4" />
             {tSection("addSkill")}

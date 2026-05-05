@@ -191,6 +191,32 @@
       "undoButton": "Undo",
       "deleteFailedToast": "Failed to delete entry"
     },
+    "reupload": {
+      "title": "Reupload your resume",
+      "subtitle": "Supports PDF and DOCX (max 10 MB)",
+      "backLink": "← Back to profile",
+      "dropPrompt": "Drag & Drop your resume here",
+      "clickFallback": "or click to browse",
+      "parsing": "Parsing your resume…",
+      "successToast": "Profile updated from resume",
+      "errorToast": "Couldn't parse the resume. Please try a different file.",
+      "invalidFormat": "Only PDF and DOCX files are supported.",
+      "fileTooLarge": "File exceeds the 10 MB limit."
+    },
+    "emptyState": {
+      "title": "Let's set up your profile",
+      "subtitle": "Upload your resume to auto-fill every section, or start from scratch and edit each tab manually.",
+      "uploadCard": {
+        "title": "Upload your resume",
+        "description": "We'll parse it with AI and pre-fill all sections./a"
+      },
+      "manualCard": {
+        "title": "Or fill out manually",
+        "description": "Skip the upload and edit each section yourself, starting with Personal Info.",
+        "button": "Start from scratch"
+      },
+      "successToast": "Profile created from resume"
+    },
     "unsavedDialog": {
       "title": "Unsaved changes",
       "description": "You have unsaved changes. Discard them?",
