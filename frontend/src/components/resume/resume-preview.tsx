@@ -21,45 +21,62 @@ export interface ResumePreviewProps extends ClassicTemplateProps {
   scale?: number;
   /** Optional className for the outermost canvas wrapper. */
   className?: string;
+  /**
+   * Optional content rendered INSIDE the canvas, above the document, with
+   * its width matched to the visually-scaled document width. Used by the
+   * editor shell to host the Edit button (Preview mode) and the Edit-mode
+   * toolbar so they sit on the canvas just above the page.
+   */
+  topSlot?: React.ReactNode;
 }
 
-/** Pick the scale tier from a viewport width (spec §9 breakpoints). */
-function scaleForWidth(width: number): number {
-  if (width >= 1280) return 1.0;
-  if (width >= 1024) return 0.9;
-  if (width >= 768) return 0.75;
-  return 0.5;
-}
+// 210mm × 3.7795275591 px/mm = 793.7 → the doc's natural layout width.
+const DOC_WIDTH_PX = 794;
+// Canvas padding (Tailwind p-8 = 32px each side).
+const CANVAS_PADDING_PX = 64;
+// Smallest scale we let the user fall to before the document becomes
+// unreadable. Keeps mobile usable.
+const MIN_SCALE = 0.4;
 
 /**
- * useMatchMediaScale: subscribes to the four media-query tiers from spec §9
- * and returns the active scale factor. Defaults to 1.0 during SSR.
+ * useContainerScale: observes the canvas element's content box and returns
+ * the scale that fits the document inside the available width. Replaces the
+ * old viewport-based tiers — those didn't account for the dashboard sidebar
+ * + side panel, which compress the actual cell well below the viewport.
+ *
+ * Defaults to 1.0 during SSR; first measurement happens in useLayoutEffect
+ * so the user does not see a 1.0 → real-scale flash.
  */
-function useMatchMediaScale(): number {
+function useContainerScale(
+  ref: React.RefObject<HTMLElement | null>
+): number {
   const [scale, setScale] = React.useState<number>(1.0);
 
-  React.useEffect(() => {
-    if (typeof window === "undefined") return;
-    const update = () => setScale(scaleForWidth(window.innerWidth));
-    update();
-    // Listen on the three breakpoint boundaries.
-    const queries = [
-      window.matchMedia("(min-width: 1280px)"),
-      window.matchMedia("(min-width: 1024px)"),
-      window.matchMedia("(min-width: 768px)"),
-    ];
-    for (const mq of queries) mq.addEventListener("change", update);
-    return () => {
-      for (const mq of queries) mq.removeEventListener("change", update);
+  React.useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const update = () => {
+      if (!ref.current) return;
+      const available = ref.current.clientWidth - CANVAS_PADDING_PX;
+      const next = Math.max(
+        MIN_SCALE,
+        Math.min(1.0, available / DOC_WIDTH_PX)
+      );
+      setScale(next);
     };
-  }, []);
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [ref]);
 
   return scale;
 }
 
 export function ResumePreview(props: ResumePreviewProps) {
-  const { scale: scaleOverride, className, today, ...templateProps } = props;
-  const autoScale = useMatchMediaScale();
+  const { scale: scaleOverride, className, today, topSlot, ...templateProps } = props;
+  const canvasRef = React.useRef<HTMLDivElement | null>(null);
+  const autoScale = useContainerScale(canvasRef);
   const scale = scaleOverride ?? autoScale;
   // Pure: compute "today" once at mount instead of `Date.now()` in every render.
   const [todayIso] = React.useState<string>(
@@ -89,10 +106,22 @@ export function ResumePreview(props: ResumePreviewProps) {
 
   return (
     <div
+      ref={canvasRef}
       className={
-        "bg-gray-100 dark:bg-background p-8 flex justify-center " + (className ?? "")
+        "bg-gray-100 dark:bg-background p-8 flex flex-col items-center gap-4 " +
+        (className ?? "")
       }
     >
+      {topSlot ? (
+        <div
+          className="flex"
+          // Match the visually-scaled document width so the slot's edges
+          // align with the page edges below it (px = 210mm × scale).
+          style={{ width: `calc(210mm * ${scale})` }}
+        >
+          {topSlot}
+        </div>
+      ) : null}
       <div
         className="resume-preview-frame"
         style={frameMinHeight != null ? { minHeight: frameMinHeight } : undefined}

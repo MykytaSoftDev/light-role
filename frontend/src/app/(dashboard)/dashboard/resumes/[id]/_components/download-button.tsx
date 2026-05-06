@@ -16,7 +16,18 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { downloadTailoredResume } from "@/lib/tailored-resume-api";
 
-export function DownloadButton({ resumeId }: { resumeId: string }) {
+interface DownloadButtonProps {
+  resumeId: string;
+  /**
+   * TAILOR-9: when the editor is in Edit mode, the Download button is
+   * disabled regardless of dirty state per editor-edit-mode-spec §1.6.
+   * Rationale: the PDF endpoint reads persisted DB state, so a clean-Edit
+   * download would silently produce the previously-saved version.
+   */
+  disabledReason?: string;
+}
+
+export function DownloadButton({ resumeId, disabledReason }: DownloadButtonProps) {
   const [isDownloading, setIsDownloading] = React.useState(false);
 
   async function handleClick() {
@@ -43,11 +54,14 @@ export function DownloadButton({ resumeId }: { resumeId: string }) {
     }
   }
 
+  const disabled = isDownloading || !!disabledReason;
+
   return (
     <Button
       type="button"
       onClick={handleClick}
-      disabled={isDownloading}
+      disabled={disabled}
+      title={disabledReason || undefined}
       className="w-full sm:w-auto"
     >
       {isDownloading ? (
