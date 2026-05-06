@@ -129,6 +129,43 @@ class ParseResumeProfileResult:
 
 
 # ---------------------------------------------------------------------------
+# Tailored resume generation dataclass (TAILOR-1)
+# ---------------------------------------------------------------------------
+
+@dataclass
+class GenerateTailoredResumeResult:
+    """Result of an AI-tailored resume generation call (PRD 3.4.A.5 / 6.5).
+
+    All dict-shaped fields are intentionally returned as plain dicts so the
+    persistence layer (TAILOR-2) can validate them through
+    `app.schemas.tailored_resume.TailoredResumeGenerationResult.model_validate(...)`
+    at write time without an extra serialisation hop.
+
+    Fields:
+        tailored_data: Full ProfileData-shaped dict (`app.schemas.profile.ProfileData`).
+            All canonical section keys are present (empty arrays / nulls when
+            unused) so the frontend renderer can iterate `sections_order` and
+            pull each section by key.
+        matched_keywords: List of `{"term": str, "color_id": int 1..8}` dicts.
+            color_id cycles 1..8 for stable, deterministic side-panel colors.
+        applied_changes: Dict keyed by section name → list of natural-language
+            change descriptions. Only sections the AI actually modified are
+            included.
+        match_score: Integer 0..100 (clamped).
+        usage: Token / latency telemetry. None on failure.
+        success: True iff a structurally valid result was produced. On False,
+            the dict fields contain a best-effort partial result the caller
+            may surface as a 502 to the client.
+    """
+    tailored_data: dict
+    matched_keywords: list[dict]
+    applied_changes: dict[str, list[str]]
+    match_score: int
+    usage: Optional[AIUsageInfo]
+    success: bool
+
+
+# ---------------------------------------------------------------------------
 # Abstract interface
 # ---------------------------------------------------------------------------
 
@@ -153,6 +190,31 @@ class AIServiceInterface(ABC):
         length: str,
         additional_context: str = "",
     ) -> GenerateCoverLetterResult:
+        ...
+
+    @abstractmethod
+    async def generate_tailored_resume(
+        self,
+        profile_data: dict,
+        job_data: dict,
+        preferences: dict,
+    ) -> "GenerateTailoredResumeResult":
+        """Produce a tailored resume from a user's profile and a parsed job.
+
+        Args:
+            profile_data: A dict conforming to `app.schemas.profile.ProfileData`
+                (the user's full profile JSONB). Treated as the immutable
+                source of truth — the AI must not invent content beyond it.
+            job_data: A dict with at minimum `job_title`, `company`,
+                `requirements: list[str]`, and `description: str`.
+            preferences: `{"sections_order": list[str], "font": str, "template": str}`
+                per `_resume_preferences_default()` in `app.models.user`.
+
+        Returns:
+            GenerateTailoredResumeResult. On AI/parse/validation failure the
+            method returns `success=False` with best-effort partial data so the
+            caller can map to HTTP 502 without consuming the user's quota.
+        """
         ...
 
     @abstractmethod

@@ -20,3 +20,7 @@ email-validator==2.2.0
 pdfplumber==0.11.5
 python-docx==1.1.2
 fpdf2==2.8.2
+# PDF rendering for tailored resumes (TAILOR-3). Pinning playwright pins the
+# Chromium revision installed by `playwright install chromium` in Dockerfile.
+playwright==1.49.1
+

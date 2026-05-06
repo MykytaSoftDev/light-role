@@ -62,6 +62,7 @@ class NotificationType(str, Enum):
     LIMIT_WARNING = "limit_warning"
     LIMIT_RESET = "limit_reset"
     RESUME_ANALYSIS_COMPLETE = "resume_analysis_complete"
+    RESUME_READY = "resume_ready"
 
 
 class FeedbackType(str, Enum):

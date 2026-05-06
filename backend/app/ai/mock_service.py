@@ -5,6 +5,7 @@ from app.ai.interface import (
     AIUsageInfo,
     CoverLetterVariant,
     GenerateCoverLetterResult,
+    GenerateTailoredResumeResult,
     ParsedJobData,
     ParseJobResult,
     ParseResumeProfileResult,
@@ -145,5 +146,53 @@ class MockAIService(AIServiceInterface):
         return ParseResumeProfileResult(
             profile_data=profile_data,
             usage=None,
+            success=True,
+        )
+
+    async def generate_tailored_resume(
+        self,
+        profile_data: dict,
+        job_data: dict,
+        preferences: dict,
+    ) -> GenerateTailoredResumeResult:
+        # Predictable, schema-valid mock for tests / dev without an OpenAI key.
+        # Mirrors the real implementation's contract:
+        #   - tailored_data is ProfileData-shaped
+        #   - matched_keywords have color_id cycling 1..8
+        #   - applied_changes only includes "modified" sections
+        #   - match_score is clamped 0..100
+        ensured = {
+            "personal_info": (profile_data or {}).get("personal_info"),
+            "summary": (profile_data or {}).get("summary", ""),
+            "employment": (profile_data or {}).get("employment", []),
+            "education": (profile_data or {}).get("education", []),
+            "skills": (profile_data or {}).get("skills", []),
+            "projects": (profile_data or {}).get("projects", []),
+            "languages": (profile_data or {}).get("languages", []),
+            "certificates": (profile_data or {}).get("certificates", []),
+            "achievements": (profile_data or {}).get("achievements", []),
+            "volunteer": (profile_data or {}).get("volunteer", []),
+        }
+        requirements = list((job_data or {}).get("requirements") or [])
+        matched_keywords = [
+            {"term": term, "color_id": (i % 8) + 1}
+            for i, term in enumerate(requirements[:12])
+        ]
+        applied_changes = {
+            "summary": ["Mock: rephrased opening line to mention job-relevant skills."],
+            "skills": ["Mock: reordered skills to surface job-keyword matches first."],
+        }
+        usage = AIUsageInfo(
+            model="mock",
+            tokens_input=500,
+            tokens_output=400,
+            response_time_ms=10,
+        )
+        return GenerateTailoredResumeResult(
+            tailored_data=ensured,
+            matched_keywords=matched_keywords,
+            applied_changes=applied_changes,
+            match_score=78,
+            usage=usage,
             success=True,
         )

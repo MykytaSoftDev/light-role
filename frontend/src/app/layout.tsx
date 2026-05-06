@@ -6,6 +6,7 @@ import { Toaster } from "sonner";
 
 import "@/styles/globals.css";
 import { JetBrains_Mono, Space_Grotesk } from "next/font/google";
+import { allResumeFontVariables } from "@/lib/fonts/resume-fonts";
 const space_grotesk_display = Space_Grotesk({
   subsets: ["latin"],
   weight: ["700"],
@@ -34,7 +35,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html
       lang={locale}
-      className={`${space_grotesk_display.variable} ${space_grotesk_body.variable} ${jetbrains_mono.variable}`}
+      className={`${space_grotesk_display.variable} ${space_grotesk_body.variable} ${jetbrains_mono.variable} ${allResumeFontVariables}`}
       suppressHydrationWarning
     >
       <body className={`antialiased`}>

@@ -15,6 +15,7 @@ from app.ai.interface import (
     EducationItem,
     ExperienceItem,
     GenerateCoverLetterResult,
+    GenerateTailoredResumeResult,
     ParsedJobData,
     ParseJobResult,
     ParseResumeProfileResult,
@@ -30,6 +31,9 @@ _MODEL = "gpt-4o-mini"
 _TIMEOUT = 30.0        # seconds — for simple calls (job parsing)
 _ANALYZE_TIMEOUT = 120.0  # seconds — for the heavy combined resume analysis call
 _PROFILE_PARSE_TIMEOUT = 60.0  # seconds — for resume → ProfileData parsing (PROFILE-2)
+_TAILOR_TIMEOUT = 90.0  # seconds — for tailored resume generation (TAILOR-1)
+_TAILOR_MAX_KEYWORDS = 12  # cap for matched_keywords (UI side panel)
+_TAILOR_PALETTE_SIZE = 8   # color_id cycles through 1..8
 
 # Hosts whose profile URLs always require a path component. A bare root URL
 # like "https://www.linkedin.com" with no /in/<username> is not a profile and
@@ -300,6 +304,68 @@ CRITICAL RULES:
 16. certificates: Include only items the resume labels as certifications, certificates, or licenses (e.g. "AWS Certified Solutions Architect"). Do NOT promote skills or courses to certificates.
 
 17. Output ONLY valid JSON — no markdown fences, no commentary, no preamble, no trailing text.
+"""
+
+
+_TAILOR_RESUME_SYSTEM_PROMPT = """\
+You are an expert resume tailor and ATS-optimization specialist. You will be given the user's full PROFILE (source of truth), a parsed JOB, and resume PREFERENCES. Produce a tailored version of the profile that maximises relevance to the job WITHOUT inventing any new content.
+
+ABSOLUTE SOURCE-OF-TRUTH RULE — read carefully:
+- The PROFILE is the ONLY allowed source of facts. Do NOT invent companies, roles, dates, education, skills, projects, certifications, achievements, languages, or any specific accomplishment that is not already present in the profile.
+- Tailoring means: rephrasing existing bullets to surface job-relevant keywords; reordering items so the most relevant ones come first; emphasizing transferable skills the user actually has; tightening summary language.
+- If a job-required skill is missing from the profile, do NOT fabricate it. Instead, surface it via `matched_keywords` (so the UI can flag the gap) and reference the closest legitimate experience the user does have.
+- Preserve every entry's identifying facts exactly: company names, institution names, role titles, dates, technologies, locations. Do not change them.
+- You MAY rewrite the prose inside `summary`, employment `details`, project `details`, and project `description`. You may reorder items in employment, education, projects, skills, certificates, languages, achievements, and volunteer arrays.
+
+OUTPUT — return ONLY a single valid JSON object with EXACTLY these four top-level keys (no markdown fences, no extra text):
+
+{
+  "tailored_data": {
+    "personal_info": { /* same shape as profile.personal_info — copy verbatim, do not modify */ },
+    "summary": "<string — may be rewritten to emphasise job alignment>",
+    "employment": [ /* same shape as profile.employment, items may be reordered, details rewritten */ ],
+    "education":  [ /* same shape, items may be reordered */ ],
+    "skills":     [ /* same shape — may be reordered, never invented */ ],
+    "projects":   [ /* same shape, items may be reordered, description/details rewritten */ ],
+    "languages":  [ /* same shape, may be reordered */ ],
+    "certificates":[ /* same shape, may be reordered */ ],
+    "achievements":[ /* same shape, may be reordered */ ],
+    "volunteer":  [ /* same shape, items may be reordered, details rewritten */ ]
+  },
+  "matched_keywords": [
+    {"term": "<concrete skill/tool/qualification from the JOB>", "color_id": <integer 1..8>}
+  ],
+  "applied_changes": {
+    "<section_key>": ["<one natural-language description of what changed>", "..."]
+  },
+  "match_score": <integer 0..100>
+}
+
+RULES PER FIELD:
+
+1. tailored_data MUST contain ALL of these keys, even if the section is empty in the profile: personal_info, summary, employment, education, skills, projects, languages, certificates, achievements, volunteer. Use the same shape as ProfileData (PRD 6.4). Use empty arrays for empty sections; preserve `personal_info` exactly as provided. Preserve all `id` fields verbatim if present.
+
+2. preferences.sections_order is provided as a hint about which sections the user prioritises in their resume layout. Use this hint when deciding which sections deserve the most tailoring effort and most aggressive rewording — sections appearing earlier in `sections_order` matter more. The keys in `tailored_data` itself are always the canonical names listed in rule 1, regardless of order.
+
+3. matched_keywords:
+   - Extract concrete, job-specific terms from `job.requirements` and `job.description`. Prefer NOUNS and tools (e.g. "FastAPI", "PostgreSQL", "Kubernetes", "team lead", "GDPR") over generic verbs or fluff (e.g. "strong communicator", "team player").
+   - Cap the list at 12 keywords. Choose the most important ones if there are more.
+   - color_id MUST be an integer in 1..8. Cycle 1..8 deterministically by index (1st keyword=1, 2nd=2, ..., 8th=8, 9th=1, 10th=2, ...). Stable across calls — never randomize.
+   - Each keyword should appear at most once.
+
+4. applied_changes:
+   - Object keyed by section name (use one of: "summary", "employment", "education", "skills", "projects", "languages", "certificates", "achievements", "volunteer").
+   - Include ONLY sections you actually modified. Omit unchanged sections entirely (do NOT include them with empty arrays).
+   - Each value is a non-empty array of short, natural-language descriptions (e.g. "Rephrased opening line to emphasise distributed-systems experience.", "Reordered Python and FastAPI to the top of skills.").
+   - Be specific — reference the change, not boilerplate like "improved section".
+
+5. match_score:
+   - Integer 0..100 reflecting how well the ORIGINAL profile matches the job (before tailoring).
+   - Calibrate honestly — do not inflate. A 90+ score means strong alignment on most requirements; 50–70 means partial alignment; below 40 means significant gaps.
+
+6. Language: Mirror the language of the profile and job content. If they differ, prefer the language of the job description for the tailored output (this is what the recruiter will read).
+
+Return ONLY the JSON object. No commentary, no preamble.
 """
 
 
@@ -592,6 +658,155 @@ class OpenAIService(AIServiceInterface):
             usage=usage_info,
             success=True,
         )
+
+    async def generate_tailored_resume(
+        self,
+        profile_data: dict,
+        job_data: dict,
+        preferences: dict,
+    ) -> GenerateTailoredResumeResult:
+        """Generate a tailored resume from the user's profile and a parsed job.
+
+        See `AIServiceInterface.generate_tailored_resume` for the contract.
+
+        Failure modes (all return success=False, no exception raised):
+        - OpenAI/network/timeout error
+        - Invalid JSON returned by the model
+        - Pydantic validation failure on the result shape
+
+        On success, the returned dict-shaped fields have already been validated
+        through `TailoredResumeGenerationResult` so the caller can persist them
+        without re-validation.
+        """
+        empty_result = GenerateTailoredResumeResult(
+            tailored_data=_empty_profile_data(),
+            matched_keywords=[],
+            applied_changes={},
+            match_score=0,
+            usage=None,
+            success=False,
+        )
+
+        try:
+            user_payload = {
+                "profile": profile_data,
+                "job": {
+                    "job_title": job_data.get("job_title") or "",
+                    "company": job_data.get("company") or "",
+                    "requirements": list(job_data.get("requirements") or []),
+                    "description": job_data.get("description") or "",
+                    # Pass-through other helpful fields if present (location, salary, etc.)
+                    **{
+                        k: v for k, v in job_data.items()
+                        if k not in {"job_title", "company", "requirements", "description"}
+                    },
+                },
+                "preferences": {
+                    "sections_order": list(preferences.get("sections_order") or []),
+                    "font": preferences.get("font") or "",
+                    "template": preferences.get("template") or "",
+                },
+            }
+
+            user_content = json.dumps(user_payload, ensure_ascii=False)
+
+            start_ms = time.monotonic()
+
+            response = await self._client.chat.completions.create(
+                model=settings.ai_model_tailor_resume,
+                response_format={"type": "json_object"},
+                timeout=_TAILOR_TIMEOUT,
+                messages=[
+                    {"role": "system", "content": _TAILOR_RESUME_SYSTEM_PROMPT},
+                    {"role": "user", "content": user_content},
+                ],
+                temperature=0.2,
+            )
+
+            elapsed_ms = int((time.monotonic() - start_ms) * 1000)
+
+            raw_content = response.choices[0].message.content or ""
+
+            try:
+                raw_obj: dict[str, Any] = json.loads(raw_content)
+            except json.JSONDecodeError as exc:
+                logger.warning("OpenAI generate_tailored_resume returned invalid JSON: %s", exc)
+                return empty_result
+            if not isinstance(raw_obj, dict):
+                logger.warning("OpenAI generate_tailored_resume response was not a JSON object")
+                return empty_result
+
+            # Post-process: clamp match_score, normalise color_ids, drop empty
+            # applied_changes sections, and ensure tailored_data has all keys.
+            tailored_dict = self._coerce_tailored_data(
+                raw_obj.get("tailored_data"), profile_data
+            )
+            matched_keywords = self._coerce_matched_keywords(raw_obj.get("matched_keywords"))
+            applied_changes = self._coerce_applied_changes(raw_obj.get("applied_changes"))
+            match_score = self._clamp_match_score(raw_obj.get("match_score"))
+
+            usage_info = AIUsageInfo(
+                model=response.model,
+                tokens_input=response.usage.prompt_tokens if response.usage else 0,
+                tokens_output=response.usage.completion_tokens if response.usage else 0,
+                response_time_ms=elapsed_ms,
+            )
+
+            # Validate the structurally clean dict through the Pydantic schema
+            # so the persistence layer (TAILOR-2) can trust the output shape.
+            from app.schemas.tailored_resume import TailoredResumeGenerationResult
+
+            try:
+                validated = TailoredResumeGenerationResult.model_validate({
+                    "tailored_data": tailored_dict,
+                    "matched_keywords": matched_keywords,
+                    "applied_changes": applied_changes,
+                    "match_score": match_score,
+                })
+            except Exception as exc:  # pydantic.ValidationError or anything else
+                logger.warning(
+                    "TailoredResumeGenerationResult validation failed: %s", exc
+                )
+                # Return the partial data so the caller can log/diagnose.
+                return GenerateTailoredResumeResult(
+                    tailored_data=tailored_dict,
+                    matched_keywords=matched_keywords,
+                    applied_changes=applied_changes,
+                    match_score=match_score,
+                    usage=usage_info,
+                    success=False,
+                )
+
+            # Round-trip through model_dump so we hand back a JSON-clean dict
+            # (UUIDs as str, no datetime weirdness) — matching what TAILOR-2
+            # will write to JSONB.
+            tailored_clean = validated.tailored_data.model_dump(mode="json")
+            keywords_clean = [kw.model_dump(mode="json") for kw in validated.matched_keywords]
+            applied_clean = validated.applied_changes.model_dump(mode="json")
+
+            logger.info(
+                "Tailored resume generation complete: score=%d keywords=%d sections_changed=%d "
+                "tokens_in=%d tokens_out=%d elapsed_ms=%d",
+                validated.match_score,
+                len(keywords_clean),
+                len(applied_clean),
+                usage_info.tokens_input,
+                usage_info.tokens_output,
+                elapsed_ms,
+            )
+
+            return GenerateTailoredResumeResult(
+                tailored_data=tailored_clean,
+                matched_keywords=keywords_clean,
+                applied_changes=applied_clean,
+                match_score=validated.match_score,
+                usage=usage_info,
+                success=True,
+            )
+
+        except Exception as exc:
+            logger.warning("OpenAI generate_tailored_resume failed: %s", exc)
+            return empty_result
 
     # ------------------------------------------------------------------
     # Private helpers
@@ -1049,6 +1264,113 @@ class OpenAIService(AIServiceInterface):
             })
         return items
 
+    # ------------------------------------------------------------------
+    # Tailored-resume helpers (TAILOR-1)
+    # ------------------------------------------------------------------
+
+    def _coerce_tailored_data(self, raw: Any, fallback_profile: dict) -> dict[str, Any]:
+        """Coerce the model's tailored_data into a ProfileData-shaped dict.
+
+        Guarantees every canonical section key is present so downstream
+        Pydantic validation never fails on missing required keys. Falls back
+        to the original profile section when the model omits or mangles one.
+        """
+        if not isinstance(raw, dict):
+            raw = {}
+        fallback = fallback_profile if isinstance(fallback_profile, dict) else {}
+
+        def _section(key: str, default: Any) -> Any:
+            if key in raw and raw[key] is not None:
+                return raw[key]
+            if key in fallback and fallback[key] is not None:
+                return fallback[key]
+            return default
+
+        # personal_info: prefer the model's output, but fall back to the
+        # original profile's personal_info if the model dropped it. The system
+        # prompt forbids modifying personal_info, but defensive fallback keeps
+        # validation green even if the model misbehaves.
+        personal_info = raw.get("personal_info")
+        if not isinstance(personal_info, dict):
+            personal_info = fallback.get("personal_info")
+
+        summary = raw.get("summary")
+        if summary is None:
+            summary = fallback.get("summary", "")
+        if not isinstance(summary, str):
+            summary = str(summary or "")
+
+        return {
+            "personal_info": personal_info,
+            "summary": summary,
+            "employment": _section("employment", []),
+            "education": _section("education", []),
+            "skills": _section("skills", []),
+            "projects": _section("projects", []),
+            "languages": _section("languages", []),
+            "certificates": _section("certificates", []),
+            "achievements": _section("achievements", []),
+            "volunteer": _section("volunteer", []),
+        }
+
+    def _coerce_matched_keywords(self, raw: Any) -> list[dict[str, Any]]:
+        """Normalise matched_keywords: dedupe, cap at 12, cycle color_id 1..8.
+
+        The model is instructed to assign color_ids, but we re-cycle them
+        deterministically by index here so the result is stable even if the
+        model returns out-of-range or duplicate ids.
+        """
+        if not isinstance(raw, list):
+            return []
+        seen_terms: set[str] = set()
+        out: list[dict[str, Any]] = []
+        for item in raw:
+            if not isinstance(item, dict):
+                continue
+            term = _str_default(item.get("term"), "").strip()
+            if not term:
+                continue
+            key = term.casefold()
+            if key in seen_terms:
+                continue
+            seen_terms.add(key)
+            # Always re-derive color_id from the keyword's position so the
+            # cycle is deterministic and bounded — never trust the model.
+            color_id = (len(out) % _TAILOR_PALETTE_SIZE) + 1
+            out.append({"term": term, "color_id": color_id})
+            if len(out) >= _TAILOR_MAX_KEYWORDS:
+                break
+        return out
+
+    def _coerce_applied_changes(self, raw: Any) -> dict[str, list[str]]:
+        """Drop empty / non-list values; coerce each entry to a stripped str."""
+        if not isinstance(raw, dict):
+            return {}
+        out: dict[str, list[str]] = {}
+        for key, val in raw.items():
+            if not isinstance(key, str) or not key.strip():
+                continue
+            if not isinstance(val, list):
+                continue
+            cleaned: list[str] = []
+            for entry in val:
+                if entry is None:
+                    continue
+                s = entry if isinstance(entry, str) else str(entry)
+                s = s.strip()
+                if s:
+                    cleaned.append(s)
+            if cleaned:
+                out[key.strip()] = cleaned
+        return out
+
+    def _clamp_match_score(self, raw: Any) -> int:
+        try:
+            score = int(raw)
+        except (TypeError, ValueError):
+            return 0
+        return max(0, min(100, score))
+
 
 # ---------------------------------------------------------------------------
 # Module-level coercion helpers (used by profile parsing)
@@ -1083,3 +1405,19 @@ def _coerce_str_list(val: Any) -> list[str]:
         if s:
             out.append(s)
     return out
+
+
+def _empty_profile_data() -> dict[str, Any]:
+    """An empty ProfileData-shaped dict used as fallback on AI failure (TAILOR-1)."""
+    return {
+        "personal_info": None,
+        "summary": "",
+        "employment": [],
+        "education": [],
+        "skills": [],
+        "projects": [],
+        "languages": [],
+        "certificates": [],
+        "achievements": [],
+        "volunteer": [],
+    }

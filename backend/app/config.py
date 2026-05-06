@@ -34,6 +34,7 @@ class Settings(BaseSettings):
     # OpenAI
     openai_api_key: str = ""
     ai_model_parse_resume: str = "gpt-4o-mini"
+    ai_model_tailor_resume: str = "gpt-4o-mini"
 
     # Resend
     resend_api_key: str = ""
@@ -53,6 +54,15 @@ class Settings(BaseSettings):
 
     # Analytics
     analytics_cache_version: int = 1
+
+    # PDF rendering (TAILOR-3)
+    # Hard cap on a single page.pdf() render. Chromium occasionally hangs on
+    # font-loading or networkidle waits — 20s is generous for a resume but
+    # short enough to surface real failures as 504 instead of dragging on.
+    pdf_render_timeout_seconds: int = 20
+    # Recycle the singleton browser after this many successful renders to
+    # bound memory growth (Chromium leaks ~5-10MB per long-running session).
+    pdf_browser_recycle_after: int = 200
 
     # Paddle
     paddle_api_key: str = ""

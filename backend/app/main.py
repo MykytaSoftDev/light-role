@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import os
 from contextlib import asynccontextmanager
 from typing import Any
 
@@ -7,12 +8,14 @@ import sentry_sdk
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 from sentry_sdk.integrations.fastapi import FastApiIntegration
 from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration
 
 from app.config import settings
 from app.logging_config import setup_logging
 from app.redis import close_redis, get_redis_client
+from app.services.pdf_service import pdf_service
 from app.tasks.scheduler import run_notification_scheduler
 from app.routers import analytics as analytics_router
 from app.routers import auth as auth_router
@@ -25,6 +28,7 @@ from app.routers import plans as plans_router
 from app.routers import profile as profile_router
 from app.routers import subscriptions as subscriptions_router
 from app.routers import support as support_router
+from app.routers import tailored_resumes as tailored_resumes_router
 from app.routers import users as users_router
 from app.routers import webhooks as webhooks_router
 
@@ -64,6 +68,10 @@ async def lifespan(app: FastAPI):
     setup_logging(log_dir="logs", environment=settings.environment)
     setup_sentry()
     await get_redis_client()
+    # Pre-warm Chromium for PDF rendering (TAILOR-3). Failures are logged
+    # inside `start()` and don't crash startup — `_ensure_browser()` will
+    # retry-launch on the first render request.
+    await pdf_service.start()
     scheduler_task = asyncio.create_task(run_notification_scheduler())
     logger.info("Application startup complete")
     yield
@@ -72,6 +80,7 @@ async def lifespan(app: FastAPI):
         await scheduler_task
     except asyncio.CancelledError:
         pass
+    await pdf_service.stop()
     await close_redis()
     logger.info("Application shutdown complete")
 
@@ -111,10 +120,33 @@ def create_app() -> FastAPI:
     app.include_router(plans_router.router)
     app.include_router(profile_router.router)
     app.include_router(subscriptions_router.router)
+    app.include_router(tailored_resumes_router.router)
     app.include_router(webhooks_router.router)
     app.include_router(feedback_router.router)
     app.include_router(support_router.router)
     app.include_router(analytics_router.router)
+
+    # Static fonts served for the PDF render pipeline (TAILOR-5). Maps the
+    # /app/fonts directory baked into the Docker image to /static/fonts so
+    # the resume HTML can reference fonts via @font-face URL — Chromium
+    # needs an HTTP origin (file:// is blocked from about:blank).
+    #
+    # Tolerate the directory not existing in dev/test environments where
+    # the image hasn't been built — registering a missing-path mount would
+    # otherwise crash app import on developer machines.
+    fonts_dir = "/app/fonts"
+    if os.path.isdir(fonts_dir):
+        app.mount(
+            "/static/fonts",
+            StaticFiles(directory=fonts_dir),
+            name="fonts",
+        )
+    else:
+        logger.info(
+            "PDF font directory %s not present — /static/fonts mount skipped. "
+            "This is expected outside the Docker image.",
+            fonts_dir,
+        )
 
     return app
 

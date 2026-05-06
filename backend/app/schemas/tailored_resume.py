@@ -73,6 +73,11 @@ class TailoredResumeResponse(TailoredResumeBase):
     rating_modal_shown_at: Optional[datetime] = None
     created_at: datetime
     updated_at: datetime
+    # Derived from the joined Job — read-only, never persisted on this row.
+    # The editor uses these to render the "Resume tailored for {company}"
+    # subtitle without a second round-trip to GET /jobs/{id}.
+    job_title: Optional[str] = None
+    job_company: Optional[str] = None
 
 
 class TailoredResumePatchRequest(BaseModel):
@@ -83,10 +88,12 @@ class TailoredResumePatchRequest(BaseModel):
     are deliberately omitted from this schema so they cannot be patched.
     """
 
-    name: Optional[str] = None
+    # `name` mirrors the DB column `tailored_resumes.name` (VARCHAR(255), NOT NULL).
+    # `min_length=1` rejects empty-string renames from the inline-edit UI.
+    name: Optional[str] = Field(default=None, min_length=1, max_length=255)
     tailored_data: Optional[TailoredResumeData] = None
     sections_order_snapshot: Optional[list[str]] = None
-    font_snapshot: Optional[str] = None
+    font_snapshot: Optional[str] = Field(default=None, max_length=50)
 
 
 class TailoredResumeListItem(BaseModel):
