@@ -20,7 +20,7 @@
  */
 import * as React from "react";
 import Link from "next/link";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { Button } from "@/components/ui/button";
 import { Breadcrumb } from "@/components/ui/breadcrumb";
@@ -28,6 +28,7 @@ import { ResumePreview } from "@/components/resume/resume-preview";
 import { queryKeys } from "@/hooks/api/keys";
 import {
   getTailoredResume,
+  markRatingModalShown,
   TailorError,
   type TailoredResume,
 } from "@/lib/tailored-resume-api";
@@ -48,7 +49,16 @@ import { EditButton } from "./edit-button";
 import { EditModeToolbar } from "./edit-mode-toolbar";
 import { ReorderSectionsDialog } from "./reorder-sections-dialog";
 import { DiscardChangesDialog } from "./discard-changes-dialog";
+import { RatingModal } from "./rating-modal";
 import { useResumeDraft } from "./use-resume-draft";
+
+// TAILOR-13 — Per-session, per-resume guard so navigating away and back
+// within the same SPA session does NOT re-fire the 15s timer + the
+// markRatingModalShown POST. Module-scope is the simplest fit: it persists
+// across <EditorChrome> remounts but resets on a hard reload (which is
+// fine — `rating_modal_shown_at` will be set on the GET response by then,
+// so the show-condition gate trips first anyway).
+const ratingTimerFiredFor = new Set<string>();
 
 interface EditorShellProps {
   id: string;
@@ -179,6 +189,91 @@ function EditorChrome({ id, resume }: { id: string; resume: TailoredResume }) {
     cancelEdit,
   ]);
 
+  // ---- TAILOR-13: post-generation rating modal (15s after editor open) ----
+  //
+  // Owned here (NOT in <RatingModal>) so the timer + the markRatingModalShown
+  // POST fire even when the modal itself isn't visible (e.g. user is in Edit
+  // mode at second 15 — we still want to register the attempt). See spec §1.1.
+  //
+  // Show condition is snapshotted FROM THE RESUME AT TIMER FIRE, not at mount,
+  // because the React Query cache may have been refetched between mount and
+  // the 15-second mark.
+  const [ratingOpen, setRatingOpen] = React.useState(false);
+  const [ratingPendingShow, setRatingPendingShow] = React.useState(false);
+  const queryClient = useQueryClient();
+
+  // Live-read mirror of `mode` so the timer callback (closed over an old
+  // `mode` value at effect-run time) can branch on the CURRENT mode at the
+  // 15s mark. Declared BEFORE the timer effect so TypeScript / JS resolve
+  // the reference cleanly inside the setTimeout closure.
+  const modeRef = React.useRef(mode);
+  React.useEffect(() => {
+    modeRef.current = mode;
+  }, [mode]);
+
+  React.useEffect(() => {
+    // Per-session, per-resume idempotency: if the timer already fired for
+    // this resume in this SPA session, don't re-arm. This handles in-app
+    // navigation back to the same resume page within the session.
+    if (ratingTimerFiredFor.has(id)) return;
+
+    // Pre-condition gate at MOUNT — if the resume already has either flag
+    // set, never arm the timer. (We re-check at fire-time using the latest
+    // cache snapshot to handle the race where another tab rated mid-window.)
+    if (resume.rating_modal_shown_at !== null || resume.rating !== null) {
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      // Snapshot at fire-time — query may have been refetched while we waited.
+      const latest = queryClient.getQueryData<TailoredResume>(
+        queryKeys.resumes.detail(id)
+      );
+      const shownAt =
+        latest?.rating_modal_shown_at ?? resume.rating_modal_shown_at;
+      const ratingValue = latest?.rating ?? resume.rating;
+      if (shownAt !== null || ratingValue !== null) {
+        // Race: somewhere in the 15s window the resume was already rated /
+        // marked-shown. Bail without showing the modal.
+        ratingTimerFiredFor.add(id);
+        return;
+      }
+
+      // Mark the per-session guard immediately to prevent any pathway that
+      // could re-arm (StrictMode double-effect, fast remount, etc.).
+      ratingTimerFiredFor.add(id);
+
+      // Fire-and-forget POST so the backend records the attempt even if the
+      // user closes the tab during the 15s window.
+      void markRatingModalShown(id);
+
+      // Edit-mode interaction (spec §1.4): defer the visible Dialog open
+      // until the user returns to Preview mode. The POST above still fires.
+      if (modeRef.current === "edit") {
+        setRatingPendingShow(true);
+      } else {
+        setRatingOpen(true);
+      }
+    }, 15_000);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+    // We intentionally depend ONLY on `id` so the timer runs at most once
+    // per resume id mount. Re-running on resume identity changes (cache
+    // refetch returning a new object) would arm a NEW timer at every cache
+    // refresh, breaking the 15s contract.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]);
+
+  // Promote `pendingShow → open` when the user exits Edit mode.
+  React.useEffect(() => {
+    if (mode === "preview" && ratingPendingShow && !ratingOpen) {
+      setRatingOpen(true);
+      setRatingPendingShow(false);
+    }
+  }, [mode, ratingPendingShow, ratingOpen]);
+
   return (
     <div className="space-y-6">
       <Breadcrumb
@@ -288,6 +383,15 @@ function EditorChrome({ id, resume }: { id: string; resume: TailoredResume }) {
         open={discardDialogOpen}
         onOpenChange={setDiscardDialogOpen}
         onConfirm={confirmDiscard}
+      />
+
+      {/* TAILOR-13 — Post-generation rating modal. Mounted unconditionally
+          at the page root; the open prop is driven by the 15s timer + the
+          Edit-mode pendingShow logic above. */}
+      <RatingModal
+        resumeId={id}
+        open={ratingOpen}
+        onOpenChange={setRatingOpen}
       />
     </div>
   );

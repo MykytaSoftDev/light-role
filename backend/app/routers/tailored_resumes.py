@@ -16,16 +16,22 @@ from io import BytesIO
 from typing import Optional
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from fastapi.responses import StreamingResponse
+from sqlalchemy import func
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, selectinload
 
 from app.database import get_db
 from app.dependencies.auth import get_verified_user
+from app.models.ai_quality_rating import AIQualityRating
 from app.models.tailored_resume import TailoredResume
 from app.models.user import User
 from app.schemas.tailored_resume import (
+    AIQualityRatingCreateRequest,
+    AIQualityRatingResponse,
     TailoredResumePatchRequest,
+    TailoredResumeRatingModalShownResponse,
     TailoredResumeResponse,
 )
 from app.services.font_css import (
@@ -146,18 +152,22 @@ h1 {{
 
 
 def _serialize(row: TailoredResume) -> TailoredResumeResponse:
-    """Build a TailoredResumeResponse with joined-Job fields populated.
+    """Build a TailoredResumeResponse with joined-Job + rating fields populated.
 
-    `job_title` / `job_company` are derived from the eager-loaded `row.job`
-    relationship (see `_load_owned` for the eager-load) — they are never
-    persisted on the tailored_resumes row. Defensive `getattr` so a missing
-    relationship (e.g. orphan row) just yields `None` rather than raising.
+    `job_title` / `job_company` come from the eager-loaded `row.job` and
+    `rating` from the eager-loaded `row.rating` (1:0..1) relationship — see
+    `_load_owned` for the eager-loads. None of these are persisted on the
+    tailored_resumes row. Defensive `getattr` so a missing relationship
+    (e.g. orphan row) just yields `None` rather than raising.
     """
     job = getattr(row, "job", None)
+    rating_row = getattr(row, "rating", None)
     response = TailoredResumeResponse.model_validate(row)
     if job is not None:
         response.job_title = job.title
         response.job_company = job.company
+    if rating_row is not None:
+        response.rating = rating_row.rating
     return response
 
 
@@ -173,7 +183,10 @@ def _load_owned(
     """
     row = (
         db.query(TailoredResume)
-        .options(selectinload(TailoredResume.job))
+        .options(
+            selectinload(TailoredResume.job),
+            selectinload(TailoredResume.rating),
+        )
         .filter(TailoredResume.id == tailored_resume_id)
         .first()
     )
@@ -255,6 +268,142 @@ def patch_tailored_resume(
     db.refresh(row)
 
     return _serialize(row)
+
+
+@router.delete(
+    "/{tailored_resume_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    response_class=Response,
+)
+def delete_tailored_resume(
+    tailored_resume_id: UUID,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_verified_user),
+) -> Response:
+    """Hard-delete a tailored resume (TAILOR-14, PRD 6.5).
+
+    No soft delete in MVP per spec — the row is removed immediately and
+    the FK `ai_quality_ratings.tailored_resume_id` (declared
+    `ondelete=CASCADE` in migration 012) cleans up any associated rating
+    in the same transaction.
+
+    Auth: verified user. `_load_owned` 404s on both "not found" and
+    "found but not owner" — that 404 flows through unchanged so we never
+    leak existence to a non-owner attempting to delete.
+
+    Does NOT consume AI credits (deletion is free, per spec).
+    """
+    row = _load_owned(db, tailored_resume_id, current_user)
+    db.delete(row)
+    db.commit()
+    logger.info(
+        "Tailored resume deleted: tailored_resume_id=%s user_id=%s",
+        tailored_resume_id,
+        current_user.id,
+    )
+    # 204 must have an empty body; explicit Response avoids FastAPI
+    # serialising `None` into a JSON `null`.
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@router.post(
+    "/{tailored_resume_id}/rating",
+    response_model=AIQualityRatingResponse,
+    status_code=status.HTTP_201_CREATED,
+)
+def create_tailored_resume_rating(
+    tailored_resume_id: UUID,
+    data: AIQualityRatingCreateRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_verified_user),
+) -> AIQualityRatingResponse:
+    """Submit a 1-5 star rating for a tailored resume (TAILOR-14, PRD 6.10).
+
+    Write-once per resume: the UNIQUE on `ai_quality_ratings.tailored_resume_id`
+    is the source of truth. We catch `IntegrityError` from that constraint
+    and translate to 409, rather than pre-checking with a SELECT —
+    avoids a TOCTOU race when two requests submit concurrently.
+
+    Auth: verified user. Resource ownership is enforced via `_load_owned`
+    so a user cannot rate someone else's resume (404 on non-ownership).
+
+    Does NOT consume AI credits (rating is free, per spec).
+    """
+    # Ownership check first — 404 hides existence from non-owners.
+    _load_owned(db, tailored_resume_id, current_user)
+
+    rating = AIQualityRating(
+        user_id=current_user.id,
+        tailored_resume_id=tailored_resume_id,
+        rating=data.rating,
+        comment=data.comment,
+    )
+    db.add(rating)
+    try:
+        db.commit()
+    except IntegrityError:
+        # UNIQUE on tailored_resume_id violated → rating already exists.
+        # Roll back so the session is reusable for the response cycle.
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="A rating already exists for this tailored resume.",
+        )
+    db.refresh(rating)
+
+    logger.info(
+        "AI quality rating submitted: tailored_resume_id=%s user_id=%s rating=%d",
+        tailored_resume_id,
+        current_user.id,
+        data.rating,
+    )
+    return AIQualityRatingResponse.model_validate(rating)
+
+
+@router.post(
+    "/{tailored_resume_id}/rating-modal-shown",
+    response_model=TailoredResumeRatingModalShownResponse,
+    status_code=status.HTTP_200_OK,
+)
+def mark_rating_modal_shown(
+    tailored_resume_id: UUID,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_verified_user),
+) -> TailoredResumeRatingModalShownResponse:
+    """Stamp the rating modal "first shown" timestamp (TAILOR-14, PRD 6.10).
+
+    Idempotent by design: the UPDATE filters on
+    `rating_modal_shown_at IS NULL`, so a repeat call matches zero rows
+    and is a true DB-level no-op (no Python-side branch). The response
+    always returns the *current* value — set on first call, unchanged
+    thereafter — which the frontend uses to confirm registration
+    without a follow-up GET.
+
+    Auth: verified user. Ownership enforced via `_load_owned` (404s leak
+    nothing).
+    """
+    # Ownership check — 404 if not owner. Also gives us the current row.
+    row = _load_owned(db, tailored_resume_id, current_user)
+
+    # Conditional UPDATE: only sets the timestamp when it's currently NULL.
+    # Using a server-side `func.now()` keeps the timestamp authoritative
+    # across timezones / clock skew between app instances.
+    # `synchronize_session=False`: we discard the loaded `row` immediately
+    # after by re-querying — no need for SQLAlchemy to update in-memory state.
+    db.query(TailoredResume).filter(
+        TailoredResume.id == tailored_resume_id,
+        TailoredResume.rating_modal_shown_at.is_(None),
+    ).update(
+        {"rating_modal_shown_at": func.now()},
+        synchronize_session=False,
+    )
+    db.commit()
+
+    # Re-read the row to return the current (set or pre-existing) value.
+    db.refresh(row)
+    return TailoredResumeRatingModalShownResponse(
+        rating_modal_shown_at=row.rating_modal_shown_at,
+    )
 
 
 @router.post(

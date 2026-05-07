@@ -47,6 +47,8 @@ export interface TailoredResume {
   template_snapshot: string;
 
   rating_modal_shown_at: string | null;
+  /** Star rating (1..5) the user gave this resume — null if not rated. */
+  rating: number | null;
   created_at: string;
   updated_at: string;
 }
@@ -258,4 +260,77 @@ export async function downloadTailoredResume(id: string): Promise<Blob> {
     );
   }
   return res.blob();
+}
+
+// ---------------------------------------------------------------------------
+// TAILOR-13/14 — Rating modal endpoints
+// ---------------------------------------------------------------------------
+
+export interface SubmitRatingPayload {
+  rating: number;
+  /** null when the comment textarea is hidden (rating ≥ 3) or empty/whitespace. */
+  comment: string | null;
+}
+
+/**
+ * Error thrown by `submitRating` so callers can branch on status. The spec
+ * (§5.3) distinguishes 409 (close silently) from 5xx (keep modal open with
+ * inline error) — therefore the status code MUST be preserved.
+ */
+export class RatingSubmitError extends Error {
+  status: number;
+  constructor(status: number, message: string) {
+    super(message);
+    this.name = "RatingSubmitError";
+    this.status = status;
+  }
+}
+
+/**
+ * POST /api/v1/tailored-resumes/{id}/rating
+ *
+ * 201 → resolves.
+ * 409 → throws RatingSubmitError(409) — already rated (race with another tab).
+ * 5xx / network → throws RatingSubmitError(>=500).
+ * Other non-2xx → throws RatingSubmitError(status).
+ */
+export async function submitRating(
+  resumeId: string,
+  payload: SubmitRatingPayload
+): Promise<void> {
+  let res: Response;
+  try {
+    res = await api.post(
+      `/api/v1/tailored-resumes/${resumeId}/rating`,
+      payload
+    );
+  } catch {
+    // Network failure — treat as 5xx-equivalent so the caller renders the
+    // inline retry error and keeps the modal open.
+    throw new RatingSubmitError(0, "Network error while submitting rating.");
+  }
+  if (res.status === 201 || res.ok) return;
+
+  const body = await readBackendError(res);
+  const message =
+    extractDetailString(body) ?? `Rating submit failed (HTTP ${res.status}).`;
+  throw new RatingSubmitError(res.status, message);
+}
+
+/**
+ * POST /api/v1/tailored-resumes/{id}/rating-modal-shown
+ *
+ * Idempotent server-side. Fire-and-forget at the call site — the spec (§1.1)
+ * intentionally does not block modal display on this POST. Errors are
+ * swallowed: a network failure at second 0 leaves the modal eligible to
+ * re-show on next visit (acceptable per §1.2 edge analysis).
+ */
+export async function markRatingModalShown(resumeId: string): Promise<void> {
+  try {
+    await api.post(
+      `/api/v1/tailored-resumes/${resumeId}/rating-modal-shown`
+    );
+  } catch {
+    // Intentionally swallowed — see docstring.
+  }
 }
