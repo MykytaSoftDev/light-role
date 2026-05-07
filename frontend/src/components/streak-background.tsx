@@ -1,4 +1,12 @@
-export default function AuthStreakBackground() {
+/**
+ * Ambient SVG backdrop — animated green/teal streaks + soft glows.
+ * Used on auth pages (login/register) and the resume-tailor loading screen.
+ *
+ * Renders as `position: absolute; inset: 0` — the parent must be `relative`
+ * (or the SVG will overlap the entire viewport). Animation pauses under
+ * `prefers-reduced-motion` (see `.ls-streaks` / `.ls-glow` rules in globals.css).
+ */
+export default function StreakBackground() {
   return (
     <svg
       className="pointer-events-none absolute inset-0 h-full w-full"

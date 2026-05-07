@@ -63,7 +63,12 @@ export const REORDERABLE_SECTION_KEYS = [
 
 export type ReorderableSectionKey = (typeof REORDERABLE_SECTION_KEYS)[number];
 
-const SECTION_LABELS: Record<ReorderableSectionKey, string> = {
+/**
+ * Display labels for the 9 reorderable sections. Exported and reused by the
+ * Insights side panel's Applied Changes accordion (TAILOR-12) — single source
+ * of truth.
+ */
+export const SECTION_LABELS: Record<ReorderableSectionKey, string> = {
   summary: "Summary",
   employment: "Experience",
   education: "Education",

@@ -19,6 +19,7 @@ import { Check, Circle, Lightbulb, Loader2, X } from "lucide-react";
 import { toast } from "sonner";
 
 import { cn } from "@/lib/utils";
+import StreakBackground from "@/components/streak-background";
 import {
   TailorError,
   tailorResumeForJob,
@@ -74,8 +75,11 @@ export default function TailorLoadingPage() {
 
 function LoadingFallback() {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-background">
-      <Loader2 className="h-6 w-6 animate-spin text-primary" />
+    <div className="fixed inset-0 z-50 overflow-hidden bg-background">
+      <StreakBackground />
+      <div className="relative z-10 flex min-h-svh items-center justify-center">
+        <Loader2 className="h-6 w-6 animate-spin text-primary" />
+      </div>
     </div>
   );
 }
@@ -220,33 +224,56 @@ function TailorLoadingContent() {
       role="status"
       aria-live="polite"
       aria-busy="true"
-      className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-8 bg-background px-6 min-h-svh"
+      className="fixed inset-0 z-50 overflow-hidden bg-background"
     >
-      <div className="text-base font-semibold text-muted-foreground">
-        Light Role
+      {/*
+        Ambient backdrop — same animated streaks used on auth pages. Without
+        a backdrop the screen reads as empty (especially on light theme),
+        which is jarring during a 15s wait.
+      */}
+      <StreakBackground />
+
+      <div className="relative z-10 flex min-h-svh flex-col items-center justify-center gap-6 px-6">
+        <div className="text-base font-semibold text-muted-foreground">
+          Light Role
+        </div>
+
+        {/*
+          Glass card hosting the phase list. Backdrop-blur lets the streaks
+          show through softly while keeping the rows readable. Subtle
+          primary-tinted shadow nudges the eye toward "something is happening".
+        */}
+        <div
+          className={cn(
+            "w-full max-w-md rounded-xl border border-border/60",
+            "bg-card/70 backdrop-blur-md",
+            "shadow-[0_8px_32px_-8px_oklch(60%_0.2_120/0.18)]",
+            "dark:bg-card/60 dark:shadow-[0_8px_32px_-8px_oklch(88%_0.2_120/0.12)]"
+          )}
+        >
+          <ul
+            className="divide-y divide-border/60 p-2"
+            aria-label="Tailoring progress"
+          >
+            {PHASES.map((p, idx) => {
+              const state = getPhaseState(idx);
+              return <PhaseRow key={idx} index={idx} phase={p} state={state} />;
+            })}
+          </ul>
+        </div>
+
+        {/* Active subtitle */}
+        <p
+          className="text-sm text-muted-foreground text-center"
+          aria-live="polite"
+        >
+          {phase3Failed
+            ? "Something went wrong."
+            : PHASES[activePhase]?.activeSubtitle}
+        </p>
+
+        <TipCard tip={TIPS[tipIndex]} />
       </div>
-
-      <ul
-        className="w-full max-w-md divide-y divide-border rounded-md"
-        aria-label="Tailoring progress"
-      >
-        {PHASES.map((p, idx) => {
-          const state = getPhaseState(idx);
-          return <PhaseRow key={idx} index={idx} phase={p} state={state} />;
-        })}
-      </ul>
-
-      {/* Active subtitle */}
-      <p
-        className="text-sm text-muted-foreground text-center -mt-4"
-        aria-live="polite"
-      >
-        {phase3Failed
-          ? "Something went wrong."
-          : PHASES[activePhase]?.activeSubtitle}
-      </p>
-
-      <TipCard tip={TIPS[tipIndex]} />
     </div>
   );
 }
@@ -316,7 +343,14 @@ function PhaseRow({ index, phase, state }: PhaseRowProps) {
 function TipCard({ tip }: { tip: string }) {
   return (
     <div className="hidden min-[640px]:block w-full max-w-md">
-      <div className="rounded-lg border border-border bg-card p-4 text-sm">
+      <div
+        className={cn(
+          "rounded-lg border border-border/60 p-4 text-sm",
+          "bg-card/70 backdrop-blur-md",
+          "shadow-[0_4px_16px_-6px_oklch(60%_0.2_120/0.12)]",
+          "dark:bg-card/60"
+        )}
+      >
         <div className="mb-1 flex items-center gap-2 font-semibold">
           <Lightbulb className="h-4 w-4 text-primary" aria-hidden="true" />
           Did you know?

@@ -29,6 +29,7 @@ import {
 
 import { Switch } from "@/components/ui/switch";
 import type { EducationEntry } from "@/lib/profile-api";
+import type { MatchedKeyword } from "@/lib/tailored-resume-api";
 
 import { EditableEntry } from "../editable-entry";
 import { EditableSection } from "../editable-section";
@@ -41,6 +42,8 @@ interface EducationEditorProps {
   onChange: (next: EducationEntry[]) => void;
   focusEntryId?: string | null;
   onFocusApplied?: () => void;
+  /** TAILOR-12 — keyword highlighting (forwarded to TiptapField). */
+  keywords?: MatchedKeyword[];
 }
 
 export function EducationEditor({
@@ -48,6 +51,7 @@ export function EducationEditor({
   onChange,
   focusEntryId,
   onFocusApplied,
+  keywords,
 }: EducationEditorProps) {
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
@@ -113,6 +117,7 @@ export function EducationEditor({
               onAutoFocusApplied={onFocusApplied}
               onChange={(p) => handleEntryChange(entry.id ?? "", p)}
               onRemove={() => handleRemove(entry.id ?? "")}
+              keywords={keywords}
             />
           ))}
         </SortableContext>
@@ -127,6 +132,7 @@ interface EducationEntryEditorProps {
   onAutoFocusApplied?: () => void;
   onChange: (patch: Partial<EducationEntry>) => void;
   onRemove: () => void;
+  keywords?: MatchedKeyword[];
 }
 
 const EducationEntryEditor = React.memo(function EducationEntryEditor({
@@ -135,6 +141,7 @@ const EducationEntryEditor = React.memo(function EducationEntryEditor({
   onAutoFocusApplied,
   onChange,
   onRemove,
+  keywords,
 }: EducationEntryEditorProps) {
   const degreeRef = React.useRef<HTMLInputElement>(null);
   React.useEffect(() => {
@@ -236,6 +243,7 @@ const EducationEntryEditor = React.memo(function EducationEntryEditor({
           enableBulletList
           placeholder="Add details about your studies, honors, projects…"
           ariaLabel="Description"
+          keywords={keywords}
         />
       </div>
     </EditableEntry>

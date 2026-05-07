@@ -1,6 +1,6 @@
 "use client";
 
-import AuthStreakBackground from "@/app/(auth)/_components/auth-streak-background";
+import StreakBackground from "@/components/streak-background";
 import { GoogleIcon } from "@/components/shared/google-icon";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -71,7 +71,7 @@ export default function LoginPage() {
         className="dark text-foreground relative hidden flex-col justify-between overflow-hidden p-12 lg:flex lg:w-[45%]"
         style={{ background: "oklch(10% 0.01 286)" }}
       >
-        <AuthStreakBackground />
+        <StreakBackground />
         {/* Logo */}
         <div className="relative z-10 flex items-center gap-3">
           {/* <div className="bg-primary text-primary-foreground flex h-8 w-8 items-center justify-center rounded-md text-xs font-bold select-none">

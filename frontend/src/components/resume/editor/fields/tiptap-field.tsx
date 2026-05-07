@@ -40,6 +40,9 @@ import ListItem from "@tiptap/extension-list-item";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import type { MatchedKeyword } from "@/lib/tailored-resume-api";
+import { createKeywordHighlightExtension } from "@/lib/resume/keyword-decoration";
+import { useKeywordScroll } from "@/lib/resume/keyword-scroll-context";
 
 export interface TiptapFieldProps {
   /** HTML content (as stored in the draft). */
@@ -58,6 +61,15 @@ export interface TiptapFieldProps {
   editable?: boolean;
   /** Aria-label for the editor area. */
   ariaLabel?: string;
+  /**
+   * TAILOR-12: matched keywords from the AI tailor pipeline. When provided
+   * (and non-empty) the field mounts a ProseMirror Decoration plugin that
+   * paints inline highlights with a tinted background. Highlights recompute
+   * on blur, debounced 300ms — they never appear in `editor.getHTML()`.
+   *
+   * Pass `undefined` to disable highlighting (default).
+   */
+  keywords?: MatchedKeyword[];
 }
 
 /**
@@ -73,7 +85,12 @@ export function TiptapField({
   proseClassName,
   editable = true,
   ariaLabel,
+  keywords,
 }: TiptapFieldProps) {
+  // Keyword highlighting context (only present in the resume editor — Preview
+  // mode and other Tiptap consumers like the cover-letter editor have no
+  // provider, so the hook returns null).
+  const keywordScroll = useKeywordScroll();
   const [focused, setFocused] = React.useState(false);
   // Toolbar visibility: keep visible briefly after blur so clicks on the
   // toolbar don't dismiss it before the click registers (spec §7.0.6).
@@ -100,6 +117,18 @@ export function TiptapField({
   // draft state, and React's diffing of the document re-render is fast
   // enough at the section sizes we ship. If profiling later shows a hot
   // spot we can add a 300ms debounce here.
+
+  // TAILOR-12 — Build the keyword highlight extension once per keywords-array
+  // identity. The parent (`InsightsPanel` / `EditableTemplate`) keeps the
+  // array stable for the life of the editor, so this memo realistically
+  // runs only on first mount.
+  const keywordExtension = React.useMemo(
+    () =>
+      keywords && keywords.length > 0
+        ? createKeywordHighlightExtension(keywords)
+        : null,
+    [keywords]
+  );
 
   const editor = useEditor({
     immediatelyRender: false, // Avoid SSR hydration mismatches (Tiptap docs).
@@ -128,6 +157,7 @@ export function TiptapField({
             }),
           ]
         : []),
+      ...(keywordExtension ? [keywordExtension] : []),
     ],
     content: value || "",
     editable,
@@ -232,6 +262,24 @@ export function TiptapField({
       if (blurTimeoutRef.current) clearTimeout(blurTimeoutRef.current);
     };
   }, []);
+
+  // TAILOR-12 — Register this editor with the KeywordScrollContext so chip
+  // clicks can locate the first occurrence of a term across all 7 fields.
+  // Only registers when both (a) keywords are present and (b) a context
+  // provider is mounted. Token is a per-mount Symbol so re-renders don't
+  // collide.
+  const tokenRef = React.useRef<symbol | null>(null);
+  if (tokenRef.current === null) {
+    tokenRef.current = Symbol("tiptap-keyword-editor");
+  }
+  React.useEffect(() => {
+    if (!keywordScroll || !editor || !keywords || keywords.length === 0) return;
+    const token = tokenRef.current!;
+    keywordScroll.register(token, { editor });
+    return () => {
+      keywordScroll.unregister(token);
+    };
+  }, [keywordScroll, editor, keywords]);
 
   if (!editor) {
     // First render before the client hook initializes — render a placeholder

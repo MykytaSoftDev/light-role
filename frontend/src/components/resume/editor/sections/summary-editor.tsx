@@ -11,17 +11,22 @@
  */
 import * as React from "react";
 
+import type { MatchedKeyword } from "@/lib/tailored-resume-api";
+
 import { TiptapField } from "../fields/tiptap-field";
 import { EditableSection } from "../editable-section";
 
 interface SummaryEditorProps {
   value: string;
   onChange: (next: string) => void;
+  /** TAILOR-12 — keyword highlighting (forwarded to TiptapField). */
+  keywords?: MatchedKeyword[];
 }
 
 export const SummaryEditor = React.memo(function SummaryEditor({
   value,
   onChange,
+  keywords,
 }: SummaryEditorProps) {
   return (
     <EditableSection title="Summary">
@@ -32,6 +37,7 @@ export const SummaryEditor = React.memo(function SummaryEditor({
         placeholder="Add a short summary of your experience and goals."
         proseClassName="resume-summary"
         ariaLabel="Summary"
+        keywords={keywords}
       />
     </EditableSection>
   );

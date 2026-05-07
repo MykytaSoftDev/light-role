@@ -14,6 +14,7 @@ import * as React from "react";
 
 import type { ProfileData } from "@/lib/profile-api";
 import type { ResumeFont } from "@/lib/fonts/resume-fonts";
+import type { MatchedKeyword } from "@/lib/tailored-resume-api";
 
 import { EditableTemplate } from "./editable-template";
 
@@ -33,6 +34,11 @@ export interface EditablePreviewProps {
    * just above the page.
    */
   topSlot?: React.ReactNode;
+  /**
+   * TAILOR-12 — Matched keywords from the AI tailor pipeline, threaded down
+   * to each Tiptap editor for inline highlighting.
+   */
+  keywords?: MatchedKeyword[];
 }
 
 // Mirrors the constants in resume-preview.tsx — the canvas math is identical
@@ -82,6 +88,7 @@ export function EditablePreview({
   scale: scaleOverride,
   className,
   topSlot,
+  keywords,
 }: EditablePreviewProps) {
   const canvasRef = React.useRef<HTMLDivElement | null>(null);
   const autoScale = useContainerScale(canvasRef);
@@ -143,6 +150,7 @@ export function EditablePreview({
             sections_order={sections_order}
             onChange={onChange}
             onValidityChange={onValidityChange}
+            keywords={keywords}
           />
         </div>
       </div>

@@ -26,6 +26,7 @@ import {
 
 import { Switch } from "@/components/ui/switch";
 import type { VolunteerEntry } from "@/lib/profile-api";
+import type { MatchedKeyword } from "@/lib/tailored-resume-api";
 
 import { EditableEntry } from "../editable-entry";
 import { EditableSection } from "../editable-section";
@@ -42,6 +43,8 @@ interface VolunteerEditorProps {
   onChange: (next: VolunteerEntry[]) => void;
   focusEntryId?: string | null;
   onFocusApplied?: () => void;
+  /** TAILOR-12 — keyword highlighting (forwarded to TiptapField). */
+  keywords?: MatchedKeyword[];
 }
 
 export function VolunteerEditor({
@@ -49,6 +52,7 @@ export function VolunteerEditor({
   onChange,
   focusEntryId,
   onFocusApplied,
+  keywords,
 }: VolunteerEditorProps) {
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
@@ -113,6 +117,7 @@ export function VolunteerEditor({
               onAutoFocusApplied={onFocusApplied}
               onChange={(p) => handleEntryChange(entry.id ?? "", p)}
               onRemove={() => handleRemove(entry.id ?? "")}
+              keywords={keywords}
             />
           ))}
         </SortableContext>
@@ -127,6 +132,7 @@ interface VolunteerEntryEditorProps {
   onAutoFocusApplied?: () => void;
   onChange: (patch: Partial<VolunteerEntry>) => void;
   onRemove: () => void;
+  keywords?: MatchedKeyword[];
 }
 
 const VolunteerEntryEditor = React.memo(function VolunteerEntryEditor({
@@ -135,6 +141,7 @@ const VolunteerEntryEditor = React.memo(function VolunteerEntryEditor({
   onAutoFocusApplied,
   onChange,
   onRemove,
+  keywords,
 }: VolunteerEntryEditorProps) {
   const roleRef = React.useRef<HTMLInputElement>(null);
   React.useEffect(() => {
@@ -232,6 +239,7 @@ const VolunteerEntryEditor = React.memo(function VolunteerEntryEditor({
           enableBulletList
           placeholder="• Add a bullet describing what you did"
           ariaLabel="Bullets"
+          keywords={keywords}
         />
       </div>
     </EditableEntry>

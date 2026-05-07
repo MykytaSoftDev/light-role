@@ -31,6 +31,7 @@ import {
 
 import { Switch } from "@/components/ui/switch";
 import type { ProjectEntry } from "@/lib/profile-api";
+import type { MatchedKeyword } from "@/lib/tailored-resume-api";
 
 import { EditableEntry } from "../editable-entry";
 import { EditableSection } from "../editable-section";
@@ -48,6 +49,8 @@ interface ProjectsEditorProps {
   onChange: (next: ProjectEntry[]) => void;
   focusEntryId?: string | null;
   onFocusApplied?: () => void;
+  /** TAILOR-12 — keyword highlighting (forwarded to TiptapField). */
+  keywords?: MatchedKeyword[];
 }
 
 export function ProjectsEditor({
@@ -55,6 +58,7 @@ export function ProjectsEditor({
   onChange,
   focusEntryId,
   onFocusApplied,
+  keywords,
 }: ProjectsEditorProps) {
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
@@ -122,6 +126,7 @@ export function ProjectsEditor({
               onAutoFocusApplied={onFocusApplied}
               onChange={(p) => handleEntryChange(entry.id ?? "", p)}
               onRemove={() => handleRemove(entry.id ?? "")}
+              keywords={keywords}
             />
           ))}
         </SortableContext>
@@ -136,6 +141,7 @@ interface ProjectEntryEditorProps {
   onAutoFocusApplied?: () => void;
   onChange: (patch: Partial<ProjectEntry>) => void;
   onRemove: () => void;
+  keywords?: MatchedKeyword[];
 }
 
 const ProjectEntryEditor = React.memo(function ProjectEntryEditor({
@@ -144,6 +150,7 @@ const ProjectEntryEditor = React.memo(function ProjectEntryEditor({
   onAutoFocusApplied,
   onChange,
   onRemove,
+  keywords,
 }: ProjectEntryEditorProps) {
   const nameRef = React.useRef<HTMLInputElement>(null);
   React.useEffect(() => {
@@ -290,6 +297,7 @@ const ProjectEntryEditor = React.memo(function ProjectEntryEditor({
           enableBulletList
           placeholder="• Add a bullet describing the project"
           ariaLabel="Bullets"
+          keywords={keywords}
         />
       </div>
 
@@ -300,6 +308,7 @@ const ProjectEntryEditor = React.memo(function ProjectEntryEditor({
           enableBulletList={false}
           placeholder="Describe the project"
           ariaLabel="Description"
+          keywords={keywords}
         />
       </div>
     </EditableEntry>

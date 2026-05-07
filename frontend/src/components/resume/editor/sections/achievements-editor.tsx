@@ -28,6 +28,7 @@ import {
 } from "@dnd-kit/sortable";
 
 import type { AchievementEntry } from "@/lib/profile-api";
+import type { MatchedKeyword } from "@/lib/tailored-resume-api";
 
 import { EditableEntry } from "../editable-entry";
 import { EditableSection } from "../editable-section";
@@ -40,6 +41,8 @@ interface AchievementsEditorProps {
   onChange: (next: AchievementEntry[]) => void;
   focusEntryId?: string | null;
   onFocusApplied?: () => void;
+  /** TAILOR-12 — keyword highlighting (forwarded to TiptapField). */
+  keywords?: MatchedKeyword[];
 }
 
 export function AchievementsEditor({
@@ -47,6 +50,7 @@ export function AchievementsEditor({
   onChange,
   focusEntryId,
   onFocusApplied,
+  keywords,
 }: AchievementsEditorProps) {
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
@@ -108,6 +112,7 @@ export function AchievementsEditor({
               onAutoFocusApplied={onFocusApplied}
               onChange={(p) => handleEntryChange(entry.id ?? "", p)}
               onRemove={() => handleRemove(entry.id ?? "")}
+              keywords={keywords}
             />
           ))}
         </SortableContext>
@@ -122,6 +127,7 @@ interface AchievementEntryEditorProps {
   onAutoFocusApplied?: () => void;
   onChange: (patch: Partial<AchievementEntry>) => void;
   onRemove: () => void;
+  keywords?: MatchedKeyword[];
 }
 
 const AchievementEntryEditor = React.memo(function AchievementEntryEditor({
@@ -130,6 +136,7 @@ const AchievementEntryEditor = React.memo(function AchievementEntryEditor({
   onAutoFocusApplied,
   onChange,
   onRemove,
+  keywords,
 }: AchievementEntryEditorProps) {
   const titleRef = React.useRef<HTMLInputElement>(null);
   React.useEffect(() => {
@@ -186,6 +193,7 @@ const AchievementEntryEditor = React.memo(function AchievementEntryEditor({
           enableBulletList={false}
           placeholder="Describe the achievement"
           ariaLabel="Description"
+          keywords={keywords}
         />
       </div>
     </EditableEntry>

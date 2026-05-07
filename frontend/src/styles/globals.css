@@ -94,6 +94,35 @@
   --code-selection: oklch(92% 0.01 286);
   --code-border: oklch(88% 0.01 286);
   --radius: 0.625rem;
+
+  /* TAILOR-12 — Insights panel chip palette. Bg + fg per color_id 1..8. */
+  --keyword-chip-bg-1: #FEF3C7;
+  --keyword-chip-fg-1: #92400E;
+  --keyword-chip-bg-2: #DBEAFE;
+  --keyword-chip-fg-2: #1E40AF;
+  --keyword-chip-bg-3: #D1FAE5;
+  --keyword-chip-fg-3: #065F46;
+  --keyword-chip-bg-4: #FCE7F3;
+  --keyword-chip-fg-4: #9D174D;
+  --keyword-chip-bg-5: #E0E7FF;
+  --keyword-chip-fg-5: #3730A3;
+  --keyword-chip-bg-6: #FFEDD5;
+  --keyword-chip-fg-6: #9A3412;
+  --keyword-chip-bg-7: #CFFAFE;
+  --keyword-chip-fg-7: #155E75;
+  --keyword-chip-bg-8: #EDE9FE;
+  --keyword-chip-fg-8: #5B21B6;
+
+  /* In-editor highlight tint — soft 55% alpha versions of the chip bg, applied
+     as a background to keyword text inside Tiptap fields during Edit mode. */
+  --keyword-mark-bg-1: rgba(254, 243, 199, 0.55);
+  --keyword-mark-bg-2: rgba(219, 234, 254, 0.55);
+  --keyword-mark-bg-3: rgba(209, 250, 229, 0.55);
+  --keyword-mark-bg-4: rgba(252, 231, 243, 0.55);
+  --keyword-mark-bg-5: rgba(224, 231, 255, 0.55);
+  --keyword-mark-bg-6: rgba(255, 237, 213, 0.55);
+  --keyword-mark-bg-7: rgba(207, 250, 254, 0.55);
+  --keyword-mark-bg-8: rgba(237, 233, 254, 0.55);
 }
 
 .dark {
@@ -140,6 +169,35 @@
   --code-selection: oklch(20% 0.02 286);
   --code-border: oklch(25% 0.02 286);
   --radius: 0.625rem;
+
+  /* TAILOR-12 — Insights panel chip palette (dark theme). */
+  --keyword-chip-bg-1: rgba(180, 83, 9, 0.30);
+  --keyword-chip-fg-1: #FCD34D;
+  --keyword-chip-bg-2: rgba(29, 78, 216, 0.30);
+  --keyword-chip-fg-2: #93C5FD;
+  --keyword-chip-bg-3: rgba(4, 120, 87, 0.30);
+  --keyword-chip-fg-3: #6EE7B7;
+  --keyword-chip-bg-4: rgba(190, 24, 93, 0.30);
+  --keyword-chip-fg-4: #F9A8D4;
+  --keyword-chip-bg-5: rgba(67, 56, 202, 0.30);
+  --keyword-chip-fg-5: #A5B4FC;
+  --keyword-chip-bg-6: rgba(194, 65, 12, 0.30);
+  --keyword-chip-fg-6: #FDBA74;
+  --keyword-chip-bg-7: rgba(14, 116, 144, 0.30);
+  --keyword-chip-fg-7: #67E8F9;
+  --keyword-chip-bg-8: rgba(109, 40, 217, 0.30);
+  --keyword-chip-fg-8: #C4B5FD;
+
+  /* In-editor highlight tint stays light: the resume document is paper-always
+     regardless of app theme (classic-template-spec.md §8). */
+  --keyword-mark-bg-1: rgba(254, 243, 199, 0.55);
+  --keyword-mark-bg-2: rgba(219, 234, 254, 0.55);
+  --keyword-mark-bg-3: rgba(209, 250, 229, 0.55);
+  --keyword-mark-bg-4: rgba(252, 231, 243, 0.55);
+  --keyword-mark-bg-5: rgba(224, 231, 255, 0.55);
+  --keyword-mark-bg-6: rgba(255, 237, 213, 0.55);
+  --keyword-mark-bg-7: rgba(207, 250, 254, 0.55);
+  --keyword-mark-bg-8: rgba(237, 233, 254, 0.55);
 }
 
 @theme inline {
@@ -272,3 +330,64 @@
     animation: none;
   }
 }
+
+/* ---------------------------------------------------------------------------
+ * TAILOR-12 — Insights panel chips + in-editor keyword decoration
+ *
+ * Chips render as <button class="keyword-chip keyword-chip--N">; the
+ * decoration plugin paints inline spans with class
+ * "keyword-decoration keyword-mark-N" plus [data-color-id="N"]. CSS-only
+ * styling keeps the colors centralized next to the variable declarations
+ * above.
+ * --------------------------------------------------------------------------- */
+
+.keyword-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  font-weight: 500;
+  border: 1px solid transparent;
+  background-color: var(--keyword-chip-bg-1);
+  color: var(--keyword-chip-fg-1);
+  transition: filter 150ms ease, background-color 150ms ease;
+  max-width: 100%;
+  cursor: pointer;
+}
+.keyword-chip:hover:not([disabled]) { filter: brightness(0.96); }
+.dark .keyword-chip:hover:not([disabled]) { filter: brightness(1.10); }
+.keyword-chip:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+.keyword-chip[disabled] {
+  cursor: default;
+  opacity: 0.85;
+}
+
+.keyword-chip--1 { background-color: var(--keyword-chip-bg-1); color: var(--keyword-chip-fg-1); }
+.keyword-chip--2 { background-color: var(--keyword-chip-bg-2); color: var(--keyword-chip-fg-2); }
+.keyword-chip--3 { background-color: var(--keyword-chip-bg-3); color: var(--keyword-chip-fg-3); }
+.keyword-chip--4 { background-color: var(--keyword-chip-bg-4); color: var(--keyword-chip-fg-4); }
+.keyword-chip--5 { background-color: var(--keyword-chip-bg-5); color: var(--keyword-chip-fg-5); }
+.keyword-chip--6 { background-color: var(--keyword-chip-bg-6); color: var(--keyword-chip-fg-6); }
+.keyword-chip--7 { background-color: var(--keyword-chip-bg-7); color: var(--keyword-chip-fg-7); }
+.keyword-chip--8 { background-color: var(--keyword-chip-bg-8); color: var(--keyword-chip-fg-8); }
+
+/* In-editor decoration spans painted by the ProseMirror Decoration plugin. */
+.keyword-decoration {
+  background-color: var(--keyword-mark-bg-1);
+  border-radius: 2px;
+  padding: 0 1px;
+}
+.keyword-decoration[data-color-id="1"] { background-color: var(--keyword-mark-bg-1); }
+.keyword-decoration[data-color-id="2"] { background-color: var(--keyword-mark-bg-2); }
+.keyword-decoration[data-color-id="3"] { background-color: var(--keyword-mark-bg-3); }
+.keyword-decoration[data-color-id="4"] { background-color: var(--keyword-mark-bg-4); }
+.keyword-decoration[data-color-id="5"] { background-color: var(--keyword-mark-bg-5); }
+.keyword-decoration[data-color-id="6"] { background-color: var(--keyword-mark-bg-6); }
+.keyword-decoration[data-color-id="7"] { background-color: var(--keyword-mark-bg-7); }
+.keyword-decoration[data-color-id="8"] { background-color: var(--keyword-mark-bg-8); }

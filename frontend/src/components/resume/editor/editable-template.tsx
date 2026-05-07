@@ -28,6 +28,7 @@ import * as React from "react";
 import type { ProfileData } from "@/lib/profile-api";
 import type { ResumeFont } from "@/lib/fonts/resume-fonts";
 import { getResumeFontFamily } from "@/lib/fonts/resume-fonts";
+import type { MatchedKeyword } from "@/lib/tailored-resume-api";
 
 import { PersonalInfoEditor } from "./sections/personal-info-editor";
 import { SummaryEditor } from "./sections/summary-editor";
@@ -52,6 +53,12 @@ export interface EditableTemplateProps {
    * gated on `personal_info.email` (per task spec Step 10).
    */
   onValidityChange?: (isValid: boolean) => void;
+  /**
+   * TAILOR-12 — Matched keywords from the AI tailor pipeline. Threaded down
+   * to each Tiptap-backed section editor so the decoration plugin paints
+   * highlights inline. Pass `undefined` to disable highlighting.
+   */
+  keywords?: MatchedKeyword[];
 }
 
 /**
@@ -79,6 +86,7 @@ export function EditableTemplate({
   sections_order,
   onChange,
   onValidityChange,
+  keywords,
 }: EditableTemplateProps) {
   const rootStyle: React.CSSProperties & Record<string, string> = {
     ["--resume-font" as string]: getResumeFontFamily(font),
@@ -155,13 +163,18 @@ export function EditableTemplate({
     switch (key) {
       case "summary":
         return (
-          <SummaryEditor value={data.summary ?? ""} onChange={onSummaryChange} />
+          <SummaryEditor
+            value={data.summary ?? ""}
+            onChange={onSummaryChange}
+            keywords={keywords}
+          />
         );
       case "employment":
         return (
           <EmploymentEditor
             value={data.employment ?? []}
             onChange={onEmploymentChange}
+            keywords={keywords}
           />
         );
       case "education":
@@ -169,6 +182,7 @@ export function EditableTemplate({
           <EducationEditor
             value={data.education ?? []}
             onChange={onEducationChange}
+            keywords={keywords}
           />
         );
       case "skills":
@@ -194,6 +208,7 @@ export function EditableTemplate({
           <ProjectsEditor
             value={data.projects ?? []}
             onChange={onProjectsChange}
+            keywords={keywords}
           />
         );
       case "achievements":
@@ -201,6 +216,7 @@ export function EditableTemplate({
           <AchievementsEditor
             value={data.achievements ?? []}
             onChange={onAchievementsChange}
+            keywords={keywords}
           />
         );
       case "volunteer":
@@ -208,6 +224,7 @@ export function EditableTemplate({
           <VolunteerEditor
             value={data.volunteer ?? []}
             onChange={onVolunteerChange}
+            keywords={keywords}
           />
         );
       default:

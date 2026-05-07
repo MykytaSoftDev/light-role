@@ -37,11 +37,12 @@ import {
 } from "@/lib/fonts/resume-fonts";
 
 import { EditablePreview } from "@/components/resume/editor/editable-preview";
+import { KeywordScrollProvider } from "@/lib/resume/keyword-scroll-context";
 
 import { EditorShellSkeleton } from "./editor-shell-skeleton";
 import { InlineFilenameEditor } from "./inline-filename-editor";
 import { DownloadButton } from "./download-button";
-import { InsightsPanelPlaceholder } from "./insights-panel-placeholder";
+import { InsightsPanel } from "./insights-panel";
 import { PreviewFrame } from "./preview-frame";
 import { EditButton } from "./edit-button";
 import { EditModeToolbar } from "./edit-mode-toolbar";
@@ -217,45 +218,58 @@ function EditorChrome({ id, resume }: { id: string; resume: TailoredResume }) {
         to a width where the document scales down to ~0.5–0.6 (unreadable).
         At 2xl there's enough room (≥912px cell after sidebar+panel) for the
         document to render at scale 1.0 alongside the panel.
-      */}
-      <div className="grid gap-6 grid-cols-1 2xl:grid-cols-[1fr_320px]">
-        <PreviewFrame mode={mode}>
-          {mode === "edit" ? (
-            <EditablePreview
-              data={draft.tailored_data}
-              font={liveFont}
-              sections_order={liveSectionsOrder}
-              onChange={setDraftTailoredData}
-              onValidityChange={setIsValid}
-              topSlot={
-                <EditModeToolbar
-                  font={liveFont}
-                  onFontChange={setDraftFont}
-                  onOpenReorder={() => setReorderOpen(true)}
-                  onCancel={cancelEdit}
-                  onSave={() => void saveEdit()}
-                  isDirty={isDirty}
-                  isSaving={isSaving}
-                  isValid={isValid}
-                />
-              }
-            />
-          ) : (
-            <ResumePreview
-              data={draft.tailored_data}
-              font={liveFont}
-              sections_order={liveSectionsOrder}
-              template="classic"
-              topSlot={<EditButton onClick={enterEdit} />}
-            />
-          )}
-        </PreviewFrame>
 
-        {/* Side panel: hidden on mobile, stacks on tablet, sticky on desktop. */}
-        <div className="hidden md:block">
-          <InsightsPanelPlaceholder />
+        TAILOR-12: KeywordScrollProvider wraps both cells so chip clicks in
+        the side panel can reach the Tiptap editors mounted by EditablePreview.
+        The provider is a thin Map wrapper — it costs nothing to mount even
+        when keywords are absent.
+      */}
+      <KeywordScrollProvider>
+        <div className="grid gap-6 grid-cols-1 2xl:grid-cols-[1fr_320px]">
+          <PreviewFrame mode={mode}>
+            {mode === "edit" ? (
+              <EditablePreview
+                data={draft.tailored_data}
+                font={liveFont}
+                sections_order={liveSectionsOrder}
+                onChange={setDraftTailoredData}
+                onValidityChange={setIsValid}
+                keywords={resume.matched_keywords}
+                topSlot={
+                  <EditModeToolbar
+                    font={liveFont}
+                    onFontChange={setDraftFont}
+                    onOpenReorder={() => setReorderOpen(true)}
+                    onCancel={cancelEdit}
+                    onSave={() => void saveEdit()}
+                    isDirty={isDirty}
+                    isSaving={isSaving}
+                    isValid={isValid}
+                  />
+                }
+              />
+            ) : (
+              <ResumePreview
+                data={draft.tailored_data}
+                font={liveFont}
+                sections_order={liveSectionsOrder}
+                template="classic"
+                topSlot={<EditButton onClick={enterEdit} />}
+              />
+            )}
+          </PreviewFrame>
+
+          {/* Side panel: hidden on mobile, stacks on tablet, sticky on desktop. */}
+          <div className="hidden md:block">
+            <InsightsPanel
+              matchedKeywords={resume.matched_keywords}
+              appliedChanges={resume.applied_changes}
+              sectionsOrder={liveSectionsOrder}
+              isEditMode={mode === "edit"}
+            />
+          </div>
         </div>
-      </div>
+      </KeywordScrollProvider>
 
       {/* Reorder sections dialog (Edit mode only — but mounted always so
           the open/close transition is smooth; trigger button only appears

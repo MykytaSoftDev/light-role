@@ -33,6 +33,7 @@ import {
 
 import { Switch } from "@/components/ui/switch";
 import type { EmploymentEntry } from "@/lib/profile-api";
+import type { MatchedKeyword } from "@/lib/tailored-resume-api";
 
 import { EditableEntry } from "../editable-entry";
 import { EditableSection } from "../editable-section";
@@ -51,6 +52,8 @@ interface EmploymentEditorProps {
   focusEntryId?: string | null;
   /** Clears the focus hint after applying it. */
   onFocusApplied?: () => void;
+  /** TAILOR-12 — keyword highlighting (forwarded to TiptapField). */
+  keywords?: MatchedKeyword[];
 }
 
 export function EmploymentEditor({
@@ -58,6 +61,7 @@ export function EmploymentEditor({
   onChange,
   focusEntryId,
   onFocusApplied,
+  keywords,
 }: EmploymentEditorProps) {
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
@@ -122,6 +126,7 @@ export function EmploymentEditor({
               onAutoFocusApplied={onFocusApplied}
               onChange={(p) => handleEntryChange(entry.id ?? "", p)}
               onRemove={() => handleRemove(entry.id ?? "")}
+              keywords={keywords}
             />
           ))}
         </SortableContext>
@@ -140,6 +145,7 @@ interface EmploymentEntryEditorProps {
   onAutoFocusApplied?: () => void;
   onChange: (patch: Partial<EmploymentEntry>) => void;
   onRemove: () => void;
+  keywords?: MatchedKeyword[];
 }
 
 const EmploymentEntryEditor = React.memo(function EmploymentEntryEditor({
@@ -148,6 +154,7 @@ const EmploymentEntryEditor = React.memo(function EmploymentEntryEditor({
   onAutoFocusApplied,
   onChange,
   onRemove,
+  keywords,
 }: EmploymentEntryEditorProps) {
   const roleRef = React.useRef<HTMLInputElement>(null);
   React.useEffect(() => {
@@ -256,6 +263,7 @@ const EmploymentEntryEditor = React.memo(function EmploymentEntryEditor({
           enableBulletList
           placeholder="• Add a bullet describing what you did"
           ariaLabel="Bullets"
+          keywords={keywords}
         />
       </div>
     </EditableEntry>
