@@ -49,7 +49,7 @@ export function DynamicBreadcrumb() {
     .map((c, idx, arr) => ({ ...c, isLast: idx === arr.length - 1 }));
 
   return (
-    <nav aria-label="Breadcrumb" className="flex items-center gap-1 text-sm">
+    <nav aria-label="Breadcrumb" className="flex min-w-0 items-center gap-1 text-sm">
       {crumbs.map((crumb, idx) => (
         <div key={crumb.href} className="flex items-center gap-1">
           {idx > 0 && <ChevronRight className="text-muted-foreground h-3.5 w-3.5 shrink-0" />}

@@ -60,6 +60,34 @@ export interface TailoredResumePatchRequest {
   font_snapshot?: string;
 }
 
+/**
+ * Compact row shape returned by GET /api/v1/tailored-resumes (TAILOR-15).
+ *
+ * Mirrors backend `TailoredResumeListItem` — the heavy fields (`tailored_data`,
+ * `profile_snapshot`, `applied_changes`, `matched_keywords`) are deliberately
+ * omitted to keep the list endpoint lean. The list page never reads them.
+ *
+ * `job_title` / `job_company` are joined from `jobs` so the card subtitle can
+ * render without N+1 fetches; `rating` is joined from `ai_quality_ratings`.
+ */
+export interface TailoredResumeListItem {
+  id: string;
+  job_id: string;
+  name: string;
+  match_score: number;
+  rating_modal_shown_at: string | null;
+  rating: number | null;
+  job_title: string | null;
+  job_company: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface TailoredResumeListResponse {
+  items: TailoredResumeListItem[];
+  total: number;
+}
+
 // ---------------------------------------------------------------------------
 // Typed errors
 // ---------------------------------------------------------------------------
@@ -240,6 +268,61 @@ export async function patchTailoredResume(
       "UNKNOWN",
       extractDetailString(body) ?? `Failed to update resume (HTTP ${res.status}).`
     );
+  }
+  return (await res.json()) as TailoredResume;
+}
+
+/**
+ * GET /api/v1/tailored-resumes — list user's resumes (TAILOR-15).
+ *
+ * Returns the lighter `TailoredResumeListItem` shape — list page chrome only.
+ * Sorted by `created_at DESC` server-side. Throws on non-2xx.
+ */
+export async function listTailoredResumes(
+  params?: { limit?: number; offset?: number }
+): Promise<TailoredResumeListResponse> {
+  const qs = new URLSearchParams();
+  if (params?.limit != null) qs.set("limit", String(params.limit));
+  if (params?.offset != null) qs.set("offset", String(params.offset));
+  const url = `/api/v1/tailored-resumes${qs.toString() ? `?${qs}` : ""}`;
+  const res = await api.get(url);
+  if (!res.ok) {
+    throw new Error(`Failed to list resumes (HTTP ${res.status}).`);
+  }
+  return (await res.json()) as TailoredResumeListResponse;
+}
+
+/**
+ * DELETE /api/v1/tailored-resumes/{id} → 204 No Content (TAILOR-14).
+ *
+ * Throws on non-2xx so the optimistic-update flow in the list page can roll
+ * back via React Query's `onError`.
+ */
+export async function deleteTailoredResume(id: string): Promise<void> {
+  const res = await api.delete(`/api/v1/tailored-resumes/${id}`);
+  if (!res.ok && res.status !== 204) {
+    throw new Error(`Failed to delete resume (HTTP ${res.status}).`);
+  }
+}
+
+/**
+ * GET /api/v1/jobs/{jobId}/tailored-resume — does this job have a tailored
+ * resume? (TAILOR-16)
+ *
+ * - 200 → returns the existing `TailoredResume`.
+ * - 204 → no resume exists for this job → resolves to `null`.
+ * - Anything else (incl. 404) → throws so React Query surfaces an error.
+ *
+ * Caller (`JobContextMenu`) branches on `null` vs an object to render
+ * "Tailor Resume" vs "View Resume".
+ */
+export async function getTailoredResumeForJob(
+  jobId: string
+): Promise<TailoredResume | null> {
+  const res = await api.get(`/api/v1/jobs/${jobId}/tailored-resume`);
+  if (res.status === 204) return null;
+  if (!res.ok) {
+    throw new Error(`Failed to fetch tailored resume (HTTP ${res.status}).`);
   }
   return (await res.json()) as TailoredResume;
 }

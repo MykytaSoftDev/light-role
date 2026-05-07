@@ -84,19 +84,23 @@ export function ResumePreview(props: ResumePreviewProps) {
   );
 
   // The scaling layer wraps the ClassicTemplate's natural-size element
-  // (210mm wide). After applying transform: scale(N), the wrapper still
-  // occupies the un-scaled height in the DOM unless we compensate. We use a
-  // ResizeObserver on the inner element to read its un-scaled height and
-  // apply scaled height as min-height on the frame.
+  // (210mm wide × ≥297mm tall). `transform: scale(N)` only changes how the
+  // wrapper is *painted* — its DOM layout box stays at the un-scaled size,
+  // so without compensation the frame would be 1123px tall on mobile while
+  // the document visually renders at 449px, leaving ~674px of empty space
+  // below it. We use a ResizeObserver on the inner element to read its
+  // un-scaled height, then pin the frame to the scaled height with
+  // `overflow: hidden` so the wrapper's surplus layout below the visual
+  // content is clipped instead of pushing the frame.
   const innerRef = React.useRef<HTMLDivElement | null>(null);
-  const [frameMinHeight, setFrameMinHeight] = React.useState<number | null>(null);
+  const [frameHeight, setFrameHeight] = React.useState<number | null>(null);
 
   React.useEffect(() => {
     if (!innerRef.current) return;
     const target = innerRef.current;
     const apply = () => {
       // scrollHeight reads the natural (un-scaled) height of the document.
-      setFrameMinHeight(target.scrollHeight * scale);
+      setFrameHeight(target.scrollHeight * scale);
     };
     apply();
     const ro = new ResizeObserver(apply);
@@ -124,7 +128,11 @@ export function ResumePreview(props: ResumePreviewProps) {
       ) : null}
       <div
         className="resume-preview-frame"
-        style={frameMinHeight != null ? { minHeight: frameMinHeight } : undefined}
+        style={
+          frameHeight != null
+            ? { height: frameHeight, overflow: "hidden" }
+            : undefined
+        }
       >
         <div
           className="shadow-[0_4px_24px_rgba(0,0,0,0.08)] dark:shadow-[0_4px_24px_rgba(0,0,0,0.4)] rounded-sm overflow-hidden"

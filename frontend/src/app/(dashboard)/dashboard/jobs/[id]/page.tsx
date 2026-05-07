@@ -990,7 +990,7 @@ export default function JobDetailPage() {
                     </Button>
                   </Link>
                 ) : (
-                  <Link href={`/dashboard/resumes/tailor?job=${job.id}`}>
+                  <Link href={`/dashboard/resumes/tailor?job_id=${job.id}`}>
                     <Button size="sm" className="shrink-0">
                       Tailor Resume
                     </Button>

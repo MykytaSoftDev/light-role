@@ -43,6 +43,10 @@ function entityRoute(entityType: string, entityId: string): string | null {
     case "application":
       return `/dashboard/jobs/${entityId}`;
     case "resume":
+    // TAILOR-17: tailored-resume "ready" notifications produced by the
+    // backgrounded tailor flow. Route to the v2 editor at the same shape as
+    // the legacy `resume` type so the existing mark-as-read flow handles it.
+    case "tailored_resume":
       return `/dashboard/resumes/${entityId}`;
     case "cover_letter":
       return `/dashboard/cover-letters/${entityId}`;

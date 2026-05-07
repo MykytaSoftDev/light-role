@@ -28,7 +28,10 @@ import {
   Loader2,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
+import { getTailoredResumeForJob } from "@/lib/tailored-resume-api";
+import { queryKeys } from "@/hooks/api/keys";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -48,19 +51,45 @@ interface JobContextMenuProps {
   job: JobContextMenuJob;
   trigger: ReactNode;
   onDelete: (jobId: string) => void;
+  /**
+   * When true (default), the tailored-resume lookup is gated on `menuOpen`
+   * so the Jobs list page (which can render dozens of rows) doesn't stampede
+   * the API. Set to `false` on single-instance surfaces like the job detail
+   * page where eager fetch is fine.
+   */
+  lazyTailoredResume?: boolean;
 }
 
 // ---------------------------------------------------------------------------
-// JobContextMenu
+// JobContextMenu (TAILOR-16: Tailor Resume vs View Resume)
 // ---------------------------------------------------------------------------
 
-export function JobContextMenu({ job, trigger, onDelete }: JobContextMenuProps) {
+export function JobContextMenu({
+  job,
+  trigger,
+  onDelete,
+  lazyTailoredResume = true,
+}: JobContextMenuProps) {
   const router = useRouter();
   const { application } = job;
 
+  const [menuOpen, setMenuOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+
+  // GET /api/v1/jobs/{id}/tailored-resume — 200 → exists, 204 → null. Lazy by
+  // default so the Jobs list page only fires per-row when the menu opens.
+  // Per-job query key so React Query caches each row independently.
+  const tailoredResumeQuery = useQuery({
+    queryKey: [...queryKeys.jobs.detail(job.id), "tailored-resume"] as const,
+    queryFn: () => getTailoredResumeForJob(job.id),
+    enabled: lazyTailoredResume ? menuOpen : true,
+    staleTime: 1000 * 60 * 2,
+  });
+
+  const tailoredResumeId = tailoredResumeQuery.data?.id ?? null;
+  const tailoredResumeChecking = tailoredResumeQuery.isLoading;
 
   const confirmDelete = async () => {
     setIsDeleting(true);
@@ -78,7 +107,7 @@ export function JobContextMenu({ job, trigger, onDelete }: JobContextMenuProps) 
 
   return (
     <>
-      <DropdownMenu>
+      <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
         <DropdownMenuTrigger asChild>{trigger}</DropdownMenuTrigger>
 
         <DropdownMenuContent
@@ -100,24 +129,38 @@ export function JobContextMenu({ job, trigger, onDelete }: JobContextMenuProps) 
 
           <DropdownMenuSeparator />
 
-          {/* Resume action */}
-          {application.resume_id === null ? (
+          {/* Resume action — Tailor vs View based on /jobs/{id}/tailored-resume.
+              While the lookup is in flight (first menu open) we render the
+              spinner-prefixed item rather than guess; clicking it is a no-op. */}
+          {tailoredResumeChecking && tailoredResumeId === null ? (
             <DropdownMenuItem
-              onSelect={() => router.push(`/dashboard/resumes/tailor?job=${job.id}`)}
+              disabled
+              onSelect={(e) => e.preventDefault()}
+              className="opacity-70"
             >
-              <FileText className="h-3.5 w-3.5 text-muted-foreground" />
-              Tailor Resume
+              <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />
+              Checking resume…
             </DropdownMenuItem>
-          ) : (
+          ) : tailoredResumeId ? (
             <DropdownMenuItem
-              onSelect={() => router.push(`/dashboard/resumes/${application.resume_id}`)}
+              onSelect={() => router.push(`/dashboard/resumes/${tailoredResumeId}`)}
             >
               <FileText className="h-3.5 w-3.5 text-muted-foreground" />
               View Resume
             </DropdownMenuItem>
+          ) : (
+            <DropdownMenuItem
+              onSelect={() =>
+                router.push(`/dashboard/resumes/tailor?job_id=${job.id}`)
+              }
+            >
+              <FileText className="h-3.5 w-3.5 text-muted-foreground" />
+              Tailor Resume
+            </DropdownMenuItem>
           )}
 
-          {/* Cover letter action */}
+          {/* Cover letter action — unchanged from existing impl. Cover letter
+              has its own existence model via application.cover_letter_id. */}
           {application.cover_letter_id === null ? (
             <DropdownMenuItem
               onSelect={() => router.push(`/dashboard/cover-letters/generate?job=${job.id}`)}

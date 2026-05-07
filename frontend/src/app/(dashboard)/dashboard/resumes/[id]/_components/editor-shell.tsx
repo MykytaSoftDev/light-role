@@ -20,15 +20,13 @@
  */
 import * as React from "react";
 import Link from "next/link";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 
 import { Button } from "@/components/ui/button";
-import { Breadcrumb } from "@/components/ui/breadcrumb";
 import { ResumePreview } from "@/components/resume/resume-preview";
 import { queryKeys } from "@/hooks/api/keys";
 import {
   getTailoredResume,
-  markRatingModalShown,
   TailorError,
   type TailoredResume,
 } from "@/lib/tailored-resume-api";
@@ -49,16 +47,15 @@ import { EditButton } from "./edit-button";
 import { EditModeToolbar } from "./edit-mode-toolbar";
 import { ReorderSectionsDialog } from "./reorder-sections-dialog";
 import { DiscardChangesDialog } from "./discard-changes-dialog";
-import { RatingModal } from "./rating-modal";
+import { RatingCard } from "./rating-card";
 import { useResumeDraft } from "./use-resume-draft";
 
-// TAILOR-13 — Per-session, per-resume guard so navigating away and back
-// within the same SPA session does NOT re-fire the 15s timer + the
-// markRatingModalShown POST. Module-scope is the simplest fit: it persists
-// across <EditorChrome> remounts but resets on a hard reload (which is
-// fine — `rating_modal_shown_at` will be set on the GET response by then,
-// so the show-condition gate trips first anyway).
-const ratingTimerFiredFor = new Set<string>();
+// TAILOR-13 — Per-session dismissal memory. When the user clicks × on the
+// rating card we add the resume id here so re-mounting <EditorChrome>
+// (StrictMode, route re-entry within the same SPA session) does NOT pop the
+// card again. A hard reload clears this set, which is fine — the card will
+// re-show until the user actually rates.
+const ratingDismissedFor = new Set<string>();
 
 interface EditorShellProps {
   id: string;
@@ -189,106 +186,28 @@ function EditorChrome({ id, resume }: { id: string; resume: TailoredResume }) {
     cancelEdit,
   ]);
 
-  // ---- TAILOR-13: post-generation rating modal (15s after editor open) ----
+  // ---- TAILOR-13: post-generation rating card (immediate, non-blocking) ----
   //
-  // Owned here (NOT in <RatingModal>) so the timer + the markRatingModalShown
-  // POST fire even when the modal itself isn't visible (e.g. user is in Edit
-  // mode at second 15 — we still want to register the attempt). See spec §1.1.
+  // The card opens immediately on mount whenever the resume hasn't been rated
+  // yet AND the user hasn't already × dismissed it in this SPA session. The
+  // earlier 15s timer + `rating_modal_shown_at` gate were holdovers from the
+  // blocking-modal design; a side-panel card doesn't need a "shown once ever"
+  // semantic, so we drop both.
   //
-  // Show condition is snapshotted FROM THE RESUME AT TIMER FIRE, not at mount,
-  // because the React Query cache may have been refetched between mount and
-  // the 15-second mark.
-  const [ratingOpen, setRatingOpen] = React.useState(false);
-  const [ratingPendingShow, setRatingPendingShow] = React.useState(false);
-  const queryClient = useQueryClient();
+  // Edit-mode: the card stays open, dimmed to opacity 0.7 via its own class.
+  const [ratingOpen, setRatingOpen] = React.useState<boolean>(
+    () => resume.rating === null && !ratingDismissedFor.has(id)
+  );
 
-  // Live-read mirror of `mode` so the timer callback (closed over an old
-  // `mode` value at effect-run time) can branch on the CURRENT mode at the
-  // 15s mark. Declared BEFORE the timer effect so TypeScript / JS resolve
-  // the reference cleanly inside the setTimeout closure.
-  const modeRef = React.useRef(mode);
-  React.useEffect(() => {
-    modeRef.current = mode;
-  }, [mode]);
-
-  React.useEffect(() => {
-    // Per-session, per-resume idempotency: if the timer already fired for
-    // this resume in this SPA session, don't re-arm. This handles in-app
-    // navigation back to the same resume page within the session.
-    if (ratingTimerFiredFor.has(id)) return;
-
-    // Pre-condition gate at MOUNT — if the resume already has either flag
-    // set, never arm the timer. (We re-check at fire-time using the latest
-    // cache snapshot to handle the race where another tab rated mid-window.)
-    if (resume.rating_modal_shown_at !== null || resume.rating !== null) {
-      return;
-    }
-
-    const timeoutId = window.setTimeout(() => {
-      // Snapshot at fire-time — query may have been refetched while we waited.
-      const latest = queryClient.getQueryData<TailoredResume>(
-        queryKeys.resumes.detail(id)
-      );
-      const shownAt =
-        latest?.rating_modal_shown_at ?? resume.rating_modal_shown_at;
-      const ratingValue = latest?.rating ?? resume.rating;
-      if (shownAt !== null || ratingValue !== null) {
-        // Race: somewhere in the 15s window the resume was already rated /
-        // marked-shown. Bail without showing the modal.
-        ratingTimerFiredFor.add(id);
-        return;
-      }
-
-      // Mark the per-session guard immediately to prevent any pathway that
-      // could re-arm (StrictMode double-effect, fast remount, etc.).
-      ratingTimerFiredFor.add(id);
-
-      // Fire-and-forget POST so the backend records the attempt even if the
-      // user closes the tab during the 15s window.
-      void markRatingModalShown(id);
-
-      // Edit-mode interaction (spec §1.4): defer the visible Dialog open
-      // until the user returns to Preview mode. The POST above still fires.
-      if (modeRef.current === "edit") {
-        setRatingPendingShow(true);
-      } else {
-        setRatingOpen(true);
-      }
-    }, 15_000);
-
-    return () => {
-      window.clearTimeout(timeoutId);
-    };
-    // We intentionally depend ONLY on `id` so the timer runs at most once
-    // per resume id mount. Re-running on resume identity changes (cache
-    // refetch returning a new object) would arm a NEW timer at every cache
-    // refresh, breaking the 15s contract.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+  const handleRatingClose = React.useCallback(() => {
+    ratingDismissedFor.add(id);
+    setRatingOpen(false);
   }, [id]);
 
-  // Promote `pendingShow → open` when the user exits Edit mode.
-  React.useEffect(() => {
-    if (mode === "preview" && ratingPendingShow && !ratingOpen) {
-      setRatingOpen(true);
-      setRatingPendingShow(false);
-    }
-  }, [mode, ratingPendingShow, ratingOpen]);
-
   return (
-    <div className="space-y-6">
-      <Breadcrumb
-        items={[
-          { label: "Dashboard", href: "/dashboard" },
-          { label: "Resumes", href: "/dashboard/resumes" },
-          {
-            label:
-              resume.name.length > 40
-                ? resume.name.slice(0, 40) + "…"
-                : resume.name,
-          },
-        ]}
-      />
-
+    <div className="space-y-6 min-w-0">
+      {/* Page-level breadcrumb intentionally omitted — the header's
+          DynamicBreadcrumb is the single source of truth for navigation. */}
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="min-w-0 flex-1 space-y-1">
           <InlineFilenameEditor
@@ -320,7 +239,15 @@ function EditorChrome({ id, resume }: { id: string; resume: TailoredResume }) {
         when keywords are absent.
       */}
       <KeywordScrollProvider>
-        <div className="grid gap-6 grid-cols-1 2xl:grid-cols-[1fr_320px]">
+        {/*
+          `[&>*]:min-w-0` overrides the grid item default `min-width: auto`
+          so the cells respect the grid track width instead of being pushed
+          wide by the resume document's 210mm (794px) un-scaled layout box.
+          Without this, on mobile the page horizontally overflows by ~400px,
+          showing the html background as a white strip on the right and
+          throwing off centering.
+        */}
+        <div className="grid gap-6 grid-cols-1 2xl:grid-cols-[1fr_320px] [&>*]:min-w-0">
           <PreviewFrame mode={mode}>
             {mode === "edit" ? (
               <EditablePreview
@@ -354,15 +281,42 @@ function EditorChrome({ id, resume }: { id: string; resume: TailoredResume }) {
             )}
           </PreviewFrame>
 
-          {/* Side panel: hidden on mobile, stacks on tablet, sticky on desktop. */}
-          <div className="hidden md:block">
+          {/* Side panel: stacks below the document on mobile / tablet / xl,
+              sticky scroll column at 2xl.
+
+              At 2xl the entire column becomes ONE sticky scroll container
+              holding both InsightsPanel and RatingCard. Putting them inside
+              the same sticky element prevents the Insights stacking context
+              from painting over the RatingCard below it (which is what
+              happens if Insights alone is sticky and Rating sits as a
+              sibling outside).
+
+              `space-y-6` provides the gap between cards in every layout —
+              at 2xl it lives inside the sticky scroll container so internal
+              scrolling sees both cards as a single column. */}
+          <aside
+            role="complementary"
+            aria-label="Resume insights and feedback"
+            className="space-y-6 2xl:sticky 2xl:top-6 2xl:max-h-[calc(100vh-3rem)] 2xl:overflow-y-auto"
+          >
             <InsightsPanel
               matchedKeywords={resume.matched_keywords}
               appliedChanges={resume.applied_changes}
               sectionsOrder={liveSectionsOrder}
               isEditMode={mode === "edit"}
             />
-          </div>
+            {/* TAILOR-13 — rating card. Mounted whenever the resume hasn't
+                been rated yet and the user hasn't × dismissed it this session.
+                Renders at every breakpoint (stacks below the document on
+                mobile / tablet / xl, lives in the sticky column at 2xl). */}
+            {ratingOpen ? (
+              <RatingCard
+                resumeId={id}
+                isEditMode={mode === "edit"}
+                onClose={handleRatingClose}
+              />
+            ) : null}
+          </aside>
         </div>
       </KeywordScrollProvider>
 
@@ -383,15 +337,6 @@ function EditorChrome({ id, resume }: { id: string; resume: TailoredResume }) {
         open={discardDialogOpen}
         onOpenChange={setDiscardDialogOpen}
         onConfirm={confirmDiscard}
-      />
-
-      {/* TAILOR-13 — Post-generation rating modal. Mounted unconditionally
-          at the page root; the open prop is driven by the 15s timer + the
-          Edit-mode pendingShow logic above. */}
-      <RatingModal
-        resumeId={id}
-        open={ratingOpen}
-        onOpenChange={setRatingOpen}
       />
     </div>
   );

@@ -1,12 +1,12 @@
 "use client";
 
 /**
- * TAILOR-12 — Insights side panel.
+ * TAILOR-12 — Insights side panel card.
  *
  * Spec: docs/v2/specs/insights-panel-spec.md.
  *
- * Replaces `<InsightsPanelPlaceholder />`. Renders a sticky `<Card>` with two
- * stacked blocks:
+ * Replaces `<InsightsPanelPlaceholder />`. Renders a `<Card>` with two stacked
+ * blocks:
  *   1. Matched Keywords — color-coded chips, count badge.
  *   2. Applied Changes — accordion listing AI changes per section.
  *
@@ -17,8 +17,10 @@
  *     immutable but the UI helps the user navigate while editing).
  *
  * Layout:
- *   - Sticky `top-6` at 2xl with `max-h-[calc(100vh-6rem)] overflow-y-auto`.
- *   - Stacks below the document at <2xl (handled by parent grid).
+ *   - Sticky/scroll behaviour is owned by the parent side-panel `<aside>` in
+ *     `editor-shell.tsx` so this card and the RatingCard share a single sticky
+ *     scroll container (otherwise the sticky stacking context paints over the
+ *     RatingCard sibling — see git history).
  */
 import * as React from "react";
 
@@ -61,7 +63,6 @@ export function InsightsPanel({
   const card = (
     <Card
       className={cn(
-        "max-h-[calc(100vh-6rem)] overflow-y-auto",
         "transition-opacity duration-200",
         isEditMode && "opacity-70"
       )}
@@ -83,30 +84,24 @@ export function InsightsPanel({
     </Card>
   );
 
-  return (
-    <aside
-      role="complementary"
-      aria-label="Insights"
-      className="sticky top-6"
-    >
-      {isEditMode ? (
-        <Tooltip>
-          {/*
-            Wrap the card in a div so the tooltip trigger can attach to a
-            single element without overriding Card's ref. We don't use
-            asChild — that would cause Radix to merge props onto the Card,
-            which forwards refs but not arbitrary event handlers.
-           */}
-          <TooltipTrigger asChild>
-            <div>{card}</div>
-          </TooltipTrigger>
-          <TooltipContent side="left" sideOffset={8}>
-            Insights are read-only while editing.
-          </TooltipContent>
-        </Tooltip>
-      ) : (
-        card
-      )}
-    </aside>
-  );
+  if (isEditMode) {
+    return (
+      <Tooltip>
+        {/*
+          Wrap the card in a div so the tooltip trigger can attach to a
+          single element without overriding Card's ref. We don't use
+          asChild — that would cause Radix to merge props onto the Card,
+          which forwards refs but not arbitrary event handlers.
+         */}
+        <TooltipTrigger asChild>
+          <div>{card}</div>
+        </TooltipTrigger>
+        <TooltipContent side="left" sideOffset={8}>
+          Insights are read-only while editing.
+        </TooltipContent>
+      </Tooltip>
+    );
+  }
+
+  return card;
 }

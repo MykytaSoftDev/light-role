@@ -6,9 +6,18 @@ from datetime import datetime, timezone
 from typing import Optional
 from uuid import UUID
 
-from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query, Request, status
+from fastapi import (
+    APIRouter,
+    BackgroundTasks,
+    Depends,
+    HTTPException,
+    Query,
+    Request,
+    Response,
+    status,
+)
 from sqlalchemy import func
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 
 from app.ai.openai_service import OpenAIService
 from app.database import get_db
@@ -23,6 +32,7 @@ from app.models.tailored_resume import TailoredResume
 from app.models.usage_log import UsageLog
 from app.models.user import User
 from app.redis import increment_usage_count
+from app.routers.tailored_resumes import _serialize as _serialize_tailored_resume
 from app.schemas.job import (
     ApplicationResponse,
     ApplicationStatusUpdate,
@@ -460,12 +470,81 @@ async def tailor_resume(
         # is_disconnected() itself shouldn't raise, but never let it sink us.
         logger.debug("is_disconnected() check failed: %s", exc)
 
-    # Populate the joined-Job convenience fields the editor uses. `job` is
-    # the row we already loaded for ownership/payload — no extra query.
-    response = TailoredResumeResponse.model_validate(row)
-    response.job_title = job.title
-    response.job_company = job.company
-    return response
+    # Use the shared serializer so the response shape stays in lock-step with
+    # the GET endpoints (and avoids the model_validate-on-relationship bug
+    # documented inside `_serialize_tailored_resume`). At create time `rating`
+    # is always None (the AIQualityRating row hasn't been written yet), but
+    # routing through the helper keeps a single source of truth.
+    return _serialize_tailored_resume(row)
+
+
+@router.get(
+    "/jobs/{job_id}/tailored-resume",
+    response_model=TailoredResumeResponse,
+    responses={204: {"description": "No tailored resume exists for this job."}},
+)
+def get_tailored_resume_for_job(
+    job_id: UUID,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_verified_user),
+) -> Response | TailoredResumeResponse:
+    """Look up an existing TailoredResume by Job id (TAILOR-16).
+
+    Used by the Jobs list context menu to decide whether to show
+    "View Resume" (a tailored resume already exists) or "Tailor Resume".
+
+    Status semantics:
+      - 200: TailoredResume exists → full `TailoredResumeResponse` shape,
+        including joined `job_title` / `job_company` and `rating`.
+      - 204: Job exists and is owned by the user, but has no TailoredResume.
+      - 404: Job not found OR not owned by this user (don't leak existence —
+        same pattern as `tailor_resume`, `_load_owned`).
+
+    204 is intentionally distinct from 404: the frontend reads "no resume
+    yet" from 204 and shows the "Tailor Resume" entry; 404 means "this
+    isn't your job" and should never happen via the legitimate Jobs page.
+    """
+    # Ownership check first — 404 leaks no info about whether the job exists.
+    # The (user_id, job_id) UNIQUE constraint guarantees at most one
+    # tailored resume per (user, job), so once we know the user owns the
+    # job we can safely look up by job_id alone.
+    job = db.query(Job).filter(Job.id == job_id).first()
+    if job is None or job.user_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Job not found.",
+        )
+
+    # Eager-load the joined Job + AIQualityRating so `_serialize_tailored_resume`
+    # can populate `job_title`, `job_company`, and `rating` without
+    # extra queries. selectinload is fine here — single row, two trips.
+    row = (
+        db.query(TailoredResume)
+        .options(
+            selectinload(TailoredResume.job),
+            selectinload(TailoredResume.rating),
+        )
+        .filter(TailoredResume.job_id == job_id)
+        .first()
+    )
+
+    if row is None:
+        logger.info(
+            "Tailored-resume lookup miss: user_id=%s job_id=%s",
+            current_user.id,
+            job_id,
+        )
+        # 204 must have an empty body; explicit Response avoids FastAPI
+        # serialising `None` into a JSON `null`.
+        return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+    logger.info(
+        "Tailored-resume lookup hit: user_id=%s job_id=%s tailored_resume_id=%s",
+        current_user.id,
+        job_id,
+        row.id,
+    )
+    return _serialize_tailored_resume(row)
 
 
 # ---------------------------------------------------------------------------

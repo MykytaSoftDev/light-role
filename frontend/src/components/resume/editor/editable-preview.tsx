@@ -94,16 +94,18 @@ export function EditablePreview({
   const autoScale = useContainerScale(canvasRef);
   const scale = scaleOverride ?? autoScale;
 
+  // See resume-preview.tsx for the rationale: `transform: scale()` does NOT
+  // shrink the wrapper's layout box, so without pinning `height` (not
+  // `min-height`) and clipping overflow the frame is forced to the un-scaled
+  // 1123px tall on mobile while the document visually renders at 449px.
   const innerRef = React.useRef<HTMLDivElement | null>(null);
-  const [frameMinHeight, setFrameMinHeight] = React.useState<number | null>(
-    null
-  );
+  const [frameHeight, setFrameHeight] = React.useState<number | null>(null);
 
   React.useEffect(() => {
     if (!innerRef.current) return;
     const target = innerRef.current;
     const apply = () => {
-      setFrameMinHeight(target.scrollHeight * scale);
+      setFrameHeight(target.scrollHeight * scale);
     };
     apply();
     const ro = new ResizeObserver(apply);
@@ -132,7 +134,9 @@ export function EditablePreview({
       <div
         className="resume-preview-frame"
         style={
-          frameMinHeight != null ? { minHeight: frameMinHeight } : undefined
+          frameHeight != null
+            ? { height: frameHeight, overflow: "hidden" }
+            : undefined
         }
       >
         <div

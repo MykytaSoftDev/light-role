@@ -3,7 +3,8 @@
 /**
  * TAILOR-13 — 5-star rating control with full keyboard support.
  *
- * Spec: docs/v2/specs/rating-modal-spec.md §3.
+ * Spec: docs/v2/specs/rating-card-spec.md §3 (supersedes the deleted
+ * rating-modal-spec.md).
  *
  * Behavior:
  *   - Click / tap a star to set rating (1-based 1..5).
@@ -33,11 +34,22 @@ interface RatingStarsProps {
   onChange: (rating: number) => void;
   /** When true, the control is non-interactive (used while submitting). */
   disabled?: boolean;
+  /**
+   * Star icon size. Defaults to "md" (h-9 w-9, the modal-era size kept for
+   * backward compat). The card surface uses "sm" (h-7 w-7) to fit the 320px
+   * side-panel column. See rating-card-spec.md §7.2.
+   */
+  size?: "sm" | "md";
 }
 
 const STARS = [1, 2, 3, 4, 5] as const;
 
-export function RatingStars({ value, onChange, disabled }: RatingStarsProps) {
+export function RatingStars({
+  value,
+  onChange,
+  disabled,
+  size = "md",
+}: RatingStarsProps) {
   const [hoverIndex, setHoverIndex] = React.useState<number>(0);
   const buttonsRef = React.useRef<Array<HTMLButtonElement | null>>([]);
 
@@ -125,7 +137,8 @@ export function RatingStars({ value, onChange, disabled }: RatingStarsProps) {
           >
             <Star
               className={cn(
-                "h-9 w-9 transition-colors",
+                "transition-colors",
+                size === "sm" ? "h-7 w-7" : "h-9 w-9",
                 filled
                   ? "fill-primary text-primary"
                   : "text-muted-foreground"

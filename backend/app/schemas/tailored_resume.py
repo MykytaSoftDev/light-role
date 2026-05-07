@@ -101,7 +101,18 @@ class TailoredResumePatchRequest(BaseModel):
 
 
 class TailoredResumeListItem(BaseModel):
-    """Compact list-row shape (drops the heavy snapshot/JSONB fields)."""
+    """Compact list-row shape (drops the heavy snapshot/JSONB fields).
+
+    Heavy JSONB fields (`tailored_data`, `profile_snapshot`, `matched_keywords`,
+    `applied_changes`, `sections_order_snapshot`, `font_snapshot`,
+    `template_snapshot`) are deliberately omitted — the resumes-list page only
+    needs metadata + score + the joined job + rating to render cards. Fetching
+    the heavy fields for every row would balloon the payload several times
+    over and the editor re-fetches them per-row anyway.
+
+    `job_title`, `job_company` and `rating` are derived from eager-loaded
+    relationships on the model — never persisted on the row itself.
+    """
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -109,8 +120,15 @@ class TailoredResumeListItem(BaseModel):
     job_id: UUID
     name: str
     match_score: int
+    rating_modal_shown_at: Optional[datetime] = None
     created_at: datetime
     updated_at: datetime
+    # Derived from the joined Job — read-only, never persisted on this row.
+    job_title: Optional[str] = None
+    job_company: Optional[str] = None
+    # Derived from the joined AIQualityRating (1:0..1) — null when the user
+    # has not rated this resume yet.
+    rating: Optional[int] = None
 
 
 class TailoredResumeListResponse(BaseModel):

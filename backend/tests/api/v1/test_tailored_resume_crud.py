@@ -805,3 +805,331 @@ class TestDeleteTailoredResume:
         row = _create_tailored_resume(db, test_user, job)
         resp = client.delete(f"/api/v1/tailored-resumes/{row.id}")
         assert resp.status_code == 401
+
+
+# ---------------------------------------------------------------------------
+# GET /api/v1/jobs/{job_id}/tailored-resume  (TAILOR-16)
+# ---------------------------------------------------------------------------
+
+
+class TestGetTailoredResumeForJob:
+    """Lookup endpoint used by the Jobs list context menu to decide between
+    'View Resume' and 'Tailor Resume'. Distinguishes:
+      - 200: tailored resume exists for the job (full response shape).
+      - 204: job exists, no tailored resume yet (empty body).
+      - 404: job missing or not owned (no existence leak).
+    """
+
+    def test_returns_tailored_resume_when_present(
+        self, client: TestClient, test_user: User, db
+    ):
+        """Job with tailored resume → 200 + full TailoredResumeResponse."""
+        job = _create_job(db, test_user, title="Backend Eng", company="Globex")
+        row = _create_tailored_resume(db, test_user, job)
+
+        resp = client.get(
+            f"/api/v1/jobs/{job.id}/tailored-resume",
+            cookies=_auth_cookies(str(test_user.id)),
+        )
+
+        assert resp.status_code == 200, resp.text
+        body = resp.json()
+        assert body["id"] == str(row.id)
+        assert body["user_id"] == str(test_user.id)
+        assert body["job_id"] == str(job.id)
+        assert body["match_score"] == 80
+        # Joined-Job fields populated by the eager-loaded relationship.
+        assert body["job_title"] == "Backend Eng"
+        assert body["job_company"] == "Globex"
+        # Rating fields are present (null when not yet rated).
+        assert "rating" in body
+        assert body["rating"] is None
+        assert "rating_modal_shown_at" in body
+        assert body["rating_modal_shown_at"] is None
+        # Heavy snapshot fields are present (full response, not the list shape).
+        assert "tailored_data" in body
+        assert "profile_snapshot" in body
+        assert "matched_keywords" in body
+        assert "applied_changes" in body
+
+    def test_returns_rating_when_rated(
+        self, client: TestClient, test_user: User, db
+    ):
+        """If the user has rated the resume, `rating` is populated."""
+        job = _create_job(db, test_user)
+        row = _create_tailored_resume(db, test_user, job)
+        rating = AIQualityRating(
+            user_id=test_user.id,
+            tailored_resume_id=row.id,
+            rating=4,
+            comment="Good",
+        )
+        db.add(rating)
+        db.commit()
+
+        resp = client.get(
+            f"/api/v1/jobs/{job.id}/tailored-resume",
+            cookies=_auth_cookies(str(test_user.id)),
+        )
+        assert resp.status_code == 200, resp.text
+        body = resp.json()
+        assert body["rating"] == 4
+
+    def test_returns_204_when_no_tailored_resume(
+        self, client: TestClient, test_user: User, db
+    ):
+        """Owned job with no tailored resume → 204 + empty body."""
+        job = _create_job(db, test_user)
+
+        resp = client.get(
+            f"/api/v1/jobs/{job.id}/tailored-resume",
+            cookies=_auth_cookies(str(test_user.id)),
+        )
+        assert resp.status_code == 204
+        # 204 must carry no body — bare bytes, no JSON `null`.
+        assert resp.content == b""
+
+    def test_returns_404_when_job_not_found(
+        self, client: TestClient, test_user: User
+    ):
+        """Non-existent job UUID → 404 (NOT 204)."""
+        resp = client.get(
+            f"/api/v1/jobs/{uuid.uuid4()}/tailored-resume",
+            cookies=_auth_cookies(str(test_user.id)),
+        )
+        assert resp.status_code == 404
+
+    def test_returns_404_when_job_owned_by_other_user(
+        self, client: TestClient, test_user: User, db
+    ):
+        """Job belongs to another user → 404, never 204 (don't leak existence).
+
+        This holds whether or not the other user has a tailored resume —
+        we cover both branches because the fix-or-bypass surface differs.
+        """
+        other = _create_user(db)
+        try:
+            # Case A: other user has a tailored resume — must still 404.
+            other_job = _create_job(db, other, title="Other", company="Other Co")
+            other_row = _create_tailored_resume(db, other, other_job)
+
+            resp = client.get(
+                f"/api/v1/jobs/{other_job.id}/tailored-resume",
+                cookies=_auth_cookies(str(test_user.id)),
+            )
+            assert resp.status_code == 404
+            # Sanity-check: the request user did not somehow get the other
+            # user's resume id back via a partial leak.
+            assert resp.text == "" or str(other_row.id) not in resp.text
+
+            # Case B: other user has a job but no tailored resume — must
+            # also 404 (not 204), because 204 would leak that the job
+            # exists in the system.
+            other_job_no_resume = _create_job(
+                db, other, title="No Resume", company="Other Co 2"
+            )
+            resp_b = client.get(
+                f"/api/v1/jobs/{other_job_no_resume.id}/tailored-resume",
+                cookies=_auth_cookies(str(test_user.id)),
+            )
+            assert resp_b.status_code == 404
+        finally:
+            db.query(TailoredResume).filter(
+                TailoredResume.user_id == other.id
+            ).delete()
+            db.query(Job).filter(Job.user_id == other.id).delete()
+            db.commit()
+            db.delete(other)
+            db.commit()
+
+    def test_unauthenticated(
+        self, client: TestClient, test_user: User, db
+    ):
+        """Missing cookie → 401."""
+        job = _create_job(db, test_user)
+        _create_tailored_resume(db, test_user, job)
+        resp = client.get(f"/api/v1/jobs/{job.id}/tailored-resume")
+        assert resp.status_code == 401
+
+
+# ---------------------------------------------------------------------------
+# GET /api/v1/tailored-resumes  (TAILOR-15)
+# ---------------------------------------------------------------------------
+
+
+class TestListTailoredResumes:
+    """List endpoint for the resumes-list page. Returns the user's own
+    tailored resumes only, sorted newest-first, with the joined job_title,
+    job_company, and rating populated on each row. Heavy JSONB snapshot
+    fields are intentionally absent from the list shape — the page only
+    needs metadata + score + joined fields.
+    """
+
+    def test_list_happy_path_sorted_desc(
+        self, client: TestClient, test_user: User, db
+    ):
+        """Multiple resumes → sorted by `created_at` DESC, total matches len."""
+        # Create three jobs + tailored resumes. Distinct job titles so we can
+        # match resume-to-job by name in the assertions, since UUIDs are random.
+        job_a = _create_job(db, test_user, title="A Eng", company="A Co")
+        job_b = _create_job(db, test_user, title="B Eng", company="B Co")
+        job_c = _create_job(db, test_user, title="C Eng", company="C Co")
+
+        # Create in order A → B → C. created_at is server_default=now() so the
+        # natural insert order matches the timeline; DESC sort should yield
+        # C, B, A. Tiny pause between inserts is unnecessary because each
+        # commit advances the wall clock past timestamp precision boundaries
+        # in practice — but if this proves flaky, swap to explicit
+        # `created_at` overrides. For now keep it minimal.
+        row_a = _create_tailored_resume(db, test_user, job_a, name="A Resume")
+        row_b = _create_tailored_resume(db, test_user, job_b, name="B Resume")
+        row_c = _create_tailored_resume(db, test_user, job_c, name="C Resume")
+
+        resp = client.get(
+            "/api/v1/tailored-resumes",
+            cookies=_auth_cookies(str(test_user.id)),
+        )
+        assert resp.status_code == 200, resp.text
+        body = resp.json()
+        assert body["total"] == 3
+        assert len(body["items"]) == 3
+
+        # All three returned resume IDs match what we created.
+        returned_ids = {item["id"] for item in body["items"]}
+        assert returned_ids == {str(row_a.id), str(row_b.id), str(row_c.id)}
+
+        # created_at DESC: each successive item's created_at must be <= prior.
+        timestamps = [item["created_at"] for item in body["items"]]
+        assert timestamps == sorted(timestamps, reverse=True), (
+            f"items not sorted DESC by created_at: {timestamps}"
+        )
+
+    def test_list_empty(
+        self, client: TestClient, test_user: User
+    ):
+        """User with no tailored resumes → 200 with empty items + total=0."""
+        resp = client.get(
+            "/api/v1/tailored-resumes",
+            cookies=_auth_cookies(str(test_user.id)),
+        )
+        assert resp.status_code == 200, resp.text
+        body = resp.json()
+        assert body["items"] == []
+        assert body["total"] == 0
+
+    def test_list_excludes_other_users_resumes(
+        self, client: TestClient, test_user: User, db
+    ):
+        """Another user's resumes must NOT leak into the response."""
+        # test_user has one resume.
+        my_job = _create_job(db, test_user, title="Mine", company="My Co")
+        my_row = _create_tailored_resume(db, test_user, my_job, name="My Resume")
+
+        # Another user has two resumes — none should appear in test_user's list.
+        other = _create_user(db)
+        try:
+            other_job_1 = _create_job(db, other, title="Other 1", company="Other Co")
+            other_job_2 = _create_job(db, other, title="Other 2", company="Other Co")
+            other_row_1 = _create_tailored_resume(
+                db, other, other_job_1, name="Other Resume 1"
+            )
+            other_row_2 = _create_tailored_resume(
+                db, other, other_job_2, name="Other Resume 2"
+            )
+
+            resp = client.get(
+                "/api/v1/tailored-resumes",
+                cookies=_auth_cookies(str(test_user.id)),
+            )
+            assert resp.status_code == 200, resp.text
+            body = resp.json()
+            assert body["total"] == 1
+            assert len(body["items"]) == 1
+            assert body["items"][0]["id"] == str(my_row.id)
+
+            # Defensive: neither of the other user's resume IDs appear anywhere
+            # in the payload (guards against a future regression that leaks
+            # the id without surfacing it as an item).
+            payload_text = resp.text
+            assert str(other_row_1.id) not in payload_text
+            assert str(other_row_2.id) not in payload_text
+        finally:
+            db.query(TailoredResume).filter(
+                TailoredResume.user_id == other.id
+            ).delete()
+            db.query(Job).filter(Job.user_id == other.id).delete()
+            db.commit()
+            db.delete(other)
+            db.commit()
+
+    def test_list_joined_fields_populated(
+        self, client: TestClient, test_user: User, db
+    ):
+        """Each item carries job_title, job_company, and rating from joins.
+
+        Two rows: one rated, one unrated. Verifies the rating relationship
+        eager-load behaves correctly on both branches.
+        """
+        # Rated row.
+        job_rated = _create_job(db, test_user, title="Rated Eng", company="Rated Co")
+        row_rated = _create_tailored_resume(
+            db, test_user, job_rated, name="Rated Resume"
+        )
+        rating = AIQualityRating(
+            user_id=test_user.id,
+            tailored_resume_id=row_rated.id,
+            rating=4,
+            comment=None,
+        )
+        db.add(rating)
+        db.commit()
+
+        # Unrated row.
+        job_unrated = _create_job(
+            db, test_user, title="Unrated Eng", company="Unrated Co"
+        )
+        row_unrated = _create_tailored_resume(
+            db, test_user, job_unrated, name="Unrated Resume"
+        )
+
+        resp = client.get(
+            "/api/v1/tailored-resumes",
+            cookies=_auth_cookies(str(test_user.id)),
+        )
+        assert resp.status_code == 200, resp.text
+        body = resp.json()
+        assert body["total"] == 2
+
+        # Index by id so order doesn't matter for these assertions.
+        by_id = {item["id"]: item for item in body["items"]}
+
+        rated_item = by_id[str(row_rated.id)]
+        assert rated_item["job_title"] == "Rated Eng"
+        assert rated_item["job_company"] == "Rated Co"
+        assert rated_item["rating"] == 4
+        # Score from _create_tailored_resume default.
+        assert rated_item["match_score"] == 80
+        # Heavy snapshot fields must NOT appear in the list shape.
+        for absent in (
+            "tailored_data",
+            "profile_snapshot",
+            "matched_keywords",
+            "applied_changes",
+            "sections_order_snapshot",
+            "font_snapshot",
+            "template_snapshot",
+        ):
+            assert absent not in rated_item, (
+                f"list item leaked heavy field {absent!r}"
+            )
+
+        unrated_item = by_id[str(row_unrated.id)]
+        assert unrated_item["job_title"] == "Unrated Eng"
+        assert unrated_item["job_company"] == "Unrated Co"
+        # No AIQualityRating row → rating is null.
+        assert unrated_item["rating"] is None
+
+    def test_list_unauthenticated(self, client: TestClient):
+        """Missing cookie → 401."""
+        resp = client.get("/api/v1/tailored-resumes")
+        assert resp.status_code == 401

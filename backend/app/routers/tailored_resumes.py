@@ -30,6 +30,8 @@ from app.models.user import User
 from app.schemas.tailored_resume import (
     AIQualityRatingCreateRequest,
     AIQualityRatingResponse,
+    TailoredResumeListItem,
+    TailoredResumeListResponse,
     TailoredResumePatchRequest,
     TailoredResumeRatingModalShownResponse,
     TailoredResumeResponse,
@@ -154,21 +156,73 @@ h1 {{
 def _serialize(row: TailoredResume) -> TailoredResumeResponse:
     """Build a TailoredResumeResponse with joined-Job + rating fields populated.
 
-    `job_title` / `job_company` come from the eager-loaded `row.job` and
-    `rating` from the eager-loaded `row.rating` (1:0..1) relationship — see
-    `_load_owned` for the eager-loads. None of these are persisted on the
-    tailored_resumes row. Defensive `getattr` so a missing relationship
-    (e.g. orphan row) just yields `None` rather than raising.
+    Built field-by-field rather than via `model_validate(row)` because the
+    schema's `rating: Optional[int]` field collides by name with the
+    `row.rating` relationship attribute (an `AIQualityRating` model, not an
+    int). With `from_attributes=True` Pydantic would try to coerce the
+    relationship object into `Optional[int]` and 500 the request whenever a
+    rating exists. The list-row serializer (`_serialize_list_item`) hits the
+    same collision and uses the same workaround.
+
+    `row.job` and `row.rating` are expected to be eager-loaded by the caller
+    (see `_load_owned` and the GET-list endpoint).
     """
     job = getattr(row, "job", None)
     rating_row = getattr(row, "rating", None)
-    response = TailoredResumeResponse.model_validate(row)
-    if job is not None:
-        response.job_title = job.title
-        response.job_company = job.company
-    if rating_row is not None:
-        response.rating = rating_row.rating
-    return response
+    return TailoredResumeResponse(
+        id=row.id,
+        user_id=row.user_id,
+        job_id=row.job_id,
+        name=row.name,
+        tailored_data=row.tailored_data,
+        profile_snapshot=row.profile_snapshot,
+        matched_keywords=row.matched_keywords,
+        applied_changes=row.applied_changes,
+        match_score=row.match_score,
+        sections_order_snapshot=row.sections_order_snapshot,
+        font_snapshot=row.font_snapshot,
+        template_snapshot=row.template_snapshot,
+        rating_modal_shown_at=row.rating_modal_shown_at,
+        created_at=row.created_at,
+        updated_at=row.updated_at,
+        job_title=job.title if job is not None else None,
+        job_company=job.company if job is not None else None,
+        rating=rating_row.rating if rating_row is not None else None,
+    )
+
+
+def _serialize_list_item(row: TailoredResume) -> TailoredResumeListItem:
+    """Build a compact list-row response with joined-Job + rating populated.
+
+    Mirrors `_serialize` but maps to `TailoredResumeListItem` — i.e. drops the
+    heavy JSONB snapshot fields (`tailored_data`, `profile_snapshot`,
+    `matched_keywords`, `applied_changes`, `sections_order_snapshot`,
+    `font_snapshot`, `template_snapshot`) so the list payload stays small.
+    Both `row.job` and `row.rating` are expected to be eager-loaded by the
+    caller (see the GET / endpoint) — the `getattr` fallbacks here are
+    purely defensive against orphan rows.
+
+    Built field-by-field rather than via `model_validate(row)` because the
+    schema's `rating: Optional[int]` field collides by name with the
+    `row.rating` relationship attribute (an `AIQualityRating` model, not an
+    int). A `from_attributes=True` validation would try to coerce the
+    relationship object into an int and 500 the request. Explicit
+    construction avoids the collision and keeps the mapping obvious.
+    """
+    job = getattr(row, "job", None)
+    rating_row = getattr(row, "rating", None)
+    return TailoredResumeListItem(
+        id=row.id,
+        job_id=row.job_id,
+        name=row.name,
+        match_score=row.match_score,
+        rating_modal_shown_at=row.rating_modal_shown_at,
+        created_at=row.created_at,
+        updated_at=row.updated_at,
+        job_title=job.title if job is not None else None,
+        job_company=job.company if job is not None else None,
+        rating=rating_row.rating if rating_row is not None else None,
+    )
 
 
 def _load_owned(
@@ -196,6 +250,49 @@ def _load_owned(
             detail="Tailored resume not found.",
         )
     return row
+
+
+@router.get(
+    "",
+    response_model=TailoredResumeListResponse,
+)
+def list_tailored_resumes(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_verified_user),
+) -> TailoredResumeListResponse:
+    """List all tailored resumes belonging to the current user (TAILOR-15).
+
+    Auth: verified user. Ownership filter is applied at the SQL layer so a
+    user only ever sees their own rows.
+
+    Sort: `created_at DESC` (newest first). Filtering / search / pagination
+    are intentionally absent — the resumes-list page does sort/filter
+    client-side over the full set (frontend spec, ~50 rows is the realistic
+    upper bound).
+
+    Eager-loads the joined `Job` and the `AIQualityRating` so each list item
+    can carry `job_title`, `job_company`, and `rating` without N+1 queries.
+    Heavy JSONB columns (`tailored_data`, `profile_snapshot`, etc.) are
+    dropped from the response by the `TailoredResumeListItem` schema.
+    """
+    rows = (
+        db.query(TailoredResume)
+        .options(
+            selectinload(TailoredResume.job),
+            selectinload(TailoredResume.rating),
+        )
+        .filter(TailoredResume.user_id == current_user.id)
+        .order_by(TailoredResume.created_at.desc())
+        .all()
+    )
+
+    items = [_serialize_list_item(row) for row in rows]
+    logger.info(
+        "Listed tailored resumes: user_id=%s count=%d",
+        current_user.id,
+        len(items),
+    )
+    return TailoredResumeListResponse(items=items, total=len(items))
 
 
 @router.get(
