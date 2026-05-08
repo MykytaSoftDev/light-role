@@ -1,38 +1,52 @@
 "use client";
 
-import { OnboardingChecklist } from "@/components/shared/onboarding-checklist";
-import { UsageBanner } from "@/components/shared/usage-banner";
-import { Button } from "@/components/ui/button";
-import { queryKeys } from "@/hooks/api/keys";
-import { useUser } from "@/hooks/api/useUser";
-import { api } from "@/lib/api";
-import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import {
   ArrowRight,
   Briefcase,
-  Calendar,
   Clock,
   FileText,
   Mail,
   Plus,
-  TrendingUp,
   X,
   Zap,
 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 
+import { UsageBanner } from "@/components/shared/usage-banner";
+import { Button } from "@/components/ui/button";
+import { queryKeys } from "@/hooks/api/keys";
+import { useUser } from "@/hooks/api/useUser";
+import { api } from "@/lib/api";
+import { cn } from "@/lib/utils";
+
+import { CompleteStepsPanel } from "./_components/complete-steps-panel";
+import {
+  StatCardGrid,
+  StatCardGridSkeleton,
+  type PlanTier,
+} from "./_components/stat-card-grid";
+
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
 
+/**
+ * Mirrors backend `app/schemas/usage.py:UsageResponse`. The `*_credits_*`
+ * fields were added in DASHBOARD-1; `-1` on a `_limit` field signals
+ * "unlimited" (consistent with `effective_limits.ai_operations`).
+ */
 interface UsageStats {
   ai_operations_used: number;
   ai_operations_limit: number;
   reset_date: string;
   active_jobs_count: number;
   applications_this_month: number;
+  resume_credits_used: number;
+  resume_credits_limit: number;
+  cl_credits_used: number;
+  cl_credits_limit: number;
 }
 
 interface Application {
@@ -83,27 +97,27 @@ function relativeDate(isoString: string): string {
   return `${months} ${months === 1 ? "month" : "months"} ago`;
 }
 
-function daysUntilReset(resetDateStr: string): number {
-  const resetDate = new Date(resetDateStr);
-  const now = new Date();
-  return Math.ceil((resetDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+/**
+ * Map the subscription's `plan_slug` to the discriminator the StatCardGrid
+ * expects. Free is the defensive default when no subscription record exists
+ * (matches backend behaviour for first-run users).
+ */
+function resolvePlanTier(planSlug: string | null | undefined): PlanTier {
+  if (planSlug === "unlimited") return "unlimited";
+  if (planSlug === "pro") return "pro";
+  return "free";
 }
 
 // ---------------------------------------------------------------------------
-// Skeleton components
+// Skeleton helpers (kept inline — page-local; the new panel/grid use shadcn
+// Skeleton directly via their own modules).
 // ---------------------------------------------------------------------------
 
 function SkeletonBlock({ className }: { className?: string }) {
-  return <div className={cn("bg-muted-foreground/10 animate-pulse rounded", className)} />;
-}
-
-function StatCardSkeleton() {
   return (
-    <div className="bg-card flex flex-col gap-3 rounded-xl border p-5">
-      <SkeletonBlock className="h-4 w-24" />
-      <SkeletonBlock className="h-8 w-16" />
-      <SkeletonBlock className="h-3 w-32" />
-    </div>
+    <div
+      className={cn("bg-muted-foreground/10 animate-pulse rounded", className)}
+    />
   );
 }
 
@@ -120,10 +134,16 @@ function ActivityItemSkeleton() {
 }
 
 // ---------------------------------------------------------------------------
-// Info toast banner (neutral variant)
+// Info toast banner (neutral variant) — used when a Quick Action is locked.
 // ---------------------------------------------------------------------------
 
-function InfoBanner({ message, onDismiss }: { message: string; onDismiss: () => void }) {
+function InfoBanner({
+  message,
+  onDismiss,
+}: {
+  message: string;
+  onDismiss: () => void;
+}) {
   return (
     <div className="border-border bg-background fixed bottom-4 left-1/2 z-50 flex -translate-x-1/2 items-center gap-3 rounded-lg border px-4 py-2.5 shadow-lg">
       <span className="text-foreground text-sm font-medium">{message}</span>
@@ -139,31 +159,7 @@ function InfoBanner({ message, onDismiss }: { message: string; onDismiss: () => 
 }
 
 // ---------------------------------------------------------------------------
-// Stat card
-// ---------------------------------------------------------------------------
-
-interface StatCardProps {
-  icon: React.ReactNode;
-  label: string;
-  value: string | number;
-  sub?: string;
-}
-
-function StatCard({ icon, label, value, sub }: StatCardProps) {
-  return (
-    <div data-slot="card" className="bg-card flex flex-col gap-1 rounded-xl border p-5">
-      <div className="text-muted-foreground mb-1 flex items-center gap-2">
-        {icon}
-        <span className="text-xs font-medium tracking-wide uppercase">{label}</span>
-      </div>
-      <p className="text-foreground text-3xl font-bold">{value}</p>
-      {sub && <p className="text-muted-foreground mt-0.5 text-xs">{sub}</p>}
-    </div>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Quick action card
+// Quick action card (unchanged — kept inline because it is page-local).
 // ---------------------------------------------------------------------------
 
 interface QuickActionCardProps {
@@ -230,13 +226,13 @@ function QuickActionCard({
 // ---------------------------------------------------------------------------
 
 export default function DashboardPage() {
-  // Banner message UI state
+  // Banner message UI state for "add a job first" toast.
   const [banner, setBanner] = useState<string | null>(null);
 
-  // User data
+  // User
   const { data: user, isPending: userLoading } = useUser();
 
-  // Usage stats
+  // Usage stats (drives the 4-card grid + the UsageBanner)
   const { data: usage, isPending: usageLoading } = useQuery<UsageStats>({
     queryKey: queryKeys.user.usage,
     queryFn: async () => {
@@ -247,7 +243,7 @@ export default function DashboardPage() {
     staleTime: 1000 * 60 * 2,
   });
 
-  // Subscription plan slug
+  // Subscription plan — defaults to Free when no record exists.
   const { data: subscriptionData } = useQuery<{ plan_slug: string }>({
     queryKey: queryKeys.user.subscription,
     queryFn: async () => {
@@ -258,21 +254,29 @@ export default function DashboardPage() {
     staleTime: 1000 * 60 * 5,
   });
 
-  // Recent jobs (last 5, sorted by created_at desc)
+  // Recent jobs (also drives the create-job step + tailor/CL deep-link).
   const { data: jobsData, isPending: jobsLoading } = useQuery<JobsResponse>({
     queryKey: [...queryKeys.jobs.list({}), "recent"],
     queryFn: async () => {
-      const res = await api.get("/api/v1/jobs?limit=5&sort_by=created_at&sort_order=desc");
+      const res = await api.get(
+        "/api/v1/jobs?limit=5&sort_by=created_at&sort_order=desc"
+      );
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       return res.json();
     },
     staleTime: 1000 * 60 * 2,
   });
 
-  // Derived values
+  // ----- Derived values (cheap; computed every render) -----
   const recentJobs = jobsData?.items ?? [];
+  const jobsTotal = jobsData?.total ?? null;
   const hasJobs = jobsData != null ? (jobsData.total ?? 0) > 0 : null;
+  // Spec §2.9: deep-link to the user's most recent job when available.
+  const mostRecentJobId = jobsData?.items?.[0]?.id ?? null;
+
   const planSlug = subscriptionData?.plan_slug ?? null;
+  const planTier = resolvePlanTier(planSlug);
+  const isFreePlan = planTier === "free";
 
   const greeting = userLoading
     ? null
@@ -287,14 +291,27 @@ export default function DashboardPage() {
     return `${active} active ${active === 1 ? "job" : "jobs"}, ${month} ${month === 1 ? "application" : "applications"} this month`;
   })();
 
-  const isFreePlan = planSlug === "free";
-
-  const aiRemaining =
-    usage != null
-      ? `${usage.ai_operations_limit - usage.ai_operations_used} of ${usage.ai_operations_limit}`
-      : "—";
-
-  const resetDays = usage?.reset_date != null ? daysUntilReset(usage.reset_date) : null;
+  // ----- Section ordering (spec §1) -----
+  // We can't compute the *exact* userState yet (depends on `completed` from
+  // CompleteStepsPanel which lives inside that component). For ordering
+  // purposes we only need a coarse cut: "show panel above Quick Actions" vs
+  // "below Stat Cards" vs "hide". The dismissed/all-done logic inside the
+  // panel returns null, so even if we render the panel in both positions
+  // (we don't — pick one based on hasJobs) only the visible position
+  // actually mounts content.
+  //
+  //   - hasJobs === false  → "new" → panel above Quick Actions.
+  //   - hasJobs === true   → "returning" or "established" → panel below
+  //                          Stat Cards (the panel itself returns null when
+  //                          all 4 are done OR the user dismissed it, which
+  //                          collapses to the "established" layout cleanly).
+  //
+  // While `hasJobs` is unknown (initial load), we render in the "below
+  // stats" slot so a returning user doesn't see layout shift; new users
+  // briefly see Quick Actions first then the panel jumps up — a better
+  // failure mode than the inverse (returning users seeing onboarding
+  // guidance flash above their pipeline).
+  const panelAboveQuickActions = hasJobs === false;
 
   function handleLockedAction(label: string) {
     setBanner(`Add a job first before ${label}.`);
@@ -306,11 +323,14 @@ export default function DashboardPage() {
       {/* Usage warning banner (free plan, >= 80% AI ops used) */}
       {/* ------------------------------------------------------------------ */}
       {!usageLoading && usage != null && (
-        <UsageBanner aiUsed={usage.ai_operations_used} aiLimit={usage.ai_operations_limit} />
+        <UsageBanner
+          aiUsed={usage.ai_operations_used}
+          aiLimit={usage.ai_operations_limit}
+        />
       )}
 
       {/* ------------------------------------------------------------------ */}
-      {/* Welcome section */}
+      {/* Welcome */}
       {/* ------------------------------------------------------------------ */}
       <section className="flex flex-col gap-1">
         {userLoading ? (
@@ -321,10 +341,24 @@ export default function DashboardPage() {
         ) : (
           <>
             <h1 className="text-foreground text-3xl font-bold">{greeting}</h1>
-            {summaryLine && <p className="text-muted-foreground mt-1 text-sm">{summaryLine}</p>}
+            {summaryLine && (
+              <p className="text-muted-foreground mt-1 text-sm">{summaryLine}</p>
+            )}
           </>
         )}
       </section>
+
+      {/* ------------------------------------------------------------------ */}
+      {/* Complete Steps — appears HERE for new users (0 jobs). Spec §1. */}
+      {/* ------------------------------------------------------------------ */}
+      {panelAboveQuickActions && (
+        <CompleteStepsPanel
+          mostRecentJobId={mostRecentJobId}
+          hasJobs={hasJobs}
+          jobsTotal={jobsTotal}
+          jobsLoading={jobsLoading}
+        />
+      )}
 
       {/* ------------------------------------------------------------------ */}
       {/* Quick action cards */}
@@ -360,63 +394,28 @@ export default function DashboardPage() {
       </section>
 
       {/* ------------------------------------------------------------------ */}
-      {/* Statistics */}
+      {/* Statistics — 4-card grid (per-tier rules in StatCardGrid). */}
       {/* ------------------------------------------------------------------ */}
       <section>
         <h2 className="text-muted-foreground mb-3 text-sm font-semibold tracking-wider uppercase">
           Your Stats
         </h2>
-        {usageLoading ? (
-          <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <StatCardSkeleton key={i} />
-            ))}
-          </div>
+        {usageLoading || usage == null ? (
+          <StatCardGridSkeleton />
         ) : (
-          <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-            <StatCard
-              icon={<Briefcase size={14} />}
-              label="Active Jobs"
-              value={usage?.active_jobs_count ?? "—"}
-              sub="currently tracking"
-            />
-            <StatCard
-              icon={<TrendingUp size={14} />}
-              label="This Month"
-              value={usage?.applications_this_month ?? "—"}
-              sub="applications submitted"
-            />
-            <StatCard
-              icon={<FileText size={14} />}
-              label="AI Operations"
-              value={aiRemaining}
-              sub="remaining this period"
-            />
-            <StatCard
-              icon={<Calendar size={14} />}
-              label="Days Until Reset"
-              value={resetDays != null ? (resetDays > 0 ? resetDays : "Today") : "—"}
-              sub={
-                usage?.reset_date
-                  ? `resets ${new Date(usage.reset_date).toLocaleDateString("en-US", {
-                      month: "short",
-                      day: "numeric",
-                    })}`
-                  : undefined
-              }
-            />
-          </div>
+          <StatCardGrid usage={usage} plan={planTier} />
         )}
 
-        {/* Upgrade nudge — shown when on Free plan and 80%+ AI ops used */}
+        {/* Upgrade nudge — Free plan, >= 80% AI ops used. */}
         {!usageLoading &&
           usage != null &&
           isFreePlan &&
-          usage.ai_operations_used >= Math.floor(usage.ai_operations_limit * 0.8) && (
+          usage.ai_operations_used >=
+            Math.floor(usage.ai_operations_limit * 0.8) && (
             <div className="bg-primary/5 border-primary/20 mt-3 flex items-center justify-between rounded-md border px-3 py-2">
               <p className="text-muted-foreground text-sm">
-                {usage.ai_operations_limit - usage.ai_operations_used} AI operations remaining this
-                month
+                {usage.ai_operations_limit - usage.ai_operations_used} AI
+                operations remaining this month
               </p>
               <Button size="sm" variant="default" asChild>
                 <Link href="/dashboard/checkout">
@@ -429,9 +428,18 @@ export default function DashboardPage() {
       </section>
 
       {/* ------------------------------------------------------------------ */}
-      {/* Onboarding checklist */}
+      {/* Complete Steps — appears HERE for returning users (≥1 job). */}
+      {/* The panel returns null when all 4 done OR dismissed, which collapses */}
+      {/* this slot cleanly thanks to the wrapper's `gap-8`. */}
       {/* ------------------------------------------------------------------ */}
-      <OnboardingChecklist />
+      {!panelAboveQuickActions && (
+        <CompleteStepsPanel
+          mostRecentJobId={mostRecentJobId}
+          hasJobs={hasJobs}
+          jobsTotal={jobsTotal}
+          jobsLoading={jobsLoading}
+        />
+      )}
 
       {/* ------------------------------------------------------------------ */}
       {/* Recent activity */}

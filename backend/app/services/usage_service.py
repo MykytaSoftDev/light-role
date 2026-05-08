@@ -80,6 +80,35 @@ async def _compute_usage(user: User, db: Session) -> UsageResponse:
         or 0
     )
 
+    # DASHBOARD-1: split usage by credit type. The literals here match what
+    # the routers actually emit (see app/routers/jobs.py:214 and
+    # app/models/usage_log.py docstring). `generate_cover_letter` is
+    # whitelisted in the model docstring but not yet emitted (CL endpoints
+    # currently return 503) — we count it so this stays correct once Phase
+    # 5.1 lands without needing another schema change.
+    resume_credits_used = (
+        db.query(func.count(UsageLog.id))
+        .filter(
+            UsageLog.user_id == user.id,
+            UsageLog.operation_type == "tailor_resume",
+            func.extract("year", UsageLog.created_at) == now.year,
+            func.extract("month", UsageLog.created_at) == now.month,
+        )
+        .scalar()
+        or 0
+    )
+    cl_credits_used = (
+        db.query(func.count(UsageLog.id))
+        .filter(
+            UsageLog.user_id == user.id,
+            UsageLog.operation_type == "generate_cover_letter",
+            func.extract("year", UsageLog.created_at) == now.year,
+            func.extract("month", UsageLog.created_at) == now.month,
+        )
+        .scalar()
+        or 0
+    )
+
     # Load subscription with plan relationship (lazy="joined" handles it automatically)
     subscription: Optional[Subscription] = (
         db.query(Subscription).filter(Subscription.user_id == user.id).first()
@@ -91,6 +120,23 @@ async def _compute_usage(user: User, db: Session) -> UsageResponse:
     plan = subscription.plan if subscription else None
     ai_limit = get_plan_ai_limit(plan)
     jobs_limit = get_plan_active_jobs_limit(plan)  # -1 = unlimited
+
+    # DASHBOARD-1: per-credit-type limits. The Plan model already stores
+    # `resume_credits_per_cycle` and `cl_credits_per_cycle` (NULL = unlimited),
+    # so we read directly rather than falling back to the merged ai_limit.
+    # Fallback (no subscription/plan): use the merged ai_limit for both —
+    # acceptable per PRD ("stub returning real values; full quota system in
+    # Phase 5.1").
+    if plan is not None:
+        resume_credits_limit = (
+            -1 if plan.resume_credits_per_cycle is None else plan.resume_credits_per_cycle
+        )
+        cl_credits_limit = (
+            -1 if plan.cl_credits_per_cycle is None else plan.cl_credits_per_cycle
+        )
+    else:
+        resume_credits_limit = ai_limit
+        cl_credits_limit = ai_limit
 
     # Active jobs: applications not in terminal states
     active_jobs_count = (
@@ -127,6 +173,8 @@ async def _compute_usage(user: User, db: Session) -> UsageResponse:
     effective_limits = EffectiveLimits(
         ai_operations=ai_ops_effective if ai_ops_effective is not None else ai_limit,
         active_jobs=active_jobs_effective,
+        resume_credits=resume_credits_limit,
+        cl_credits=cl_credits_limit,
     )
 
     return UsageResponse(
@@ -137,6 +185,10 @@ async def _compute_usage(user: User, db: Session) -> UsageResponse:
         reset_date=reset_date,
         active_jobs_count=active_jobs_count,
         applications_this_month=applications_this_month,
+        resume_credits_used=resume_credits_used,
+        resume_credits_limit=resume_credits_limit,
+        cl_credits_used=cl_credits_used,
+        cl_credits_limit=cl_credits_limit,
     )
 
 

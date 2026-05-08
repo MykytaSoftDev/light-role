@@ -1,3 +1,5 @@
+from datetime import datetime, timezone
+
 from fastapi import APIRouter, Depends, HTTPException, Response
 from sqlalchemy.orm import Session
 
@@ -5,7 +7,11 @@ from app.database import get_db
 from app.dependencies.auth import get_current_user, get_verified_user
 from app.models.user import User
 from app.schemas.usage import UsageResponse
-from app.schemas.user import UserResponse, UserUpdateRequest
+from app.schemas.user import (
+    DismissCompleteStepsResponse,
+    UserResponse,
+    UserUpdateRequest,
+)
 
 router = APIRouter(prefix="/api/v1/users", tags=["users"])
 
@@ -46,6 +52,28 @@ async def get_usage(
 ):
     from app.services.usage_service import get_usage as usage_service_get_usage
     return await usage_service_get_usage(current_user, db)
+
+
+@router.post("/me/dismiss-complete-steps", response_model=DismissCompleteStepsResponse)
+def dismiss_complete_steps(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_verified_user),
+):
+    """Dismiss the dashboard's Complete Steps panel (DASHBOARD-1).
+
+    Idempotent: if `complete_steps_dismissed_at` is already set, return the
+    existing timestamp unchanged (200, not 409). Setting the column to the
+    server-side `now()` is a one-way switch; the panel never reappears.
+    """
+    if current_user.complete_steps_dismissed_at is None:
+        current_user.complete_steps_dismissed_at = datetime.now(timezone.utc).replace(
+            tzinfo=None
+        )
+        db.commit()
+        db.refresh(current_user)
+    return DismissCompleteStepsResponse(
+        complete_steps_dismissed_at=current_user.complete_steps_dismissed_at
+    )
 
 
 @router.delete("/me", status_code=204)

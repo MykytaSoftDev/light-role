@@ -16,8 +16,17 @@ class UserResponse(BaseModel):
     is_verified: bool
     onboarding_completed: bool
     created_at: datetime
+    # DASHBOARD-1: surfaced so the dashboard home knows whether to render
+    # the "Complete steps" panel without a second round-trip.
+    complete_steps_dismissed_at: Optional[datetime] = None
 
     model_config = {"from_attributes": True}
+
+
+class DismissCompleteStepsResponse(BaseModel):
+    """Returned by POST /api/v1/users/me/dismiss-complete-steps (DASHBOARD-1)."""
+
+    complete_steps_dismissed_at: datetime
 
 
 class UserUpdateRequest(BaseModel):
