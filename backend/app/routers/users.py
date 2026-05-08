@@ -5,10 +5,12 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.dependencies.auth import get_current_user, get_verified_user
-from app.models.user import User
+from app.models.user import User, _resume_preferences_default
 from app.schemas.usage import UsageResponse
 from app.schemas.user import (
     DismissCompleteStepsResponse,
+    ResumePreferences,
+    ResumePreferencesUpdateRequest,
     UserResponse,
     UserUpdateRequest,
 )
@@ -43,6 +45,76 @@ def update_me(
     db.commit()
     db.refresh(current_user)
     return current_user
+
+
+@router.patch(
+    "/me/resume-preferences",
+    response_model=ResumePreferences,
+)
+def update_resume_preferences(
+    data: ResumePreferencesUpdateRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_verified_user),
+):
+    """Partial-merge update of `users.resume_preferences` (PREFS-1, PRD 3.8.3).
+
+    Semantics:
+      - At least one of `sections_order`, `font`, `template` must be provided
+        (empty body → 400).
+      - `template` is locked to "classic" for MVP — any other value → 400.
+      - `font` and `sections_order` shape errors are handled by the Pydantic
+        validators on the request schema (422).
+      - The full post-merge object is returned so the frontend can replace
+        its cache atomically (no need for a follow-up GET /me).
+
+    Idempotent: sending the same payload twice yields the same final state.
+    """
+    # 1. At-least-one-field guard (cannot live in Pydantic without an awkward
+    # model_validator; clearer here as it's a 400, not a 422).
+    if (
+        data.sections_order is None
+        and data.font is None
+        and data.template is None
+    ):
+        raise HTTPException(
+            status_code=400,
+            detail=(
+                "At least one of sections_order, font, template must be "
+                "provided."
+            ),
+        )
+
+    # 2. Locked-feature gate for `template`. Returning 400 (not 422) signals
+    # "the value parses fine, the feature is just not available" — the
+    # frontend can render this differently from a malformed-input toast.
+    if data.template is not None and data.template != "classic":
+        raise HTTPException(
+            status_code=400,
+            detail=(
+                "Only the 'classic' template is available in this release."
+            ),
+        )
+
+    # 3. Build the full merged dict on top of defaults so any keys missing
+    # from the stored row (e.g., from a partially-migrated record) are filled
+    # in. Defaults come from the same source the model uses for new users.
+    merged = _resume_preferences_default()
+    if current_user.resume_preferences:
+        merged.update(current_user.resume_preferences)
+    if data.sections_order is not None:
+        merged["sections_order"] = data.sections_order
+    if data.font is not None:
+        merged["font"] = data.font
+    if data.template is not None:
+        merged["template"] = data.template
+
+    # 4. Reassign the whole dict so SQLAlchemy notices the change. JSONB
+    # in-place mutation is NOT tracked unless wrapped in MutableDict, and
+    # this column isn't.
+    current_user.resume_preferences = merged
+    db.commit()
+    db.refresh(current_user)
+    return ResumePreferences(**current_user.resume_preferences)
 
 
 @router.get("/me/usage", response_model=UsageResponse)

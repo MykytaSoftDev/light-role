@@ -6,10 +6,16 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { AccountTab } from "./account-tab";
 import { NotificationsTab } from "./notifications-tab";
+import { ResumeTab } from "./resume-tab";
 import { SecurityTab } from "./security-tab";
 
-type TabValue = "account" | "security" | "notifications";
-const VALID_TABS: readonly TabValue[] = ["account", "security", "notifications"] as const;
+type TabValue = "account" | "security" | "notifications" | "resume";
+const VALID_TABS: readonly TabValue[] = [
+  "account",
+  "security",
+  "notifications",
+  "resume",
+] as const;
 
 function isValidTab(v: string | null): v is TabValue {
   return !!v && (VALID_TABS as readonly string[]).includes(v);
@@ -47,6 +53,7 @@ export function SettingsTabs({ initialTab }: SettingsTabsProps) {
         <TabsTrigger value="account">{t("tabs.account")}</TabsTrigger>
         <TabsTrigger value="security">{t("tabs.security")}</TabsTrigger>
         <TabsTrigger value="notifications">{t("tabs.notifications")}</TabsTrigger>
+        <TabsTrigger value="resume">{t("tabs.resume")}</TabsTrigger>
       </TabsList>
 
       <TabsContent value="account" className="mt-6">
@@ -57,6 +64,9 @@ export function SettingsTabs({ initialTab }: SettingsTabsProps) {
       </TabsContent>
       <TabsContent value="notifications" className="mt-6">
         <NotificationsTab />
+      </TabsContent>
+      <TabsContent value="resume" className="mt-6">
+        <ResumeTab />
       </TabsContent>
     </Tabs>
   );

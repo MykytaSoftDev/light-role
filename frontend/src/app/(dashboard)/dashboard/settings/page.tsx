@@ -1,8 +1,13 @@
 import { Suspense } from "react";
 import { SettingsTabs } from "./_components/settings-tabs";
 
-type TabValue = "account" | "security" | "notifications";
-const VALID_TABS: readonly TabValue[] = ["account", "security", "notifications"] as const;
+type TabValue = "account" | "security" | "notifications" | "resume";
+const VALID_TABS: readonly TabValue[] = [
+  "account",
+  "security",
+  "notifications",
+  "resume",
+] as const;
 
 function isValidTab(v: string | undefined): v is TabValue {
   return !!v && (VALID_TABS as readonly string[]).includes(v);
@@ -30,6 +35,7 @@ function SettingsTabsSkeleton() {
         <div className="h-9 w-24 animate-pulse rounded-md bg-muted" />
         <div className="h-9 w-24 animate-pulse rounded-md bg-muted" />
         <div className="h-9 w-28 animate-pulse rounded-md bg-muted" />
+        <div className="h-9 w-24 animate-pulse rounded-md bg-muted" />
       </div>
       <div className="h-64 animate-pulse rounded-lg bg-muted" />
     </div>

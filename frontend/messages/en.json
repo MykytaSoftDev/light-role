@@ -147,7 +147,8 @@
       "ariaLabel": "Settings sections",
       "account": "Account",
       "security": "Security",
-      "notifications": "Notifications"
+      "notifications": "Notifications",
+      "resume": "Resume"
     },
     "account": {
       "heading": "Account",
@@ -160,6 +161,34 @@
     "notifications": {
       "heading": "Notification Preferences",
       "description": "Manage which notifications you receive from Light Role."
+    },
+    "resume": {
+      "heading": "Resume preferences",
+      "description": "Choose the section order and font that future tailored resumes will start from.",
+      "infoBanner": {
+        "title": "These settings affect future generations only",
+        "body": "Existing tailored resumes keep the section order and font they were generated with. Changes here apply to resumes you generate after saving."
+      },
+      "sectionOrder": {
+        "title": "Section order",
+        "description": "Drag to reorder. Personal info always appears at the top of the resume."
+      },
+      "font": {
+        "title": "Font",
+        "description": "Pick the typeface for your resume. Each option is shown in its own font.",
+        "label": "Resume font",
+        "placeholder": "Choose a font",
+        "hint": "All five fonts are professional sans-serifs that render cleanly in PDF."
+      },
+      "saveButton": "Save Changes",
+      "savingButton": "Saving...",
+      "saveSuccessToast": "Resume preferences updated.",
+      "saveError": {
+        "network": "Couldn't save your changes. Please try again.",
+        "validation": "We couldn't save those changes. Please refresh the page and try again."
+      },
+      "loadError": "Couldn't load your resume preferences. Please refresh the page.",
+      "retry": "Try again"
     }
   },
   "profile": {
