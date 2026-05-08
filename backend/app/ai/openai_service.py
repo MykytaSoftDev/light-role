@@ -32,8 +32,20 @@ _TIMEOUT = 30.0        # seconds — for simple calls (job parsing)
 _ANALYZE_TIMEOUT = 120.0  # seconds — for the heavy combined resume analysis call
 _PROFILE_PARSE_TIMEOUT = 60.0  # seconds — for resume → ProfileData parsing (PROFILE-2)
 _TAILOR_TIMEOUT = 90.0  # seconds — for tailored resume generation (TAILOR-1)
+_COVER_LETTER_TIMEOUT = 90.0  # seconds — for 3-variant CL generation (CL-1)
 _TAILOR_MAX_KEYWORDS = 12  # cap for matched_keywords (UI side panel)
 _TAILOR_PALETTE_SIZE = 8   # color_id cycles through 1..8
+
+# CL length bands (PRD 3.5.4). The AI is instructed to land within ±15% of
+# the band's midpoint. Post-validation only enforces non-empty content; word
+# count drift is logged-but-not-rejected so a slightly over/under variant is
+# still surfaced to the user rather than failing the whole batch.
+_CL_LENGTH_BANDS: dict[str, tuple[int, int]] = {
+    "short": (200, 300),
+    "medium": (300, 400),
+    "long": (400, 500),
+}
+_CL_VARIANT_COUNT = 3
 
 # Hosts whose profile URLs always require a path component. A bare root URL
 # like "https://www.linkedin.com" with no /in/<username> is not a profile and
@@ -370,34 +382,52 @@ Return ONLY the JSON object. No commentary, no preamble.
 
 
 _COVER_LETTER_SYSTEM_PROMPT = """\
-You are an expert career coach and professional writer specialising in cover letters. You will be given a job description, a resume, style/tone/length preferences, and optional additional context from the applicant.
+You are an expert career coach and professional copywriter specialising in cover letters. You will be given a SOURCE (the applicant's profile or a tailored resume — same JSON shape either way), a JOB (parsed job posting), and PREFERENCES (style, tone, length, optional additional_context).
 
-Your task is to generate exactly 3 cover letter variants. Each variant must:
-- Address the specific job and company from the job description
-- Draw only on experience, skills, and achievements present in the resume — never hallucinate credentials
-- Reflect the requested STYLE:
-    - formal: traditional business language, formal salutations, conservative structure
-    - professional: polished and modern, confident but not stiff, suits most corporate environments
-    - job_matched: analyse the tone of the job posting and mirror it (e.g. casual startup → conversational; finance firm → formal)
-- Reflect the requested TONE:
-    - confident: assertive and self-assured, highlights achievements with authority
-    - humble: modest and appreciative, emphasises eagerness to learn and contribute
-    - enthusiastic: energetic and excited about the role, conveys genuine passion
-- Respect the requested LENGTH:
-    - short: 200–300 words
-    - medium: 300–400 words
-    - long: 400–500 words
-- Take a distinctly different approach or angle from the other variants (e.g. opening hook, emphasis on different skills, different structure) while covering the same key qualifications
-- Incorporate the applicant's additional_context if provided (e.g. relocation plans, specific motivation, preferred start date)
+Your task: produce EXACTLY 3 cover letter variants in a SINGLE response. Each variant is a complete, ready-to-send letter (greeting → body → closing → signature line).
 
-Return ONLY a valid JSON object with this exact structure — no markdown fences, no extra text:
+ABSOLUTE SOURCE-OF-TRUTH RULE — read carefully:
+- The SOURCE is the ONLY allowed source of facts about the applicant. Do NOT invent companies, roles, dates, education, projects, certifications, achievements, or specific accomplishments that are not already present in the SOURCE.
+- You MAY rephrase, summarise, and re-emphasise existing facts to better match the job. You MAY draw motivation/intent from `additional_context` if provided.
+- The SOURCE is labelled with `source_type` ("tailored_resume" or "profile") for context only — DO NOT change your behaviour based on this field. The factual base is identical in either case.
+
+VARIANTS MUST BE LEGIBLY DIFFERENT. Past attempts produced near-duplicates; that is unacceptable. Use these mandatory differentiators:
+- Variant 1 — ACHIEVEMENT-FIRST: open with the applicant's strongest, most job-relevant accomplishment (a concrete result with numbers if available). Body emphasises proof of impact. Tight, evidence-driven structure.
+- Variant 2 — MOTIVATION-FIRST: open with why the applicant is drawn to THIS role / problem space. Body bridges personal motivation to relevant experience. Narrative, slightly more personal arc.
+- Variant 3 — COMPANY-ALIGNMENT-FIRST: open by referencing something specific to the company or role from the JOB (mission, product area, requirement, stated challenge). Body shows how the applicant's background slots into that need. Most "tailored to this employer" feel.
+
+All three variants share the same factual base, the same requested style, the same requested tone, and the same length band. They differ in opening hook, structural emphasis, and which qualifications they foreground — NOT in tone/style/length.
+
+STYLE (apply uniformly across all 3 variants):
+- formal: traditional business language, formal salutation ("Dear Hiring Manager,"), conservative paragraph structure, no contractions.
+- professional: polished and modern, confident but warm, suits most corporate roles. Contractions OK.
+- job_matched: read the tone of the JOB description and mirror it. Casual startup posting → conversational and direct. Bank/law/government → formal. Engineering-heavy → precise and concrete.
+
+TONE (apply uniformly across all 3 variants):
+- confident: assertive, claims expertise plainly, leads with achievements ("I led", "I delivered", "I built"). No hedging language.
+- humble: modest and appreciative, emphasises eagerness to learn and contribute, frames achievements as collaborative ("our team", "I had the opportunity to").
+- enthusiastic: energetic, conveys genuine excitement about the role/company, uses vivid verbs and warmer adjectives. Still professional — never gushing.
+
+LENGTH (apply to each variant — word count means visible body words, including greeting and signature):
+- short: 200–300 words (target ~250)
+- medium: 300–400 words (target ~350)
+- long: 400–500 words (target ~450)
+Each variant should land within ±15% of the target. Do not pad with filler.
+
+ADDITIONAL CONTEXT:
+- If the user message includes an "ADDITIONAL CONTEXT" section, weave it into each variant naturally (e.g. relocation availability, target start date, specific motivation). Do not parrot it verbatim. If absent, ignore — do not invent context.
+
+OUTPUT FORMAT — return ONLY a valid JSON object with this exact structure. No markdown fences, no preamble, no commentary:
+
 {
   "variants": [
-    {"content": "<full cover letter text>", "label": "Variant 1"},
-    {"content": "<full cover letter text>", "label": "Variant 2"},
-    {"content": "<full cover letter text>", "label": "Variant 3"}
+    {"content": "<full variant 1 text — achievement-first>"},
+    {"content": "<full variant 2 text — motivation-first>"},
+    {"content": "<full variant 3 text — company-alignment-first>"}
   ]
 }
+
+The `variants` array MUST have exactly 3 elements. Each `content` MUST be a non-empty string containing the full letter.
 """
 
 
@@ -520,37 +550,91 @@ class OpenAIService(AIServiceInterface):
 
     async def generate_cover_letter(
         self,
-        job_description: str,
-        resume_text: str,
-        style: str,
-        tone: str,
-        length: str,
-        additional_context: str = "",
+        source_data: dict,
+        job_data: dict,
+        preferences: dict,
     ) -> GenerateCoverLetterResult:
+        """Generate exactly 3 distinct cover letter variants in a single OpenAI call.
+
+        See `AIServiceInterface.generate_cover_letter` for the contract. The
+        implementation mirrors `generate_tailored_resume`: structured JSON
+        output via `response_format={"type": "json_object"}`, post-validated
+        to enforce exactly 3 non-empty variants. On any failure we return
+        `success=False` with an empty variants list so the caller can map to
+        a 502 / refund the user's CL credit.
+
+        Failure modes (all return success=False, no exception raised to caller):
+        - OpenAI / network / timeout error
+        - Invalid JSON returned by the model
+        - `variants` list missing, wrong type, or != 3 elements
+        - Any variant has empty `content`
+        """
         empty_result = GenerateCoverLetterResult(variants=[], usage=None, success=False)
 
         try:
-            user_content_parts = [
-                f"=== JOB DESCRIPTION ===\n{job_description}",
-                f"\n=== RESUME ===\n{resume_text}",
-                f"\n=== PREFERENCES ===\nStyle: {style}\nTone: {tone}\nLength: {length}",
-            ]
-            if additional_context.strip():
-                user_content_parts.append(
-                    f"\n=== ADDITIONAL CONTEXT FROM APPLICANT ===\n{additional_context}"
-                )
-            user_content = "\n".join(user_content_parts)
+            # --- Normalise inputs -------------------------------------------------
+            style = str(preferences.get("style") or "job_matched")
+            tone = str(preferences.get("tone") or "confident")
+            length = str(preferences.get("length") or "medium")
+            source_type = str(preferences.get("source_type") or "profile")
+            additional_context = str(preferences.get("additional_context") or "").strip()
+
+            # Length band → midpoint target word count (used in the user prompt
+            # so the model has an explicit target rather than the band only).
+            band = _CL_LENGTH_BANDS.get(length, _CL_LENGTH_BANDS["medium"])
+            target_words = (band[0] + band[1]) // 2
+
+            # --- Build the user payload ------------------------------------------
+            user_payload: dict[str, Any] = {
+                "source": {
+                    # source_type is informational only — the AI must NOT branch
+                    # behaviour on it (per system prompt). Surfaced so the model
+                    # can reason about provenance if it wants to.
+                    "source_type": source_type,
+                    "data": source_data or {},
+                },
+                "job": {
+                    "job_title": job_data.get("job_title") or "",
+                    "company": job_data.get("company") or "",
+                    "requirements": list(job_data.get("requirements") or []),
+                    "description": job_data.get("description") or "",
+                    # Pass-through any other helpful fields (location, salary, ...)
+                    **{
+                        k: v for k, v in (job_data or {}).items()
+                        if k not in {"job_title", "company", "requirements", "description"}
+                    },
+                },
+                "preferences": {
+                    "style": style,
+                    "tone": tone,
+                    "length": length,
+                    "target_word_count": target_words,
+                    "word_count_band": {"min": band[0], "max": band[1]},
+                },
+            }
+            if additional_context:
+                # Inserted verbatim per CL-1 spec — only when non-empty.
+                user_payload["additional_context"] = additional_context
+
+            user_content = json.dumps(user_payload, ensure_ascii=False)
+
+            # --- AI call ---------------------------------------------------------
+            model_name = settings.ai_model_cover_letter or _MODEL
 
             start_ms = time.monotonic()
 
             response = await self._client.chat.completions.create(
-                model=_MODEL,
+                model=model_name,
                 response_format={"type": "json_object"},
-                timeout=_ANALYZE_TIMEOUT,
+                timeout=_COVER_LETTER_TIMEOUT,
                 messages=[
                     {"role": "system", "content": _COVER_LETTER_SYSTEM_PROMPT},
                     {"role": "user", "content": user_content},
                 ],
+                # Higher temperature than tailoring (0.2): variant distinctness
+                # benefits from more creative variation. Still well below the
+                # default (1.0) to keep tone/style/length consistent across
+                # variants.
                 temperature=0.7,
             )
 
@@ -559,10 +643,6 @@ class OpenAIService(AIServiceInterface):
             raw_content = response.choices[0].message.content or ""
             variants = self._parse_cover_letter_response(raw_content)
 
-            if not variants:
-                logger.warning("OpenAI generate_cover_letter returned no variants")
-                return empty_result
-
             usage_info = AIUsageInfo(
                 model=response.model,
                 tokens_input=response.usage.prompt_tokens if response.usage else 0,
@@ -570,15 +650,57 @@ class OpenAIService(AIServiceInterface):
                 response_time_ms=elapsed_ms,
             )
 
+            # Strict post-validation: exactly 3 non-empty variants. Anything
+            # else is a hard failure — caller refunds the credit upstream.
+            if len(variants) != _CL_VARIANT_COUNT:
+                logger.warning(
+                    "OpenAI generate_cover_letter expected %d variants, got %d "
+                    "(tokens_in=%d tokens_out=%d elapsed_ms=%d)",
+                    _CL_VARIANT_COUNT,
+                    len(variants),
+                    usage_info.tokens_input,
+                    usage_info.tokens_output,
+                    elapsed_ms,
+                )
+                return empty_result
+
+            if any(not v.content.strip() for v in variants):
+                logger.warning(
+                    "OpenAI generate_cover_letter returned an empty variant "
+                    "(tokens_in=%d tokens_out=%d elapsed_ms=%d)",
+                    usage_info.tokens_input,
+                    usage_info.tokens_output,
+                    elapsed_ms,
+                )
+                return empty_result
+
+            # Word-count drift is logged-only — surface to the user rather
+            # than failing the batch.
+            for i, v in enumerate(variants, start=1):
+                wc = len(v.content.split())
+                if wc < band[0] * 0.85 or wc > band[1] * 1.15:
+                    logger.info(
+                        "CL variant %d word_count=%d outside ±15%% of band %s "
+                        "(target=%d) — surfacing anyway",
+                        i, wc, band, target_words,
+                    )
+
             logger.info(
-                "Cover letter generation complete: variants=%d tokens_in=%d tokens_out=%d elapsed_ms=%d",
+                "Cover letter generation complete: variants=%d style=%s tone=%s "
+                "length=%s source_type=%s tokens_in=%d tokens_out=%d elapsed_ms=%d",
                 len(variants),
+                style,
+                tone,
+                length,
+                source_type,
                 usage_info.tokens_input,
                 usage_info.tokens_output,
                 elapsed_ms,
             )
 
-            return GenerateCoverLetterResult(variants=variants, usage=usage_info, success=True)
+            return GenerateCoverLetterResult(
+                variants=variants, usage=usage_info, success=True
+            )
 
         except Exception as exc:
             logger.warning("OpenAI generate_cover_letter failed: %s", exc)
@@ -944,11 +1066,23 @@ class OpenAIService(AIServiceInterface):
         )
 
     def _parse_cover_letter_response(self, content: str) -> list[CoverLetterVariant]:
-        """Parse JSON response from OpenAI into a list of CoverLetterVariant. Returns [] on error."""
+        """Parse the OpenAI JSON response into a list of CoverLetterVariant.
+
+        Returns the variants list as-extracted (no truncation, no padding).
+        The caller is responsible for enforcing the exactly-3 contract — this
+        helper just returns what the model gave us, dropping malformed entries.
+
+        Returns [] on JSON decode failure, missing/non-list `variants` field,
+        or if every entry is malformed.
+        """
         try:
             raw: dict[str, Any] = json.loads(content)
         except json.JSONDecodeError as exc:
             logger.warning("Failed to decode cover letter JSON response: %s", exc)
+            return []
+
+        if not isinstance(raw, dict):
+            logger.warning("Cover letter response was not a JSON object")
             return []
 
         variants_raw = raw.get("variants")
@@ -957,13 +1091,16 @@ class OpenAIService(AIServiceInterface):
             return []
 
         variants: list[CoverLetterVariant] = []
-        for i, item in enumerate(variants_raw):
-            if not isinstance(item, dict):
+        for item in variants_raw:
+            # Tolerate models that hand back a bare string instead of {content: ...}.
+            if isinstance(item, str):
+                content_text = item.strip()
+            elif isinstance(item, dict):
+                content_text = str(item.get("content", "")).strip()
+            else:
                 continue
-            content_text = str(item.get("content", "")).strip()
-            label = str(item.get("label", f"Variant {i + 1}")).strip()
             if content_text:
-                variants.append(CoverLetterVariant(content=content_text, label=label))
+                variants.append(CoverLetterVariant(content=content_text))
 
         return variants
 

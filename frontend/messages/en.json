@@ -480,5 +480,214 @@
       "rate_limit": "You can contact support once per hour.",
       "unavailable": "Unable to send message right now. Please email support@lightrole.com directly."
     }
+  },
+  "coverLetters": {
+    "wizard": {
+      "common": {
+        "cancel": "Cancel",
+        "next": "Next",
+        "back": "Back"
+      },
+      "pageTitle": "Generate Cover Letter",
+      "pageSubtitle": "AI drafts 3 variants tailored to the job in ~15 seconds.",
+      "backToList": "Back to Cover Letters",
+      "indicator": {
+        "step1": "Select Job & Source",
+        "step2": "Settings",
+        "step3": "Review"
+      },
+      "step1": {
+        "title": "Select Job & Source",
+        "jobLabel": "Job *",
+        "jobPlaceholder": "Select a job…",
+        "jobsError": "Couldn't load your jobs. Refresh the page or try again.",
+        "jobsErrorRetry": "Try again",
+        "empty": {
+          "title": "No eligible jobs",
+          "body": "Either you have no jobs, or every job already has a cover letter. Add a new job to draft one.",
+          "cta": "Add a job"
+        },
+        "sourceLabel": "Source *",
+        "sourcePlaceholder": "Select a source…",
+        "source": {
+          "tr": {
+            "label": "Tailored Resume (for this job)",
+            "sub": "Recommended — uses your TR optimized for this role"
+          },
+          "profile": {
+            "label": "My Profile",
+            "sub": "Uses your raw profile data instead"
+          }
+        },
+        "noTr": {
+          "title": "Cover letter will be generated from your Profile.",
+          "body": "No tailored resume exists for this job."
+        },
+        "contextLabel": "Additional Context",
+        "contextOptional": "(optional)",
+        "contextPlaceholder": "Anything specific you want included? (optional) — e.g. a personal connection to the company, a project you want highlighted, or a referral.",
+        "contextCounter": "{count} / 500 characters",
+        "profileHint": "Complete your profile to continue.",
+        "modal": {
+          "missingProfile": {
+            "title": "Missing profile information",
+            "body": "A cover letter needs at least one piece of experience to draw from. Add at least one employment entry or one project to your profile.",
+            "completeCta": "Complete profile"
+          },
+          "alreadyExists": {
+            "title": "Cover letter already exists",
+            "body": "You already drafted a cover letter for this job.",
+            "viewCta": "View existing",
+            "createdAt": "Created {date}"
+          }
+        }
+      },
+      "step2": {
+        "title": "Generation Settings",
+        "styleLabel": "Style",
+        "toneLabel": "Tone",
+        "lengthLabel": "Length",
+        "generate": "Generate",
+        "aiLimitTooltip": "You've reached your AI operation limit. Upgrade to continue.",
+        "style": {
+          "jobMatched": {
+            "title": "Job Matched",
+            "desc": "Tailored to the job's requirements"
+          },
+          "formal": {
+            "title": "Formal",
+            "desc": "Traditional, structured language"
+          },
+          "professional": {
+            "title": "Professional",
+            "desc": "Polished and industry-appropriate"
+          }
+        },
+        "tone": {
+          "confident": {
+            "title": "Confident",
+            "desc": "Strong and assertive voice"
+          },
+          "humble": {
+            "title": "Humble",
+            "desc": "Modest and collaborative tone"
+          },
+          "enthusiastic": {
+            "title": "Enthusiastic",
+            "desc": "Energetic and passionate"
+          }
+        },
+        "length": {
+          "short": {
+            "title": "Short",
+            "desc": "200–300 words"
+          },
+          "medium": {
+            "title": "Medium",
+            "desc": "300–400 words"
+          },
+          "long": {
+            "title": "Long",
+            "desc": "400–500 words"
+          }
+        }
+      },
+      "loading": {
+        "phase1": {
+          "label": "Analyzing the role",
+          "subtitle": "Pulling out the role's must-haves…"
+        },
+        "phase2": {
+          "label": "Reviewing your background",
+          "subtitle": "Matching your experience to the role…"
+        },
+        "phase3": {
+          "label": "Crafting your cover letter",
+          "subtitle": "Drafting three variants in your tone…"
+        },
+        "failed": "Something went wrong.",
+        "tipHeading": "Did you know?",
+        "tips": [
+          "A strong opening line lifts response rates more than a fancy closing.",
+          "Light Role drafts 3 takes so you can pick the voice that fits — not just the words.",
+          "Mentioning a specific project or value of the company shows research, not just enthusiasm.",
+          "Your cover letter complements your resume — it doesn't repeat it."
+        ],
+        "creditHint": "Hang tight — we're using one of your credits to draft this.",
+        "aiFailToast": "AI couldn't draft right now — please try again. No credits charged.",
+        "networkFailToast": "Something went wrong. Please try again.",
+        "profileNotReadyToast": "Your profile isn't complete enough to draft a cover letter.",
+        "jobNotFoundToast": "Job not found.",
+        "alreadyExistsToast": "A cover letter already exists for this job."
+      },
+      "step3": {
+        "title": "Review Variants",
+        "subtitle": "These are 3 distinct takes on your cover letter — pick the one that resonates.",
+        "tab": {
+          "variant1": "Variant 1",
+          "variant2": "Variant 2",
+          "variant3": "Variant 3"
+        },
+        "useVariant": "Use this variant",
+        "selected": "Selected",
+        "back": "Back to Settings",
+        "editSelected": "Edit Selected",
+        "saving": "Saving…",
+        "pickFirst": "Pick a variant first.",
+        "defensiveError": "Something went wrong loading the variants. Please try again.",
+        "saveSuccess": "Cover letter saved.",
+        "saveConflict": "A cover letter already exists for this job.",
+        "saveError": "Couldn't save your cover letter. Please try again."
+      }
+    },
+    "list": {
+      "title": "Cover Letters",
+      "subtitle": "AI-generated cover letters tailored to your jobs.",
+      "breadcrumbDashboard": "Dashboard",
+      "breadcrumbCurrent": "Cover Letters",
+      "ctaGenerate": "Generate New Cover Letter",
+      "searchPlaceholder": "Search by name, company, or job…",
+      "sortLabel": "Sort cover letters",
+      "sort": {
+        "newest": "Newest",
+        "oldest": "Oldest",
+        "recently_updated": "Recently updated"
+      },
+      "clear": "Clear",
+      "countOne": "1 cover letter",
+      "countOther": "{count} cover letters",
+      "countNone": "No cover letters.",
+      "countNoMatches": "No cover letters match your filters.",
+      "card": {
+        "deleteAria": "Delete cover letter",
+        "openAria": "Open cover letter: {name}",
+        "sourceFromTailoredResume": "From Tailored Resume",
+        "sourceFromProfile": "From Profile",
+        "subtitleStandalone": "Standalone cover letter",
+        "subtitleLinkedFallback": "Linked to a job"
+      },
+      "delete": {
+        "title": "Delete this cover letter?",
+        "body": "“{name}” will be permanently deleted. The linked Job stays untouched, and you can generate a new cover letter for it any time.",
+        "cancel": "Cancel",
+        "confirm": "Delete",
+        "successToast": "Cover letter deleted.",
+        "errorToast": "Failed to delete cover letter. Please try again."
+      },
+      "empty": {
+        "title": "No cover letters yet.",
+        "description": "Generate a tailored cover letter from one of your jobs in about 15 seconds.",
+        "cta": "Generate Your First Cover Letter"
+      },
+      "noMatches": {
+        "message": "No cover letters match your search.",
+        "cta": "Clear filters"
+      },
+      "errorState": {
+        "title": "Couldn't load cover letters",
+        "description": "We hit an error fetching your cover letters. Try again, or refresh the page.",
+        "tryAgain": "Try again"
+      }
+    }
   }
 }

@@ -55,39 +55,57 @@ class MockAIService(AIServiceInterface):
 
     async def generate_cover_letter(
         self,
-        job_description: str,
-        resume_text: str,
-        style: str,
-        tone: str,
-        length: str,
-        additional_context: str = "",
+        source_data: dict,
+        job_data: dict,
+        preferences: dict,
     ) -> GenerateCoverLetterResult:
+        # Predictable, schema-valid mock for tests / dev without an OpenAI key.
+        # Returns exactly 3 obviously-distinct fixture strings so test assertions
+        # on variant count and uniqueness pass without needing a real model.
+        style = str((preferences or {}).get("style") or "job_matched")
+        tone = str((preferences or {}).get("tone") or "confident")
+        length = str((preferences or {}).get("length") or "medium")
+        source_type = str((preferences or {}).get("source_type") or "profile")
+
         usage = AIUsageInfo(
             model="mock",
             tokens_input=150,
             tokens_output=300,
             response_time_ms=10,
         )
+        # Each fixture mirrors the system-prompt's mandated differentiator so
+        # downstream tests can assert that distinct angles were preserved.
         variants = [
             CoverLetterVariant(
                 content=(
+                    f"[mock variant 1: achievement-first | {style}/{tone}/{length} | "
+                    f"source={source_type}]\n\n"
                     "Dear Hiring Manager,\n\n"
-                    "I am excited to apply for this position. My background in software "
-                    "engineering makes me a strong candidate. I look forward to contributing "
-                    "to your team.\n\n"
-                    "Best regards"
+                    "Last quarter I shipped a payment platform that processed $10M/month "
+                    "in transactions. I am writing to bring that same execution to your team.\n\n"
+                    "Sincerely,\n[Applicant]"
                 ),
-                label="Variant 1",
             ),
             CoverLetterVariant(
                 content=(
+                    f"[mock variant 2: motivation-first | {style}/{tone}/{length} | "
+                    f"source={source_type}]\n\n"
                     "Dear Hiring Team,\n\n"
-                    "Having reviewed the job description with great interest, I am confident "
-                    "that my skills and experience align well with your requirements. "
-                    "I would welcome the opportunity to discuss how I can add value.\n\n"
-                    "Kind regards"
+                    "I have spent the last several years drawn to problems exactly like the "
+                    "ones in this role. The chance to keep working on them with your team is "
+                    "what motivates this application.\n\n"
+                    "Kind regards,\n[Applicant]"
                 ),
-                label="Variant 2",
+            ),
+            CoverLetterVariant(
+                content=(
+                    f"[mock variant 3: company-alignment-first | {style}/{tone}/{length} | "
+                    f"source={source_type}]\n\n"
+                    "Dear Hiring Team,\n\n"
+                    "Your posting calls out a need I have spent the past several years "
+                    "solving. Below is how my background lines up with each requirement.\n\n"
+                    "Best,\n[Applicant]"
+                ),
             ),
         ]
         return GenerateCoverLetterResult(variants=variants, usage=usage, success=True)

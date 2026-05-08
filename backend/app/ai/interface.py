@@ -95,18 +95,28 @@ class ResumeAnalysisResult:
 
 
 # ---------------------------------------------------------------------------
-# Cover letter generation dataclasses
+# Cover letter generation dataclasses (CL-1)
 # ---------------------------------------------------------------------------
 
 @dataclass
 class CoverLetterVariant:
+    """One AI-generated cover letter variant.
+
+    Plain text only — Tiptap conversion is the responsibility of CL-3
+    (the finalize endpoint), so the AI layer stays format-agnostic.
+    """
     content: str
-    label: str  # e.g. "Variant 1", "Variant 2"
 
 
 @dataclass
 class GenerateCoverLetterResult:
-    variants: list[CoverLetterVariant]  # 2-3 variants
+    """Result of a single CL generation call (CL-1).
+
+    On success: `variants` has exactly 3 non-empty entries (PRD 3.5.7).
+    On failure: `variants` is empty, `usage` is None, `success` is False —
+    callers must treat this as a 502 and refund the credit upstream.
+    """
+    variants: list[CoverLetterVariant]
     usage: Optional[AIUsageInfo]
     success: bool
 
@@ -183,13 +193,35 @@ class AIServiceInterface(ABC):
     @abstractmethod
     async def generate_cover_letter(
         self,
-        job_description: str,
-        resume_text: str,
-        style: str,
-        tone: str,
-        length: str,
-        additional_context: str = "",
+        source_data: dict,
+        job_data: dict,
+        preferences: dict,
     ) -> GenerateCoverLetterResult:
+        """Generate exactly 3 distinct cover letter variants in a single AI call.
+
+        Args:
+            source_data: A ProfileData-shaped dict (`app.schemas.profile.ProfileData`).
+                May come from a `TailoredResume.tailored_data` row or directly from
+                a `UserProfile.profile_data` row — the AI does NOT need to know
+                which. Treated as the immutable factual base; nothing may be
+                fabricated beyond what is present here.
+            job_data: `{ job_title: str, company: str, requirements: list[str],
+                description: str }` — same shape used by `generate_tailored_resume`.
+            preferences: `{
+                source_type: "tailored_resume" | "profile",  # informational; no
+                                                              # branching logic
+                style: "job_matched" | "formal" | "professional",
+                tone: "confident" | "humble" | "enthusiastic",
+                length: "short" | "medium" | "long",  # 200-300 / 300-400 / 400-500
+                additional_context: str,  # empty string if not provided
+            }`.
+
+        Returns:
+            GenerateCoverLetterResult. On any AI/parse/validation failure the
+            method returns `success=False` with an empty variants list and no
+            usage — the router must NOT consume the user's CL credit in that
+            case (per CL-2 spec).
+        """
         ...
 
     @abstractmethod

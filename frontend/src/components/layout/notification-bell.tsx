@@ -36,20 +36,31 @@ function timeAgo(isoDate: string): string {
   return new Date(isoDate).toLocaleDateString();
 }
 
-/** Map entity_type values to dashboard routes. */
-function entityRoute(entityType: string, entityId: string): string | null {
+/** Map entity_type values to dashboard routes.
+ *
+ * `entityId` is nullable: CL-12 emits `cover_letter` notifications with a
+ * null entity_id (variants weren't persisted on disconnect — option B), so
+ * we route the user to the wizard fresh-start instead of an editor URL.
+ */
+function entityRoute(entityType: string, entityId: string | null): string | null {
   switch (entityType) {
     case "job":
     case "application":
-      return `/dashboard/jobs/${entityId}`;
+      return entityId ? `/dashboard/jobs/${entityId}` : null;
     case "resume":
     // TAILOR-17: tailored-resume "ready" notifications produced by the
     // backgrounded tailor flow. Route to the v2 editor at the same shape as
     // the legacy `resume` type so the existing mark-as-read flow handles it.
     case "tailored_resume":
-      return `/dashboard/resumes/${entityId}`;
+      return entityId ? `/dashboard/resumes/${entityId}` : null;
     case "cover_letter":
-      return `/dashboard/cover-letters/${entityId}`;
+      // CL-12: when the user closes the tab during CL generation we drop a
+      // notification with entity_id=null because variants live only in
+      // wizard memory (option B). Route them back to the wizard fresh-start
+      // — credit was already consumed, accepted MVP trade-off.
+      return entityId
+        ? `/dashboard/cover-letters/${entityId}`
+        : "/dashboard/cover-letters/generate";
     default:
       return null;
   }
@@ -87,7 +98,10 @@ export function NotificationBell({ className }: { className?: string }) {
       // ignore
     }
 
-    if (notification.entity_type && notification.entity_id) {
+    // entity_id is allowed to be null (CL-12: cover_letter notifications on
+    // disconnect carry no entity_id because variants weren't persisted —
+    // entityRoute() handles that case by routing to the wizard fresh-start).
+    if (notification.entity_type) {
       const route = entityRoute(notification.entity_type, notification.entity_id);
       if (route) {
         setOpen(false);

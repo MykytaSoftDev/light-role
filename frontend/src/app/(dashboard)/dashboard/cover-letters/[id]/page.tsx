@@ -13,7 +13,16 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { getCoverLetter, updateCoverLetter, exportCoverLetter } from "@/lib/cover-letter-api";
+import { Badge } from "@/components/ui/badge";
+import {
+  getCoverLetter,
+  updateCoverLetter,
+  downloadCoverLetterPdf,
+  downloadCoverLetterDocx,
+  tiptapDocToPlainText,
+  plainTextToTiptapDoc,
+  CoverLetterFetchError,
+} from "@/lib/cover-letter-api";
 import type { CLStyle, CLTone, CLLength } from "@/types/cover-letter";
 
 // ---------------------------------------------------------------------------
@@ -149,17 +158,20 @@ function EditorPanel({
         />
       </div>
 
-      {/* Settings display */}
-      <div className="flex flex-wrap gap-2">
-        <span className="rounded-full border border-border px-2.5 py-0.5 text-[11px] font-medium text-muted-foreground">
+      {/* Settings display — read-only per PRD §6.6 (immutable after wizard). */}
+      <div
+        className="flex flex-wrap gap-2"
+        aria-label="Generation settings (read-only)"
+      >
+        <Badge variant="secondary" className="font-medium">
           Style: {formatStyle(style)}
-        </span>
-        <span className="rounded-full border border-border px-2.5 py-0.5 text-[11px] font-medium text-muted-foreground">
+        </Badge>
+        <Badge variant="secondary" className="font-medium">
           Tone: {formatTone(tone)}
-        </span>
-        <span className="rounded-full border border-border px-2.5 py-0.5 text-[11px] font-medium text-muted-foreground">
+        </Badge>
+        <Badge variant="secondary" className="font-medium">
           Length: {formatLength(length)}
-        </span>
+        </Badge>
       </div>
 
       {/* Content textarea */}
@@ -310,25 +322,43 @@ export default function CoverLetterEditorPage({
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isInitialized = useRef(false);
 
-  // Fetch cover letter
-  const { data, isLoading, isError } = useQuery({
+  // Fetch cover letter. We expose `error` so the render branch can show a
+  // friendly "not found" message specifically on 404 (vs a generic failure).
+  const { data, isLoading, isError, error } = useQuery({
     queryKey: ["cover-letter", id],
     queryFn: () => getCoverLetter(id),
+    retry: (failureCount, err) => {
+      // Don't retry 404s — they won't change.
+      if (err instanceof CoverLetterFetchError && err.status === 404) return false;
+      return failureCount < 2;
+    },
   });
 
-  // Initialize editor content from fetched data
+  // Initialize editor content from fetched data.
+  //
+  // CL-8 data adapter: backend serves `content` as a Tiptap JSON document
+  // (per v2.1 schema). The textarea wants plain text, so we flatten on read
+  // and re-wrap on write — see `tiptapDocToPlainText` / `plainTextToTiptapDoc`
+  // in `lib/cover-letter-api.ts` for the round-trip contract.
   useEffect(() => {
     if (data && !isInitialized.current) {
       setName(data.name);
-      setContent(data.content);
+      setContent(tiptapDocToPlainText(data.content));
       isInitialized.current = true;
     }
   }, [data]);
 
-  // Auto-save mutation
+  // Auto-save mutation. The wire shape sends `content` as Tiptap JSON; the
+  // editor only ever speaks plain text, so we wrap at the call site below.
   const saveMutation = useMutation({
-    mutationFn: (updates: { name?: string; content?: string }) =>
-      updateCoverLetter(id, updates),
+    mutationFn: (updates: { name?: string; contentText?: string }) => {
+      const payload: { name?: string; content?: ReturnType<typeof plainTextToTiptapDoc> } = {};
+      if (updates.name !== undefined) payload.name = updates.name;
+      if (updates.contentText !== undefined) {
+        payload.content = plainTextToTiptapDoc(updates.contentText);
+      }
+      return updateCoverLetter(id, payload);
+    },
     onMutate: () => setSaveStatus("saving"),
     onSuccess: () => {
       setSaveStatus("saved");
@@ -344,7 +374,7 @@ export default function CoverLetterEditorPage({
 
   // Debounced save trigger
   const triggerSave = useCallback(
-    (updates: { name?: string; content?: string }) => {
+    (updates: { name?: string; contentText?: string }) => {
       if (debounceRef.current) clearTimeout(debounceRef.current);
       debounceRef.current = setTimeout(() => {
         saveMutation.mutate(updates);
@@ -355,19 +385,33 @@ export default function CoverLetterEditorPage({
 
   const handleNameChange = (newName: string) => {
     setName(newName);
-    triggerSave({ name: newName, content });
+    // Only the changed field is sent — backend PATCH is partial.
+    triggerSave({ name: newName });
   };
 
   const handleContentChange = (newContent: string) => {
     setContent(newContent);
-    triggerSave({ name, content: newContent });
+    triggerSave({ contentText: newContent });
   };
 
   const handleExport = async (format: "pdf" | "docx") => {
     setIsExporting(true);
     setExportError(null);
     try {
-      await exportCoverLetter(id, format);
+      const blob =
+        format === "pdf"
+          ? await downloadCoverLetterPdf(id)
+          : await downloadCoverLetterDocx(id);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `cover-letter.${format}`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      // Revoke after the click stack settles so the navigation has a chance
+      // to consume the URL.
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
     } catch {
       setExportError(`Failed to export as ${format.toUpperCase()}. Please try again.`);
       setTimeout(() => setExportError(null), 4000);
@@ -394,6 +438,8 @@ export default function CoverLetterEditorPage({
   }
 
   if (isError || !data) {
+    const isNotFound =
+      error instanceof CoverLetterFetchError && error.status === 404;
     return (
       <div className="flex flex-col gap-6 p-6">
         <Link
@@ -403,12 +449,35 @@ export default function CoverLetterEditorPage({
           <ArrowLeft className="h-3.5 w-3.5" />
           Back to Cover Letters
         </Link>
-        <div className="flex items-center gap-3 rounded-xl border border-destructive/30 bg-destructive/5 px-5 py-4 text-sm text-destructive">
-          <AlertCircle className="h-5 w-5 shrink-0" />
+        <div
+          className={cn(
+            "flex items-center gap-3 rounded-xl px-5 py-4 text-sm",
+            isNotFound
+              ? "border border-border bg-muted/30 text-foreground"
+              : "border border-destructive/30 bg-destructive/5 text-destructive"
+          )}
+        >
+          <AlertCircle
+            className={cn(
+              "h-5 w-5 shrink-0",
+              isNotFound ? "text-muted-foreground" : ""
+            )}
+          />
           <div>
-            <p className="font-semibold">Failed to load cover letter</p>
-            <p className="mt-0.5 text-destructive/80">
-              There was an error loading this cover letter. Please go back and try again.
+            <p className="font-semibold">
+              {isNotFound
+                ? "Cover letter not found"
+                : "Failed to load cover letter"}
+            </p>
+            <p
+              className={cn(
+                "mt-0.5",
+                isNotFound ? "text-muted-foreground" : "text-destructive/80"
+              )}
+            >
+              {isNotFound
+                ? "This cover letter may have been deleted, or the link is incorrect."
+                : "There was an error loading this cover letter. Please go back and try again."}
             </p>
           </div>
         </div>
@@ -416,12 +485,15 @@ export default function CoverLetterEditorPage({
     );
   }
 
+  // CL-8: backend now exposes the API field as `length` (aliased from the
+  // legacy DB column `length_setting` via the Pydantic alias). The legacy
+  // field name is gone from the response shape.
   const editorProps = {
     name,
     content,
     style: data.style,
     tone: data.tone,
-    length: data.length_setting,
+    length: data.length,
     saveStatus,
     onNameChange: handleNameChange,
     onContentChange: handleContentChange,

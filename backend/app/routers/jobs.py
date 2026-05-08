@@ -24,6 +24,7 @@ from app.database import get_db
 from app.dependencies.ai_limit import require_ai_quota
 from app.dependencies.auth import get_verified_user
 from app.models.application import Application
+from app.models.cover_letter import CoverLetter
 from app.models.enums import ApplicationStatus, NotificationType
 from app.models.job import Job
 from app.models.notification import Notification
@@ -33,6 +34,11 @@ from app.models.usage_log import UsageLog
 from app.models.user import User
 from app.redis import increment_usage_count
 from app.routers.tailored_resumes import _serialize as _serialize_tailored_resume
+from app.schemas.cover_letter import (
+    CoverLetterGenerateRequest,
+    CoverLetterGenerateResponse,
+    CoverLetterVariantResponse,
+)
 from app.schemas.job import (
     ApplicationResponse,
     ApplicationStatusUpdate,
@@ -52,6 +58,7 @@ from app.schemas.tailored_resume import (
 from app.services import analytics_service, job_service
 from app.services.profile_service import get_or_create_profile
 from app.services.subscription_service import get_effective_plan
+from app.services.usage_service import invalidate_usage_cache
 
 logger = logging.getLogger(__name__)
 
@@ -545,6 +552,320 @@ def get_tailored_resume_for_job(
         row.id,
     )
     return _serialize_tailored_resume(row)
+
+
+# ---------------------------------------------------------------------------
+# Cover Letter — generation (CL-2)
+# ---------------------------------------------------------------------------
+
+
+def _log_cl_usage(
+    db: Session,
+    user_id: UUID,
+    success: bool,
+    entity_id: Optional[UUID] = None,
+) -> None:
+    """Insert a `usage_log` audit row for a cover-letter generation attempt.
+
+    Independent commit so an audit-glitch never blocks the user-facing
+    response (mirrors `_log_tailor_usage`). On AI success this row backs
+    the user's CL credit consumption; on failure (success=False) it is a
+    diagnostic-only record and does NOT count against quota — the
+    `_compute_usage` reducer in `app.services.usage_service` filters by
+    `operation_type == 'generate_cover_letter'` and counts rows
+    indiscriminately, so we only ever insert success=True rows here.
+    """
+    if not success:
+        # Per CL-2 spec: failed AI calls do NOT consume credit. Skip the
+        # audit row entirely; on failure we just log to the application
+        # logger above.
+        return
+    try:
+        log = UsageLog(
+            user_id=user_id,
+            operation_type="generate_cover_letter",
+            cost_type="cl_credit",
+            entity_type="job",
+            entity_id=entity_id,
+            success=True,
+        )
+        db.add(log)
+        db.commit()
+    except Exception as exc:  # pragma: no cover - defensive
+        logger.error(
+            "Failed to write usage_log for user %s (generate_cover_letter): %s",
+            user_id,
+            exc,
+        )
+        db.rollback()
+
+
+def _profile_data_for_cl(profile_data: dict | None) -> bool:
+    """Readiness rule for cover letters.
+
+    Mirrors PRD 3.4.A.2 (TAILOR profile readiness) — at minimum 1 employment
+    OR 1 project. A cover letter without any work history would be the AI
+    just hallucinating — better to surface PROFILE_NOT_READY upfront than
+    burn a credit on garbage output.
+    """
+    if not profile_data:
+        return False
+    employment = profile_data.get("employment") or []
+    projects = profile_data.get("projects") or []
+    return len(employment) > 0 or len(projects) > 0
+
+
+@router.post(
+    "/jobs/{job_id}/cover-letter",
+    response_model=CoverLetterGenerateResponse,
+)
+async def generate_cover_letter_for_job(
+    job_id: UUID,
+    payload: CoverLetterGenerateRequest,
+    request: Request,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_verified_user),
+) -> CoverLetterGenerateResponse:
+    """Generate 3 cover-letter variants for the given job (CL-2).
+
+    Validation order (each check short-circuits on first failure):
+      1. Job ownership — 404 if missing or not owned (no existence leak).
+      2. No existing CoverLetter for (user, job) — 409 with structured
+         `COVER_LETTER_ALREADY_EXISTS` body including the existing CL id
+         so the frontend can deep-link "View Cover Letter".
+      3. Profile readiness — 400 with `PROFILE_NOT_READY` if neither
+         employment nor projects has at least one entry.
+      4. If `source_type == 'tailored_resume'` — verify a TailoredResume
+         exists for (user, job); 400 `TAILORED_RESUME_NOT_FOUND` if not.
+      5. CL credit quota — STUB for MVP (Phase 5.1 lands the real check);
+         shape returns 503 `OUT_OF_CL_QUOTA` with `reset_date` and
+         `plan_slug` when implemented. For now this is a no-op.
+      6. Anti-abuse rate limit — STUB for MVP (mirrors the tailor
+         endpoint, which is also a stub today).
+
+    On AI failure: 502, NO credit consumed, NO usage_log row written.
+    On AI success: variants returned in-memory (NOT persisted), one CL
+    credit consumed, usage_log row written, usage cache invalidated.
+
+    Backgrounded behaviour (per CL-2 implementation_notes, option B):
+    if the client disconnects mid-generation the variants are forfeit —
+    the user must restart the wizard. This is intentional simplicity for
+    MVP. CL-12 wires the disconnect detection: a Notification with
+    `entity_type='cover_letter'` and `entity_id=NULL` is created so the
+    frontend bell can route the user back to the wizard fresh-start
+    (`/dashboard/cover-letters/generate`). The credit is still consumed
+    (the AI work was done).
+    """
+    # 1. Job ownership — 404 leaks no info about whether the job exists.
+    job = db.query(Job).filter(Job.id == job_id).first()
+    if job is None or job.user_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Job not found",
+        )
+
+    # 2. No existing CoverLetter for (user, job).
+    existing_cl = (
+        db.query(CoverLetter)
+        .filter(
+            CoverLetter.user_id == current_user.id,
+            CoverLetter.job_id == job.id,
+        )
+        .first()
+    )
+    if existing_cl is not None:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail={
+                "detail": "A cover letter already exists for this job.",
+                "error_code": "COVER_LETTER_ALREADY_EXISTS",
+                # FE deep-links to the editor on 409 — without this id it
+                # can only fall back to the list page.
+                "existing_id": str(existing_cl.id),
+            },
+        )
+
+    # 3. Profile readiness check.
+    profile = get_or_create_profile(current_user.id, db)
+    if not _profile_data_for_cl(profile.profile_data or {}):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={
+                "detail": (
+                    "Your profile must include at least one employment or "
+                    "project entry before generating a cover letter."
+                ),
+                "error_code": "PROFILE_NOT_READY",
+            },
+        )
+
+    # 4. If sourcing from a tailored resume, verify it exists.
+    tailored_resume_row: Optional[TailoredResume] = None
+    if payload.source_type == "tailored_resume":
+        tailored_resume_row = (
+            db.query(TailoredResume)
+            .filter(
+                TailoredResume.user_id == current_user.id,
+                TailoredResume.job_id == job.id,
+            )
+            .first()
+        )
+        if tailored_resume_row is None:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail={
+                    "detail": (
+                        "No tailored resume exists for this job. Generate a "
+                        "tailored resume first or pick 'profile' as the source."
+                    ),
+                    "error_code": "TAILORED_RESUME_NOT_FOUND",
+                },
+            )
+
+    # 5. CL credit quota — STUB for MVP.
+    #    Phase 5.1 will read `cl_credits_used` / `cl_credits_limit` via
+    #    `usage_service.get_usage` and raise:
+    #        503 OUT_OF_CL_QUOTA — {error_code, reset_date, plan_slug}
+    #    The wizard's `LimitReachedError` already handles this shape.
+
+    # 6. Anti-abuse rate limit — STUB for MVP (mirrors `tailor_resume`).
+
+    # 7. Build source_data based on source_type.
+    if payload.source_type == "tailored_resume":
+        # tailored_resume_row is guaranteed non-None by step 4.
+        source_data: dict = dict(tailored_resume_row.tailored_data or {})
+    else:
+        source_data = dict(profile.profile_data or {})
+
+    # 8. Build job_data — same shape as `tailor_resume`.
+    job_data = {
+        "job_title": job.title,
+        "company": job.company,
+        "requirements": list(job.requirements or []),
+        "description": job.description_raw or "",
+    }
+
+    # 9. Build preferences for the AI service. Empty string for missing
+    #    additional_context so the AI prompt template doesn't render `None`.
+    preferences = {
+        "source_type": payload.source_type,
+        "style": payload.style,
+        "tone": payload.tone,
+        "length": payload.length,
+        "additional_context": payload.additional_context or "",
+    }
+
+    # 10. Call the AI service. Per CL-1 contract, failures come back as
+    #     `success=False` with empty variants. Defend against unexpected
+    #     exceptions anyway.
+    try:
+        result = await _ai_service.generate_cover_letter(
+            source_data,
+            job_data,
+            preferences,
+        )
+    except Exception as exc:  # pragma: no cover - defensive
+        logger.error(
+            "Unexpected AI exception during CL gen for user %s job %s: %s",
+            current_user.id,
+            job.id,
+            exc,
+        )
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail={
+                "detail": "AI service is temporarily unavailable. Please try again.",
+                "error_code": "AI_GENERATION_FAILED",
+            },
+        )
+
+    if not result.success or len(result.variants) != 3:
+        # Per CL-1 contract, success=False means empty variants and no
+        # usage. Also defensively reject malformed (non-3-variant) success.
+        logger.warning(
+            "CL gen: AI returned unsuccessful/malformed result for user %s job %s "
+            "(success=%s, variants=%d)",
+            current_user.id,
+            job.id,
+            result.success,
+            len(result.variants),
+        )
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail={
+                "detail": "AI service is temporarily unavailable. Please try again.",
+                "error_code": "AI_GENERATION_FAILED",
+            },
+        )
+
+    # 11. Audit success in usage_log (separate commit). Credit consumed here.
+    _log_cl_usage(db, current_user.id, success=True, entity_id=job.id)
+
+    # 12. Invalidate the user's usage cache so the dashboard reflects the
+    #     new credit count without waiting for the 5-minute TTL.
+    try:
+        await invalidate_usage_cache(str(current_user.id))
+    except Exception as exc:  # pragma: no cover - defensive
+        # Cache invalidation must never block a successful response.
+        logger.debug("invalidate_usage_cache failed for CL gen: %s", exc)
+
+    logger.info(
+        "CL generation complete: user_id=%s job_id=%s source_type=%s variants=%d",
+        current_user.id,
+        job.id,
+        payload.source_type,
+        len(result.variants),
+    )
+
+    # 13. If the client has gone away, drop a notification so the user can
+    #     find their way back. Per CL-2 implementation_notes (option B) the
+    #     variants are NOT persisted, so `entity_id` stays NULL and the
+    #     frontend bell routes to the wizard fresh-start (`/dashboard/
+    #     cover-letters/generate`). The credit was already consumed above
+    #     — accepted MVP trade-off per CL-12 spec. Failure to notify must
+    #     NEVER break the response path (mirrors TAILOR-17).
+    try:
+        if await request.is_disconnected():
+            try:
+                title_str = (job.title or "your job").strip() or "your job"
+                notif = Notification(
+                    user_id=current_user.id,
+                    type=NotificationType.COVER_LETTER_READY,
+                    title="Cover letter is ready",
+                    message=(
+                        f"Your cover letter for {title_str} is ready — "
+                        "click to review variants."
+                    ),
+                    entity_type="cover_letter",
+                    # Variants weren't persisted (option B). FE routes to
+                    # the wizard fresh-start when entity_id is null.
+                    entity_id=None,
+                )
+                db.add(notif)
+                db.commit()
+                logger.info(
+                    "CL gen: client disconnected post-AI; notification %s "
+                    "queued for user %s job %s — variants forfeit per CL-2 option B.",
+                    notif.id,
+                    current_user.id,
+                    job.id,
+                )
+            except Exception as exc:
+                logger.error(
+                    "CL gen: failed to write disconnect-notification for user %s: %s",
+                    current_user.id,
+                    exc,
+                )
+                db.rollback()
+    except Exception as exc:  # pragma: no cover - defensive
+        # is_disconnected() itself shouldn't raise, but never let it sink us.
+        logger.debug("is_disconnected() check failed: %s", exc)
+
+    return CoverLetterGenerateResponse(
+        variants=[
+            CoverLetterVariantResponse(content=v.content) for v in result.variants
+        ],
+    )
 
 
 # ---------------------------------------------------------------------------

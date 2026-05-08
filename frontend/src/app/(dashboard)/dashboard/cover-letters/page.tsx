@@ -1,320 +1,356 @@
 "use client";
 
-import { useState } from "react";
+/**
+ * Cover Letters — list page (CL-10).
+ *
+ * Spec: `docs/v2/tasks-cover-letter.json` → CL-10 + PRD §3.6.
+ *
+ * Mirrors the resumes list page (TAILOR-15) for visual + structural parity:
+ *   - Single React-Query call to GET /api/v1/cover-letters (client-side
+ *     filter/sort — typical user has <50 CLs, no need to round-trip).
+ *   - URL-state for search/sort so refresh / back preserves the view.
+ *   - Card-grid layout, optimistic delete with rollback.
+ *
+ * The CL list endpoint does NOT join the Job row — to render the
+ * "{company} — {title}" subtitle we fetch /jobs in parallel and build a
+ * lookup map. This is also how the legacy CL list page worked, and matches
+ * the wizard's eligible-jobs join pattern.
+ */
+
+import { Suspense, useCallback, useEffect, useMemo } from "react";
 import Link from "next/link";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import {
-  FileText,
-  Plus,
-  Trash2,
-  Edit2,
-  Download,
-  AlertCircle,
-} from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { AlertCircle, Plus } from "lucide-react";
 import { toast } from "sonner";
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from "@/components/ui/dialog";
 import { EmptyState } from "@/components/shared/empty-state";
-import { listCoverLetters, deleteCoverLetter } from "@/lib/cover-letter-api";
-import { listJobs } from "@/lib/jobs-api";
-import { useExportCoverLetter } from "@/hooks/api/useExportCoverLetter";
-import type { CoverLetterListItem, CLStyle } from "@/types/cover-letter";
+import { Breadcrumb } from "@/components/ui/breadcrumb";
+import { queryKeys } from "@/hooks/api/keys";
+import { deleteCoverLetter, listCoverLetters } from "@/lib/cover-letter-api";
+import { listJobs, type JobOption } from "@/lib/jobs-api";
+import type { CoverLetterListItem } from "@/types/cover-letter";
+import { CoverLetterCard, type JobLookup } from "./_components/cover-letter-card";
+import { CoverLetterCardSkeleton } from "./_components/cover-letter-list-skeleton";
+import { CoverLettersEmptyState } from "./_components/cover-letter-list-empty";
+import {
+  CoverLettersFilterBar,
+  DEFAULT_SORT,
+  type SortValue,
+} from "./_components/cover-letters-filter-bar";
+
+const VALID_SORTS: ReadonlyArray<SortValue> = [
+  "newest",
+  "oldest",
+  "recently_updated",
+];
+
+function isSortValue(v: string | null): v is SortValue {
+  return v != null && (VALID_SORTS as readonly string[]).includes(v);
+}
+
+interface CoverLetterListResponse {
+  items: CoverLetterListItem[];
+  total: number;
+}
 
 // ---------------------------------------------------------------------------
-// Helpers
+// Filter / sort logic (pure)
 // ---------------------------------------------------------------------------
 
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
+function applyFilters(
+  items: CoverLetterListItem[],
+  query: string,
+  jobLookup: JobLookup
+): CoverLetterListItem[] {
+  const q = query.trim().toLowerCase();
+  if (!q) return items;
+  return items.filter((cl) => {
+    if (cl.name.toLowerCase().includes(q)) return true;
+    if (cl.job_id) {
+      const job = jobLookup.get(cl.job_id);
+      if (job) {
+        if (job.title?.toLowerCase().includes(q)) return true;
+        if (job.company?.toLowerCase().includes(q)) return true;
+      }
+    }
+    return false;
   });
 }
 
-function formatStyle(style: CLStyle): string {
-  switch (style) {
-    case "job_matched":
-      return "Job Matched";
-    case "formal":
-      return "Formal";
-    case "professional":
-      return "Professional";
+function applySort(
+  items: CoverLetterListItem[],
+  sort: SortValue
+): CoverLetterListItem[] {
+  const out = [...items];
+  switch (sort) {
+    case "newest":
+      out.sort(
+        (a, b) =>
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      );
+      break;
+    case "oldest":
+      out.sort(
+        (a, b) =>
+          new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+      );
+      break;
+    case "recently_updated":
+      out.sort(
+        (a, b) =>
+          new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+      );
+      break;
   }
-}
-
-function getStyleColor(style: CLStyle): string {
-  switch (style) {
-    case "job_matched":
-      return "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400";
-    case "formal":
-      return "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400";
-    case "professional":
-      return "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400";
-  }
+  return out;
 }
 
 // ---------------------------------------------------------------------------
-// Skeleton
+// Inner client (reads searchParams — must be wrapped in Suspense in Next.js 15)
 // ---------------------------------------------------------------------------
 
-function CoverLetterCardSkeleton() {
-  return (
-    <div className="rounded-xl border border-border bg-card p-4 animate-pulse">
-      <div className="flex items-start gap-3">
-        <div className="h-10 w-10 rounded-lg bg-muted-foreground/10 shrink-0" />
-        <div className="flex flex-col gap-2 mt-0.5 flex-1">
-          <div className="h-4 w-40 rounded bg-muted-foreground/10" />
-          <div className="h-3 w-24 rounded bg-muted-foreground/10" />
-          <div className="flex gap-1.5 mt-0.5">
-            <div className="h-4 w-20 rounded-full bg-muted-foreground/10" />
-          </div>
-        </div>
-      </div>
-      <div className="mt-4 flex items-center gap-2">
-        <div className="h-7 w-16 rounded-md bg-muted-foreground/10" />
-        <div className="h-7 w-20 rounded-md bg-muted-foreground/10" />
-        <div className="h-7 w-16 rounded-md bg-muted-foreground/10" />
-      </div>
-    </div>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Cover letter card
-// ---------------------------------------------------------------------------
-
-interface CoverLetterCardProps {
-  coverLetter: CoverLetterListItem;
-  jobTitle: string | null;
-  onDelete: (id: string) => void;
-  onExport: (id: string) => void;
-  isExporting: boolean;
-}
-
-function CoverLetterCard({
-  coverLetter,
-  jobTitle,
-  onDelete,
-  onExport,
-  isExporting,
-}: CoverLetterCardProps) {
-  const [confirmDelete, setConfirmDelete] = useState(false);
-
-  return (
-    <>
-      <div className="rounded-xl border border-border bg-card p-4 transition-shadow hover:shadow-sm">
-        {/* Top: icon + info */}
-        <div className="flex items-start gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-            <FileText className="h-5 w-5" />
-          </div>
-          <div className="min-w-0 flex-1">
-            <p className="truncate font-semibold text-sm">{coverLetter.name}</p>
-            <p className="mt-0.5 text-xs text-muted-foreground">
-              {jobTitle ? jobTitle : "No job linked"} &middot;{" "}
-              {formatDate(coverLetter.created_at)}
-            </p>
-            <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
-              <span
-                className={cn(
-                  "rounded-full px-2 py-0.5 text-[10px] font-semibold",
-                  getStyleColor(coverLetter.style)
-                )}
-              >
-                {formatStyle(coverLetter.style)}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* Actions */}
-        <div className="mt-4 flex flex-wrap items-center gap-2">
-          <Button
-            asChild
-            size="sm"
-            variant="outline"
-            className="h-7 px-3 text-xs gap-1.5"
-          >
-            <Link href={`/dashboard/cover-letters/${coverLetter.id}`}>
-              <Edit2 className="h-3 w-3" />
-              Edit
-            </Link>
-          </Button>
-
-          <Button
-            size="sm"
-            variant="outline"
-            className="h-7 px-3 text-xs gap-1.5"
-            onClick={() => onExport(coverLetter.id)}
-            disabled={isExporting}
-          >
-            <Download className="h-3 w-3" />
-            PDF
-          </Button>
-
-          <Button
-            size="sm"
-            variant="outline"
-            className="h-7 px-3 text-xs gap-1.5 text-destructive hover:text-destructive hover:bg-destructive/10 border-destructive/20"
-            onClick={() => setConfirmDelete(true)}
-          >
-            <Trash2 className="h-3 w-3" />
-            Delete
-          </Button>
-        </div>
-      </div>
-
-      {/* Delete confirmation dialog */}
-      <Dialog open={confirmDelete} onOpenChange={setConfirmDelete}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Delete Cover Letter</DialogTitle>
-            <DialogDescription>
-              Are you sure you want to delete &quot;{coverLetter.name}&quot;? This
-              action cannot be undone.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setConfirmDelete(false)}>
-              Cancel
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={() => {
-                setConfirmDelete(false);
-                onDelete(coverLetter.id);
-              }}
-            >
-              Delete
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Main page
-// ---------------------------------------------------------------------------
-
-export default function CoverLettersPage() {
+function CoverLettersListInner() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const queryClient = useQueryClient();
-  const [exportingId, setExportingId] = useState<string | null>(null);
 
-  const { data, isLoading, isError } = useQuery({
-    queryKey: ["cover-letters"],
-    queryFn: () => listCoverLetters(),
-  });
+  // ------- URL-derived state -------
+  const search = searchParams.get("q") ?? "";
+  const sortParam = searchParams.get("sort");
+  const sort: SortValue = isSortValue(sortParam) ? sortParam : DEFAULT_SORT;
 
-  const { data: jobsData } = useQuery({
-    queryKey: ["jobs"],
-    queryFn: () => listJobs(),
-  });
+  // ------- Helper to update URL (defaults omitted) -------
+  const updateParams = useCallback(
+    (next: { q?: string; sort?: SortValue }) => {
+      const usp = new URLSearchParams(searchParams.toString());
 
-  const deleteMutation = useMutation({
-    mutationFn: (id: string) => deleteCoverLetter(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["cover-letters"] });
-      toast.success("Cover letter deleted successfully.");
+      if (next.q !== undefined) {
+        if (next.q === "") usp.delete("q");
+        else usp.set("q", next.q);
+      }
+      if (next.sort !== undefined) {
+        if (next.sort === DEFAULT_SORT) usp.delete("sort");
+        else usp.set("sort", next.sort);
+      }
+
+      const qs = usp.toString();
+      router.replace(qs ? `?${qs}` : "?", { scroll: false });
     },
-    onError: () => {
+    [router, searchParams]
+  );
+
+  // ------- Data -------
+  // Cover letters list. The list endpoint does NOT join the Job row —
+  // we resolve {company, title} via a parallel /jobs fetch below.
+  const {
+    data: clData,
+    isLoading: clLoading,
+    isError: clError,
+    refetch: refetchCovers,
+    dataUpdatedAt,
+  } = useQuery<CoverLetterListResponse>({
+    queryKey: queryKeys.coverLetters.list(),
+    queryFn: () => listCoverLetters(),
+    staleTime: 1000 * 60 * 2,
+  });
+
+  // Jobs — needed to render `{company} — {title}` on each card (CL-10 spec).
+  // Reuses queryKeys.jobs.lists() so it shares cache with the Jobs page.
+  const { data: jobsData } = useQuery<{ items: JobOption[]; total: number }>({
+    queryKey: queryKeys.jobs.lists(),
+    queryFn: () => listJobs(),
+    staleTime: 1000 * 60 * 2,
+  });
+
+  // Mount-time invalidate so a stale tab refreshes when the user returns.
+  // Cross-tab "I generated a CL in another tab" recovery (mirrors TAILOR-15).
+  useEffect(() => {
+    queryClient.invalidateQueries({ queryKey: queryKeys.coverLetters.list() });
+    // mount-only on purpose — we don't want this to fire on every searchParam change
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // On window focus, refetch if last fetch is older than 10s.
+  useEffect(() => {
+    const handler = () => {
+      if (Date.now() - dataUpdatedAt > 10_000) {
+        queryClient.invalidateQueries({
+          queryKey: queryKeys.coverLetters.list(),
+        });
+      }
+    };
+    window.addEventListener("focus", handler);
+    return () => window.removeEventListener("focus", handler);
+  }, [dataUpdatedAt, queryClient]);
+
+  const coverLetters = useMemo(() => clData?.items ?? [], [clData]);
+
+  const jobLookup: JobLookup = useMemo(() => {
+    const map: JobLookup = new Map();
+    for (const j of jobsData?.items ?? []) {
+      map.set(j.id, { title: j.title, company: j.company });
+    }
+    return map;
+  }, [jobsData]);
+
+  const filteredSorted = useMemo(() => {
+    return applySort(applyFilters(coverLetters, search, jobLookup), sort);
+  }, [coverLetters, search, jobLookup, sort]);
+
+  // ------- Delete mutation (optimistic) -------
+  const deleteMutation = useMutation({
+    mutationFn: deleteCoverLetter,
+    onMutate: async (id: string) => {
+      await queryClient.cancelQueries({
+        queryKey: queryKeys.coverLetters.list(),
+      });
+      const snapshot = queryClient.getQueryData<CoverLetterListResponse>(
+        queryKeys.coverLetters.list()
+      );
+      if (snapshot) {
+        queryClient.setQueryData<CoverLetterListResponse>(
+          queryKeys.coverLetters.list(),
+          {
+            items: snapshot.items.filter((cl) => cl.id !== id),
+            total: Math.max(0, snapshot.total - 1),
+          }
+        );
+      }
+      return { snapshot };
+    },
+    onError: (_err, _id, ctx) => {
+      if (ctx?.snapshot) {
+        queryClient.setQueryData(
+          queryKeys.coverLetters.list(),
+          ctx.snapshot
+        );
+      }
       toast.error("Failed to delete cover letter. Please try again.");
     },
+    onSuccess: () => {
+      toast.success("Cover letter deleted.");
+    },
+    onSettled: () => {
+      // Reconcile with server. Also invalidates job-detail caches that
+      // surface a CL CTA, plus any per-job CL-existence checks the menu
+      // makes (broad-stroke — `coverLetters.all` covers both shapes).
+      queryClient.invalidateQueries({ queryKey: queryKeys.coverLetters.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.jobs.all });
+    },
   });
 
-  const exportMutation = useExportCoverLetter();
-
-  const handleExport = (id: string) => {
-    setExportingId(id);
-    exportMutation.mutate(
-      { id, format: "pdf" },
-      {
-        onSuccess: () => setExportingId(null),
-        onError: () => {
-          setExportingId(null);
-          toast.error("Failed to export cover letter. Please try again.");
-        },
-      }
-    );
-  };
-
-  // Build a job id → title map for display
-  const jobMap = new Map<string, string>();
-  for (const job of jobsData?.items ?? []) {
-    jobMap.set(job.id, `${job.title}${job.company ? ` — ${job.company}` : ""}`);
-  }
-
-  // Sort cover letters by newest first
-  const coverLetters = [...(data?.items ?? [])].sort(
-    (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+  // ------- Handlers -------
+  const handleSearchChange = useCallback(
+    (q: string) => updateParams({ q }),
+    [updateParams]
   );
+  const handleSortChange = useCallback(
+    (s: SortValue) => updateParams({ sort: s }),
+    [updateParams]
+  );
+  const handleClearAll = useCallback(
+    () => updateParams({ q: "", sort: DEFAULT_SORT }),
+    [updateParams]
+  );
+
+  const totalCovers = coverLetters.length;
+  const hasFilters = search !== "" || sort !== DEFAULT_SORT;
 
   return (
     <div className="flex flex-col gap-6 p-6">
+      {/* Breadcrumb */}
+      <Breadcrumb
+        items={[
+          { label: "Dashboard", href: "/dashboard" },
+          { label: "Cover Letters" },
+        ]}
+      />
+
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold tracking-tight">Cover Letters</h1>
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">Cover Letters</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            AI-generated cover letters tailored to your jobs.
+          </p>
+        </div>
         <Button asChild className="gap-1.5">
           <Link href="/dashboard/cover-letters/generate">
             <Plus className="h-4 w-4" />
-            Generate New
+            Generate New Cover Letter
           </Link>
         </Button>
       </div>
 
+      {/* Filter bar — always rendered */}
+      <CoverLettersFilterBar
+        search={search}
+        onSearchChange={handleSearchChange}
+        sort={sort}
+        onSortChange={handleSortChange}
+        count={filteredSorted.length}
+        onClearAll={handleClearAll}
+      />
+
       {/* Body */}
-      {isLoading ? (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {Array.from({ length: 3 }).map((_, i) => (
+      {clLoading ? (
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
+          {Array.from({ length: 6 }).map((_, i) => (
             <CoverLetterCardSkeleton key={i} />
           ))}
         </div>
-      ) : isError ? (
+      ) : clError ? (
         <div className="flex flex-1 items-center justify-center rounded-xl border border-border bg-muted/30 py-16">
           <EmptyState
             icon={<AlertCircle className="h-8 w-8 text-destructive" />}
-            title="Failed to load cover letters"
-            description="There was an error loading your cover letters. Please refresh the page."
-            action={{ label: "Refresh", onClick: () => window.location.reload() }}
+            title="Couldn't load cover letters"
+            description="We hit an error fetching your cover letters. Try again, or refresh the page."
+            action={{ label: "Try again", onClick: () => refetchCovers() }}
           />
         </div>
-      ) : coverLetters.length === 0 ? (
-        <div className="flex flex-1 items-center justify-center rounded-xl border border-border bg-muted/30 py-16">
-          <EmptyState
-            icon={<FileText className="h-8 w-8" />}
-            title="No cover letters yet"
-            description="No cover letters yet. Generate your first cover letter to get started."
-            action={{
-              label: "Generate Cover Letter",
-              href: "/dashboard/cover-letters/generate",
-            }}
-          />
-        </div>
+      ) : totalCovers === 0 ? (
+        <CoverLettersEmptyState variant="empty" />
+      ) : filteredSorted.length === 0 ? (
+        <CoverLettersEmptyState
+          variant="no-matches"
+          onClearFilters={hasFilters ? handleClearAll : undefined}
+        />
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {coverLetters.map((cl) => (
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
+          {filteredSorted.map((cl) => (
             <CoverLetterCard
               key={cl.id}
               coverLetter={cl}
-              jobTitle={cl.job_id ? (jobMap.get(cl.job_id) ?? null) : null}
+              jobLookup={jobLookup}
               onDelete={(id) => deleteMutation.mutate(id)}
-              onExport={handleExport}
-              isExporting={exportingId === cl.id}
             />
           ))}
         </div>
       )}
-
     </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Page (Suspense boundary required for `useSearchParams` in Next.js 15)
+// ---------------------------------------------------------------------------
+
+export default function CoverLettersListPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex flex-col gap-6 p-6">
+          <div className="h-6 w-48 rounded bg-muted animate-pulse" />
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <CoverLetterCardSkeleton key={i} />
+            ))}
+          </div>
+        </div>
+      }
+    >
+      <CoverLettersListInner />
+    </Suspense>
   );
 }

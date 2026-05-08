@@ -35,6 +35,10 @@ class Settings(BaseSettings):
     openai_api_key: str = ""
     ai_model_parse_resume: str = "gpt-4o-mini"
     ai_model_tailor_resume: str = "gpt-4o-mini"
+    # CL-1: 3-variant cover letter generation. Default mirrors the other
+    # AI ops; override via OPENAI_COVER_LETTER_MODEL or AI_MODEL_COVER_LETTER
+    # in the environment.
+    ai_model_cover_letter: str = "gpt-4o-mini"
 
     # Resend
     resend_api_key: str = ""

@@ -6,6 +6,10 @@ export const queryKeys = {
       [...queryKeys.jobs.lists(), filters] as const,
     details: () => [...queryKeys.jobs.all, "detail"] as const,
     detail: (id: string) => [...queryKeys.jobs.details(), id] as const,
+    // Per-job tailored-resume existence check used by the cover-letter
+    // wizard's Step 1 source-dropdown branching (TR exists vs Profile-only).
+    tailoredResumeCheck: (jobId: string) =>
+      [...queryKeys.jobs.detail(jobId), "tailored-resume"] as const,
   },
   resumes: {
     all: ["resumes"] as const,
@@ -22,6 +26,10 @@ export const queryKeys = {
       [...queryKeys.coverLetters.lists(), filters] as const,
     details: () => [...queryKeys.coverLetters.all, "detail"] as const,
     detail: (id: string) => [...queryKeys.coverLetters.details(), id] as const,
+    // Cover-letter wizard Step 1 — jobs that don't already have a CL.
+    // Computed by joining `listJobs()` and `listCoverLetters()` client-side
+    // (backend has no `?has_cover_letter` filter — see spec §2.3.1).
+    eligibleJobs: () => [...queryKeys.coverLetters.all, "eligibleJobs"] as const,
   },
   user: {
     me: ["user", "me"] as const,

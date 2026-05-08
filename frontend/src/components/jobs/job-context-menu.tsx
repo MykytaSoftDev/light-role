@@ -159,11 +159,16 @@ export function JobContextMenu({
             </DropdownMenuItem>
           )}
 
-          {/* Cover letter action — unchanged from existing impl. Cover letter
-              has its own existence model via application.cover_letter_id. */}
+          {/* Cover letter action — Generate vs View based on
+              application.cover_letter_id (per CL-11). The Job response
+              already includes the linked CL id so we don't need a
+              separate existence-check round-trip the way the resume side
+              does. The wizard expects `?job_id=` (not `?job=`). */}
           {application.cover_letter_id === null ? (
             <DropdownMenuItem
-              onSelect={() => router.push(`/dashboard/cover-letters/generate?job=${job.id}`)}
+              onSelect={() =>
+                router.push(`/dashboard/cover-letters/generate?job_id=${job.id}`)
+              }
             >
               <PenLine className="h-3.5 w-3.5 text-muted-foreground" />
               Generate Cover Letter

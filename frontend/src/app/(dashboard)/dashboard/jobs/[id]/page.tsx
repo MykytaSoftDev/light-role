@@ -1019,7 +1019,10 @@ export default function JobDetailPage() {
                     </Button>
                   </Link>
                 ) : (
-                  <Link href={`/dashboard/cover-letters/generate?job=${job.id}`}>
+                  // CL-11: wizard pre-fills via `?job_id=` — the older `?job=`
+                  // here was silently ignored, dropping the user into a fresh
+                  // wizard with no job selected.
+                  <Link href={`/dashboard/cover-letters/generate?job_id=${job.id}`}>
                     <Button size="sm" className="shrink-0">
                       Generate
                     </Button>
