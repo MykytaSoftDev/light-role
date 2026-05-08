@@ -56,6 +56,11 @@ services:
       PADDLE_API_KEY: ${PADDLE_API_KEY}
       PADDLE_WEBHOOK_SECRET: ${PADDLE_WEBHOOK_SECRET}
       PADDLE_ENVIRONMENT: ${NEXT_PUBLIC_PADDLE_ENVIRONMENT:-sandbox}
+      # TAILOR-4: backend posts to the frontend's internal render endpoint
+      # to server-render the React resume template. The shared secret is
+      # validated by the Route Handler.
+      FRONTEND_INTERNAL_URL: ${FRONTEND_INTERNAL_URL:-http://frontend:3000}
+      INTERNAL_RENDER_SECRET: ${INTERNAL_RENDER_SECRET}
     volumes:
       - uploads_data:/uploads
       - logs_data:/app/logs
@@ -94,6 +99,10 @@ services:
       NEXT_PUBLIC_PADDLE_PRICE_MONTHLY: ${NEXT_PUBLIC_PADDLE_PRICE_MONTHLY}
       NEXT_PUBLIC_PADDLE_PRICE_ANNUAL: ${NEXT_PUBLIC_PADDLE_PRICE_ANNUAL}
       PADDLE_API_KEY: ${PADDLE_API_KEY}
+      # TAILOR-4: shared secret used by the internal render Route Handler
+      # to authenticate backend requests. Server-only — must NOT be prefixed
+      # with NEXT_PUBLIC_ or it would leak to the browser bundle.
+      INTERNAL_RENDER_SECRET: ${INTERNAL_RENDER_SECRET}
     networks:
       - lightrole_net
     depends_on:

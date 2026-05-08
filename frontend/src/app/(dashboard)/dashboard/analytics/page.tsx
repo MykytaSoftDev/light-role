@@ -150,14 +150,14 @@ function AnalyticsPageInner() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
-  const rawPeriod = searchParams.get("period");
+  const rawPeriod = searchParams?.get("period") ?? null;
   const period: AnalyticsPeriod =
     rawPeriod === "7d" || rawPeriod === "30d" || rawPeriod === "90d" || rawPeriod === "all"
       ? rawPeriod
       : "30d";
 
   function handlePeriodChange(next: AnalyticsPeriod) {
-    const params = new URLSearchParams(searchParams.toString());
+    const params = new URLSearchParams(searchParams?.toString() ?? "");
     params.set("period", next);
     router.push(`?${params.toString()}`);
   }

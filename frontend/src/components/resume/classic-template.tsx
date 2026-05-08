@@ -832,11 +832,17 @@ const STATIC_STYLES = `
 .resume-document mark[data-keyword][data-color-id="8"] { background-color: var(--keyword-color-8); }
 
 /* Page setup + print media */
-@page { size: A4; margin: 0; }
+/* Margin is on @page so every printed page (1, 2, 3+) gets the same top/bottom
+   gutter — padding on .resume-document only applies once at the element start
+   and would leave page 2+ flush against the paper edge. */
+@page { size: A4; margin: 14mm; }
 @media print {
   .resume-document {
     box-shadow: none;
     margin: 0;
+    /* Drop the in-element padding when paged — @page margin handles the gutter
+       on every page now, including the second + third pages. */
+    padding: 0;
   }
   [data-preview-only] { display: none !important; }
 }

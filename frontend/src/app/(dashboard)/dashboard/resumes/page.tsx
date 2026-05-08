@@ -110,9 +110,9 @@ function ResumesListInner() {
   const queryClient = useQueryClient();
 
   // ------- URL-derived state -------
-  const search = searchParams.get("q") ?? "";
-  const jobParam = searchParams.get("job") ?? "";
-  const sortParam = searchParams.get("sort");
+  const search = searchParams?.get("q") ?? "";
+  const jobParam = searchParams?.get("job") ?? "";
+  const sortParam = searchParams?.get("sort") ?? null;
   const sort: SortValue = isSortValue(sortParam) ? sortParam : DEFAULT_SORT;
   const selectedJobIds = useMemo(
     () => new Set(jobParam ? jobParam.split(",").filter(Boolean) : []),
@@ -122,7 +122,7 @@ function ResumesListInner() {
   // ------- Helper to update URL (defaults omitted) -------
   const updateParams = useCallback(
     (next: { q?: string; jobs?: Set<string>; sort?: SortValue }) => {
-      const usp = new URLSearchParams(searchParams.toString());
+      const usp = new URLSearchParams(searchParams?.toString() ?? "");
 
       if (next.q !== undefined) {
         if (next.q === "") usp.delete("q");

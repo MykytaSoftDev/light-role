@@ -23,7 +23,7 @@ type PageStatus = "polling" | "confirmed" | "timeout";
 
 function SuccessContent() {
   const searchParams = useSearchParams();
-  const txnId = searchParams.get("txn");
+  const txnId = searchParams?.get("txn") ?? null;
 
   const [status, setStatus] = useState<PageStatus>("polling");
   const [subscriptionData, setSubscriptionData] = useState<SubscriptionData | null>(null);

@@ -21,7 +21,8 @@ interface Props {
 }
 
 export function CheckoutContents({ userEmail, userId }: Props) {
-  const { priceId } = useParams<PathParams>();
+  const params = useParams<PathParams>();
+  const priceId = params?.priceId;
   const [paddle, setPaddle] = useState<Paddle | null>(null);
   const [checkoutData, setCheckoutData] = useState<CheckoutEventsData | null>(null);
   const customerIdSaved = useRef<boolean>(false);

@@ -11,7 +11,7 @@ type VerifyState = "loading" | "success" | "error" | "no-token";
 function VerifyEmailContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const token = searchParams.get("token");
+  const token = searchParams?.get("token") ?? null;
   const [state, setState] = useState<VerifyState>(token ? "loading" : "no-token");
 
   useEffect(() => {

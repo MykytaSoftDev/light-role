@@ -84,7 +84,7 @@ export function ProfileTabs({ initialTab }: ProfileTabsProps) {
 
   // Sync URL changes (e.g. browser back/forward) into local state
   useEffect(() => {
-    const urlTab = searchParams.get("tab");
+    const urlTab = searchParams?.get("tab") ?? null;
     if (isValidTab(urlTab) && urlTab !== value) {
       setValue(urlTab);
     }

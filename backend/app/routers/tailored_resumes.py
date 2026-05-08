@@ -12,16 +12,19 @@ from __future__ import annotations
 import logging
 import re
 import uuid
+from datetime import datetime, timezone
 from io import BytesIO
 from typing import Optional
 from uuid import UUID
 
+import httpx
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from fastapi.responses import StreamingResponse
 from sqlalchemy import func
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, selectinload
 
+from app.config import settings
 from app.database import get_db
 from app.dependencies.auth import get_verified_user
 from app.models.ai_quality_rating import AIQualityRating
@@ -38,7 +41,6 @@ from app.schemas.tailored_resume import (
 )
 from app.services.font_css import (
     DEFAULT_FONT,
-    get_default_font_stack,
     get_font_face_css,
 )
 from app.services.pdf_service import (
@@ -80,71 +82,114 @@ def _safe_pdf_filename(name: Optional[str], resume_id: UUID) -> str:
     return f"{slug[:80]}.pdf"
 
 
-def _build_placeholder_html(resume: TailoredResume) -> str:
-    """Build a minimal placeholder HTML for the PDF.
+# Default sections order used when the row's snapshot is missing/empty.
+# Mirrors the canonical order baked into the React `ClassicTemplate`. The
+# frontend Route Handler also has its own fallback, but we send a populated
+# array so the contract is unambiguous.
+_DEFAULT_SECTIONS_ORDER: list[str] = [
+    "summary",
+    "employment",
+    "education",
+    "skills",
+    "languages",
+    "projects",
+    "certificates",
+    "achievements",
+    "volunteer",
+]
 
-    TODO(TAILOR-4): replace this with the real ClassicTemplate rendered via
-    react-dom/server (or a Python equivalent). For now we render the user's
-    name + a "PDF coming soon" banner so the endpoint contract — auth,
-    ownership, content-type, filename, byte stream — is verifiable end-to-end
-    today and frontend-dev / ui-designer can plug their template in later.
+# Total budget for the round-trip to the Next.js render endpoint. Generous
+# because cold-start of the React component tree on the frontend container
+# can be a few seconds; tight enough that a wedged frontend surfaces as a
+# 500 instead of dragging the whole download endpoint past Playwright's
+# render budget downstream.
+_RENDER_HTTP_TIMEOUT_SECONDS: float = 10.0
 
-    The font CSS is loaded from `/static/fonts/...` via the FastAPI
-    StaticFiles mount (see `app/main.py`). Because Playwright's
-    `set_content()` uses `about:blank` as the base URL, we prefix font
-    URLs with a localhost origin so they resolve against the running API.
+
+async def _render_resume_html(row: TailoredResume) -> str:
+    """Render the row's resume to PDF-ready HTML.
+
+    Posts the row's snapshot fields to the Next.js internal render endpoint
+    (`POST {frontend_internal_url}/api/internal/render-resume`), which
+    server-renders the React `ClassicTemplate` and returns an HTML fragment
+    (the `<div class="resume-document">…</div>` body — no outer html/head).
+    We then wrap that fragment in a full HTML document so Playwright has a
+    complete page to load, and inject `@font-face` declarations pointing at
+    the FastAPI `/static/fonts/...` mount (Playwright's `set_content()`
+    base URL is `about:blank`, so relative URLs would not resolve).
+
+    Raises `PDFRenderError` on:
+      - Missing/empty `internal_render_secret` (config error — fail fast).
+      - Transport failure (timeout, connection refused, DNS, etc.).
+      - Non-200 response from the Route Handler.
     """
-    font_family = resume.font_snapshot or DEFAULT_FONT
-    personal = (resume.tailored_data or {}).get("personal_info") or {}
-    full_name = personal.get("full_name") or "Your Name"
+    if not settings.internal_render_secret:
+        # Boot-time misconfiguration — surface as a render error rather
+        # than crashing on import. The endpoint converts this to HTTP 500
+        # with a generic detail; ops sees the real reason in logs.
+        raise PDFRenderError("Internal render secret is not configured.")
 
-    # Playwright's set_content() base URL is about:blank — relative URLs
-    # don't resolve. Use the loopback origin Chromium runs in; the FastAPI
-    # app is on the same container at port 8000.
-    base_url = "http://127.0.0.1:8000"
+    tailored_data = row.tailored_data or {}
+    font_family = row.font_snapshot or DEFAULT_FONT
+    sections_order = row.sections_order_snapshot or _DEFAULT_SECTIONS_ORDER
+    template = row.template_snapshot or "classic"
+    today = datetime.now(timezone.utc).date().isoformat()
 
-    font_face = get_font_face_css(font_family, base_url=base_url)
-    font_stack = get_default_font_stack(font_family)
+    payload = {
+        "data": tailored_data,
+        "font": font_family,
+        "sections_order": list(sections_order),
+        "template": template,
+        "today": today,
+    }
+    headers = {
+        "X-Internal-Secret": settings.internal_render_secret,
+        "Content-Type": "application/json",
+    }
+    url = f"{settings.frontend_internal_url.rstrip('/')}/api/internal/render-resume"
+
+    try:
+        async with httpx.AsyncClient(timeout=_RENDER_HTTP_TIMEOUT_SECONDS) as client:
+            response = await client.post(url, json=payload, headers=headers)
+    except httpx.TimeoutException as exc:
+        logger.error("Frontend render timed out for tailored_resume %s: %s", row.id, exc)
+        raise PDFRenderError("Frontend render unavailable.") from exc
+    except httpx.HTTPError as exc:
+        logger.error("Frontend render transport error for tailored_resume %s: %s", row.id, exc)
+        raise PDFRenderError("Frontend render unavailable.") from exc
+
+    if response.status_code != 200:
+        body_preview = response.text[:200] if response.text else ""
+        logger.error(
+            "Frontend render returned %s for tailored_resume %s: %s",
+            response.status_code,
+            row.id,
+            body_preview,
+        )
+        raise PDFRenderError(
+            f"Frontend render returned {response.status_code}: {body_preview}"
+        )
+
+    rendered_body = response.text
+
+    # Title is cosmetic (shows up on print previews and PDF metadata in some
+    # viewers). Falls back to a generic label when personal_info is absent.
+    personal = tailored_data.get("personal_info") or {}
+    full_name = personal.get("full_name") or "Resume"
+
+    # Playwright's set_content() base URL is about:blank — use the loopback
+    # origin Chromium runs in; the FastAPI app is on the same container at
+    # port 8000 and serves font files from /static/fonts/...
+    font_face = get_font_face_css(font_family, base_url="http://127.0.0.1:8000")
 
     return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <title>{full_name} — Resume</title>
-<style>
-{font_face}
-* {{ box-sizing: border-box; }}
-html, body {{
-  margin: 0;
-  padding: 0;
-  font-family: {font_stack};
-  color: #111;
-  background: #fff;
-}}
-.wrapper {{
-  padding: 24px;
-}}
-h1 {{
-  font-size: 28px;
-  font-weight: 700;
-  margin: 0 0 8px 0;
-}}
-.banner {{
-  margin-top: 24px;
-  padding: 16px;
-  border: 1px dashed #999;
-  border-radius: 6px;
-  font-size: 14px;
-  color: #555;
-}}
-</style>
+<style>{font_face}</style>
 </head>
-<body>
-<div class="wrapper">
-  <h1>{full_name}</h1>
-  <div class="banner">PDF rendering pipeline online — full resume template lands in TAILOR-4.</div>
-</div>
-</body>
+<body>{rendered_body}</body>
 </html>"""
 
 
@@ -537,9 +582,8 @@ async def download_tailored_resume(
             detail="Tailored resume not found.",
         )
 
-    html = _build_placeholder_html(row)
-
     try:
+        html = await _render_resume_html(row)
         pdf_bytes = await pdf_service.render_pdf(html)
     except PDFRenderTimeout:
         # Distinct error code so the frontend can show a "try again" toast

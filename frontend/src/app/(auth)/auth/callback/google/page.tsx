@@ -12,7 +12,7 @@ function GoogleCallbackContent() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const code = searchParams.get("code");
+    const code = searchParams?.get("code") ?? null;
     if (!code) {
       setError("No authorization code received from Google.");
       return;

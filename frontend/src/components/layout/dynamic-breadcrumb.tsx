@@ -34,7 +34,7 @@ function resolveLabel(seg: string, parentSeg: string | undefined): string | null
 }
 
 export function DynamicBreadcrumb() {
-  const pathname = usePathname();
+  const pathname = usePathname() ?? "";
   const segments = pathname.split("/").filter(Boolean);
 
   // Don't render on root dashboard page

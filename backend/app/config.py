@@ -68,6 +68,19 @@ class Settings(BaseSettings):
     # bound memory growth (Chromium leaks ~5-10MB per long-running session).
     pdf_browser_recycle_after: int = 200
 
+    # Internal Next.js render endpoint (TAILOR-4).
+    # The backend POSTs the tailored-resume payload to the frontend's
+    # `/api/internal/render-resume` Route Handler, which server-renders the
+    # React `ClassicTemplate` and returns HTML. In Docker compose the
+    # frontend service is reachable as `http://frontend:3000`; for bare-metal
+    # local dev override `FRONTEND_INTERNAL_URL` to e.g. `http://localhost:3000`.
+    frontend_internal_url: str = "http://frontend:3000"
+    # Shared secret sent in the `X-Internal-Secret` header so the Route
+    # Handler can reject any request that didn't come from this backend.
+    # Empty default — we fail fast at the call site if this is unset rather
+    # than booting with an obviously broken config.
+    internal_render_secret: str = ""
+
     # Paddle
     paddle_api_key: str = ""
     paddle_price_monthly: str = ""       # kept for backwards compat

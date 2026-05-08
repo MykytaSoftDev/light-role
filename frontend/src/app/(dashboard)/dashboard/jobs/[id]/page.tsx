@@ -673,7 +673,7 @@ function SectionCard({ title, children, className }: { title?: string; children:
 
 export default function JobDetailPage() {
   const params = useParams<{ id: string }>();
-  const jobId = params.id;
+  const jobId = params?.id;
   const router = useRouter();
 
   const [job, setJob] = useState<Job | null>(null);

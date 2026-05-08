@@ -32,7 +32,7 @@ export function SettingsTabs({ initialTab }: SettingsTabsProps) {
   const [value, setValue] = useState<TabValue>(initialTab);
 
   useEffect(() => {
-    const urlTab = searchParams.get("tab");
+    const urlTab = searchParams?.get("tab") ?? null;
     if (isValidTab(urlTab) && urlTab !== value) {
       setValue(urlTab);
     }

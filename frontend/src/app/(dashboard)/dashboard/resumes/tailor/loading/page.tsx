@@ -87,7 +87,7 @@ function LoadingFallback() {
 function TailorLoadingContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const jobId = searchParams.get("job_id");
+  const jobId = searchParams?.get("job_id") ?? null;
 
   // No job_id → bounce back to wizard.
   React.useEffect(() => {
