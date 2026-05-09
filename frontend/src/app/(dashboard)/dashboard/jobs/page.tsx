@@ -12,11 +12,14 @@ import {
   useSensor,
   useSensors,
   useDroppable,
-  closestCorners,
+  pointerWithin,
+  rectIntersection,
   defaultDropAnimationSideEffects,
+  MeasuringStrategy,
   type DragStartEvent,
   type DragOverEvent,
   type DragEndEvent,
+  type CollisionDetection,
 } from "@dnd-kit/core";
 import {
   SortableContext,
@@ -484,8 +487,6 @@ function KanbanSection({
   const dotColor = COLUMN_COLORS[status];
   const label = status.toUpperCase();
 
-  // Single useDroppable per render (Hooks rules) — branch which JSX node
-  // receives the ref via the `collapsed` flag below.
   const { setNodeRef, isOver } = useDroppable({ id: status });
 
   return (
@@ -537,15 +538,25 @@ function KanbanSection({
               ref={setNodeRef}
               className={cn(
                 "grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4",
+                jobs.length === 0 && "min-h-[80px]",
                 isOver && "rounded-lg bg-muted/50 p-2"
               )}
             >
               {jobs.map((job) => (
                 <JobCard key={job.id} job={job} onDelete={onDelete} />
               ))}
-              {/* Drop zone placeholder when section is empty */}
-              {jobs.length === 0 && !isOver && (
-                <div className="col-span-full flex items-center justify-center rounded-lg border border-dashed border-border bg-muted/20 text-xs text-muted-foreground min-h-[60px]">
+              {/* Drop zone placeholder — always rendered when section is empty
+                  so the droppable rect doesn't collapse when isOver flips on
+                  hover (which would create a flicker loop and prevent drop). */}
+              {jobs.length === 0 && (
+                <div
+                  className={cn(
+                    "col-span-full flex items-center justify-center rounded-lg border border-dashed bg-muted/20 text-xs text-muted-foreground min-h-[60px] transition-colors",
+                    isOver
+                      ? "border-primary/60 bg-primary/5 text-primary"
+                      : "border-border"
+                  )}
+                >
                   Drop jobs here
                 </div>
               )}
@@ -553,8 +564,7 @@ function KanbanSection({
           </SortableContext>
         )}
 
-        {/* When collapsed, render a minimal droppable area so drops still
-            target the collapsed section */}
+        {/* Collapsed: minimal droppable so drags can still target this status. */}
         {collapsed && (
           <div
             ref={setNodeRef}
@@ -1092,7 +1102,7 @@ export default function JobsPage() {
 
   // Kanban-specific UI state
   const [collapsedSections, setCollapsedSections] = useState<Set<string>>(new Set());
-  const [showEmpty, setShowEmpty] = useState(false);
+  const [showEmpty, setShowEmpty] = useState(true);
 
   // DnD state
   const [activeJob, setActiveJob] = useState<Job | null>(null);
@@ -1113,6 +1123,18 @@ export default function JobsPage() {
       coordinateGetter: sortableKeyboardCoordinates,
     })
   );
+
+  // Collision detection: prefer pointerWithin (drop where the pointer is),
+  // falling back to rectIntersection when the pointer is outside every
+  // droppable. closestCorners was previously misrouting drops on full-width
+  // sections to the section that owned the source card whenever the overlay
+  // sat near the horizontal center, because corner distances were nearly
+  // equal across vertically-stacked sections.
+  const collisionDetection = useCallback<CollisionDetection>((args) => {
+    const pointerCollisions = pointerWithin(args);
+    if (pointerCollisions.length > 0) return pointerCollisions;
+    return rectIntersection(args);
+  }, []);
 
   // Fetch jobs via TanStack Query (shared cache key with useJobs hook)
   const {
@@ -1334,14 +1356,14 @@ export default function JobsPage() {
 
   const totalJobs = STATUSES.reduce((sum, s) => sum + jobsMap[s].length, 0);
 
-  // Sections to render in kanban (respecting showEmpty filter)
-  const visibleStatuses = useMemo(
-    () =>
-      showEmpty
-        ? STATUSES
-        : STATUSES.filter((s) => jobsMap[s].length > 0),
-    [jobsMap, showEmpty]
-  );
+  // While a drag is in progress, force-show empty sections so the user can
+  // drop into them. MeasuringStrategy.Always on DndContext picks up the
+  // newly-mounted droppables on the next frame so they become valid targets.
+  const isDragging = activeJob !== null;
+  const effectiveShowEmpty = showEmpty || isDragging;
+  const visibleStatuses = effectiveShowEmpty
+    ? STATUSES
+    : STATUSES.filter((s) => jobsMap[s].length > 0);
 
   return (
     <div className="flex h-full flex-col gap-4 p-6">
@@ -1446,7 +1468,10 @@ export default function JobsPage() {
       ) : (
         <DndContext
           sensors={sensors}
-          collisionDetection={closestCorners}
+          collisionDetection={collisionDetection}
+          measuring={{
+            droppable: { strategy: MeasuringStrategy.Always },
+          }}
           onDragStart={handleDragStart}
           onDragOver={handleDragOver}
           onDragEnd={handleDragEnd}

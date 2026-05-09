@@ -14,7 +14,6 @@ import {
 import Link from "next/link";
 import { useState } from "react";
 
-import { UsageBanner } from "@/components/shared/usage-banner";
 import { Button } from "@/components/ui/button";
 import { queryKeys } from "@/hooks/api/keys";
 import { useUser } from "@/hooks/api/useUser";
@@ -320,16 +319,6 @@ export default function DashboardPage() {
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-8 pb-10">
       {/* ------------------------------------------------------------------ */}
-      {/* Usage warning banner (free plan, >= 80% AI ops used) */}
-      {/* ------------------------------------------------------------------ */}
-      {!usageLoading && usage != null && (
-        <UsageBanner
-          aiUsed={usage.ai_operations_used}
-          aiLimit={usage.ai_operations_limit}
-        />
-      )}
-
-      {/* ------------------------------------------------------------------ */}
       {/* Welcome */}
       {/* ------------------------------------------------------------------ */}
       <section className="flex flex-col gap-1">
@@ -406,25 +395,37 @@ export default function DashboardPage() {
           <StatCardGrid usage={usage} plan={planTier} />
         )}
 
-        {/* Upgrade nudge — Free plan, >= 80% AI ops used. */}
-        {!usageLoading &&
-          usage != null &&
-          isFreePlan &&
-          usage.ai_operations_used >=
-            Math.floor(usage.ai_operations_limit * 0.8) && (
+        {/* Upgrade nudge — Free plan, >= 80% of EITHER per-cycle credit used. */}
+        {(() => {
+          if (usageLoading || usage == null || !isFreePlan) return null;
+          const resumeLimit = usage.resume_credits_limit;
+          const clLimit = usage.cl_credits_limit;
+          // Defensive: -1 means unlimited (shouldn't happen on Free, but skip
+          // the nudge if it does — there's nothing to warn about).
+          if (resumeLimit <= 0 || clLimit <= 0) return null;
+          const resumeRatio = usage.resume_credits_used / resumeLimit;
+          const clRatio = usage.cl_credits_used / clLimit;
+          if (resumeRatio < 0.8 && clRatio < 0.8) return null;
+
+          const resumeRemaining = Math.max(0, resumeLimit - usage.resume_credits_used);
+          const clRemaining = Math.max(0, clLimit - usage.cl_credits_used);
+
+          return (
             <div className="bg-primary/5 border-primary/20 mt-3 flex items-center justify-between rounded-md border px-3 py-2">
               <p className="text-muted-foreground text-sm">
-                {usage.ai_operations_limit - usage.ai_operations_used} AI
-                operations remaining this month
+                {resumeRemaining} resume{resumeRemaining === 1 ? "" : "s"},{" "}
+                {clRemaining} cover letter{clRemaining === 1 ? "" : "s"} remaining
+                this cycle
               </p>
               <Button size="sm" variant="default" asChild>
-                <Link href="/dashboard/checkout">
+                <Link href="/dashboard/upgrade">
                   <Zap className="mr-1 h-3.5 w-3.5" />
                   Upgrade
                 </Link>
               </Button>
             </div>
-          )}
+          );
+        })()}
       </section>
 
       {/* ------------------------------------------------------------------ */}
