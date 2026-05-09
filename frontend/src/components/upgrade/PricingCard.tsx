@@ -11,6 +11,13 @@ export interface PricingFeature {
   included: boolean;
 }
 
+export type FeaturedTone = "primary" | "unlimited";
+
+export interface FeaturedBadge {
+  label: string;
+  tone: FeaturedTone;
+}
+
 export interface PricingCardProps {
   title: string;
   description: string;
@@ -19,7 +26,11 @@ export interface PricingCardProps {
   monthlyEquivalent?: string;
   savingsBadge?: string;
   features: PricingFeature[];
-  highlighted: boolean;
+  /** Visual emphasis: "primary" (Pro), "unlimited" (amber), or unset (Free / neutral). */
+  featured?: FeaturedTone;
+  /** Identity badge shown next to the title. Independent of `featured` so callers
+   *  can mix-and-match if needed (e.g. Pro card with "Most Popular"). */
+  featuredBadge?: FeaturedBadge;
   currentPlanBadge?: boolean;
   cta?: React.ReactNode;
   loading?: boolean;
@@ -33,7 +44,8 @@ export function PricingCard({
   monthlyEquivalent,
   savingsBadge,
   features,
-  highlighted,
+  featured,
+  featuredBadge,
   currentPlanBadge = false,
   cta,
   loading = false,
@@ -55,13 +67,18 @@ export function PricingCard({
     );
   }
 
+  const cardSurfaceClass =
+    featured === "primary"
+      ? "pricing-card-gradient-featured ring-primary/50 ring-1"
+      : featured === "unlimited"
+        ? "pricing-card-gradient-unlimited ring-amber-500/50 ring-1"
+        : "pricing-card-gradient";
+
   return (
     <Card
       className={cn(
         "relative flex h-full flex-col transition-all duration-200",
-        highlighted
-          ? "pricing-card-gradient-featured ring-primary/50 ring-1"
-          : "pricing-card-gradient"
+        cardSurfaceClass
       )}
     >
       <CardHeader className="pb-4">
@@ -70,17 +87,36 @@ export function PricingCard({
             <h3 className="text-foreground text-lg font-bold">{title}</h3>
             <p className="text-muted-foreground text-sm">{description}</p>
           </div>
-          {currentPlanBadge && (
-            <Badge variant="secondary" className="shrink-0 text-xs">
-              Current plan
-            </Badge>
-          )}
 
-          {highlighted && savingsBadge && (
-            <Badge variant="default" className="shrink-0 text-xs">
-              {savingsBadge}
-            </Badge>
-          )}
+          {/* Right column stacks the identity + savings badges so cards align
+              even when only one is present. */}
+          <div className="flex shrink-0 flex-col items-end gap-1.5">
+            {currentPlanBadge && (
+              <Badge variant="secondary" className="text-xs">
+                Current plan
+              </Badge>
+            )}
+
+            {featuredBadge &&
+              (featuredBadge.tone === "unlimited" ? (
+                <Badge
+                  variant="outline"
+                  className="border-amber-500/30 bg-gradient-to-r from-amber-500/15 to-amber-600/15 text-amber-700 text-xs dark:text-amber-400"
+                >
+                  {featuredBadge.label}
+                </Badge>
+              ) : (
+                <Badge variant="default" className="text-xs">
+                  {featuredBadge.label}
+                </Badge>
+              ))}
+
+            {savingsBadge && (
+              <Badge variant="default" className="text-xs">
+                {savingsBadge}
+              </Badge>
+            )}
+          </div>
         </div>
       </CardHeader>
 

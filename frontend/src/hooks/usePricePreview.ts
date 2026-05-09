@@ -44,14 +44,10 @@ export function usePricePreview({
   const paddleRef = useRef<Paddle | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
-  const [monthly, setMonthly] = useState<PriceInfo>({
-    formatted: centsToFormatted(fallbackMonthlyCents),
-    raw: fallbackMonthlyCents,
-  });
-  const [annual, setAnnual] = useState<PriceInfo>({
-    formatted: centsToFormatted(fallbackAnnualCents),
-    raw: fallbackAnnualCents,
-  });
+  const [paddleData, setPaddleData] = useState<{
+    monthly: PriceInfo;
+    annual: PriceInfo;
+  } | null>(null);
 
   useEffect(() => {
     const token = process.env.NEXT_PUBLIC_PADDLE_CLIENT_TOKEN;
@@ -77,6 +73,9 @@ export function usePricePreview({
         const lineItems = result.data.details.lineItems;
         const currencyCode = result.data.currencyCode;
 
+        let nextMonthly: PriceInfo | null = null;
+        let nextAnnual: PriceInfo | null = null;
+
         for (const item of lineItems) {
           const rawStr = item.totals.subtotal;
           const raw = parseFloat(rawStr); // totals are in major units
@@ -84,10 +83,14 @@ export function usePricePreview({
             item.formattedTotals.subtotal || centsToFormatted(Math.round(raw), currencyCode);
 
           if (item.price.id === monthlyPriceId) {
-            setMonthly({ formatted, raw: Math.round(raw) });
+            nextMonthly = { formatted, raw: Math.round(raw) };
           } else if (item.price.id === annualPriceId) {
-            setAnnual({ formatted, raw: Math.round(raw) });
+            nextAnnual = { formatted, raw: Math.round(raw) };
           }
+        }
+
+        if (nextMonthly && nextAnnual) {
+          setPaddleData({ monthly: nextMonthly, annual: nextAnnual });
         }
         setIsLoading(false);
       } catch {
@@ -120,6 +123,15 @@ export function usePricePreview({
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [monthlyPriceId, annualPriceId]);
+
+  const monthly: PriceInfo = paddleData?.monthly ?? {
+    formatted: centsToFormatted(fallbackMonthlyCents),
+    raw: fallbackMonthlyCents,
+  };
+  const annual: PriceInfo = paddleData?.annual ?? {
+    formatted: centsToFormatted(fallbackAnnualCents),
+    raw: fallbackAnnualCents,
+  };
 
   const savingsPercent =
     monthly.raw > 0 ? Math.round(((monthly.raw * 12 - annual.raw) / (monthly.raw * 12)) * 100) : 0;

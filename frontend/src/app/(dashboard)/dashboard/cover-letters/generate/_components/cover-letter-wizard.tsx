@@ -25,6 +25,8 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { UpgradeModal } from "@/components/shared/upgrade-modal";
 import { useUpgradeModal } from "@/hooks/use-upgrade-modal";
+import { RateLimitModal } from "@/components/shared/rate-limit-modal";
+import { useRateLimitModal } from "@/hooks/use-rate-limit-modal";
 
 import { useProfile } from "@/hooks/api/useProfile";
 import { queryKeys } from "@/hooks/api/keys";
@@ -203,6 +205,7 @@ export function CoverLetterWizard({ initialJobId }: CoverLetterWizardProps) {
   } | null>(null);
 
   const upgrade = useUpgradeModal();
+  const rateLimit = useRateLimitModal();
 
   // ---- Queries -----------------------------------------------------------
   const profile = useProfile();
@@ -408,12 +411,21 @@ export function CoverLetterWizard({ initialJobId }: CoverLetterWizardProps) {
             setState((s) => ({ ...s, step: 2 }));
             return;
           case "OUT_OF_QUOTA":
-            upgrade.openAiLimitModal(
-              cle.currentUsage ?? 0,
-              cle.limit ?? 0,
-              cle.resetDate ?? "",
-            );
+            // MONETIZE-14 — `cle.creditError` is the parsed 402 envelope
+            // (CL_CREDITS_EXCEEDED). The modal infers title/body from the
+            // reason code; we just hand it the typed object.
+            if (cle.creditError) {
+              upgrade.openFromCreditError(cle.creditError);
+            }
             setAiAtLimit(true);
+            setState((s) => ({ ...s, step: 2 }));
+            return;
+          case "RATE_LIMITED":
+            // MONETIZE-15 — anti-abuse 429. Distinct modal from upgrade because
+            // upgrading does NOT lift this limit (PRD §12.6).
+            if (cle.rateLimitError) {
+              rateLimit.openFromRateLimitError(cle.rateLimitError);
+            }
             setState((s) => ({ ...s, step: 2 }));
             return;
           case "TAILORED_RESUME_NOT_FOUND":
@@ -428,7 +440,7 @@ export function CoverLetterWizard({ initialJobId }: CoverLetterWizardProps) {
         }
       }, 600);
     }
-  }, [aiAtLimit, state.jobId, state.sourceType, generateMut, t, upgrade, queryClient, eligibleJobs.data]);
+  }, [aiAtLimit, state.jobId, state.sourceType, generateMut, t, upgrade, rateLimit, queryClient, eligibleJobs.data]);
 
   const handleFinalize = React.useCallback(async () => {
     try {
@@ -587,9 +599,16 @@ export function CoverLetterWizard({ initialJobId }: CoverLetterWizardProps) {
           open={upgrade.modalState.open}
           onClose={upgrade.close}
           reason={upgrade.modalState.reason}
-          currentUsage={upgrade.modalState.currentUsage}
-          limit={upgrade.modalState.limit}
-          resetDate={upgrade.modalState.resetDate}
+          currentCount={upgrade.modalState.currentCount}
+          planLimit={upgrade.modalState.planLimit}
+          resetAt={upgrade.modalState.resetAt}
+        />
+      )}
+      {rateLimit.modalState && (
+        <RateLimitModal
+          open={rateLimit.modalState.open}
+          onClose={rateLimit.close}
+          retryAt={rateLimit.modalState.retryAt}
         />
       )}
     </div>

@@ -81,6 +81,13 @@ class Settings(BaseSettings):
     # than booting with an obviously broken config.
     internal_render_secret: str = ""
 
+    # Anti-abuse rate limit (MONETIZE-5). Applied uniformly to ALL plans on
+    # successful AI generations (tailor + cover letter combined). Sliding
+    # window, NOT fixed. Block flag with TTL prevents the natural sliding
+    # decay from re-enabling abusers immediately.
+    ai_rate_limit_per_hour: int = 25
+    ai_rate_limit_block_duration_min: int = 60
+
     # Paddle
     paddle_api_key: str = ""
     paddle_price_monthly: str = ""       # kept for backwards compat

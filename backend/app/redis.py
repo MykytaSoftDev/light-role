@@ -1,4 +1,6 @@
 import logging
+import time
+from datetime import datetime
 from typing import Optional
 
 import redis.asyncio as aioredis
@@ -181,3 +183,179 @@ async def increment_usage_count(user_id: str, year_month: str) -> Optional[int]:
     key = f"usage:{user_id}:{year_month}"
     ttl_40_days = 40 * 24 * 60 * 60
     return await redis_increment_with_ttl(key, ttl_40_days)
+
+
+# Per-credit cycle-scoped usage counters (MONETIZE-3).
+#
+# Key layout: ``usage:{user_id}:{credit_type}:{cycle_start_iso}``
+#   - credit_type ∈ {"resume_credit", "cl_credit"} (matches usage_log.cost_type)
+#   - cycle_start_iso is the ISO-8601 string of the cycle window start
+#
+# Encoding the cycle_start in the key means a fresh cycle simply produces a
+# new key — old cycle counters expire naturally via TTL without us needing
+# any cross-cycle reset logic. Per-cycle TTL is 1 hour by default; cache
+# misses recount from `usage_log` on the next quota check.
+
+def _credit_usage_key(user_id: str, credit_type: str, cycle_start: datetime) -> str:
+    return f"usage:{user_id}:{credit_type}:{cycle_start.isoformat()}"
+
+
+async def get_credit_usage(
+    user_id: str, credit_type: str, cycle_start: datetime
+) -> Optional[int]:
+    """Return cached credit count for the given cycle, or ``None`` on miss/error.
+
+    Distinguishes "not cached" (None) from "zero usage" (0) so the caller
+    can decide to recount from `usage_log` only on a true miss.
+    """
+    key = _credit_usage_key(user_id, credit_type, cycle_start)
+    try:
+        client = await get_redis_client()
+        value = await client.get(key)
+    except RedisError as e:
+        logger.error(f"Redis GET error for credit-usage key '{key}': {e}")
+        return None
+    if value is None:
+        return None
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        logger.warning(f"Non-integer value cached at '{key}': {value!r}")
+        return None
+
+
+async def set_credit_usage(
+    user_id: str,
+    credit_type: str,
+    cycle_start: datetime,
+    value: int,
+    ttl: int = 3600,
+) -> bool:
+    """Cache the credit count for the current cycle.
+
+    TTL is short by design — it only protects against `usage_log` recount
+    storms. Old-cycle keys are unique (cycle_start is in the key), so they
+    never need explicit invalidation.
+    """
+    key = _credit_usage_key(user_id, credit_type, cycle_start)
+    return await redis_set(key, str(value), ttl)
+
+
+async def increment_credit_usage(
+    user_id: str, credit_type: str, cycle_start: datetime
+) -> Optional[int]:
+    """Atomically increment the credit counter for the current cycle.
+
+    Returns the new value, or ``None`` on Redis error. If the key doesn't
+    exist yet, INCR initialises it to 1 — but the value is most useful
+    when the cache was already warmed by the dependency's recount path.
+    Sets a fresh 1-hour TTL on first increment.
+    """
+    key = _credit_usage_key(user_id, credit_type, cycle_start)
+    return await redis_increment_with_ttl(key, ttl_seconds=3600)
+
+
+# ─────────────────────────────────────────────
+# AI generation sliding-window rate limit (MONETIZE-5)
+# ─────────────────────────────────────────────
+#
+# Key layout:
+#   rate_limit:ai_gen:{user_id}  — sorted set of epoch-second timestamps
+#                                   for each successful AI generation
+#   block:ai_gen:{user_id}       — string sentinel with TTL; presence
+#                                   forces deny regardless of the sliding
+#                                   window's natural decay
+#
+# Semantics:
+#   - Sliding window via ZSET + ZREMRANGEBYSCORE drops timestamps older
+#     than (now - window_seconds) before counting.
+#   - Once the cap is hit we set the block flag with TTL = block_duration.
+#     Without the block, a single timestamp aging out would immediately
+#     re-enable a blocked abuser — the block is what keeps the lockout
+#     "sticky" for the configured duration.
+#   - These helpers RAISE on Redis errors. The caller (a FastAPI
+#     dependency) decides whether to fail open (most common — log + allow)
+#     or fail closed.
+
+def _ai_gen_rate_key(user_id: str) -> str:
+    return f"rate_limit:ai_gen:{user_id}"
+
+
+def _ai_gen_block_key(user_id: str) -> str:
+    return f"block:ai_gen:{user_id}"
+
+
+async def ai_gen_rate_limit_check(
+    user_id: str, limit: int, window_seconds: int
+) -> tuple[bool, int, Optional[int]]:
+    """Check the sliding-window cap + block flag for *user_id*.
+
+    Returns ``(allowed, current_count, retry_after_seconds_or_None)``.
+
+    - If the block flag exists and has positive TTL, the user is locked
+      out: returns ``(False, -1, ttl_seconds)``. ``current_count`` is
+      ``-1`` because we deliberately skip the ZSET read in the
+      blocked-path (saves a round trip; the count is irrelevant once we
+      know we're returning False).
+    - Otherwise we trim the ZSET to ``[now - window, now]`` via
+      ZREMRANGEBYSCORE, ZCARD the remainder, and return
+      ``(count < limit, count, None)``.
+
+    Raises ``RedisError`` on transport/protocol failures so the caller
+    can decide on fail-open vs fail-closed semantics.
+    """
+    block_key = _ai_gen_block_key(user_id)
+    rate_key = _ai_gen_rate_key(user_id)
+    client = await get_redis_client()
+
+    # Block flag short-circuit. ttl returns -2 when the key doesn't exist
+    # and -1 when it exists with no TTL (shouldn't happen here since we
+    # always SETEX, but defend anyway).
+    block_ttl = await client.ttl(block_key)
+    if isinstance(block_ttl, int) and block_ttl > 0:
+        return False, -1, block_ttl
+
+    now = int(time.time())
+    cutoff = now - window_seconds
+
+    # Drop expired timestamps, then count what remains.
+    await client.zremrangebyscore(rate_key, 0, cutoff)
+    count = await client.zcard(rate_key)
+    count_int = int(count) if count is not None else 0
+
+    return count_int < limit, count_int, None
+
+
+async def ai_gen_rate_limit_record(user_id: str, window_seconds: int) -> None:
+    """Record one successful AI generation in the sliding window.
+
+    ZADD a ``now`` timestamp keyed under both score and member (so two
+    inserts in the same epoch-second collapse — fine, we'd rather
+    under-count than over-count). The key TTL is set to ``window * 2``
+    so abandoned keys age out automatically without the active code path
+    having to clean them up.
+
+    Raises ``RedisError`` on failure — caller decides whether to swallow.
+    """
+    rate_key = _ai_gen_rate_key(user_id)
+    client = await get_redis_client()
+    now = int(time.time())
+    # Use the timestamp as both score AND member. Same-second duplicates
+    # become a no-op insert — acceptable approximation.
+    await client.zadd(rate_key, {str(now): now})
+    await client.expire(rate_key, window_seconds * 2)
+
+
+async def ai_gen_rate_limit_block(user_id: str, block_seconds: int) -> None:
+    """Set the block sentinel with TTL = ``block_seconds``.
+
+    Once set, ``ai_gen_rate_limit_check`` returns ``allowed=False`` for
+    the entire duration regardless of how many timestamps decay out of
+    the sliding window in the meantime. This is what makes the rate
+    limit "sticky" instead of jittery.
+
+    Raises ``RedisError`` on failure.
+    """
+    block_key = _ai_gen_block_key(user_id)
+    client = await get_redis_client()
+    await client.setex(block_key, block_seconds, "1")

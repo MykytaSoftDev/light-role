@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Literal, Optional
 
 from pydantic import BaseModel
 
@@ -57,3 +57,15 @@ class CancelSubscriptionResponse(BaseModel):
 
 class PortalSessionResponse(BaseModel):
     url: str
+
+
+class ChangePlanRequest(BaseModel):
+    plan_code: Literal["free", "pro", "unlimited"]
+    billing_cycle: Literal["monthly", "annual"]
+
+
+class ChangePlanResponse(BaseModel):
+    success: bool
+    message: str
+    new_plan_code: str
+    effective_at: str  # "next_billing_period"

@@ -1,4 +1,5 @@
 import { api } from './api';
+import { parseLimitError, type CreditError, type RateLimitError } from './api-errors';
 import type {
   CoverLetterListItem,
   CoverLetterResponse,
@@ -137,37 +138,42 @@ export type CoverLetterErrorCode =
   | 'TAILORED_RESUME_NOT_FOUND'
   | 'AI_FAILED'
   | 'OUT_OF_QUOTA'
+  | 'RATE_LIMITED'
   | 'UNKNOWN';
 
 export class CoverLetterError extends Error {
   code: CoverLetterErrorCode;
   /** Set on COVER_LETTER_ALREADY_EXISTS — backend includes `existing_id`. */
   existingCoverLetterId?: string;
-  /** OUT_OF_QUOTA payload — only the wizard's UpgradeModal reads these. */
-  currentUsage?: number;
-  limit?: number;
-  resetDate?: string;
-  planSlug?: string;
+  /**
+   * MONETIZE-14: when `code === 'OUT_OF_QUOTA'`, the parsed credit envelope
+   * from `parseLimitError` is attached so the wizard can dispatch the modal
+   * via `openFromCreditError(err.creditError!)` — no more bespoke fields.
+   */
+  creditError?: CreditError;
+  /**
+   * MONETIZE-15: when `code === 'RATE_LIMITED'`, the parsed 429 envelope
+   * from `parseLimitError` is attached so the wizard can dispatch the
+   * RateLimitModal via `openFromRateLimitError(err.rateLimitError!)`.
+   * Distinct from `creditError` because upgrading doesn't lift this limit.
+   */
+  rateLimitError?: RateLimitError;
 
   constructor(
     code: CoverLetterErrorCode,
     message: string,
     extras?: {
       existingCoverLetterId?: string;
-      currentUsage?: number;
-      limit?: number;
-      resetDate?: string;
-      planSlug?: string;
+      creditError?: CreditError;
+      rateLimitError?: RateLimitError;
     },
   ) {
     super(message);
     this.name = 'CoverLetterError';
     this.code = code;
     this.existingCoverLetterId = extras?.existingCoverLetterId;
-    this.currentUsage = extras?.currentUsage;
-    this.limit = extras?.limit;
-    this.resetDate = extras?.resetDate;
-    this.planSlug = extras?.planSlug;
+    this.creditError = extras?.creditError;
+    this.rateLimitError = extras?.rateLimitError;
   }
 }
 
@@ -296,6 +302,24 @@ export async function generateCoverLetterVariants(
     return (await res.json()) as GenerateCoverLetterVariantsResponse;
   }
 
+  // MONETIZE-14 / MONETIZE-15 — handle the standardised 402 (credit) and
+  // 429 (anti-abuse rate-limit) envelopes first. We clone the response so
+  // the legacy code-path below can still read the JSON body for non-limit
+  // errors (`parseLimitError` consumes its argument).
+  const limitErr = await parseLimitError(res.clone());
+  if (limitErr?.kind === 'credit') {
+    throw new CoverLetterError('OUT_OF_QUOTA', 'Cover letter credits used up.', {
+      creditError: limitErr,
+    });
+  }
+  if (limitErr?.kind === 'rate_limit') {
+    throw new CoverLetterError(
+      'RATE_LIMITED',
+      'Generation temporarily limited due to unusual activity.',
+      { rateLimitError: limitErr },
+    );
+  }
+
   const body = await readBackendError(res);
   const detailObj = extractDetailObj(body);
   const message = extractDetailString(body) ?? `Generate failed (HTTP ${res.status})`;
@@ -317,14 +341,6 @@ export async function generateCoverLetterVariants(
   }
   if (res.status === 502 || res.status === 504 || code === 'AI_GENERATION_FAILED') {
     throw new CoverLetterError('AI_FAILED', message);
-  }
-  if (res.status === 503 || code === 'OUT_OF_CL_QUOTA') {
-    throw new CoverLetterError('OUT_OF_QUOTA', message, {
-      currentUsage: detailObj?.current_usage,
-      limit: detailObj?.limit,
-      resetDate: detailObj?.reset_date,
-      planSlug: detailObj?.plan_slug,
-    });
   }
 
   throw new CoverLetterError('UNKNOWN', message);

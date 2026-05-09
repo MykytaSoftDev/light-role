@@ -163,6 +163,10 @@ async def _handle_subscription_created(data: dict) -> None:
         subscription.paddle_subscription_id = paddle_sub_id
         subscription.current_period_start = period_start.replace(tzinfo=None)
         subscription.current_period_end = period_end.replace(tzinfo=None)
+        # Anchor the user's quota cycle to the subscription start. This honors
+        # back-dated subscription start times Paddle may send and overrides the
+        # model's datetime.utcnow Python default.
+        subscription.cycle_anchor_at = period_start.replace(tzinfo=None)
 
         db.commit()
         logger.info(
@@ -232,6 +236,11 @@ async def _handle_subscription_updated(data: dict) -> None:
             subscription.current_period_end = _parse_paddle_datetime(
                 billing_period["ends_at"]
             ).replace(tzinfo=None)
+
+        # NOTE: Do NOT touch cycle_anchor_at here. Plan upgrades/downgrades and
+        # other subscription.updated events must NOT shift the user's quota
+        # anniversary — the anchor only advances on successful renewals
+        # (transaction.completed). Status changes don't reset the cycle either.
 
         db.commit()
         logger.info(
@@ -440,9 +449,13 @@ async def _handle_transaction_completed(data: dict) -> None:
         # Update billing period if provided on the transaction
         billing_period = data.get("billing_period") or {}
         if billing_period.get("starts_at"):
-            subscription.current_period_start = _parse_paddle_datetime(
+            new_start = _parse_paddle_datetime(
                 billing_period["starts_at"]
             ).replace(tzinfo=None)
+            subscription.current_period_start = new_start
+            # Advance the quota cycle anchor on each successful renewal so the
+            # user's quota cycle stays aligned with their billing cycle.
+            subscription.cycle_anchor_at = new_start
         if billing_period.get("ends_at"):
             subscription.current_period_end = _parse_paddle_datetime(
                 billing_period["ends_at"]

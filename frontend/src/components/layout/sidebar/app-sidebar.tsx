@@ -1,6 +1,7 @@
 import { ComponentProps } from "react";
 
 import { SidebarMain } from "@/components/layout/sidebar/sidebar-main";
+import { SidebarPlanBadge } from "@/components/layout/sidebar/sidebar-plan-badge";
 import { SidebarUser } from "@/components/layout/sidebar/sidebar-user";
 import {
   Sidebar,
@@ -24,17 +25,20 @@ export function AppSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild>
-              <Link href={DASHBOARD_PAGES.HOME} className="">
-                <Image
-                  src="/assets/logo/lightrole-text.svg"
-                  width={150}
-                  height={200}
-                  priority={true}
-                  alt="LightRole Logo"
-                />
-              </Link>
-            </SidebarMenuButton>
+            <div className="flex items-center justify-between gap-2">
+              <SidebarMenuButton asChild className="w-auto flex-1">
+                <Link href={DASHBOARD_PAGES.HOME} aria-label="LightRole — Dashboard home">
+                  <Image
+                    src="/assets/logo/lightrole-text.svg"
+                    width={150}
+                    height={200}
+                    priority={true}
+                    alt="LightRole Logo"
+                  />
+                </Link>
+              </SidebarMenuButton>
+              <SidebarPlanBadge />
+            </div>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>

@@ -12,6 +12,7 @@
  * backend lands those endpoints.
  */
 import { api } from "./api";
+import { parseLimitError, type CreditError, type RateLimitError } from "./api-errors";
 import type { ProfileData } from "./profile-api";
 
 // ---------------------------------------------------------------------------
@@ -98,6 +99,8 @@ export type TailorErrorCode =
   | "JOB_NOT_FOUND"
   | "AI_UNAVAILABLE"
   | "NOT_IMPLEMENTED"
+  | "OUT_OF_QUOTA"
+  | "RATE_LIMITED"
   | "UNKNOWN";
 
 export class TailorError extends Error {
@@ -110,12 +113,38 @@ export class TailorError extends Error {
    * When backend-dev wires it in, parse it here.
    */
   existingResumeId?: string;
+  /**
+   * MONETIZE-14: when `code === "OUT_OF_QUOTA"`, the parsed credit envelope
+   * from `parseLimitError` is attached so the loading page can dispatch the
+   * UpgradeModal via `openFromCreditError(err.creditError!)`.
+   */
+  creditError?: CreditError;
+  /**
+   * MONETIZE-15: when `code === "RATE_LIMITED"`, the parsed 429 envelope from
+   * `parseLimitError` is attached so the loading page can dispatch the
+   * RateLimitModal via `openFromRateLimitError(err.rateLimitError!)`. Distinct
+   * from `creditError` because upgrading does not lift this limit.
+   */
+  rateLimitError?: RateLimitError;
 
-  constructor(code: TailorErrorCode, message: string, existingResumeId?: string) {
+  // Positional signature preserved for backwards compatibility — the
+  // existing throw sites in this file all pass at most `(code, message,
+  // existingResumeId)`. Two new optional positional params (creditError,
+  // rateLimitError) are appended so MONETIZE-14/15 wiring can attach the
+  // parsed envelope without breaking any existing call site.
+  constructor(
+    code: TailorErrorCode,
+    message: string,
+    existingResumeId?: string,
+    creditError?: CreditError,
+    rateLimitError?: RateLimitError,
+  ) {
     super(message);
     this.name = "TailorError";
     this.code = code;
     this.existingResumeId = existingResumeId;
+    this.creditError = creditError;
+    this.rateLimitError = rateLimitError;
   }
 }
 
@@ -182,6 +211,29 @@ export async function tailorResumeForJob(jobId: string): Promise<TailoredResume>
 
   if (res.ok) {
     return (await res.json()) as TailoredResume;
+  }
+
+  // MONETIZE-14 / MONETIZE-15 — handle the standardised 402 (credit) and 429
+  // (anti-abuse rate-limit) envelopes BEFORE the legacy 4xx/5xx ladder. We
+  // clone the response so `readBackendError(res)` below can still read the
+  // body for non-limit errors (`parseLimitError` consumes its argument).
+  const limitErr = await parseLimitError(res.clone());
+  if (limitErr?.kind === "credit") {
+    throw new TailorError(
+      "OUT_OF_QUOTA",
+      "Resume credits used up.",
+      undefined,
+      limitErr,
+    );
+  }
+  if (limitErr?.kind === "rate_limit") {
+    throw new TailorError(
+      "RATE_LIMITED",
+      limitErr.message,
+      undefined,
+      undefined,
+      limitErr,
+    );
   }
 
   const body = await readBackendError(res);

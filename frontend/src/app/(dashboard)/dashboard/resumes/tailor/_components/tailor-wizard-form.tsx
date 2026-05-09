@@ -94,6 +94,11 @@ export function TailorWizardForm({ initialJobId }: TailorWizardFormProps) {
 
   // TODO(Phase 5.1): quota check → render UpgradeModal here when
   // GET /api/v1/users/me/usage indicates the user is out of credits.
+  //
+  // MONETIZE-14/15 wiring lives at the loading-page level — the tailor POST
+  // happens AFTER navigation to /dashboard/resumes/tailor/loading, which
+  // mounts UpgradeModal + RateLimitModal and dispatches via the typed
+  // `TailorError.creditError` / `rateLimitError` envelopes.
 
   function handleSubmit() {
     if (!selectedJobId) return;

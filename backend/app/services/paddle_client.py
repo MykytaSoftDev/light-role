@@ -64,6 +64,28 @@ class PaddleClient:
             response.raise_for_status()
             return response.json()
 
+    async def update_subscription(self, subscription_id: str, new_price_id: str) -> dict:
+        """PATCH /subscriptions/{id} — swap the subscription's price (plan change).
+
+        Uses ``prorated_next_billing_period`` proration mode: the new price
+        takes effect at the start of the next billing cycle and Paddle bills
+        a prorated amount based on the time remaining in the current period.
+        Paddle's valid proration values are ``prorated_immediately``,
+        ``prorated_next_billing_period``, ``full_immediately``,
+        ``full_next_billing_period``, ``do_not_bill`` — we deliberately pick
+        the deferred/prorated variant so customers aren't charged immediately
+        on plan change while still keeping accurate proration math.
+        """
+        url = f"{self.base_url}/subscriptions/{subscription_id}"
+        body = {
+            "items": [{"price_id": new_price_id, "quantity": 1}],
+            "proration_billing_mode": "prorated_next_billing_period",
+        }
+        async with httpx.AsyncClient() as client:
+            response = await client.patch(url, headers=self._headers(), json=body)
+            response.raise_for_status()
+            return response.json()
+
     async def create_portal_session(self, customer_id: str) -> dict:
         """POST /customers/{id}/portal-sessions"""
         url = f"{self.base_url}/customers/{customer_id}/portal-sessions"

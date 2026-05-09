@@ -6,10 +6,13 @@ from sqlalchemy.orm import Session
 from app.config import settings
 from app.database import get_db
 from app.dependencies.auth import get_verified_user
+from app.models.plan import Plan
 from app.models.subscription import Subscription
 from app.models.user import User
 from app.schemas.paddle import (
     CancelSubscriptionResponse,
+    ChangePlanRequest,
+    ChangePlanResponse,
     NextPaymentResponse,
     PaymentMethodResponse,
     PortalSessionResponse,
@@ -313,6 +316,84 @@ async def cancel_subscription(
     return CancelSubscriptionResponse(
         success=True,
         message="Subscription will cancel at end of billing period",
+    )
+
+
+@router.post("/change-plan", response_model=ChangePlanResponse)
+async def change_subscription_plan(
+    body: ChangePlanRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_verified_user),
+):
+    """Change the subscription's plan/billing cycle at the next billing period.
+
+    The local ``scheduled_change`` field is set optimistically so the UI can
+    show a "Plan will change to X" banner before Paddle's webhook lands.
+    Final reconciliation (plan_id swap from price_id) happens in
+    ``_handle_subscription_updated`` when ``subscription.updated`` arrives.
+    """
+    subscription: Subscription | None = (
+        db.query(Subscription).filter(Subscription.user_id == current_user.id).first()
+    )
+
+    if subscription is None or not subscription.paddle_subscription_id:
+        raise HTTPException(status_code=400, detail="No active subscription")
+
+    # Free is not a real Paddle subscription state — Paddle has no $0 paid
+    # subscription. Switching to Free means cancelling the current sub.
+    if body.plan_code == "free":
+        raise HTTPException(
+            status_code=400,
+            detail="To switch to Free, cancel your subscription instead.",
+        )
+
+    target_plan: Plan | None = (
+        db.query(Plan).filter(Plan.code == body.plan_code).first()
+    )
+    if target_plan is None:
+        raise HTTPException(status_code=400, detail="Unknown plan code")
+
+    # Same-plan no-op detection: we only block exact plan-id duplication and
+    # skip the cycle check. Detecting current cycle reliably would require
+    # either a live Paddle fetch or a period-length heuristic on stored
+    # current_period_(start|end), neither of which is robust in edge cases
+    # (manual cycle anchor edits, prorated periods, paused subs). The
+    # cleaner guard happens upstream in the UI; if a user does send a
+    # same-plan + same-cycle change Paddle will treat it as a price re-set.
+    if subscription.plan_id == target_plan.id:
+        raise HTTPException(status_code=400, detail="Already on this plan")
+
+    if body.billing_cycle == "monthly":
+        new_price_id = target_plan.paddle_price_id_monthly
+    else:
+        new_price_id = target_plan.paddle_price_id_annual
+    if not new_price_id:
+        raise HTTPException(
+            status_code=400,
+            detail="Plan does not have Paddle pricing for this cycle",
+        )
+
+    try:
+        await paddle_client.update_subscription(
+            subscription.paddle_subscription_id, new_price_id
+        )
+    except Exception as exc:
+        logger.error(f"Paddle update subscription error: {exc}")
+        raise HTTPException(status_code=502, detail="Unable to update subscription")
+
+    subscription.scheduled_change = {
+        "action": "change_plan",
+        "new_plan_code": body.plan_code,
+        "new_billing_cycle": body.billing_cycle,
+        "effective_at": "next_billing_period",
+    }
+    db.commit()
+
+    return ChangePlanResponse(
+        success=True,
+        message="Plan change scheduled for next billing period",
+        new_plan_code=body.plan_code,
+        effective_at="next_billing_period",
     )
 
 

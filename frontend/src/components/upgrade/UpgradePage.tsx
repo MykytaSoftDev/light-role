@@ -1,72 +1,26 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { usePlans } from "@/hooks/api/usePlans";
+import { type Plan, usePlans } from "@/hooks/api/usePlans";
+import { usePlan } from "@/hooks/use-plan";
 import { usePricePreview } from "@/hooks/usePricePreview";
 import { cn } from "@/lib/utils";
-import { Globe, RefreshCw, ShieldCheck } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { BillingCycleToggle } from "./BillingCycleToggle";
 import { FaqAccordion, type FaqItem } from "./FaqAccordion";
 import { PricingCard, type PricingFeature } from "./PricingCard";
-import { type TrustItem } from "./TrustSection";
 
 // ── Static data ──────────────────────────────────────────────────────────────
-
-const FREE_FEATURES: PricingFeature[] = [
-  { label: "10 AI operations per month", included: true },
-  { label: "Up to 10 active jobs", included: true },
-  { label: "AI-tailored resumes (limited)", included: true },
-  { label: "AI-generated cover letters (limited)", included: true },
-  { label: "Smart job description parsing (limited)", included: true },
-  { label: "Basic resume template only", included: true },
-  // { label: "Analytics dashboard", included: false },
-  // { label: "Priority AI generation", included: false },
-  // { label: "Cancel anytime — no questions asked", included: true },
-];
-
-const PRO_FEATURES: PricingFeature[] = [
-  { label: "150 AI operations per month", included: true },
-  { label: "Unlimited active jobs", included: true },
-  { label: "AI-tailored resumes for every application", included: true },
-  { label: "AI-generated cover letters with multiple variants", included: true },
-  { label: "Smart job description parsing — paste and go", included: true },
-  // { label: "All resume templates unlocked", included: true },
-  // { label: "Analytics dashboard to track your progress", included: true },
-  { label: "Priority AI generation", included: true },
-  { label: "Cancel anytime — no questions asked", included: true },
-];
-
-const TRUST_ITEMS: TrustItem[] = [
-  {
-    icon: ShieldCheck,
-    title: "Cancel anytime",
-    description:
-      "No lock-in contracts. Cancel your subscription instantly from your dashboard, no questions asked.",
-  },
-  {
-    icon: RefreshCw,
-    title: "Limits reset monthly",
-    description:
-      "Your AI operation allowance refreshes every billing cycle so you always have capacity when you need it.",
-  },
-  {
-    icon: Globe,
-    title: "Works everywhere",
-    description:
-      "Light Role supports multiple languages and currencies so your job search has no borders.",
-  },
-];
 
 const FAQ_ITEMS: FaqItem[] = [
   {
     q: "Can I cancel anytime?",
-    a: "Yes. You can cancel your subscription at any time from the billing settings page. Your Pro access continues until the end of the current billing period.",
+    a: "Yes. You can cancel your subscription at any time from the billing settings page. Your paid access continues until the end of the current billing period.",
   },
   {
-    q: "What is the difference between Free and Pro?",
-    a: "The Free plan gives you 10 AI operations per month and up to 10 active jobs. Pro unlocks 150 AI operations, unlimited active jobs, all resume templates, analytics, and priority AI processing.",
+    q: "What's the difference between the plans?",
+    a: "Free gives you up to 10 active jobs and 3 resume tailorings + 3 cover letters per cycle, with no analytics. Pro unlocks unlimited active jobs, 30 resume tailorings + 30 cover letters per cycle, and the analytics dashboard. Unlimited removes all per-cycle credit limits — unlimited resume tailorings and cover letters — and includes analytics.",
   },
   {
     q: "How is payment processed?",
@@ -82,45 +36,257 @@ const FAQ_ITEMS: FaqItem[] = [
   },
 ];
 
+// ── Helpers ──────────────────────────────────────────────────────────────────
+
+function buildFeatures(plan: Plan): PricingFeature[] {
+  const jobsLabel =
+    plan.max_active_jobs === null
+      ? "Unlimited active jobs"
+      : `Up to ${plan.max_active_jobs} active jobs`;
+
+  const resumeLabel =
+    plan.resume_credits_per_cycle === null
+      ? "Unlimited resume tailorings"
+      : `${plan.resume_credits_per_cycle} resume tailorings / cycle`;
+
+  const clLabel =
+    plan.cl_credits_per_cycle === null
+      ? "Unlimited cover letters"
+      : `${plan.cl_credits_per_cycle} cover letters / cycle`;
+
+  const features: PricingFeature[] = [
+    { label: jobsLabel, included: true },
+    { label: resumeLabel, included: true },
+    { label: clLabel, included: true },
+    { label: "Analytics dashboard", included: plan.analytics_enabled },
+    { label: "Smart job description parsing", included: true },
+  ];
+
+  // Free plan can't be cancelled (it's free), so don't show the row at all.
+  if (plan.code !== "free") {
+    features.push({ label: "Cancel anytime — no questions asked", included: true });
+  }
+
+  return features;
+}
+
+function planDescription(plan: Plan, billingCycle: "monthly" | "annual"): string {
+  if (plan.code === "free") return "Get started with the essentials.";
+  if (plan.code === "unlimited") return "Maximum power. No limits, ever.";
+  // Pro
+  return billingCycle === "annual"
+    ? "Best value. Pay once, save big."
+    : "Flexible month-to-month. Cancel anytime.";
+}
+
+function planTitle(plan: Plan): string {
+  // Use the API name (capitalized human label).
+  return plan.name;
+}
+
+// Resolve the Paddle price ID for a given plan + cycle. Prefers the value
+// stored in the DB (set by the backend env at migration time); falls back to
+// the public frontend env vars so the checkout flow keeps working when only
+// the frontend half is configured. Returns null only when both are missing.
+function resolvePriceId(plan: Plan, billingCycle: "monthly" | "annual"): string | null {
+  const fromDb =
+    billingCycle === "annual" ? plan.paddle_price_id_annual : plan.paddle_price_id_monthly;
+  if (fromDb) return fromDb;
+
+  if (plan.code === "pro") {
+    return (
+      (billingCycle === "annual"
+        ? process.env.NEXT_PUBLIC_PADDLE_PRICE_PRO_ANNUAL
+        : process.env.NEXT_PUBLIC_PADDLE_PRICE_PRO_MONTHLY) ?? null
+    );
+  }
+  if (plan.code === "unlimited") {
+    return (
+      (billingCycle === "annual"
+        ? process.env.NEXT_PUBLIC_PADDLE_PRICE_UNLIMITED_ANNUAL
+        : process.env.NEXT_PUBLIC_PADDLE_PRICE_UNLIMITED_MONTHLY) ?? null
+    );
+  }
+  return null;
+}
+
 // ── Component ────────────────────────────────────────────────────────────────
 
 export function UpgradePage() {
   const router = useRouter();
-  const [billingCycle, setBillingCycle] = useState<"monthly" | "annual">("annual");
+  const [billingCycle, setBillingCycle] = useState<"monthly" | "annual">("monthly");
 
   const { data: plans, isLoading: plansLoading, isError: plansError, refetch } = usePlans();
+  const { plan: currentPlanCode } = usePlan();
 
-  const proPlan = plans?.find((p) => p.slug === "pro");
+  // Sort by display_order so cards render Free → Pro → Unlimited.
+  const sortedPlans = (plans ?? []).slice().sort((a, b) => a.display_order - b.display_order);
 
-  const {
-    monthly: monthlyPrice,
-    annual: annualPrice,
-    savingsPercent,
-    isLoading: priceLoading,
-    isError: priceError,
-  } = usePricePreview({
+  const proPlan = sortedPlans.find((p) => p.code === "pro");
+  const unlimitedPlan = sortedPlans.find((p) => p.code === "unlimited");
+
+  // We instantiate `usePricePreview` once per paid plan. Each call has its
+  // own Paddle PricePreview round-trip keyed on (monthlyPriceId, annualPriceId).
+  // Refactoring the hook to accept N price-id pairs would have been a deeper
+  // change with no caller benefit (only 2 paid plans today). Two parallel
+  // hook calls keeps each card's loading/error state isolated.
+  const proPreview = usePricePreview({
     monthlyPriceId: proPlan?.paddle_price_id_monthly ?? null,
     annualPriceId: proPlan?.paddle_price_id_annual ?? null,
     fallbackMonthlyCents: proPlan?.price_monthly_cents,
     fallbackAnnualCents: proPlan?.price_annual_cents,
   });
 
-  const cardLoading = plansLoading || priceLoading;
+  const unlimitedPreview = usePricePreview({
+    monthlyPriceId: unlimitedPlan?.paddle_price_id_monthly ?? null,
+    annualPriceId: unlimitedPlan?.paddle_price_id_annual ?? null,
+    fallbackMonthlyCents: unlimitedPlan?.price_monthly_cents,
+    fallbackAnnualCents: unlimitedPlan?.price_annual_cents,
+  });
+
+  const cardLoading = plansLoading || proPreview.isLoading || unlimitedPreview.isLoading;
+  const anyPriceError = proPreview.isError || unlimitedPreview.isError;
+
+  // Annual savings shown on the toggle (uses Pro as the canonical reference,
+  // matching pre-refactor behaviour).
+  const toggleSavingsPercent = proPreview.savingsPercent;
 
   function handleCheckout(priceId: string | null | undefined) {
     if (!priceId) return;
     router.push(`/dashboard/checkout/${priceId}`);
   }
 
-  // ── Annual per-month equivalent ─────────────────────────────────────────
-  const annualMonthlyEquivalent =
-    annualPrice.raw > 0
-      ? new Intl.NumberFormat("en-US", {
-          style: "currency",
-          currency: "USD",
-          maximumFractionDigits: 2,
-        }).format(annualPrice.raw / 12 / 100)
-      : null;
+  function goToSubscription() {
+    router.push("/dashboard/subscription");
+  }
+
+  // Format an annual cents total as a per-month equivalent string.
+  function annualMonthlyEquivalent(annualRaw: number): string | null {
+    if (annualRaw <= 0) return null;
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+      maximumFractionDigits: 2,
+    }).format(annualRaw / 12 / 100);
+  }
+
+  // ── Render a single plan card ──────────────────────────────────────────
+  function renderPlanCard(plan: Plan) {
+    const isCurrent = currentPlanCode === plan.code;
+    const isFreeCard = plan.code === "free";
+    const features = buildFeatures(plan);
+    const title = planTitle(plan);
+    const description = planDescription(plan, billingCycle);
+
+    // Pricing values per card.
+    let formattedPrice = "$0";
+    let billingCycleLabel = "Forever free";
+    let monthlyEquivalent: string | undefined;
+    let savingsBadge: string | undefined;
+    let preview: ReturnType<typeof usePricePreview> | null = null;
+
+    if (plan.code === "pro") preview = proPreview;
+    else if (plan.code === "unlimited") preview = unlimitedPreview;
+
+    if (preview) {
+      const { monthly, annual, savingsPercent } = preview;
+      formattedPrice = billingCycle === "annual" ? annual.formatted : monthly.formatted;
+      billingCycleLabel = billingCycle === "annual" ? "Billed annually" : "Billed monthly";
+      if (billingCycle === "annual") {
+        const eq = annualMonthlyEquivalent(annual.raw);
+        if (eq) monthlyEquivalent = ` ${eq} / month`;
+        if (savingsPercent > 0) savingsBadge = `Save ${savingsPercent}%`;
+      }
+    }
+
+    // ── CTA logic ───────────────────────────────────────────────────────
+    let cta: React.ReactNode | undefined;
+
+    if (isCurrent) {
+      // The "Current plan" badge already conveys state — render a disabled
+      // outlined button so card heights line up with neighbours.
+      cta = (
+        <Button variant="outline" className="w-full py-1.5 text-sm font-medium" disabled>
+          Current plan
+        </Button>
+      );
+    } else if (isFreeCard) {
+      // User is on a paid plan and looking at Free → this is a downgrade.
+      // The cancel/downgrade flow lives on /dashboard/subscription
+      // (MONETIZE-12). Backend rejects change-plan with plan_code=free.
+      cta = (
+        <Button
+          variant="outline"
+          className="w-full py-1.5 text-sm font-medium"
+          onClick={goToSubscription}
+        >
+          Downgrade to Free
+        </Button>
+      );
+    } else {
+      // Paid target plan. Compare display_order to current plan's order to
+      // decide upgrade vs downgrade copy/route.
+      const currentPlan = sortedPlans.find((p) => p.code === currentPlanCode);
+      const isDowngrade =
+        currentPlan != null && currentPlan.display_order > plan.display_order;
+
+      const priceId = resolvePriceId(plan, billingCycle);
+      const priceIdMissing = !priceId;
+
+      if (isDowngrade) {
+        // Downgrade between paid tiers — defer to /dashboard/subscription
+        // for the confirmation flow (MONETIZE-12).
+        cta = (
+          <Button
+            variant="outline"
+            className="w-full py-1.5 text-sm font-medium"
+            onClick={goToSubscription}
+          >
+            Downgrade to {title}
+          </Button>
+        );
+      } else {
+        // Upgrade (or first-time purchase from Free).
+        const label = currentPlanCode && currentPlanCode !== "free" ? `Upgrade to ${title}` : "Get Started";
+        cta = (
+          <Button
+            className={cn(
+              "w-full py-1.5 text-sm font-medium transition-all duration-300",
+              "bg-primary text-primary-foreground hover:bg-primary/90"
+            )}
+            onClick={() => handleCheckout(priceId)}
+            disabled={priceIdMissing}
+          >
+            {label}
+          </Button>
+        );
+      }
+    }
+
+    const featured =
+      plan.code === "pro" ? "primary" : plan.code === "unlimited" ? "unlimited" : undefined;
+    const featuredBadge =
+      plan.code === "unlimited"
+        ? { label: "Best Deal", tone: "unlimited" as const }
+        : undefined;
+
+    return (
+      <PricingCard
+        key={plan.id}
+        title={title}
+        description={description}
+        formattedPrice={formattedPrice}
+        billingCycleLabel={billingCycleLabel}
+        monthlyEquivalent={monthlyEquivalent}
+        savingsBadge={savingsBadge}
+        features={features}
+        featured={featured}
+        featuredBadge={featuredBadge}
+        currentPlanBadge={isCurrent}
+        cta={cta}
+      />
+    );
+  }
 
   // ── Error state ─────────────────────────────────────────────────────────
   if (plansError) {
@@ -155,103 +321,38 @@ export function UpgradePage() {
         onChange={setBillingCycle}
         monthlyLabel="Monthly"
         annualLabel="Annual"
-        savingsBadgeLabel={savingsPercent > 0 ? `Save ${savingsPercent}%` : undefined}
+        savingsBadgeLabel={toggleSavingsPercent > 0 ? `Save ${toggleSavingsPercent}%` : undefined}
       />
 
       {/* ── Pricing cards ── */}
       {cardLoading ? (
-        <div className="grid w-full max-w-3xl grid-cols-1 gap-6 md:grid-cols-2">
-          <PricingCard
-            loading
-            title=""
-            description=""
-            formattedPrice=""
-            billingCycleLabel=""
-            features={[]}
-            highlighted={false}
-          />
-          <PricingCard
-            loading
-            title=""
-            description=""
-            formattedPrice=""
-            billingCycleLabel=""
-            features={[]}
-            highlighted={false}
-          />
+        <div className="grid w-full max-w-5xl grid-cols-1 gap-6 md:grid-cols-3">
+          {[0, 1, 2].map((i) => (
+            <PricingCard
+              key={i}
+              loading
+              title=""
+              description=""
+              formattedPrice=""
+              billingCycleLabel=""
+              features={[]}
+            />
+          ))}
         </div>
       ) : (
-        <div className="grid w-full max-w-3xl grid-cols-1 items-stretch gap-6 pt-3 md:grid-cols-2">
-          {priceError && (
+        <div className="grid w-full max-w-5xl grid-cols-1 items-stretch gap-6 pt-3 md:grid-cols-3">
+          {anyPriceError && (
             <p className="text-muted-foreground col-span-full w-full text-center text-xs">
               Showing default prices. Local currency unavailable.
             </p>
           )}
 
-          {/* Free card */}
-          <PricingCard
-            title="Free"
-            description="Your current plan"
-            formattedPrice="$0"
-            billingCycleLabel="Forever free"
-            features={FREE_FEATURES}
-            highlighted={false}
-            currentPlanBadge={true}
-          />
-
-          {/* Pro card */}
-          <PricingCard
-            title="Pro"
-            description={
-              billingCycle === "annual"
-                ? "Best value. Pay once, save big."
-                : "Flexible month-to-month. Cancel anytime."
-            }
-            formattedPrice={
-              billingCycle === "annual" ? annualPrice.formatted : monthlyPrice.formatted
-            }
-            billingCycleLabel={billingCycle === "annual" ? "Billed annually" : "Billed monthly"}
-            monthlyEquivalent={
-              billingCycle === "annual" && annualMonthlyEquivalent
-                ? ` ${annualMonthlyEquivalent} / month`
-                : undefined
-            }
-            savingsBadge={
-              billingCycle === "annual" && savingsPercent > 0
-                ? `Save ${savingsPercent}%`
-                : undefined
-            }
-            features={PRO_FEATURES}
-            highlighted={true}
-            cta={
-              <Button
-                className={cn(
-                  "w-full py-1.5 text-sm font-medium transition-all duration-300",
-                  "bg-primary text-primary-foreground hover:bg-primary/90"
-                )}
-                onClick={() =>
-                  handleCheckout(
-                    billingCycle === "annual"
-                      ? proPlan?.paddle_price_id_annual
-                      : proPlan?.paddle_price_id_monthly
-                  )
-                }
-                // disabled={!!proPlan}
-              >
-                Get Started
-              </Button>
-            }
-          />
+          {sortedPlans.map((plan) => renderPlanCard(plan))}
         </div>
       )}
 
-      {/* ── Trust section ── */}
-      {/* <div className="w-full max-w-3xl">
-        <TrustSection title="Why job seekers choose Pro" items={TRUST_ITEMS} />
-      </div> */}
-
       {/* ── FAQ ── */}
-      <div className="w-full max-w-3xl">
+      <div className="w-full max-w-5xl">
         <FaqAccordion title="Frequently asked questions" items={FAQ_ITEMS} />
       </div>
     </div>

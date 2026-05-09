@@ -16,14 +16,18 @@ from fastapi import (
     Response,
     status,
 )
-from sqlalchemy import func
 from sqlalchemy.orm import Session, selectinload
 
 from app.ai.openai_service import OpenAIService
 from app.database import get_db
-from app.dependencies.ai_limit import require_ai_quota
+from app.dependencies.ai_limit import (
+    COST_TYPE_CL,
+    COST_TYPE_RESUME,
+    require_cl_credit,
+    require_resume_credit,
+)
+from app.dependencies.ai_rate_limit import require_ai_gen_rate_limit
 from app.dependencies.auth import get_verified_user
-from app.models.application import Application
 from app.models.cover_letter import CoverLetter
 from app.models.enums import ApplicationStatus, NotificationType
 from app.models.job import Job
@@ -32,7 +36,7 @@ from app.models.subscription import Subscription
 from app.models.tailored_resume import TailoredResume
 from app.models.usage_log import UsageLog
 from app.models.user import User
-from app.redis import increment_usage_count
+from app.redis import ai_gen_rate_limit_record, increment_credit_usage
 from app.routers.tailored_resumes import _serialize as _serialize_tailored_resume
 from app.schemas.cover_letter import (
     CoverLetterGenerateRequest,
@@ -56,8 +60,9 @@ from app.schemas.tailored_resume import (
     TailoredResumeResponse,
 )
 from app.services import analytics_service, job_service
+from app.services.cycle_service import get_current_cycle_window, get_cycle_anchor
+from app.services.job_limit_service import check_active_jobs_limit
 from app.services.profile_service import get_or_create_profile
-from app.services.subscription_service import get_effective_plan
 from app.services.usage_service import invalidate_usage_cache
 
 logger = logging.getLogger(__name__)
@@ -76,15 +81,19 @@ async def parse_job_description(
     data: JobParseRequest,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_verified_user),
-    _quota: None = Depends(require_ai_quota),
 ) -> JobParseResponse:
-    result = await _ai_service.parse_job_description(data.text)
+    """Parse a pasted job description with AI.
 
-    # TODO(Phase 5.1): write `usage_log` row (operation_type="parse_job",
-    # cost_type="free") and decrement quota under the new credit system.
-    if result.success and result.usage is not None:
-        year_month = datetime.now(timezone.utc).strftime("%Y-%m")
-        await increment_usage_count(str(current_user.id), year_month)
+    Job parsing is FREE (``cost_type='free'`` in the new split-credit
+    model — see app/models/usage_log.py docstring). It does, however,
+    create a job downstream when the user accepts the parsed result, so
+    we enforce the active-jobs cap up-front to avoid burning the AI call
+    on a user who is already over their plan's job limit.
+    """
+    # MONETIZE-4: block users who can't create another job anyway.
+    check_active_jobs_limit(current_user, db)
+
+    result = await _ai_service.parse_job_description(data.text)
 
     parsed = ParsedJobDataResponse(
         job_title=result.data.job_title,
@@ -96,14 +105,6 @@ async def parse_job_description(
     return JobParseResponse(data=parsed, success=result.success)
 
 
-_ACTIVE_JOB_LIMIT_FREE = 10
-_TERMINAL_STATUSES = [
-    ApplicationStatus.ACCEPTED,
-    ApplicationStatus.REJECTED,
-    ApplicationStatus.WITHDRAWN,
-]
-
-
 @router.post("/jobs", response_model=JobResponse, status_code=status.HTTP_201_CREATED)
 async def create_job(
     data: JobCreate,
@@ -111,30 +112,8 @@ async def create_job(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_verified_user),
 ) -> JobResponse:
-    subscription = db.query(Subscription).filter(Subscription.user_id == current_user.id).first()
-    effective_plan = get_effective_plan(subscription)
-
-    if effective_plan == "free":
-        active_count = (
-            db.query(func.count(Job.id))
-            .join(Application, Application.job_id == Job.id)
-            .filter(
-                Job.user_id == current_user.id,
-                Application.status.notin_(_TERMINAL_STATUSES),
-            )
-            .scalar()
-        ) or 0
-
-        if active_count >= _ACTIVE_JOB_LIMIT_FREE:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail={
-                    "message": "Active jobs limit reached",
-                    "current_count": active_count,
-                    "limit": _ACTIVE_JOB_LIMIT_FREE,
-                    "upgrade_url": "/dashboard/upgrade",
-                },
-            )
+    # MONETIZE-4: enforce plan.max_active_jobs (NULL on plan = unlimited).
+    check_active_jobs_limit(current_user, db)
 
     job = job_service.create_job(data, current_user, db)
     background_tasks.add_task(analytics_service.invalidate_analytics_cache, str(current_user.id))
@@ -270,6 +249,11 @@ async def tailor_resume(
     request: Request,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_verified_user),
+    _quota: None = Depends(require_resume_credit),
+    # MONETIZE-5: anti-abuse cap (25/hour, all plans). Listed AFTER the
+    # per-credit quota so legitimate "out of credits" 402s take precedence
+    # over operational "too fast" 429s.
+    _rate: None = Depends(require_ai_gen_rate_limit),
 ) -> TailoredResumeResponse:
     """Generate (and persist) a tailored resume for the given job.
 
@@ -332,11 +316,9 @@ async def tailor_resume(
             },
         )
 
-    # TODO(Phase 5.1): enforce AI quota here.
-    # See docs/v2/tasks-monetization.json for the credit-consumption design.
-
-    # TODO(Phase 5.1): enforce anti-abuse rate limiting here.
-    # See docs/v2/tasks-monetization.json for the per-user/IP rate limit policy.
+    # AI quota is enforced by `require_resume_credit` and the anti-abuse
+    # rate limit by `require_ai_gen_rate_limit` (both above). Both fire
+    # before the body runs.
 
     # 4. Build job_data dict for the AI service.
     #    Field-name translation: Job stores `title`/`description_raw`; the AI
@@ -436,6 +418,46 @@ async def tailor_resume(
 
     # 9. Audit success in usage_log (separate commit — see _log_tailor_usage).
     _log_tailor_usage(db, current_user.id, success=True, entity_id=row.id)
+
+    # 9a. Bump the per-credit Redis counter so the next quota check sees
+    #     the updated value without paying for a DB recount. Recompute the
+    #     cycle window here (rather than threading it through from the
+    #     dependency) because this point in the code is the only place
+    #     that knows the operation actually succeeded — and the cycle
+    #     boundary may have crossed between dependency-time and now.
+    try:
+        subscription = (
+            db.query(Subscription)
+            .filter(Subscription.user_id == current_user.id)
+            .first()
+        )
+        anchor = get_cycle_anchor(current_user, subscription)
+        cycle_start, _ = get_current_cycle_window(
+            anchor, datetime.now(timezone.utc)
+        )
+        await increment_credit_usage(
+            str(current_user.id), COST_TYPE_RESUME, cycle_start
+        )
+    except Exception as exc:  # pragma: no cover - cache best-effort
+        logger.debug("Tailor: credit-counter bump failed: %s", exc)
+
+    # 9a-bis. MONETIZE-5: record this successful generation in the
+    #         sliding-window rate limit. Only successful gens count
+    #         toward the 25/hour cap. Best-effort — Redis errors don't
+    #         break the response (the next check will simply not see
+    #         this entry, which is the right side to err on).
+    try:
+        await ai_gen_rate_limit_record(str(current_user.id), window_seconds=3600)
+    except Exception as exc:  # pragma: no cover - cache best-effort
+        logger.debug("Tailor: ai-gen rate-limit record failed: %s", exc)
+
+    # 9b. Invalidate the legacy aggregated usage cache (used by
+    #     /me/usage). Keeps the dashboard accurate without waiting for
+    #     the 5-minute TTL.
+    try:
+        await invalidate_usage_cache(str(current_user.id))
+    except Exception as exc:  # pragma: no cover - defensive
+        logger.debug("invalidate_usage_cache failed for tailor: %s", exc)
 
     logger.info(
         "Tailor complete for user %s job %s tailored_resume %s match_score=%d",
@@ -625,6 +647,10 @@ async def generate_cover_letter_for_job(
     request: Request,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_verified_user),
+    _quota: None = Depends(require_cl_credit),
+    # MONETIZE-5: anti-abuse cap (25/hour, all plans). Listed AFTER the
+    # per-credit quota so "out of CL credits" 402 still takes precedence.
+    _rate: None = Depends(require_ai_gen_rate_limit),
 ) -> CoverLetterGenerateResponse:
     """Generate 3 cover-letter variants for the given job (CL-2).
 
@@ -722,13 +748,9 @@ async def generate_cover_letter_for_job(
                 },
             )
 
-    # 5. CL credit quota — STUB for MVP.
-    #    Phase 5.1 will read `cl_credits_used` / `cl_credits_limit` via
-    #    `usage_service.get_usage` and raise:
-    #        503 OUT_OF_CL_QUOTA — {error_code, reset_date, plan_slug}
-    #    The wizard's `LimitReachedError` already handles this shape.
-
-    # 6. Anti-abuse rate limit — STUB for MVP (mirrors `tailor_resume`).
+    # 5. CL credit quota is enforced by `require_cl_credit` above.
+    # 6. Anti-abuse rate limit is enforced by `require_ai_gen_rate_limit`
+    #    above (MONETIZE-5: 25/hour, all plans, sliding window).
 
     # 7. Build source_data based on source_type.
     if payload.source_type == "tailored_resume":
@@ -800,6 +822,32 @@ async def generate_cover_letter_for_job(
 
     # 11. Audit success in usage_log (separate commit). Credit consumed here.
     _log_cl_usage(db, current_user.id, success=True, entity_id=job.id)
+
+    # 11a. Bump the per-credit Redis counter (see tailor endpoint for the
+    #      rationale on recomputing cycle_start at this site rather than
+    #      threading it from the dependency).
+    try:
+        subscription = (
+            db.query(Subscription)
+            .filter(Subscription.user_id == current_user.id)
+            .first()
+        )
+        anchor = get_cycle_anchor(current_user, subscription)
+        cycle_start, _ = get_current_cycle_window(
+            anchor, datetime.now(timezone.utc)
+        )
+        await increment_credit_usage(
+            str(current_user.id), COST_TYPE_CL, cycle_start
+        )
+    except Exception as exc:  # pragma: no cover - cache best-effort
+        logger.debug("CL gen: credit-counter bump failed: %s", exc)
+
+    # 11a-bis. MONETIZE-5: record this successful generation in the
+    #          sliding-window rate limit (25/hour, all plans). Best-effort.
+    try:
+        await ai_gen_rate_limit_record(str(current_user.id), window_seconds=3600)
+    except Exception as exc:  # pragma: no cover - cache best-effort
+        logger.debug("CL gen: ai-gen rate-limit record failed: %s", exc)
 
     # 12. Invalidate the user's usage cache so the dashboard reflects the
     #     new credit count without waiting for the 5-minute TTL.

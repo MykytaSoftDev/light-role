@@ -20,6 +20,10 @@ import { toast } from "sonner";
 
 import { cn } from "@/lib/utils";
 import StreakBackground from "@/components/streak-background";
+import { UpgradeModal } from "@/components/shared/upgrade-modal";
+import { useUpgradeModal } from "@/hooks/use-upgrade-modal";
+import { RateLimitModal } from "@/components/shared/rate-limit-modal";
+import { useRateLimitModal } from "@/hooks/use-rate-limit-modal";
 import {
   TailorError,
   tailorResumeForJob,
@@ -88,6 +92,12 @@ function TailorLoadingContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const jobId = searchParams?.get("job_id") ?? null;
+
+  // MONETIZE-14/15 — render UpgradeModal / RateLimitModal on this overlay
+  // when the tailor POST returns 402 / 429. Closing the modal navigates
+  // back to the wizard with the original `?job_id=…`.
+  const upgrade = useUpgradeModal();
+  const rateLimit = useRateLimitModal();
 
   // No job_id → bounce back to wizard.
   React.useEffect(() => {
@@ -182,8 +192,24 @@ function TailorLoadingContent() {
         return;
       }
 
-      // Error path: flash phase 3 → failed for ~600ms before navigating.
+      // Error path: flash phase 3 → failed and dispatch the right UX.
       const error = result.error;
+
+      // MONETIZE-14 / MONETIZE-15 — credit + rate-limit errors stay on the
+      // overlay (no redirect) so the modal can render with full context.
+      // Closing the modal is what navigates the user back to the wizard.
+      if (error.code === "OUT_OF_QUOTA" && error.creditError) {
+        setPhase3Failed(true);
+        upgrade.openFromCreditError(error.creditError);
+        return;
+      }
+      if (error.code === "RATE_LIMITED" && error.rateLimitError) {
+        setPhase3Failed(true);
+        rateLimit.openFromRateLimitError(error.rateLimitError);
+        return;
+      }
+
+      // All other errors: flash phase 3 → failed for ~600ms before navigating.
       setPhase3Failed(true);
       setTimeout(() => {
         if (cancelled) return;
@@ -197,7 +223,7 @@ function TailorLoadingContent() {
       if (phaseTimer2) clearTimeout(phaseTimer2);
       if (pollInterval) clearInterval(pollInterval);
     };
-  }, [jobId, router]);
+  }, [jobId, router, upgrade, rateLimit]);
 
   // 3. Tip rotation every 6s.
   React.useEffect(() => {
@@ -274,6 +300,42 @@ function TailorLoadingContent() {
 
         <TipCard tip={TIPS[tipIndex]} />
       </div>
+
+      {/*
+        MONETIZE-14 / MONETIZE-15 — limit-error modals rendered on the
+        overlay itself. We don't redirect mid-error so the modal can show
+        full context; closing the modal navigates back to the wizard.
+
+        The fallback `reason` / `open=false` props are just type-satisfiers
+        when `modalState` is null — the dialog won't render in that case.
+      */}
+      <UpgradeModal
+        open={upgrade.modalState?.open ?? false}
+        onClose={() => {
+          upgrade.close();
+          if (jobId) {
+            router.replace(`/dashboard/resumes/tailor?job_id=${jobId}`);
+          } else {
+            router.replace("/dashboard/resumes/tailor");
+          }
+        }}
+        reason={upgrade.modalState?.reason ?? "RESUME_CREDITS_EXCEEDED"}
+        currentCount={upgrade.modalState?.currentCount}
+        planLimit={upgrade.modalState?.planLimit}
+        resetAt={upgrade.modalState?.resetAt}
+      />
+      <RateLimitModal
+        open={rateLimit.modalState?.open ?? false}
+        onClose={() => {
+          rateLimit.close();
+          if (jobId) {
+            router.replace(`/dashboard/resumes/tailor?job_id=${jobId}`);
+          } else {
+            router.replace("/dashboard/resumes/tailor");
+          }
+        }}
+        retryAt={rateLimit.modalState?.retryAt}
+      />
     </div>
   );
 }

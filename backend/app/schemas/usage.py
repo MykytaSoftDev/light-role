@@ -25,3 +25,8 @@ class UsageResponse(BaseModel):
     resume_credits_limit: int = -1
     cl_credits_used: int = 0
     cl_credits_limit: int = -1
+    # MONETIZE-7: anniversary-cycle metadata for the dashboard. Defaults
+    # keep older clients (and any test fixtures that built UsageResponse
+    # directly) working unchanged.
+    days_until_reset: int = 0
+    plan_name: str | None = None

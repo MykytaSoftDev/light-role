@@ -14,6 +14,10 @@ from app.models.usage_log import UsageLog
 from app.models.user import User
 from app.redis import redis_delete, redis_get, redis_set
 from app.schemas.usage import EffectiveLimits, UsageResponse
+from app.services.cycle_service import (
+    get_current_cycle_window,
+    get_cycle_anchor,
+)
 from app.services.subscription_service import (
     get_effective_plan,
     get_plan_active_jobs_limit,
@@ -30,21 +34,39 @@ _TERMINAL_STATUSES = {
     ApplicationStatus.WITHDRAWN,
 }
 
+# cost_type literals — must match what routers write to usage_log
+# (see app/routers/jobs.py::_log_tailor_usage / ::_log_cl_usage). Kept
+# in sync with app/dependencies/ai_limit.py.
+_COST_TYPE_RESUME = "resume_credit"
+_COST_TYPE_CL = "cl_credit"
 
-def _usage_cache_key(user_id: str) -> str:
-    return f"usage:{user_id}"
 
-
-def _next_month_reset(now: datetime) -> datetime:
-    """Return midnight UTC on the 1st of next month."""
-    if now.month == 12:
-        return now.replace(year=now.year + 1, month=1, day=1, hour=0, minute=0, second=0, microsecond=0)
-    return now.replace(month=now.month + 1, day=1, hour=0, minute=0, second=0, microsecond=0)
+def _usage_cache_key(user_id: str, cycle_start: datetime) -> str:
+    """Cache key scoped by cycle_start so the entry naturally goes stale
+    when the user's 30-day credit cycle rolls over (MONETIZE-6). Old keys
+    age out via the regular TTL — no explicit invalidation needed across
+    cycles."""
+    return f"usage:{user_id}:{cycle_start.isoformat()}"
 
 
 async def get_usage(user: User, db: Session) -> UsageResponse:
-    """Return usage stats for the given user, served from a 5-minute Redis cache."""
-    cache_key = _usage_cache_key(str(user.id))
+    """Return usage stats for the given user, served from a 5-minute Redis cache.
+
+    The cache key includes the current cycle_start (PRD 6.11), so when the
+    user's 30-day credit window rolls forward the lookup naturally misses
+    and the recompute returns fresh, zeroed counters. This is what makes
+    the anniversary-based reset implicit: there's no scheduled job — the
+    new cycle simply produces a new key.
+    """
+    # Resolve the cycle window first so the cache key is cycle-scoped.
+    subscription: Optional[Subscription] = (
+        db.query(Subscription).filter(Subscription.user_id == user.id).first()
+    )
+    anchor = get_cycle_anchor(user, subscription)
+    now = datetime.now(timezone.utc)
+    cycle_start, cycle_end = get_current_cycle_window(anchor, now)
+
+    cache_key = _usage_cache_key(str(user.id), cycle_start)
 
     cached = await redis_get(cache_key)
     if cached:
@@ -54,7 +76,9 @@ async def get_usage(user: User, db: Session) -> UsageResponse:
         except Exception as exc:
             logger.warning(f"Failed to deserialise usage cache for user {user.id}: {exc}")
 
-    result = await _compute_usage(user, db)
+    result = await _compute_usage(
+        user, db, subscription=subscription, cycle_start=cycle_start, cycle_end=cycle_end
+    )
 
     try:
         payload = result.model_dump(mode="json")
@@ -65,34 +89,38 @@ async def get_usage(user: User, db: Session) -> UsageResponse:
     return result
 
 
-async def _compute_usage(user: User, db: Session) -> UsageResponse:
+async def _compute_usage(
+    user: User,
+    db: Session,
+    *,
+    subscription: Optional[Subscription],
+    cycle_start: datetime,
+    cycle_end: datetime,
+) -> UsageResponse:
+    """Compute usage counters for the current credit cycle.
+
+    Credit-consuming queries filter on `cost_type` + `success=True` over
+    the 30-day cycle window (PRD 6.11) — NOT calendar month. The
+    `applications_this_month` metric is a separate dashboard counter, not
+    a credit, and intentionally stays on calendar-month semantics.
+    """
     now = datetime.now(timezone.utc)
 
-    # AI operations used this calendar month
-    ai_used = (
-        db.query(func.count(UsageLog.id))
-        .filter(
-            UsageLog.user_id == user.id,
-            func.extract("year", UsageLog.created_at) == now.year,
-            func.extract("month", UsageLog.created_at) == now.month,
-        )
-        .scalar()
-        or 0
-    )
+    # usage_log.created_at is stored as naive UTC. Strip tzinfo from cycle
+    # bounds so the comparison stays naive-vs-naive in PostgreSQL — same
+    # convention used in app/dependencies/ai_limit.py.
+    cycle_start_naive = cycle_start.replace(tzinfo=None)
+    cycle_end_naive = cycle_end.replace(tzinfo=None)
 
-    # DASHBOARD-1: split usage by credit type. The literals here match what
-    # the routers actually emit (see app/routers/jobs.py:214 and
-    # app/models/usage_log.py docstring). `generate_cover_letter` is
-    # whitelisted in the model docstring but not yet emitted (CL endpoints
-    # currently return 503) — we count it so this stays correct once Phase
-    # 5.1 lands without needing another schema change.
+    # Per-credit counts in the current cycle.
     resume_credits_used = (
         db.query(func.count(UsageLog.id))
         .filter(
             UsageLog.user_id == user.id,
-            UsageLog.operation_type == "tailor_resume",
-            func.extract("year", UsageLog.created_at) == now.year,
-            func.extract("month", UsageLog.created_at) == now.month,
+            UsageLog.cost_type == _COST_TYPE_RESUME,
+            UsageLog.success.is_(True),
+            UsageLog.created_at >= cycle_start_naive,
+            UsageLog.created_at < cycle_end_naive,
         )
         .scalar()
         or 0
@@ -101,18 +129,31 @@ async def _compute_usage(user: User, db: Session) -> UsageResponse:
         db.query(func.count(UsageLog.id))
         .filter(
             UsageLog.user_id == user.id,
-            UsageLog.operation_type == "generate_cover_letter",
-            func.extract("year", UsageLog.created_at) == now.year,
-            func.extract("month", UsageLog.created_at) == now.month,
+            UsageLog.cost_type == _COST_TYPE_CL,
+            UsageLog.success.is_(True),
+            UsageLog.created_at >= cycle_start_naive,
+            UsageLog.created_at < cycle_end_naive,
         )
         .scalar()
         or 0
     )
 
-    # Load subscription with plan relationship (lazy="joined" handles it automatically)
-    subscription: Optional[Subscription] = (
-        db.query(Subscription).filter(Subscription.user_id == user.id).first()
+    # Merged AI ops counter — kept for backwards compat with consumers
+    # still reading `ai_operations_used`. Same cycle window, but covers
+    # both credit cost types in a single query.
+    ai_used = (
+        db.query(func.count(UsageLog.id))
+        .filter(
+            UsageLog.user_id == user.id,
+            UsageLog.cost_type.in_([_COST_TYPE_RESUME, _COST_TYPE_CL]),
+            UsageLog.success.is_(True),
+            UsageLog.created_at >= cycle_start_naive,
+            UsageLog.created_at < cycle_end_naive,
+        )
+        .scalar()
+        or 0
     )
+
     effective_plan = get_effective_plan(subscription)
 
     # Get limits from plan or use fallback defaults (helpers translate v2
@@ -124,9 +165,6 @@ async def _compute_usage(user: User, db: Session) -> UsageResponse:
     # DASHBOARD-1: per-credit-type limits. The Plan model already stores
     # `resume_credits_per_cycle` and `cl_credits_per_cycle` (NULL = unlimited),
     # so we read directly rather than falling back to the merged ai_limit.
-    # Fallback (no subscription/plan): use the merged ai_limit for both —
-    # acceptable per PRD ("stub returning real values; full quota system in
-    # Phase 5.1").
     if plan is not None:
         resume_credits_limit = (
             -1 if plan.resume_credits_per_cycle is None else plan.resume_credits_per_cycle
@@ -138,7 +176,8 @@ async def _compute_usage(user: User, db: Session) -> UsageResponse:
         resume_credits_limit = ai_limit
         cl_credits_limit = ai_limit
 
-    # Active jobs: applications not in terminal states
+    # Active jobs: applications not in terminal states. NOT cycle-bound —
+    # this is "what's active right now", independent of credit cycles.
     active_jobs_count = (
         db.query(func.count(Job.id))
         .join(Application, Application.job_id == Job.id)
@@ -150,7 +189,10 @@ async def _compute_usage(user: User, db: Session) -> UsageResponse:
         or 0
     )
 
-    # Applications submitted this calendar month
+    # Applications submitted this *calendar month*. Intentionally NOT the
+    # cycle window — this is a separate dashboard metric (PRD does not
+    # cycle-roll application counts), so leave the calendar-month filter
+    # untouched.
     applications_this_month = (
         db.query(func.count(Application.id))
         .join(Job, Job.id == Application.job_id)
@@ -164,7 +206,14 @@ async def _compute_usage(user: User, db: Session) -> UsageResponse:
         or 0
     )
 
-    reset_date = _next_month_reset(now)
+    # Anniversary-based reset: the next reset is the END of the current
+    # cycle window. Returned as timezone-aware UTC.
+    reset_date = cycle_end
+
+    # MONETIZE-7: add days_until_reset (clamped to >=0) and plan_name.
+    delta_days = (cycle_end - now).days
+    days_until_reset = max(delta_days, 0)
+    plan_name: Optional[str] = plan.name if plan is not None else None
 
     # -1 means unlimited → represented as None in EffectiveLimits
     ai_ops_effective = None if ai_limit == -1 else ai_limit
@@ -189,11 +238,37 @@ async def _compute_usage(user: User, db: Session) -> UsageResponse:
         resume_credits_limit=resume_credits_limit,
         cl_credits_used=cl_credits_used,
         cl_credits_limit=cl_credits_limit,
+        days_until_reset=days_until_reset,
+        plan_name=plan_name,
     )
 
 
 async def invalidate_usage_cache(user_id: str) -> None:
-    """Delete the cached usage entry for a user. Call after any AI operation completes."""
-    key = _usage_cache_key(user_id)
+    """Delete the cached usage entry for a user. Call after any AI operation completes.
+
+    The cache key is cycle-scoped (`usage:{user_id}:{cycle_start_iso}`),
+    so we recompute the current cycle window here to target the active
+    key. Stale keys from previous cycles age out via TTL on their own.
+    """
+    from app.database import SessionLocal
+
+    db = SessionLocal()
+    try:
+        user = db.query(User).filter(User.id == user_id).first()
+        if user is None:
+            logger.debug(
+                "Usage cache invalidation skipped — no user %s", user_id
+            )
+            return
+        subscription = (
+            db.query(Subscription).filter(Subscription.user_id == user_id).first()
+        )
+        anchor = get_cycle_anchor(user, subscription)
+        now = datetime.now(timezone.utc)
+        cycle_start, _ = get_current_cycle_window(anchor, now)
+        key = _usage_cache_key(str(user_id), cycle_start)
+    finally:
+        db.close()
+
     await redis_delete(key)
     logger.debug(f"Usage cache invalidated for user {user_id}")
