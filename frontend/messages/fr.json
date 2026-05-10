@@ -1,0 +1,1922 @@
+{
+  "app": {
+    "name": "Light Role",
+    "tagline": "Plateforme de gestion de recherche d'emploi propulsée par l'IA"
+  },
+  "Common": {
+    "actions": {
+      "save": "Enregistrer",
+      "saving": "Enregistrement…",
+      "saveChanges": "Enregistrer les modifications",
+      "cancel": "Annuler",
+      "close": "Fermer",
+      "delete": "Supprimer",
+      "deleting": "Suppression…",
+      "edit": "Modifier",
+      "remove": "Retirer",
+      "add": "Ajouter",
+      "back": "Retour",
+      "next": "Suivant",
+      "continue": "Continuer",
+      "submit": "Envoyer",
+      "confirm": "Confirmer",
+      "tryAgain": "Réessayer",
+      "retry": "Réessayer",
+      "refresh": "Actualiser",
+      "reset": "Réinitialiser",
+      "create": "Créer",
+      "view": "Voir",
+      "viewAll": "Voir tout",
+      "more": "Plus",
+      "open": "Ouvrir",
+      "copy": "Copier",
+      "copied": "Copié",
+      "search": "Rechercher",
+      "clear": "Effacer",
+      "download": "Télécharger",
+      "upload": "Téléverser",
+      "send": "Envoyer",
+      "ok": "OK",
+      "yes": "Oui",
+      "no": "Non",
+      "discard": "Abandonner",
+      "undo": "Annuler",
+      "selectAll": "Tout sélectionner",
+      "loadMore": "Charger plus"
+    },
+    "states": {
+      "loading": "Chargement…",
+      "saving": "Enregistrement…",
+      "deleting": "Suppression…",
+      "uploading": "Téléversement…",
+      "submitting": "Envoi…",
+      "processing": "Traitement…",
+      "empty": "Rien ici pour le moment.",
+      "noResults": "Aucun résultat.",
+      "comingSoon": "Bientôt disponible"
+    },
+    "validation": {
+      "required": "Ce champ est requis.",
+      "invalidEmail": "Veuillez saisir une adresse e-mail valide.",
+      "invalidUrl": "Veuillez saisir une URL valide.",
+      "tooShort": "Doit contenir au moins {min} caractères.",
+      "tooLong": "Doit contenir au plus {max} caractères.",
+      "passwordTooShort": "Le mot de passe doit contenir au moins {min} caractères."
+    },
+    "toast": {
+      "saved": "Modifications enregistrées.",
+      "saveError": "Impossible d'enregistrer vos modifications. Veuillez réessayer.",
+      "saveFailed": "Impossible d'enregistrer. Veuillez réessayer.",
+      "loadError": "Impossible de charger cette page. Veuillez actualiser et réessayer.",
+      "networkError": "Erreur réseau. Veuillez vérifier votre connexion.",
+      "genericError": "Une erreur s'est produite. Veuillez réessayer."
+    },
+    "upgradeCta": {
+      "defaultMessage": "Passez à Pro pour plus d'opérations IA et un nombre illimité d'emplois."
+    },
+    "pagination": {
+      "previous": "Précédent",
+      "next": "Suivant",
+      "page": "Page {page} sur {total}",
+      "rowsPerPage": "Lignes par page",
+      "ofTotal": "{from}–{to} sur {total}"
+    },
+    "table": {
+      "noData": "Aucune donnée disponible.",
+      "selectRow": "Sélectionner la ligne",
+      "selectAll": "Sélectionner toutes les lignes"
+    }
+  },
+  "Errors": {
+    "boundary": {
+      "title": "Une erreur s'est produite",
+      "description": "Une erreur inattendue s'est produite. Nous en avons été informés et nous la corrigerons.",
+      "tryAgain": "Réessayer",
+      "goHome": "Aller à la page d'accueil"
+    },
+    "global": {
+      "title": "Erreur de l'application",
+      "description": "Une erreur s'est produite lors du chargement de la page.",
+      "tryAgain": "Réessayer"
+    },
+    "notFound": {
+      "title": "Page introuvable",
+      "description": "Nous n'avons pas trouvé la page que vous cherchiez.",
+      "goHome": "Retour au tableau de bord",
+      "goLanding": "Retour à la page d'accueil"
+    },
+    "dashboard": {
+      "title": "Impossible de charger cette page",
+      "description": "Une erreur s'est produite lors du chargement de cette page. Réessayez ou actualisez.",
+      "tryAgain": "Réessayer"
+    },
+    "rateLimit": {
+      "title": "Vous avez atteint votre limite d'opérations IA",
+      "description": "Passez à Pro pour 150 opérations mensuelles et un nombre illimité d'emplois actifs.",
+      "upgrade": "Passer à Pro",
+      "later": "Plus tard"
+    },
+    "rateLimitModal": {
+      "title": "Ralentissez — veuillez réessayer plus tard",
+      "body1": "Vous avez envoyé beaucoup de requêtes en peu de temps.",
+      "body2WithTime": "Veuillez réessayer dans {seconds} secondes.",
+      "supportLine": "Si cela persiste, contactez support@lightrole.com.",
+      "gotIt": "Compris"
+    },
+    "upgradeModal": {
+      "title": "Débloquer avec Pro",
+      "description": "Mettez votre forfait à niveau pour utiliser cette fonctionnalité.",
+      "upgrade": "Passer à Pro",
+      "later": "Plus tard",
+      "seePlans": "Voir les forfaits",
+      "resumeCreditsTitle": "Vous avez utilisé tous vos crédits CV ce mois-ci",
+      "resumeCreditsBody": "Passez à Pro pour adapter plus de CV — Pro inclut des adaptations illimitées.",
+      "clCreditsTitle": "Vous avez utilisé tous vos crédits de lettres de motivation ce mois-ci",
+      "clCreditsBody": "Passez à Pro pour des lettres de motivation générées par IA en illimité.",
+      "activeJobsTitle": "Vous avez atteint la limite d'emplois actifs",
+      "activeJobsBody": "Free est limité à quelques emplois actifs. Pro supprime cette limite pour suivre chaque opportunité.",
+      "analyticsTitle": "Les analyses sont une fonctionnalité Pro",
+      "analyticsBody": "Passez à Pro pour débloquer le tableau de bord d'analyses complet — entonnoir, temps de réponse et performance des CV."
+    },
+    "offline": {
+      "title": "Vous êtes hors ligne",
+      "description": "Vérifiez votre connexion Internet et réessayez.",
+      "bannerOffline": "Vous êtes hors ligne. Certaines fonctionnalités sont désactivées.",
+      "backOnline": "Vous êtes de nouveau en ligne."
+    }
+  },
+  "Notifications": {
+    "bell": {
+      "ariaLabel": "Notifications",
+      "title": "Notifications",
+      "empty": "Aucune notification pour le moment.",
+      "markAllRead": "Tout marquer comme lu",
+      "viewAll": "Voir tout",
+      "unreadCountAria": "{count, plural, =0 {Aucune notification non lue} =1 {1 notification non lue} other {# notifications non lues}}"
+    },
+    "timeAgo": {
+      "justNow": "À l'instant",
+      "minutes": "{count, plural, =1 {il y a 1 minute} other {il y a # minutes}}",
+      "hours": "{count, plural, =1 {il y a 1 heure} other {il y a # heures}}",
+      "days": "{count, plural, =1 {il y a 1 jour} other {il y a # jours}}"
+    }
+  },
+  "Auth": {
+    "branding": {
+      "headline": "Gérez votre recherche d'emploi avec l'IA.",
+      "tagline": "Optimisez votre CV pour chaque poste, générez des lettres de motivation adaptées et suivez chaque candidature — le tout au même endroit.",
+      "logoAlt": "Logo LightRole",
+      "testimonialQuote": "Light Role m'a aidé à adapter mon CV pour chaque candidature. Je suis passé de zéro réponse à trois offres en six semaines.",
+      "testimonialName": "Marcus K.",
+      "testimonialTitle": "Ingénieur logiciel",
+      "logoFallback": "Light Role"
+    },
+    "common": {
+      "emailLabel": "E-mail",
+      "emailPlaceholder": "vous@exemple.com",
+      "passwordLabel": "Mot de passe",
+      "passwordPlaceholder": "••••••••",
+      "or": "ou",
+      "continueWithGoogle": "Continuer avec Google",
+      "googleNotConfigured": "Google OAuth n'est pas configuré.",
+      "networkError": "Impossible de se connecter. Vérifiez votre connexion Internet.",
+      "genericError": "Une erreur s'est produite. Veuillez réessayer."
+    },
+    "login": {
+      "metaTitle": "Se connecter",
+      "title": "Se connecter à Light Role",
+      "subtitle": "Bon retour. Saisissez vos informations ci-dessous.",
+      "forgotPassword": "Mot de passe oublié ?",
+      "submit": "Se connecter",
+      "submitting": "Connexion…",
+      "invalidCredentials": "E-mail ou mot de passe invalide.",
+      "noAccount": "Vous n'avez pas de compte ?",
+      "createOne": "Créez-en un"
+    },
+    "register": {
+      "metaTitle": "Créer un compte",
+      "title": "Créez votre compte",
+      "subtitle": "Commencez à gérer votre recherche d'emploi avec l'IA.",
+      "passwordPlaceholder": "Au moins 8 caractères",
+      "submit": "Créer le compte",
+      "submitting": "Création du compte…",
+      "alreadyRegistered": "E-mail déjà enregistré. Essayez plutôt de vous connecter.",
+      "haveAccount": "Vous avez déjà un compte ?",
+      "signIn": "Se connecter",
+      "checkEmail": {
+        "title": "Vérifiez votre e-mail",
+        "description": "Nous avons envoyé un lien de vérification dans votre boîte de réception. Cliquez dessus pour activer votre compte.",
+        "alreadyVerified": "Déjà vérifié ?",
+        "signIn": "Se connecter"
+      }
+    },
+    "forgotPassword": {
+      "metaTitle": "Mot de passe oublié",
+      "title": "Vous avez oublié votre mot de passe ?",
+      "subtitle": "Saisissez votre e-mail et nous vous enverrons un lien pour le réinitialiser.",
+      "submit": "Envoyer le lien de réinitialisation",
+      "submitting": "Envoi…",
+      "backToLogin": "Retour à la connexion",
+      "successTitle": "Vérifiez votre e-mail",
+      "successDescription": "Si un compte existe pour {email}, vous recevrez bientôt un lien de réinitialisation."
+    },
+    "resetPassword": {
+      "metaTitle": "Réinitialiser le mot de passe",
+      "title": "Réinitialisez votre mot de passe",
+      "subtitle": "Choisissez un nouveau mot de passe pour votre compte.",
+      "newPasswordLabel": "Nouveau mot de passe",
+      "confirmPasswordLabel": "Confirmer le mot de passe",
+      "passwordPlaceholder": "Au moins 8 caractères",
+      "submit": "Réinitialiser le mot de passe",
+      "submitting": "Réinitialisation…",
+      "passwordsDoNotMatch": "Les mots de passe ne correspondent pas.",
+      "tokenInvalid": "Ce lien de réinitialisation est invalide ou a expiré.",
+      "invalidLinkTitle": "Lien de réinitialisation invalide",
+      "noTokenBody": "Ce lien de réinitialisation est manquant ou invalide. Demandez-en un nouveau.",
+      "requestResetLink": "Demander un nouveau lien de réinitialisation",
+      "showPassword": "Afficher le mot de passe",
+      "hidePassword": "Masquer le mot de passe",
+      "backToLogin": "Retour à la connexion",
+      "successTitle": "Mot de passe réinitialisé",
+      "successDescription": "Votre mot de passe a été mis à jour. Vous pouvez maintenant vous connecter.",
+      "goToLogin": "Se connecter"
+    },
+    "verifyEmail": {
+      "metaTitle": "Vérifier l'e-mail",
+      "verifyingTitle": "Vérification de votre e-mail…",
+      "verifyingDescription": "Patientez, cela ne prend qu'un instant.",
+      "successTitle": "E-mail vérifié",
+      "successDescription": "Votre e-mail a été vérifié. Vous pouvez maintenant vous connecter.",
+      "goToLogin": "Se connecter",
+      "errorTitle": "Échec de la vérification",
+      "errorDescription": "Ce lien de vérification est invalide ou a expiré.",
+      "tryAgain": "Réessayer",
+      "noTokenTitle": "Lien de vérification manquant",
+      "noTokenDescription": "Cette page nécessite un jeton de vérification. Ouvrez le lien depuis votre e-mail.",
+      "backToRegister": "Retour à l'inscription",
+      "fallbackLoading": "Chargement…"
+    },
+    "googleCallback": {
+      "loadingTitle": "Connexion en cours…",
+      "errorTitle": "Échec de la connexion",
+      "errorDescription": "Nous n'avons pas pu vous connecter avec Google. Veuillez réessayer.",
+      "backToLogin": "Retour à la connexion",
+      "noCode": "La connexion avec Google a été annulée. Veuillez réessayer.",
+      "fallbackLoading": "Chargement…"
+    },
+    "validation": {
+      "invalidEmail": "Veuillez saisir une adresse e-mail valide.",
+      "passwordRequired": "Le mot de passe est requis.",
+      "passwordMin": "Le mot de passe doit contenir au moins 8 caractères.",
+      "confirmPasswordRequired": "Veuillez confirmer votre mot de passe.",
+      "tokenRequired": "Le jeton de réinitialisation est manquant."
+    }
+  },
+  "Marketing": {
+    "metaTitle": "Light Role — Gestion de recherche d'emploi propulsée par l'IA",
+    "metaDescription": "Adaptez chaque CV, générez chaque lettre de motivation et suivez chaque candidature — le tout au même endroit.",
+    "landing": {
+      "title": "Light Role",
+      "tagline": "Plateforme de gestion de recherche d'emploi propulsée par l'IA",
+      "ctaPrimary": "Commencer",
+      "ctaSecondary": "Se connecter"
+    }
+  },
+  "Pricing": {
+    "metaTitle": "Tarifs — Light Role",
+    "metaDescription": "Tarifs simples et transparents. Gratuit pour commencer, mise à niveau quand vous en avez besoin.",
+    "heading": "Tarifs simples et transparents",
+    "subheading": "Commencez gratuitement. Mettez à niveau si nécessaire. Annulez à tout moment.",
+    "mostPopular": "Le plus populaire",
+    "billedAnnually": "Facturé annuellement",
+    "priceFootnote": "Prix dans votre devise locale lorsque disponible. Taxes calculées au paiement.",
+    "loadingCta": "Chargement…",
+    "copy": {
+      "free": "Pour essayer Light Role.",
+      "pro": "Pour les chercheurs d'emploi actifs.",
+      "unlimited": "Pour les utilisateurs avancés qui veulent tout."
+    },
+    "features": {
+      "jobsUnlimited": "Emplois actifs illimités",
+      "jobsLimited": "Jusqu'à {count} emplois actifs",
+      "resumeTailoringsUnlimited": "Adaptations de CV illimitées",
+      "resumeTailoringsLimited": "{count} adaptations de CV / mois",
+      "coverLettersUnlimited": "Lettres de motivation illimitées",
+      "coverLettersLimited": "{count} lettres de motivation / mois",
+      "aiOperationsUnlimited": "Opérations IA illimitées",
+      "aiOperationsLimited": "{count} opérations IA / mois",
+      "templates": "Tous les modèles de CV",
+      "analytics": "Tableau de bord d'analyses",
+      "priorityAi": "Traitement IA prioritaire",
+      "exportPdf": "Export en PDF et DOCX",
+      "support": "Support prioritaire"
+    },
+    "cta": {
+      "getStartedFree": "Commencer — c'est gratuit",
+      "startWithPlan": "Commencer avec {plan}",
+      "yourCurrentPlan": "Votre forfait actuel",
+      "downgrade": "Rétrograder",
+      "upgradeTo": "Passer à {plan}"
+    }
+  },
+  "Sidebar": {
+    "main": {
+      "dashboard": "Tableau de bord",
+      "profile": "Profil",
+      "jobs": "Suivi des emplois",
+      "tailorResume": "Adapter le CV",
+      "generateCoverLetter": "Générer une lettre de motivation",
+      "analytics": "Analyses",
+      "documents": "Documents",
+      "resumes": "CV",
+      "coverLetters": "Lettres de motivation"
+    },
+    "user": {
+      "settings": "Paramètres",
+      "billing": "Facturation",
+      "payments": "Paiements",
+      "upgradePlan": "Mettre à niveau",
+      "upgradeYourPlan": "Mettre à niveau votre forfait",
+      "logout": "Se déconnecter",
+      "loggingOut": "Déconnexion…",
+      "fallbackName": "Compte"
+    },
+    "planBadge": {
+      "free": "Forfait Free",
+      "pro": "Forfait Pro",
+      "unlimited": "Unlimited",
+      "upgrade": "Mettre à niveau",
+      "shortFree": "Free",
+      "shortPro": "Pro",
+      "shortUnlimited": "Unlimited",
+      "freePlan": "Forfait Free",
+      "proPlan": "Forfait Pro",
+      "unlimitedPlan": "Forfait Unlimited",
+      "aria": "Forfait actuel : {label}"
+    },
+    "dashboardHomeAria": "Light Role — Tableau de bord",
+    "documents": {
+      "title": "Documents",
+      "viewAll": "Voir tout"
+    }
+  },
+  "DashboardShell": {
+    "breadcrumb": {
+      "dashboard": "Tableau de bord",
+      "resumes": "CV",
+      "tailorResume": "Adapter le CV",
+      "jobs": "Emplois",
+      "settings": "Paramètres",
+      "applications": "Candidatures",
+      "profile": "Profil",
+      "notifications": "Notifications",
+      "subscriptions": "Mon abonnement",
+      "editResume": "Modifier le CV",
+      "jobDetails": "Détails de l'emploi",
+      "details": "Détails",
+      "ariaLabel": "Fil d'Ariane"
+    },
+    "themeSwitcher": {
+      "ariaLabel": "Changer de thème",
+      "light": "Clair",
+      "dark": "Sombre",
+      "system": "Système"
+    },
+    "header": {
+      "openMenu": "Ouvrir le menu",
+      "closeMenu": "Fermer le menu"
+    }
+  },
+  "DashboardHome": {
+    "metaTitle": "Tableau de bord — Light Role",
+    "greeting": "Bonjour, {name} !",
+    "greetingFallback": "Bon retour !",
+    "summaryLine": "{activeCount, plural, =1 {1 emploi actif} other {# emplois actifs}}, {appCount, plural, =1 {1 candidature} other {# candidatures}} ce mois-ci",
+    "quickActions": {
+      "heading": "Actions rapides",
+      "createJob": {
+        "title": "Créer un emploi",
+        "description": "Suivez une nouvelle candidature en ajoutant une offre d'emploi."
+      },
+      "tailorResume": {
+        "title": "Adapter le CV",
+        "description": "Optimisez votre CV pour un emploi spécifique grâce à l'IA."
+      },
+      "generateCoverLetter": {
+        "title": "Générer une lettre de motivation",
+        "description": "Créez une lettre de motivation personnalisée avec l'aide de l'IA."
+      },
+      "getStarted": "Commencer",
+      "lockedToast": "Ajoutez d'abord un emploi avant {action}.",
+      "lockedActions": {
+        "tailoring": "d'adapter votre CV",
+        "generating": "de générer une lettre de motivation"
+      },
+      "dismiss": "Ignorer"
+    },
+    "stats": {
+      "heading": "Vos statistiques",
+      "remainingThisCycle": "{resumes, plural, =1 {1 CV} other {# CV}}, {coverLetters, plural, =1 {1 lettre de motivation} other {# lettres de motivation}} restants ce cycle",
+      "upgrade": "Mettre à niveau"
+    },
+    "recentActivity": {
+      "heading": "Activité récente",
+      "viewAll": "Voir tout",
+      "emptyTitle": "Aucun emploi pour le moment",
+      "emptyDescription": "Commencez à suivre votre recherche d'emploi en ajoutant votre première offre.",
+      "addFirst": "Ajouter votre premier emploi",
+      "addedJob": "Ajouté {company} — {title}"
+    },
+    "completeSteps": {
+      "heading": "Terminez votre configuration",
+      "subheading": "Quelques étapes rapides pour tirer le meilleur parti de Light Role.",
+      "dismiss": "Ignorer",
+      "progress": "{completed} sur {total} terminés",
+      "stepCreateJob": "Créez votre premier emploi",
+      "stepTailorResume": "Adaptez votre CV",
+      "stepGenerateCl": "Générez une lettre de motivation",
+      "stepCompleteProfile": "Complétez votre profil",
+      "uploadLabel": "Téléversez votre CV",
+      "uploadCompletedHint": "Profil importé.",
+      "uploadPendingHint": "Nous remplirons automatiquement votre profil.",
+      "createLabel": "Créez votre premier emploi",
+      "createCompletedHint": "Emploi suivi.",
+      "createPendingHint": "Ajoutez une offre pour commencer.",
+      "tailorLabel": "Adaptez un CV",
+      "tailorCompletedHint": "CV adapté.",
+      "tailorPendingHint": "Optimisez un CV pour l'un de vos emplois.",
+      "generateLabel": "Générez une lettre de motivation",
+      "generateCompletedHint": "Lettre de motivation générée.",
+      "generatePendingHint": "Rédigez une lettre de motivation en 15 secondes.",
+      "dismissedToast": "Configuration masquée. Vous pouvez la retrouver dans le menu d'aide.",
+      "dismissErrorToast": "Impossible de masquer la configuration. Veuillez réessayer.",
+      "confirmDialog": {
+        "title": "Masquer la liste de configuration ?",
+        "description": "Vous pourrez la réactiver plus tard depuis les paramètres.",
+        "keep": "Garder visible",
+        "hide": "Masquer"
+      }
+    },
+    "statCards": {
+      "aiOperations": "Opérations IA",
+      "activeJobs": "Emplois actifs",
+      "applicationsThisMonth": "Candidatures ce mois-ci",
+      "resumeCredits": "Crédits CV",
+      "clCredits": "Crédits lettres de motivation",
+      "unlimited": "Illimité",
+      "ofLimit": "sur {limit}",
+      "resetsOn": "Réinitialisation {date}",
+      "daysUntilReset": "{count, plural, =0 {Réinitialisation aujourd'hui} =1 {Réinitialisation dans 1 jour} other {Réinitialisation dans # jours}}",
+      "daysSuffix": "jours",
+      "todayLabel": "Aujourd'hui",
+      "activeJobsTooltip": "Emplois actifs dans votre suivi.",
+      "resumeCreditsTooltip": "Adaptations de CV restantes pour ce cycle de facturation.",
+      "clCreditsTooltip": "Générations de lettres de motivation restantes pour ce cycle de facturation.",
+      "daysUntilResetTooltip": "Temps avant la réinitialisation de vos limites mensuelles."
+    },
+    "relativeDate": {
+      "today": "Aujourd'hui",
+      "yesterday": "Hier",
+      "daysAgo": "{count, plural, =1 {il y a 1 jour} other {il y a # jours}}",
+      "weeksAgo": "{count, plural, =1 {il y a 1 semaine} other {il y a # semaines}}",
+      "monthsAgo": "{count, plural, =1 {il y a 1 mois} other {il y a # mois}}"
+    }
+  },
+  "Resumes": {
+    "list": {
+      "metaTitle": "CV — Light Role",
+      "title": "CV",
+      "subtitle": "Vos CV adaptés — un clic pour télécharger ou modifier.",
+      "ctaTailor": "Adapter un nouveau CV",
+      "searchPlaceholder": "Rechercher par nom de fichier, emploi ou entreprise…",
+      "sortLabel": "Trier les CV",
+      "sort": {
+        "newest": "Plus récents",
+        "oldest": "Plus anciens",
+        "recentlyUpdated": "Récemment mis à jour",
+        "highestScore": "Meilleur match",
+        "newestFirst": "Plus récents d'abord",
+        "oldestFirst": "Plus anciens d'abord",
+        "nameAsc": "Nom A–Z",
+        "nameDesc": "Nom Z–A"
+      },
+      "countOne": "1 CV",
+      "countOther": "{count} CV",
+      "countNone": "Aucun CV.",
+      "noMatches": "Aucun CV ne correspond à vos filtres.",
+      "clear": "Effacer les filtres",
+      "empty": {
+        "title": "Aucun CV adapté pour le moment.",
+        "description": "Adaptez votre premier CV à un emploi spécifique en environ 30 secondes.",
+        "cta": "Adapter votre premier CV"
+      },
+      "errorState": {
+        "title": "Impossible de charger les CV",
+        "description": "Une erreur s'est produite lors de la récupération de vos CV. Réessayez ou actualisez la page.",
+        "tryAgain": "Réessayer"
+      },
+      "card": {
+        "openAria": "Ouvrir le CV : {name}",
+        "deleteAria": "Supprimer le CV",
+        "matchScore": "{score} % de correspondance",
+        "noJob": "Aucun emploi associé",
+        "lastUpdated": "Mis à jour {date}",
+        "createdJustNow": "Créé à l'instant",
+        "createdMinutesAgo": "{count, plural, =1 {Créé il y a 1 minute} other {Créé il y a # minutes}}",
+        "createdHoursAgo": "{count, plural, =1 {Créé il y a 1 heure} other {Créé il y a # heures}}",
+        "createdDaysAgo": "{count, plural, =1 {Créé il y a 1 jour} other {Créé il y a # jours}}",
+        "createdAt": "Créé {date}",
+        "tailoredFor": "Adapté pour {title} chez {company}",
+        "tailoredForCompanyOnly": "Adapté pour un poste chez {company}",
+        "tailoredForTitleOnly": "Adapté pour {title}",
+        "tailoredFromProfile": "Adapté à partir de votre profil"
+      },
+      "delete": {
+        "title": "Supprimer ce CV ?",
+        "body": "« {name} » sera définitivement supprimé. Cette action est irréversible.",
+        "bodyHasRating": " Votre note en étoiles sera également supprimée.",
+        "cancel": "Annuler",
+        "confirm": "Supprimer",
+        "successToast": "CV supprimé.",
+        "errorToast": "Échec de la suppression du CV. Veuillez réessayer."
+      },
+      "untitledJob": "Emploi sans titre",
+      "filter": {
+        "jobButton": "Filtrer par emploi",
+        "noJobs": "Aucun emploi à filtrer pour le moment.",
+        "clearSelection": "Effacer la sélection"
+      }
+    },
+    "tailor": {
+      "metaTitle": "Adapter le CV",
+      "title": "Adapter le CV",
+      "subtitle": "L'IA optimise votre CV pour un emploi spécifique en environ 30 secondes.",
+      "backToList": "Retour aux CV",
+      "step1": "Emploi",
+      "step2": "Paramètres",
+      "jobLabel": "Emploi *",
+      "jobPlaceholder": "Sélectionnez un emploi…",
+      "jobsError": "Impossible de charger vos emplois. Actualisez la page ou réessayez.",
+      "submit": "Adapter le CV",
+      "submitting": "Adaptation…",
+      "aiLimitTooltip": "Vous avez atteint votre limite d'opérations IA. Mettez à niveau pour continuer.",
+      "selectJob": "Sélectionner un emploi",
+      "jobHelp": "Choisissez l'emploi pour lequel vous voulez adapter un CV.",
+      "noJobs": {
+        "title": "Aucun emploi pour le moment",
+        "body": "Ajoutez un emploi avant de pouvoir adapter un CV.",
+        "cta": "Ajouter un emploi"
+      },
+      "missingProfile": {
+        "title": "Informations de profil manquantes",
+        "body": "Un CV adapté nécessite au moins une expérience pour fonctionner. Ajoutez au moins une entrée d'emploi ou un projet à votre profil.",
+        "completeCta": "Compléter le profil",
+        "cancel": "Annuler"
+      },
+      "loading": {
+        "phase1": "Analyse du poste",
+        "phase1Sub": "Extraction des incontournables du poste…",
+        "phase2": "Examen de votre parcours",
+        "phase2Sub": "Mise en correspondance de votre expérience avec le poste…",
+        "phase3": "Adaptation de votre CV",
+        "phase3Sub": "Réorganisation et réécriture des points…",
+        "tipHeading": "Le saviez-vous ?",
+        "tips": [
+          "Un CV adapté est remarqué 3 fois plus qu'un CV générique.",
+          "Light Role réécrit vos points pour refléter les mots-clés du poste.",
+          "Même de petits changements de poste peuvent considérablement améliorer votre score de correspondance.",
+          "Maintenez votre profil à jour pour la meilleure adaptation."
+        ],
+        "creditHint": "Patientez — nous utilisons l'un de vos crédits pour adapter ce CV.",
+        "failed": "Une erreur s'est produite.",
+        "retry": "Réessayer",
+        "progressAria": "Progression de l'adaptation",
+        "phaseAria": "Phase {step} sur {total} : {label}",
+        "phaseState": {
+          "active": "Actif",
+          "completed": "Terminé",
+          "failed": "Échoué",
+          "pending": "En attente"
+        }
+      },
+      "toast": {
+        "success": "CV adapté.",
+        "aiFail": "L'IA n'a pas pu adapter pour le moment — veuillez réessayer. Aucun crédit n'a été facturé.",
+        "networkFail": "Une erreur s'est produite. Veuillez réessayer.",
+        "profileNotReady": "Votre profil n'est pas suffisamment complet pour adapter un CV.",
+        "jobNotFound": "Emploi introuvable.",
+        "alreadyExists": "Un CV adapté existe déjà pour cet emploi."
+      }
+    },
+    "editor": {
+      "metaTitle": "Modifier le CV",
+      "backToList": "Retour aux CV",
+      "edit": "Modifier",
+      "exitEdit": "Quitter le mode édition",
+      "preview": "Aperçu",
+      "download": "Télécharger en PDF",
+      "downloading": "Préparation du PDF…",
+      "downloadError": "Impossible de générer le PDF. Veuillez réessayer.",
+      "downloadSuccess": "CV téléchargé.",
+      "saveBeforeDownload": "Enregistrez vos modifications avant de télécharger.",
+      "filenameLabel": "Nom du fichier",
+      "filenamePlaceholder": "CV sans titre",
+      "renameSuccessToast": "Nom du fichier mis à jour.",
+      "renameErrorToast": "Impossible de mettre à jour le nom du fichier. Veuillez réessayer.",
+      "renameNotImplemented": "Le renommage n'est pas encore disponible.",
+      "saveNameAria": "Enregistrer le nom du fichier",
+      "cancelRenameAria": "Annuler le renommage",
+      "renameAria": "Renommer le fichier",
+      "fontLabel": "Police",
+      "saveButton": "Enregistrer",
+      "savedAt": "Enregistré {time}",
+      "unsavedChanges": "Modifications non enregistrées",
+      "saving": "Enregistrement…",
+      "toolbarAria": "Barre d'outils d'édition du CV",
+      "invalidFieldsTooltip": "Corrigez les champs surlignés avant d'enregistrer.",
+      "noChangesTooltip": "Aucune modification à enregistrer.",
+      "insightsAside": "Insights et détails de correspondance",
+      "tailoredFromProfileSubtitle": "Adapté à partir de votre profil",
+      "notFoundTitle": "CV introuvable",
+      "notFoundDescription": "Nous n'avons pas trouvé ce CV. Il a peut-être été supprimé.",
+      "discardDialog": {
+        "title": "Abandonner les modifications ?",
+        "body": "Vous avez des modifications non enregistrées. Les abandonner ?",
+        "cancel": "Annuler",
+        "stay": "Rester",
+        "discard": "Abandonner"
+      },
+      "reorderDialog": {
+        "title": "Réorganiser les sections",
+        "body": "Glissez les sections pour modifier l'ordre dans lequel elles apparaissent sur le CV.",
+        "save": "Enregistrer l'ordre",
+        "cancel": "Annuler",
+        "dragHandleAria": "Glisser pour réorganiser la section",
+        "entryCountFilledLabel": "{count, plural, =0 {vide} =1 {1 entrée} other {# entrées}}",
+        "entryCountOneEntry": "1 entrée",
+        "entryCountOtherEntries": "{count} entrées"
+      },
+      "appliedChanges": {
+        "title": "Modifications appliquées",
+        "description": "Ce que l'IA a modifié lors de l'adaptation de ce CV.",
+        "empty": "Aucune modification enregistrée pour ce CV.",
+        "categoryReorder": "Réorganisation",
+        "categoryRewrite": "Réécriture",
+        "categoryAddition": "Ajouts",
+        "categoryRemoval": "Suppressions"
+      },
+      "insightsPanel": {
+        "title": "Insights du CV",
+        "shortTitle": "Insights",
+        "matchScore": "Score de correspondance",
+        "matchScoreDescription": "Dans quelle mesure ce CV correspond à la description de poste.",
+        "matchedKeywords": "Mots-clés correspondants",
+        "missingKeywords": "Mots-clés manquants",
+        "noKeywords": "Aucune donnée de mots-clés disponible.",
+        "noKeywordsMatched": "Aucun mot-clé ne correspond pour le moment.",
+        "noOccurrences": "Aucune occurrence dans le CV pour le moment.",
+        "scrollToOccurrence": "Faire défiler jusqu'à l'occurrence de « {keyword} »",
+        "readOnlyEditTooltip": "Passez en mode édition pour utiliser ceci."
+      },
+      "rating": {
+        "label": "Score de correspondance",
+        "starsAria": "{score} étoiles sur 5",
+        "scoreOutOf": "{score}/100",
+        "cardTitle": "Comment s'est passée cette adaptation ?",
+        "cardDescription": "Votre note nous aide à nous améliorer.",
+        "dismissAria": "Ignorer la carte de notation",
+        "thanksToast": "Merci pour vos commentaires !",
+        "submitError": "Impossible d'envoyer votre note. Veuillez réessayer.",
+        "commentLabel": "Commentaire (facultatif)",
+        "commentPlaceholder": "Qu'est-ce qui a bien fonctionné ? Qu'est-ce qui pourrait être amélioré ?",
+        "submitting": "Envoi…",
+        "submit": "Envoyer",
+        "groupAria": "Noter cette adaptation"
+      },
+      "preview": {
+        "loading": "Chargement de l'aperçu…",
+        "error": "Impossible d'afficher l'aperçu.",
+        "retry": "Réessayer"
+      },
+      "section": {
+        "addEntry": "Ajouter une entrée",
+        "removeEntry": "Retirer l'entrée",
+        "moveUp": "Monter",
+        "moveDown": "Descendre",
+        "delete": "Supprimer",
+        "edit": "Modifier",
+        "saveEntry": "Enregistrer",
+        "cancelEntry": "Annuler",
+        "emptyDefault": "Aucune entrée pour le moment.",
+        "dragEntryAria": "Glisser {label} pour réorganiser",
+        "removeEntryAria": "Retirer {label}",
+        "employmentEntryLabel": "Poste",
+        "educationEntryLabel": "Formation",
+        "projectEntryLabel": "Projet",
+        "achievementEntryLabel": "Réussite",
+        "certificateEntryLabel": "Certificat",
+        "volunteerEntryLabel": "Rôle bénévole",
+        "bulletPlaceholder": "Ajoutez un point sur ce poste…",
+        "projectBulletPlaceholder": "Ajoutez un point sur ce projet…",
+        "describeProjectPlaceholder": "Décrivez brièvement le projet…",
+        "summaryPlaceholder": "Un court paragraphe qui vous présente.",
+        "addSkillPlaceholder": "Ajouter une compétence",
+        "addLanguagePlaceholder": "Ajouter une langue",
+        "addTechnologyPlaceholder": "Ajouter une technologie",
+        "liveUrlPlaceholder": "https://…",
+        "repositoryPlaceholder": "https://github.com/…",
+        "credentialUrlPlaceholder": "https://…",
+        "expiresPrefix": "Expire",
+        "educationDetailsPlaceholder": "Mentions, cours, moyenne…",
+        "emailExamplePlaceholder": "vous@exemple.com",
+        "platformExamplePlaceholder": "LinkedIn, GitHub, Portfolio…",
+        "dragLink": "Glisser le lien",
+        "removeLink": "Retirer le lien",
+        "startShort": "Début",
+        "endShort": "Fin"
+      },
+      "fields": {
+        "monthPlaceholder": "MM/AAAA",
+        "addChip": "Ajouter",
+        "removeChip": "Retirer",
+        "richtextPlaceholder": "Commencez à taper…",
+        "chipPlaceholder": "Tapez et appuyez sur Entrée",
+        "dragChipAria": "Glisser {label}",
+        "removeChipAria": "Retirer {label}",
+        "monthSelectPlaceholder": "Sélectionner une date",
+        "pickMonthYearAria": "Choisir le mois et l'année",
+        "yearLabel": "Année",
+        "monthLabel": "Mois",
+        "doneButton": "Terminé",
+        "formatToolbarAria": "Barre d'outils de mise en forme",
+        "formatBold": "Gras",
+        "formatItalic": "Italique",
+        "formatBulletList": "Liste à puces",
+        "formatClear": "Effacer la mise en forme"
+      }
+    },
+    "sectionTitles": {
+      "personalInfo": "Informations personnelles",
+      "summary": "Résumé",
+      "skills": "Compétences",
+      "employment": "Expérience",
+      "education": "Formation",
+      "languages": "Langues",
+      "certificates": "Certificats",
+      "projects": "Projets",
+      "achievements": "Réussites",
+      "volunteer": "Bénévolat"
+    }
+  },
+  "Jobs": {
+    "list": {
+      "metaTitle": "Emplois — Light Role",
+      "title": "Emplois",
+      "heading": "Suivi des emplois",
+      "addJob": "Ajouter un emploi",
+      "searchPlaceholder": "Rechercher par entreprise…",
+      "clearSearchAria": "Effacer la recherche",
+      "clearFilters": "Effacer les filtres",
+      "clearSelection": "Effacer la sélection",
+      "statusFilterLabel": "Statut",
+      "resultCount": "{count, plural, =1 {# emploi} other {# emplois}}",
+      "dismiss": "Ignorer",
+      "dropJobsHere": "Déposez les emplois ici",
+      "dropHere": "Déposer ici",
+      "openJobMenuAria": "Ouvrir le menu de l'emploi",
+      "expandSectionAria": "Développer la section {label}",
+      "collapseSectionAria": "Réduire la section {label}",
+      "kanbanViewAria": "Vue Kanban",
+      "tableViewAria": "Vue Tableau",
+      "hideEmpty": "Masquer les vides",
+      "showEmpty": "Afficher les vides",
+      "hideEmptySectionsAria": "Masquer les sections vides",
+      "showEmptySectionsAria": "Afficher les sections vides",
+      "statusUpdateFailed": "Échec de la mise à jour du statut de l'emploi. Veuillez réessayer.",
+      "emptyFiltered": "Aucun emploi ne correspond à vos filtres.",
+      "emptyTableRow": "Aucun emploi pour le moment. Ajoutez votre premier emploi pour commencer.",
+      "empty": {
+        "title": "Aucun emploi pour le moment",
+        "description": "Suivez votre premier emploi — collez une offre et nous nous occuperons de l'analyse.",
+        "cta": "Ajouter votre premier emploi"
+      },
+      "columns": {
+        "title": "Titre",
+        "company": "Entreprise",
+        "location": "Lieu",
+        "salary": "Salaire",
+        "status": "Statut",
+        "dateSaved": "Date d'enregistrement",
+        "dateApplied": "Date de candidature",
+        "deadline": "Échéance",
+        "followUp": "Relance",
+        "excitement": "Enthousiasme",
+        "actions": "Actions"
+      },
+      "dnd": {
+        "pickedUp": "Emploi {id} saisi.",
+        "overTarget": "L'emploi {id} survole la zone {overId}.",
+        "leftDroppable": "L'emploi {id} ne survole plus de zone de dépôt.",
+        "droppedOver": "L'emploi {id} a été déposé sur la zone {overId}.",
+        "dropped": "L'emploi {id} a été déposé.",
+        "cancelled": "Le glissement de l'emploi {id} a été annulé."
+      }
+    },
+    "new": {
+      "metaTitle": "Nouvel emploi",
+      "title": "Ajouter un emploi",
+      "subtitle": "Collez une offre d'emploi et nous extrairons les détails clés pour vous.",
+      "backToJobs": "Retour aux emplois",
+      "pasteLabel": "Coller la description du poste",
+      "pastePlaceholder": "Collez la description complète du poste ici…",
+      "parseButton": "Analyser avec l'IA",
+      "parsing": "Analyse…",
+      "manualButton": "Saisir manuellement",
+      "titleLabel": "Titre",
+      "titlePlaceholder": "Ingénieur logiciel senior",
+      "companyLabel": "Entreprise",
+      "companyPlaceholder": "Acme Inc.",
+      "locationLabel": "Lieu",
+      "locationPlaceholder": "Télétravail · Berlin · Hybride",
+      "urlLabel": "URL de l'offre",
+      "descriptionLabel": "Description",
+      "descriptionPlaceholder": "Collez ou rédigez la description complète du poste…",
+      "salaryLabel": "Fourchette de salaire",
+      "salaryPlaceholder": "120 k€–150 k€",
+      "requirementsLabel": "Exigences",
+      "requirementsHint": "Une par ligne. Utilisé par l'IA pour adapter les CV.",
+      "requirementsPlaceholder": "5+ ans de Python\nExpérience avec les systèmes distribués",
+      "saveButton": "Enregistrer l'emploi",
+      "saving": "Enregistrement…",
+      "successToast": "Emploi créé.",
+      "errorToast": "Impossible de créer l'emploi. Veuillez réessayer.",
+      "parseErrorToast": "L'IA n'a pas pu analyser cet emploi — veuillez remplir les champs manuellement.",
+      "aiLimitTooltip": "Vous avez atteint votre limite d'opérations IA. Mettez à niveau pour continuer.",
+      "modeAi": "Utiliser l'IA",
+      "modeManual": "Saisie manuelle",
+      "reviewHint": "Vérifiez les détails analysés avant d'enregistrer.",
+      "startOver": "Recommencer",
+      "confirmAndSave": "Confirmer et enregistrer",
+      "invalidFieldsError": "Veuillez remplir les champs requis.",
+      "parsingMessages": [
+        "Lecture de l'offre…",
+        "Extraction du poste et de l'entreprise…",
+        "Extraction des exigences…",
+        "Presque terminé…"
+      ]
+    },
+    "details": {
+      "metaTitle": "Détails de l'emploi",
+      "backToJobs": "Retour aux emplois",
+      "notFound": "Emploi introuvable",
+      "notFoundDescription": "Nous n'avons pas trouvé cet emploi. Il a peut-être été supprimé.",
+      "loadError": "Impossible de charger cet emploi. Veuillez réessayer.",
+      "titlePlaceholder": "Poste sans titre",
+      "tabs": {
+        "overview": "Vue d'ensemble",
+        "application": "Candidature",
+        "documents": "Documents"
+      },
+      "overview": {
+        "jobDetails": "Détails de l'emploi",
+        "company": "Entreprise",
+        "location": "Lieu",
+        "locationPlaceholder": "Ajouter un lieu",
+        "url": "URL de l'offre",
+        "salary": "Salaire",
+        "salaryPlaceholder": "Ajouter une fourchette de salaire",
+        "description": "Description",
+        "descriptionPlaceholder": "Ajouter une description",
+        "requirements": "Exigences",
+        "createdAt": "Ajouté {date}"
+      },
+      "application": {
+        "heading": "Candidature",
+        "status": "Statut",
+        "dateApplied": "Date de candidature",
+        "followUpDate": "Relance",
+        "deadline": "Échéance",
+        "excitement": "Enthousiasme",
+        "notes": "Notes",
+        "notesPlaceholder": "Tout ce que vous voulez retenir sur ce poste…",
+        "saveButton": "Enregistrer",
+        "saving": "Enregistrement…",
+        "savedToast": "Candidature mise à jour.",
+        "saveError": "Impossible de mettre à jour la candidature. Veuillez réessayer."
+      },
+      "documents": {
+        "resumeTitle": "CV adapté",
+        "resumeShort": "CV",
+        "coverLetterTitle": "Lettre de motivation",
+        "coverLetterShort": "Lettre de motivation",
+        "noResume": "Aucun CV adapté pour le moment.",
+        "tailorCta": "Adapter le CV",
+        "noCoverLetter": "Aucune lettre de motivation pour le moment.",
+        "generateCta": "Générer une lettre de motivation"
+      },
+      "delete": {
+        "title": "Supprimer cet emploi ?",
+        "body": "« {title} » sera définitivement supprimé ainsi que ses données de candidature. Les CV et lettres de motivation associés restent dans votre bibliothèque.",
+        "cancel": "Annuler",
+        "confirm": "Supprimer",
+        "successToast": "Emploi supprimé.",
+        "errorToast": "Impossible de supprimer l'emploi. Veuillez réessayer."
+      }
+    },
+    "contextMenu": {
+      "view": "Voir l'emploi",
+      "edit": "Modifier",
+      "tailorResume": "Adapter le CV",
+      "generateCoverLetter": "Générer une lettre de motivation",
+      "viewResume": "Voir le CV adapté",
+      "viewCoverLetter": "Voir la lettre de motivation",
+      "delete": "Supprimer"
+    },
+    "status": {
+      "saved": "Enregistré",
+      "applied": "Candidaté",
+      "screening": "Présélection",
+      "interview": "Entretien",
+      "offer": "Offre",
+      "rejected": "Refusé",
+      "accepted": "Accepté",
+      "withdrawn": "Retiré"
+    }
+  },
+  "CoverLetters": {
+    "details": {
+      "metaTitle": "Lettre de motivation",
+      "backToList": "Retour aux lettres de motivation",
+      "edit": "Modifier",
+      "save": "Enregistrer",
+      "saving": "Enregistrement…",
+      "savedToast": "Lettre de motivation enregistrée.",
+      "saveError": "Impossible d'enregistrer vos modifications. Veuillez réessayer.",
+      "downloadPdf": "Télécharger en PDF",
+      "downloadDocx": "Télécharger en DOCX",
+      "downloadError": "Impossible de générer le fichier. Veuillez réessayer.",
+      "regenerate": "Régénérer",
+      "regenerateConfirmTitle": "Régénérer cette lettre de motivation ?",
+      "regenerateConfirmBody": "Cela remplacera le texte actuel. Un crédit IA sera utilisé.",
+      "regenerateCancel": "Annuler",
+      "regenerateConfirm": "Régénérer",
+      "linkedJob": "Emploi associé",
+      "noLinkedJob": "Lettre de motivation autonome",
+      "viewJob": "Voir l'emploi",
+      "untitled": "Lettre de motivation sans titre",
+      "nameLabel": "Nom",
+      "namePlaceholder": "Lettre de motivation pour…",
+      "contentLabel": "Contenu",
+      "contentPlaceholder": "Rédigez ou collez votre lettre de motivation…",
+      "contentPreviewPlaceholder": "Votre lettre de motivation apparaîtra ici.",
+      "settingsAriaLabel": "Paramètres de la lettre de motivation",
+      "styleLabel": "Style",
+      "toneLabel": "Ton",
+      "lengthLabel": "Longueur",
+      "previewTab": "Aperçu",
+      "previewLabel": "Aperçu",
+      "livePreviewLabel": "Aperçu en direct",
+      "autosaveHint": "Enregistrement automatique.",
+      "notFoundTitle": "Lettre de motivation introuvable",
+      "notFoundBody": "Nous n'avons pas trouvé cette lettre de motivation. Elle a peut-être été supprimée.",
+      "loadErrorTitle": "Impossible de charger cette lettre de motivation",
+      "loadErrorBody": "Réessayez ou actualisez la page."
+    },
+    "generatePage": {
+      "metaTitle": "Générer une lettre de motivation"
+    }
+  },
+  "Subscriptions": {
+    "page": {
+      "metaTitle": "Mon abonnement",
+      "title": "Mon abonnement",
+      "subtitle": "Gérez votre forfait, votre facturation et votre moyen de paiement.",
+      "backToDashboard": "Retour au tableau de bord"
+    },
+    "header": {
+      "currentPlan": "Forfait actuel",
+      "free": "Free",
+      "pro": "Pro",
+      "monthly": "Mensuel",
+      "annual": "Annuel",
+      "upgrade": "Mettre à niveau",
+      "manage": "Gérer l'abonnement",
+      "cancel": "Annuler l'abonnement",
+      "renew": "Renouveler l'abonnement",
+      "resume": "Reprendre l'abonnement",
+      "startedOn": "Commencé le {date}",
+      "planSuffix": "Forfait {name}",
+      "planImageAlt": "Forfait {name}",
+      "changePlan": "Changer de forfait",
+      "cancelScheduledToast": "Annulation programmée.",
+      "cancelConfirmTitle": "Annuler votre abonnement ?",
+      "cancelConfirmBody": "Votre accès Pro continue jusqu'à la fin de la période de facturation en cours. Après cela, vous serez basculé vers le forfait Free."
+    },
+    "details": {
+      "status": "Statut",
+      "active": "Actif",
+      "trialing": "Période d'essai",
+      "pastDue": "En retard de paiement",
+      "canceled": "Annulé",
+      "paused": "En pause",
+      "nextBilling": "Prochaine date de facturation",
+      "renewsOn": "Se renouvelle le {date}",
+      "endsOn": "Se termine le {date}",
+      "currentPeriod": "Période en cours",
+      "billingCycle": "Cycle de facturation"
+    },
+    "alerts": {
+      "pastDueTitle": "Votre dernier paiement a échoué",
+      "pastDueBody": "Mettez à jour votre moyen de paiement pour conserver votre accès Pro.",
+      "canceledTitle": "Abonnement annulé",
+      "canceledBody": "Votre accès Pro se termine le {date}. Renouvelez pour conserver vos avantages.",
+      "canceledOnAt": "Annulé le {date}",
+      "pausedTitle": "Abonnement en pause",
+      "pausedBody": "Reprenez votre abonnement pour retrouver les fonctionnalités Pro."
+    },
+    "paymentMethod": {
+      "title": "Moyen de paiement",
+      "cardEndsIn": "Carte se terminant par {last4}",
+      "expires": "Expire {month}/{year}",
+      "update": "Mettre à jour",
+      "noMethod": "Aucun moyen de paiement enregistré."
+    },
+    "lineItems": {
+      "title": "Détails du forfait",
+      "billed": "Facturé",
+      "amount": "Montant",
+      "tax": "Taxe",
+      "total": "Total",
+      "totalIncTax": "Total (taxes incluses)",
+      "freePlanDetails": "Forfait Free",
+      "freePlanLabel": "Free",
+      "freePlanTagline": "Gratuit pour toujours",
+      "noRecurringCharges": "Aucun frais récurrent.",
+      "recurringProductsTitle": "Articles récurrents",
+      "qty": "Qté {count}",
+      "excludingTaxNote": "Prix affichés hors taxes."
+    },
+    "nextPayment": {
+      "title": "Prochain paiement",
+      "amount": "Montant",
+      "date": "Date",
+      "noPending": "Aucun paiement à venir programmé.",
+      "dueLabel": "Dû le {date}"
+    },
+    "pastPayments": {
+      "title": "Paiements passés",
+      "cardTitle": "Paiements",
+      "empty": "Aucun paiement pour le moment.",
+      "viewInvoice": "Voir la facture",
+      "downloadInvoice": "Télécharger la facture",
+      "amount": "Montant",
+      "date": "Date",
+      "status": "Statut",
+      "noPaymentsTitle": "Aucun paiement pour le moment",
+      "noPaymentsBody": "Vos factures apparaîtront ici une fois la mise à niveau effectuée.",
+      "noHistoryBody": "Aucun historique de paiement disponible."
+    },
+    "errorBoundary": {
+      "title": "Impossible de charger votre abonnement",
+      "description": "Une erreur s'est produite lors de la récupération de votre abonnement. Réessayez ou actualisez la page.",
+      "tryAgain": "Réessayer"
+    }
+  },
+  "Checkout": {
+    "metaTitle": "Paiement",
+    "title": "Paiement",
+    "subtitle": "Finalisez votre abonnement.",
+    "backToUpgrade": "Retour à la mise à niveau",
+    "backToDashboard": "Retour au tableau de bord",
+    "orderSummary": "Récapitulatif de la commande",
+    "paymentDetails": "Détails du paiement",
+    "thenRecurring": "Puis {price} {cycle}",
+    "loading": "Préparation du paiement…",
+    "error": {
+      "title": "Impossible de charger le paiement",
+      "description": "Une erreur s'est produite lors de la préparation de votre paiement. Veuillez réessayer.",
+      "tryAgain": "Réessayer",
+      "back": "Retour aux forfaits"
+    },
+    "billingToggle": {
+      "monthly": "Mensuel",
+      "annual": "Annuel",
+      "save": "Économisez {percent} %"
+    },
+    "lineItems": {
+      "subtotal": "Sous-total",
+      "tax": "Taxe",
+      "discount": "Remise",
+      "total": "Total",
+      "dueToday": "Dû aujourd'hui",
+      "includingTax": "Taxes incluses"
+    },
+    "priceSection": {
+      "billedAs": "Facturé {cycle}",
+      "perMonth": "par mois",
+      "perYear": "par an",
+      "monthlyEquivalent": "≈ {price} / mois"
+    },
+    "success": {
+      "title": "Bienvenue dans Pro !",
+      "description": "Votre abonnement est actif. Mettons-le à profit.",
+      "goToDashboard": "Aller au tableau de bord",
+      "manageSubscription": "Gérer l'abonnement",
+      "processing": "Confirmation de votre paiement…",
+      "timeoutTitle": "Confirmation en cours…",
+      "timeoutDescription": "Cela prend plus de temps que prévu. Votre paiement est en cours de traitement — actualisez dans un instant.",
+      "transactionId": "ID de transaction",
+      "planLabel": "Forfait",
+      "nextBilling": "Prochaine date de facturation",
+      "confirmationEmailHint": "Un e-mail de confirmation est en route."
+    },
+    "failure": {
+      "title": "Échec du paiement",
+      "description": "Nous n'avons pas pu traiter votre paiement. Aucun montant n'a été débité.",
+      "tryAgain": "Réessayer",
+      "backToPlans": "Retour aux forfaits",
+      "commonReasonsHeading": "Raisons courantes",
+      "commonReasons": [
+        "La carte a été refusée par votre banque.",
+        "Fonds insuffisants sur la carte.",
+        "Détails de carte erronés ou carte expirée.",
+        "Erreur réseau durant le paiement."
+      ],
+      "contactSupport": "Si cela persiste, contactez support@lightrole.com."
+    }
+  },
+  "Payments": {
+    "metaTitle": "Paiements — Light Role",
+    "title": "Paiements",
+    "subtitle": "Votre historique de facturation et vos factures.",
+    "table": {
+      "date": "Date",
+      "description": "Description",
+      "amount": "Montant",
+      "status": "Statut",
+      "invoice": "Facture",
+      "actions": "Actions"
+    },
+    "status": {
+      "paid": "Payé",
+      "pending": "En attente",
+      "failed": "Échoué",
+      "refunded": "Remboursé"
+    },
+    "actions": {
+      "download": "Télécharger",
+      "view": "Voir"
+    },
+    "empty": {
+      "title": "Aucun paiement pour le moment",
+      "description": "Une fois la mise à niveau effectuée, vos factures s'afficheront ici."
+    },
+    "filter": {
+      "search": "Rechercher des paiements…",
+      "all": "Tous les statuts",
+      "noResults": "Aucun paiement ne correspond à vos filtres."
+    }
+  },
+  "upgrade": {
+    "hero": {
+      "eyebrow": "Passez à Pro",
+      "headline": "Libérez toute la puissance de votre recherche d'emploi",
+      "subheadline": "Adaptez chaque CV, générez chaque lettre de motivation et suivez un nombre illimité d'opportunités - le tout au même endroit.",
+      "trust": "Annulez à tout moment · Paiement sécurisé via Paddle"
+    },
+    "toggle": {
+      "monthly": "Mensuel",
+      "annual": "Annuel",
+      "save": "Économisez {percent} %"
+    },
+    "cards": {
+      "free": {
+        "title": "Free",
+        "description": "Votre forfait actuel",
+        "price": "0 €",
+        "billedAs": "Gratuit pour toujours",
+        "currentPlanBadge": "Forfait actuel"
+      },
+      "monthly": {
+        "title": "Pro Mensuel",
+        "description": "Mois par mois flexible. Annulez à tout moment.",
+        "billedAs": "Facturé mensuellement",
+        "cta": "Commencer"
+      },
+      "annual": {
+        "title": "Pro Annuel",
+        "description": "Meilleur rapport qualité-prix. Payez une fois, économisez beaucoup.",
+        "billedAs": "Facturé annuellement",
+        "cta": "Commencer",
+        "savingsBadge": "Économisez {percent} %",
+        "monthlyEquivalent": " {price} / mois"
+      },
+      "unlimited": {
+        "title": "Unlimited",
+        "description": "Utilisateurs avancés — tout, sans limite.",
+        "billedAs": "Facturé mensuellement",
+        "cta": "Commencer"
+      },
+      "downgradeToFree": "Rétrograder vers Free",
+      "downgradeTo": "Rétrograder vers {title}",
+      "upgradeTo": "Passer à {title}",
+      "features": {
+        "title": "Tout ce qui est inclus dans Pro :",
+        "list": [
+          "150 opérations IA par mois (contre 10 sur Free)",
+          "Emplois actifs illimités dans votre suivi",
+          "CV adaptés par IA pour chaque candidature",
+          "Lettres de motivation générées par IA avec plusieurs variantes",
+          "Analyse intelligente des descriptions de poste — collez et c'est parti",
+          "Tous les modèles de CV débloqués",
+          "Tableau de bord d'analyses pour suivre votre progression",
+          "Génération IA prioritaire",
+          "Annulez à tout moment — sans poser de question"
+        ]
+      }
+    },
+    "features": {
+      "unlimitedJobs": "Emplois actifs illimités",
+      "jobsLimited": "Jusqu'à {count} emplois actifs",
+      "unlimitedResumes": "CV adaptés illimités",
+      "resumesLimited": "{count} CV adaptés / mois",
+      "unlimitedCoverLetters": "Lettres de motivation illimitées",
+      "coverLettersLimited": "{count} lettres de motivation / mois",
+      "templates": "Tous les modèles de CV",
+      "analytics": "Tableau de bord d'analyses",
+      "priorityAi": "Traitement IA prioritaire",
+      "support": "Support prioritaire"
+    },
+    "comparison": {
+      "title": "Free vs Pro en un coup d'œil",
+      "colFeature": "Fonctionnalité",
+      "colFree": "Free",
+      "colPro": "Pro"
+    },
+    "trust": {
+      "title": "Pourquoi les chercheurs d'emploi choisissent Pro",
+      "items": {
+        "cancel": {
+          "title": "Annulez à tout moment",
+          "description": "Aucun engagement. Annulez votre abonnement instantanément depuis votre tableau de bord, sans poser de question."
+        },
+        "refresh": {
+          "title": "Limites réinitialisées chaque mois",
+          "description": "Votre quota d'opérations IA se renouvelle à chaque cycle de facturation pour que vous ayez toujours la capacité dont vous avez besoin."
+        },
+        "global": {
+          "title": "Fonctionne partout",
+          "description": "Light Role prend en charge plusieurs langues et devises pour que votre recherche d'emploi n'ait pas de frontières."
+        }
+      }
+    },
+    "faq": {
+      "title": "Questions fréquentes",
+      "items": {
+        "cancel": {
+          "q": "Puis-je annuler à tout moment ?",
+          "a": "Oui. Vous pouvez annuler votre abonnement à tout moment depuis la page des paramètres de facturation. Votre accès Pro continue jusqu'à la fin de la période de facturation en cours."
+        },
+        "difference": {
+          "q": "Quelle est la différence entre Free et Pro ?",
+          "a": "Le forfait Free vous donne 10 opérations IA par mois et jusqu'à 5 emplois actifs. Pro débloque 150 opérations IA, des emplois actifs illimités, tous les modèles de CV, les analyses et un traitement IA prioritaire."
+        },
+        "payment": {
+          "q": "Comment le paiement est-il traité ?",
+          "a": "Les paiements sont gérés en toute sécurité par Paddle, un Merchant of Record de confiance. Les détails de votre carte ne sont jamais stockés sur nos serveurs."
+        },
+        "switch": {
+          "q": "Puis-je passer du mensuel à l'annuel ?",
+          "a": "Oui. Vous pouvez changer de cycle de facturation depuis la page des paramètres de facturation à tout moment. Les changements prennent effet au début de votre prochaine période de facturation."
+        },
+        "refund": {
+          "q": "Y a-t-il une politique de remboursement ?",
+          "a": "Nous offrons une garantie de remboursement de 14 jours sur les forfaits annuels. Pour les forfaits mensuels, vous pouvez annuler avant le prochain renouvellement pour éviter d'être de nouveau facturé."
+        }
+      }
+    },
+    "footer": {
+      "headline": "Prêt à décrocher votre prochain poste plus rapidement ?",
+      "back": "Retour au tableau de bord"
+    },
+    "errors": {
+      "plansLoadFailed": "Impossible de charger les forfaits. Veuillez réessayer.",
+      "retry": "Réessayer",
+      "pricesFallback": "Affichage des prix par défaut. Devise locale indisponible."
+    }
+  },
+  "sidebar": {
+    "feedback": "Envoyer un commentaire",
+    "support": "Contacter le support"
+  },
+  "feedback": {
+    "dialog": {
+      "title": "Envoyer un commentaire",
+      "description": "Aidez-nous à améliorer Light Role. Partagez bugs, idées ou tout ce qui vous passe par la tête.",
+      "type": {
+        "label": "Type",
+        "bug": "Bug",
+        "feature_request": "Demande de fonctionnalité",
+        "improvement": "Amélioration",
+        "other": "Autre"
+      },
+      "message": {
+        "label": "Message",
+        "placeholder": "Dites-nous ce que vous avez en tête..."
+      },
+      "submit": "Envoyer",
+      "cancel": "Annuler"
+    },
+    "toast": {
+      "success": "Merci pour votre commentaire !"
+    },
+    "error": {
+      "rate_limit": "Vous pouvez envoyer un commentaire une fois par heure. Veuillez réessayer plus tard.",
+      "generic": "Une erreur s'est produite. Veuillez réessayer."
+    }
+  },
+  "settings": {
+    "title": "Paramètres",
+    "subtitle": "Gérez vos préférences de compte et vos paramètres de sécurité.",
+    "tabs": {
+      "ariaLabel": "Sections des paramètres",
+      "account": "Compte",
+      "security": "Sécurité",
+      "notifications": "Notifications",
+      "resume": "CV"
+    },
+    "account": {
+      "heading": "Compte",
+      "description": "Mettez à jour vos informations personnelles et votre adresse e-mail.",
+      "placeholders": {
+        "firstName": "Jeanne",
+        "lastName": "Dupont",
+        "email": "vous@exemple.com"
+      },
+      "language": {
+        "heading": "Langue",
+        "description": "Choisissez la langue de l'interface du tableau de bord.",
+        "label": "Langue de l'interface",
+        "helperText": "Votre choix est enregistré dans votre navigateur et appliqué à chaque visite.",
+        "savedToast": "Langue mise à jour",
+        "errorToast": "Impossible de mettre à jour la langue. Veuillez réessayer.",
+        "placeholder": "Sélectionnez une langue"
+      }
+    },
+    "security": {
+      "heading": "Sécurité",
+      "description": "Gérez votre mot de passe et la sécurité de votre compte."
+    },
+    "notifications": {
+      "heading": "Préférences de notification",
+      "description": "Gérez les notifications que vous recevez de Light Role."
+    },
+    "resume": {
+      "heading": "Préférences de CV",
+      "description": "Choisissez l'ordre des sections et la police à partir desquels les futurs CV adaptés démarreront.",
+      "infoBanner": {
+        "title": "Ces paramètres n'affectent que les futures générations",
+        "body": "Les CV adaptés existants conservent l'ordre des sections et la police avec lesquels ils ont été générés. Les modifications ici s'appliquent aux CV que vous générez après l'enregistrement."
+      },
+      "sectionOrder": {
+        "title": "Ordre des sections",
+        "description": "Glissez pour réorganiser. Les informations personnelles apparaissent toujours en haut du CV."
+      },
+      "font": {
+        "title": "Police",
+        "description": "Choisissez la typographie de votre CV. Chaque option est affichée dans sa propre police.",
+        "label": "Police du CV",
+        "placeholder": "Choisir une police",
+        "hint": "Les cinq polices sont des sans-serif professionnelles qui s'affichent proprement en PDF."
+      },
+      "saveButton": "Enregistrer les modifications",
+      "savingButton": "Enregistrement...",
+      "saveSuccessToast": "Préférences de CV mises à jour.",
+      "saveError": {
+        "network": "Impossible d'enregistrer vos modifications. Veuillez réessayer.",
+        "validation": "Nous n'avons pas pu enregistrer ces modifications. Veuillez actualiser la page et réessayer."
+      },
+      "loadError": "Impossible de charger vos préférences de CV. Veuillez actualiser la page.",
+      "retry": "Réessayer"
+    }
+  },
+  "profile": {
+    "title": "Profil",
+    "subtitle": "Gérez les informations source utilisées pour adapter vos CV et lettres de motivation.",
+    "resetButton": "Réinitialiser le profil",
+    "comingSoon": "Bientôt disponible",
+    "tabs": {
+      "ariaLabel": "Sections du profil",
+      "personal-info": "Informations personnelles",
+      "skills": "Compétences",
+      "profile-summary": "Résumé du profil",
+      "employment": "Expérience",
+      "education": "Formation",
+      "languages": "Langues",
+      "certificates": "Certificats",
+      "projects": "Projets",
+      "achievements": "Réussites",
+      "volunteer": "Bénévolat"
+    },
+    "common": {
+      "saveButton": "Enregistrer les modifications",
+      "savingButton": "Enregistrement...",
+      "savedToast": "Modifications enregistrées.",
+      "saveErrorToast": "Impossible d'enregistrer vos modifications. Veuillez réessayer.",
+      "loadErrorMessage": "Impossible de charger votre profil. Veuillez actualiser la page.",
+      "cancelButton": "Annuler",
+      "deletedToast": "Entrée supprimée",
+      "undoButton": "Annuler",
+      "deleteFailedToast": "Échec de la suppression de l'entrée"
+    },
+    "reupload": {
+      "title": "Téléverser à nouveau votre CV",
+      "subtitle": "Déposez un nouveau PDF ou DOCX (max. 10 Mo) et nous réanalyserons chaque section de votre profil avec l'IA.",
+      "backLink": "← Retour au profil",
+      "dropPrompt": "Glissez-déposez votre CV ici",
+      "clickFallback": "ou cliquez pour parcourir",
+      "supportedFormats": "PDF ou DOCX · jusqu'à 10 Mo",
+      "parsing": "Analyse de votre CV…",
+      "parsingHint": "Cela prend généralement 5 à 15 secondes.",
+      "successToast": "Profil mis à jour à partir du CV",
+      "errorToast": "Impossible d'analyser le CV. Veuillez essayer un autre fichier.",
+      "invalidFormat": "Seuls les fichiers PDF et DOCX sont pris en charge.",
+      "fileTooLarge": "Le fichier dépasse la limite de 10 Mo.",
+      "warning": {
+        "title": "Cela remplace votre profil existant",
+        "description": "Le téléversement remplace chaque section analysée à partir de votre CV. Les entrées modifiées manuellement qui ne figurent pas dans le nouveau fichier seront supprimées."
+      },
+      "steps": {
+        "title": "Voici ce qui se passe ensuite",
+        "step1Title": "Téléversez votre fichier",
+        "step1Description": "PDF ou DOCX, jusqu'à 10 Mo.",
+        "step2Title": "L'IA analyse votre CV",
+        "step2Description": "Nous extrayons l'expérience, les compétences, la formation et plus encore.",
+        "step3Title": "Vérifiez sur le profil",
+        "step3Description": "Ajustez chaque section avant de générer des documents."
+      }
+    },
+    "emptyState": {
+      "title": "Configurons votre profil",
+      "subtitle": "Téléversez votre CV pour remplir automatiquement chaque section, ou commencez à zéro et modifiez chaque onglet manuellement.",
+      "uploadCard": {
+        "title": "Téléversez votre CV",
+        "description": "Nous l'analyserons avec l'IA et préremplirons toutes les sections./a"
+      },
+      "manualCard": {
+        "title": "Ou remplissez manuellement",
+        "description": "Sautez le téléversement et modifiez chaque section vous-même, en commençant par les Informations personnelles.",
+        "button": "Commencer à zéro"
+      },
+      "successToast": "Profil créé à partir du CV"
+    },
+    "unsavedDialog": {
+      "title": "Modifications non enregistrées",
+      "description": "Vous avez des modifications non enregistrées. Les abandonner ?",
+      "cancelButton": "Annuler",
+      "discardButton": "Abandonner"
+    },
+    "personalInfo": {
+      "heading": "Informations personnelles",
+      "description": "Vos coordonnées et liens. Utilisés comme en-tête sur chaque CV et lettre de motivation.",
+      "fullNameLabel": "Nom complet",
+      "emailLabel": "E-mail",
+      "phoneLabel": "Téléphone",
+      "locationLabel": "Lieu",
+      "socialLinksLabel": "Liens sociaux",
+      "addSocialLink": "Ajouter un lien social",
+      "platformLabel": "Plateforme",
+      "urlLabel": "URL",
+      "removeSocialLink": "Retirer le lien social"
+    },
+    "skills": {
+      "heading": "Compétences",
+      "description": "Listez les compétences que vous voulez mettre en avant. Réorganisez ensuite dans l'éditeur de CV.",
+      "nameLabel": "Compétence",
+      "addSkill": "Ajouter une compétence",
+      "removeSkill": "Retirer la compétence"
+    },
+    "profileSummary": {
+      "heading": "Résumé du profil",
+      "description": "Un court paragraphe qui vous présente. L'IA l'utilise comme point de départ lors de l'adaptation des CV.",
+      "label": "Résumé",
+      "charactersCount": "{count} caractères",
+      "placeholder": "Ingénieur logiciel senior avec 8 ans d'expérience dans la construction de systèmes distribués..."
+    },
+    "languages": {
+      "heading": "Langues",
+      "description": "Langues que vous parlez — écrites et orales. Les niveaux de maîtrise optionnels arriveront dans une future mise à jour.",
+      "nameLabel": "Langue",
+      "addLanguage": "Ajouter une langue",
+      "removeLanguage": "Retirer la langue"
+    },
+    "employment": {
+      "heading": "Expérience",
+      "description": "Votre historique professionnel. Glissez pour réorganiser, modifier ou supprimer chaque entrée.",
+      "addButton": "Ajouter un poste",
+      "modalTitleAdd": "Ajouter un poste",
+      "modalTitleEdit": "Modifier le poste",
+      "role": "Poste",
+      "company": "Entreprise",
+      "location": "Lieu",
+      "startDate": "Date de début",
+      "endDate": "Date de fin",
+      "isCurrent": "J'occupe actuellement ce poste",
+      "details": "Détails",
+      "detailsPlaceholder": "Dirigé une équipe de 5 ingénieurs...\nLivré 3 fonctionnalités majeures...",
+      "detailsHint": "Un point par ligne.",
+      "empty": "Aucune expérience pour le moment. Cliquez sur « Ajouter un poste » pour commencer.",
+      "present": "Actuel"
+    },
+    "education": {
+      "heading": "Formation",
+      "description": "Écoles, diplômes et programmes académiques.",
+      "addButton": "Ajouter une formation",
+      "modalTitleAdd": "Ajouter une formation",
+      "modalTitleEdit": "Modifier la formation",
+      "degree": "Diplôme",
+      "institution": "Établissement",
+      "fieldOfStudy": "Domaine d'études",
+      "location": "Lieu",
+      "startDate": "Date de début",
+      "endDate": "Date de fin",
+      "isCurrent": "Je suis actuellement inscrit",
+      "description": "Description",
+      "empty": "Aucune entrée de formation pour le moment. Cliquez sur « Ajouter une formation » pour commencer.",
+      "present": "Actuel"
+    },
+    "certificates": {
+      "heading": "Certificats",
+      "description": "Certifications et licences professionnelles.",
+      "addButton": "Ajouter un certificat",
+      "modalTitleAdd": "Ajouter un certificat",
+      "modalTitleEdit": "Modifier le certificat",
+      "name": "Nom",
+      "issuer": "Émetteur",
+      "issueDate": "Date d'émission",
+      "expiryDate": "Date d'expiration",
+      "credentialUrl": "URL du justificatif",
+      "issuedLabel": "Émis",
+      "empty": "Aucun certificat pour le moment. Cliquez sur « Ajouter un certificat » pour commencer."
+    },
+    "projects": {
+      "heading": "Projets",
+      "description": "Projets personnels ou professionnels qui méritent d'être mis en avant.",
+      "addButton": "Ajouter un projet",
+      "modalTitleAdd": "Ajouter un projet",
+      "modalTitleEdit": "Modifier le projet",
+      "name": "Nom",
+      "description": "Description",
+      "role": "Rôle",
+      "startDate": "Date de début",
+      "endDate": "Date de fin",
+      "isCurrent": "Je travaille toujours sur ce projet",
+      "technologies": "Technologies",
+      "technologiesPlaceholder": "TypeScript, React, PostgreSQL",
+      "technologiesHint": "Séparées par des virgules.",
+      "url": "URL",
+      "repositoryUrl": "URL du dépôt",
+      "details": "Détails",
+      "detailsPlaceholder": "Construit X avec Y...\nDéployé pour Z utilisateurs...",
+      "detailsHint": "Un point par ligne.",
+      "empty": "Aucun projet pour le moment. Cliquez sur « Ajouter un projet » pour commencer.",
+      "present": "Actuel"
+    },
+    "achievements": {
+      "heading": "Réussites",
+      "description": "Récompenses, reconnaissances et succès notables.",
+      "addButton": "Ajouter une réussite",
+      "modalTitleAdd": "Ajouter une réussite",
+      "modalTitleEdit": "Modifier la réussite",
+      "title": "Titre",
+      "description": "Description",
+      "date": "Date",
+      "issuer": "Émetteur",
+      "empty": "Aucune réussite pour le moment. Cliquez sur « Ajouter une réussite » pour commencer."
+    },
+    "volunteer": {
+      "heading": "Bénévolat",
+      "description": "Rôles bénévoles et engagement communautaire.",
+      "addButton": "Ajouter un rôle bénévole",
+      "modalTitleAdd": "Ajouter un rôle bénévole",
+      "modalTitleEdit": "Modifier le rôle bénévole",
+      "role": "Rôle",
+      "organization": "Organisation",
+      "location": "Lieu",
+      "startDate": "Date de début",
+      "endDate": "Date de fin",
+      "isCurrent": "Je fais toujours du bénévolat ici",
+      "details": "Détails",
+      "detailsPlaceholder": "Coordonné des collectes de nourriture le week-end...\nAccompagné 8 étudiants...",
+      "detailsHint": "Un point par ligne.",
+      "empty": "Aucune entrée de bénévolat pour le moment. Cliquez sur « Ajouter un rôle bénévole » pour commencer.",
+      "present": "Actuel"
+    }
+  },
+  "analytics": {
+    "page_title": "Analyses",
+    "page_subtitle": "Suivez la progression et la performance de votre recherche d'emploi au fil du temps.",
+    "period_selector_label": "Sélectionner la période",
+    "period_7d": "7 jours",
+    "period_30d": "30 jours",
+    "period_90d": "90 jours",
+    "period_all": "Tout le temps",
+    "hero_jobs_saved": "Emplois enregistrés",
+    "hero_applied": "Candidatures",
+    "hero_interviews": "Entretiens",
+    "hero_offers": "Offres",
+    "funnel_title": "Entonnoir de conversion",
+    "funnel_empty": "Aucune candidature pour le moment — commencez à suivre des emplois pour voir votre entonnoir.",
+    "funnel_stage_saved": "Enregistré",
+    "funnel_stage_applied": "Candidaté",
+    "funnel_stage_screening": "Présélection",
+    "funnel_stage_interview": "Entretien",
+    "funnel_stage_offer": "Offre",
+    "funnel_stage_accepted": "Accepté",
+    "timeline_title": "Candidatures au fil du temps",
+    "timeline_empty": "Aucune candidature suivie pour le moment.",
+    "timeline_empty_cta": "Commencer à suivre des emplois",
+    "status_title": "Répartition par statut",
+    "status_empty": "Aucune donnée de candidature pour le moment.",
+    "status_saved": "Enregistré",
+    "status_applied": "Candidaté",
+    "status_screening": "Présélection",
+    "status_interview": "Entretien",
+    "status_offer": "Offre",
+    "resume_title": "Performance des CV",
+    "resume_empty": "Aucun CV noté pour le moment. Adaptez un CV pour voir ses performances.",
+    "resume_empty_cta": "Adapter un CV",
+    "resume_avg_label": "score de correspondance moyen",
+    "resume_best_label": "Meilleure performance",
+    "resume_worst_label": "À améliorer",
+    "resume_trend_improving": "En amélioration",
+    "resume_trend_declining": "En baisse",
+    "resume_trend_stable": "Stable",
+    "response_time_title": "Temps de réponse",
+    "response_time_empty": "Postulez à un emploi et attendez votre première réponse pour voir cette mesure.",
+    "response_time_label": "première réponse moyenne",
+    "response_time_days_unit": "jours",
+    "ai_ops_title": "Opérations IA",
+    "ai_ops_empty": "Aucune opération IA utilisée pour le moment.",
+    "ai_ops_total": "Total des opérations",
+    "ai_op_job_parse": "Analyse de poste",
+    "ai_op_resume_analyze": "Analyse de CV",
+    "ai_op_cl_generate": "Lettre de motivation",
+    "ai_op_cl_regenerate": "Lettre de motivation (régén.)",
+    "upgrade_overlay_aria_label": "Passez à Pro pour débloquer les analyses",
+    "upgrade_title": "Débloquez les analyses avec Pro",
+    "upgrade_description": "Obtenez des informations approfondies sur votre recherche d'emploi — entonnoir de conversion, performance des CV, temps de réponse et plus encore.",
+    "upgrade_cta": "Passer à Pro",
+    "insufficient_headline": "Presque prêt — continuez à suivre votre recherche pour débloquer les analyses",
+    "insufficient_description": "Les analyses se débloquent une fois que vous avez suffisamment de données. Continuez !",
+    "insufficient_jobs_label": "Emplois créés",
+    "insufficient_applications_label": "Candidatures envoyées",
+    "insufficient_resumes_label": "CV adaptés",
+    "insufficient_cta_jobs": "Créer un emploi",
+    "insufficient_cta_resumes": "Adapter un CV",
+    "error_generic": "Une erreur s'est produite lors du chargement de vos analyses. Veuillez réessayer.",
+    "error_boundary_message": "Une erreur s'est produite lors du chargement de vos analyses. Nous en avons été informés.",
+    "error_boundary_retry": "Réessayer"
+  },
+  "support": {
+    "dialog": {
+      "title": "Contacter le support",
+      "description": "Nous répondons généralement dans les 24 heures.",
+      "reply_to_notice": "Nous répondrons à {email}",
+      "category": {
+        "label": "Catégorie",
+        "account": "Compte",
+        "billing": "Facturation",
+        "technical": "Technique",
+        "other": "Autre"
+      },
+      "subject": {
+        "label": "Sujet"
+      },
+      "message": {
+        "label": "Message"
+      },
+      "send": "Envoyer"
+    },
+    "toast": {
+      "success": "Votre message a été envoyé. Consultez votre boîte de réception pour notre réponse."
+    },
+    "error": {
+      "rate_limit": "Vous pouvez contacter le support une fois par heure.",
+      "unavailable": "Impossible d'envoyer le message pour le moment. Veuillez écrire directement à support@lightrole.com."
+    }
+  },
+  "coverLetters": {
+    "wizard": {
+      "common": {
+        "cancel": "Annuler",
+        "next": "Suivant",
+        "back": "Retour"
+      },
+      "pageTitle": "Générer une lettre de motivation",
+      "pageSubtitle": "L'IA rédige 3 variantes adaptées au poste en environ 15 secondes.",
+      "backToList": "Retour aux lettres de motivation",
+      "indicator": {
+        "step1": "Sélectionner l'emploi et la source",
+        "step2": "Paramètres",
+        "step3": "Vérification",
+        "progressAria": "Progression de l'assistant"
+      },
+      "step1": {
+        "title": "Sélectionner l'emploi et la source",
+        "jobLabel": "Emploi *",
+        "jobPlaceholder": "Sélectionnez un emploi…",
+        "jobsError": "Impossible de charger vos emplois. Actualisez la page ou réessayez.",
+        "jobsErrorRetry": "Réessayer",
+        "empty": {
+          "title": "Aucun emploi éligible",
+          "body": "Soit vous n'avez aucun emploi, soit chaque emploi a déjà une lettre de motivation. Ajoutez un nouvel emploi pour en rédiger une.",
+          "cta": "Ajouter un emploi"
+        },
+        "sourceLabel": "Source *",
+        "sourcePlaceholder": "Sélectionnez une source…",
+        "source": {
+          "tr": {
+            "label": "CV adapté (pour cet emploi)",
+            "sub": "Recommandé — utilise votre CV adapté optimisé pour ce poste"
+          },
+          "profile": {
+            "label": "Mon profil",
+            "sub": "Utilise les données brutes de votre profil à la place"
+          }
+        },
+        "noTr": {
+          "title": "La lettre de motivation sera générée à partir de votre profil.",
+          "body": "Aucun CV adapté n'existe pour cet emploi."
+        },
+        "contextLabel": "Contexte supplémentaire",
+        "contextOptional": "(facultatif)",
+        "contextPlaceholder": "Quelque chose de spécifique à inclure ? (facultatif) — par ex. un lien personnel avec l'entreprise, un projet à mettre en avant ou une recommandation.",
+        "contextCounter": "{count} / 500 caractères",
+        "profileHint": "Complétez votre profil pour continuer.",
+        "modal": {
+          "missingProfile": {
+            "title": "Informations de profil manquantes",
+            "body": "Une lettre de motivation a besoin d'au moins une expérience pour s'en inspirer. Ajoutez au moins une entrée d'emploi ou un projet à votre profil.",
+            "completeCta": "Compléter le profil"
+          },
+          "alreadyExists": {
+            "title": "La lettre de motivation existe déjà",
+            "body": "Vous avez déjà rédigé une lettre de motivation pour cet emploi.",
+            "viewCta": "Voir l'existante",
+            "createdAt": "Créée {date}"
+          }
+        }
+      },
+      "step2": {
+        "title": "Paramètres de génération",
+        "styleLabel": "Style",
+        "toneLabel": "Ton",
+        "lengthLabel": "Longueur",
+        "generate": "Générer",
+        "aiLimitTooltip": "Vous avez atteint votre limite d'opérations IA. Mettez à niveau pour continuer.",
+        "style": {
+          "jobMatched": {
+            "title": "Adapté au poste",
+            "desc": "Adapté aux exigences du poste"
+          },
+          "formal": {
+            "title": "Formel",
+            "desc": "Langage traditionnel et structuré"
+          },
+          "professional": {
+            "title": "Professionnel",
+            "desc": "Soigné et adapté au secteur"
+          }
+        },
+        "tone": {
+          "confident": {
+            "title": "Confiant",
+            "desc": "Voix forte et affirmée"
+          },
+          "humble": {
+            "title": "Humble",
+            "desc": "Ton modeste et collaboratif"
+          },
+          "enthusiastic": {
+            "title": "Enthousiaste",
+            "desc": "Énergique et passionné"
+          }
+        },
+        "length": {
+          "short": {
+            "title": "Court",
+            "desc": "200–300 mots"
+          },
+          "medium": {
+            "title": "Moyen",
+            "desc": "300–400 mots"
+          },
+          "long": {
+            "title": "Long",
+            "desc": "400–500 mots"
+          }
+        }
+      },
+      "loading": {
+        "phase1": {
+          "label": "Analyse du poste",
+          "subtitle": "Extraction des incontournables du poste…"
+        },
+        "phase2": {
+          "label": "Examen de votre parcours",
+          "subtitle": "Mise en correspondance de votre expérience avec le poste…"
+        },
+        "phase3": {
+          "label": "Rédaction de votre lettre de motivation",
+          "subtitle": "Rédaction de trois variantes dans votre ton…"
+        },
+        "failed": "Une erreur s'est produite.",
+        "tipHeading": "Le saviez-vous ?",
+        "tips": [
+          "Une phrase d'accroche forte augmente plus les taux de réponse qu'une formule de clôture sophistiquée.",
+          "Light Role rédige 3 versions pour que vous puissiez choisir la voix qui vous correspond — pas seulement les mots.",
+          "Mentionner un projet ou une valeur spécifique de l'entreprise montre une recherche, pas seulement de l'enthousiasme.",
+          "Votre lettre de motivation complète votre CV — elle ne le répète pas."
+        ],
+        "creditHint": "Patientez — nous utilisons l'un de vos crédits pour rédiger ceci.",
+        "aiFailToast": "L'IA n'a pas pu rédiger pour le moment — veuillez réessayer. Aucun crédit n'a été facturé.",
+        "networkFailToast": "Une erreur s'est produite. Veuillez réessayer.",
+        "profileNotReadyToast": "Votre profil n'est pas suffisamment complet pour rédiger une lettre de motivation.",
+        "jobNotFoundToast": "Emploi introuvable.",
+        "alreadyExistsToast": "Une lettre de motivation existe déjà pour cet emploi.",
+        "progressAria": "Progression de la génération de la lettre de motivation"
+      },
+      "step3": {
+        "title": "Vérifier les variantes",
+        "subtitle": "Voici 3 versions distinctes de votre lettre de motivation — choisissez celle qui résonne le plus.",
+        "tab": {
+          "variant1": "Variante 1",
+          "variant2": "Variante 2",
+          "variant3": "Variante 3"
+        },
+        "useVariant": "Utiliser cette variante",
+        "selected": "Sélectionnée",
+        "back": "Retour aux paramètres",
+        "editSelected": "Modifier la sélection",
+        "saving": "Enregistrement…",
+        "pickFirst": "Choisissez d'abord une variante.",
+        "defensiveError": "Une erreur s'est produite lors du chargement des variantes. Veuillez réessayer.",
+        "saveSuccess": "Lettre de motivation enregistrée.",
+        "saveConflict": "Une lettre de motivation existe déjà pour cet emploi.",
+        "saveError": "Impossible d'enregistrer votre lettre de motivation. Veuillez réessayer."
+      }
+    },
+    "list": {
+      "title": "Lettres de motivation",
+      "subtitle": "Lettres de motivation générées par IA et adaptées à vos emplois.",
+      "breadcrumbDashboard": "Tableau de bord",
+      "breadcrumbCurrent": "Lettres de motivation",
+      "ctaGenerate": "Générer une nouvelle lettre de motivation",
+      "searchPlaceholder": "Rechercher par nom, entreprise ou emploi…",
+      "searchAriaLabel": "Rechercher des lettres de motivation",
+      "clearSearchAria": "Effacer la recherche",
+      "sortLabel": "Trier les lettres de motivation",
+      "sort": {
+        "newest": "Plus récentes",
+        "oldest": "Plus anciennes",
+        "recently_updated": "Récemment mises à jour"
+      },
+      "clear": "Effacer",
+      "countOne": "1 lettre de motivation",
+      "countOther": "{count} lettres de motivation",
+      "countNone": "Aucune lettre de motivation.",
+      "countNoMatches": "Aucune lettre de motivation ne correspond à vos filtres.",
+      "card": {
+        "deleteAria": "Supprimer la lettre de motivation",
+        "openAria": "Ouvrir la lettre de motivation : {name}",
+        "sourceFromTailoredResume": "À partir du CV adapté",
+        "sourceFromProfile": "À partir du profil",
+        "subtitleStandalone": "Lettre de motivation autonome",
+        "subtitleLinkedFallback": "Associée à un emploi"
+      },
+      "delete": {
+        "title": "Supprimer cette lettre de motivation ?",
+        "body": "« {name} » sera définitivement supprimée. L'emploi associé reste intact, et vous pouvez générer une nouvelle lettre de motivation pour celui-ci à tout moment.",
+        "cancel": "Annuler",
+        "confirm": "Supprimer",
+        "successToast": "Lettre de motivation supprimée.",
+        "errorToast": "Échec de la suppression de la lettre de motivation. Veuillez réessayer."
+      },
+      "empty": {
+        "title": "Aucune lettre de motivation pour le moment.",
+        "description": "Générez une lettre de motivation adaptée à partir de l'un de vos emplois en environ 15 secondes.",
+        "cta": "Générer votre première lettre de motivation"
+      },
+      "noMatches": {
+        "message": "Aucune lettre de motivation ne correspond à votre recherche.",
+        "cta": "Effacer les filtres"
+      },
+      "errorState": {
+        "title": "Impossible de charger les lettres de motivation",
+        "description": "Une erreur s'est produite lors de la récupération de vos lettres de motivation. Réessayez ou actualisez la page.",
+        "tryAgain": "Réessayer"
+      }
+    }
+  }
+}

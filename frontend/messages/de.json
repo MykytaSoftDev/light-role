@@ -1,0 +1,1922 @@
+{
+  "app": {
+    "name": "Light Role",
+    "tagline": "KI-gestützte Plattform zur Verwaltung der Jobsuche"
+  },
+  "Common": {
+    "actions": {
+      "save": "Speichern",
+      "saving": "Wird gespeichert…",
+      "saveChanges": "Änderungen speichern",
+      "cancel": "Abbrechen",
+      "close": "Schließen",
+      "delete": "Löschen",
+      "deleting": "Wird gelöscht…",
+      "edit": "Bearbeiten",
+      "remove": "Entfernen",
+      "add": "Hinzufügen",
+      "back": "Zurück",
+      "next": "Weiter",
+      "continue": "Fortfahren",
+      "submit": "Absenden",
+      "confirm": "Bestätigen",
+      "tryAgain": "Erneut versuchen",
+      "retry": "Wiederholen",
+      "refresh": "Aktualisieren",
+      "reset": "Zurücksetzen",
+      "create": "Erstellen",
+      "view": "Ansehen",
+      "viewAll": "Alle anzeigen",
+      "more": "Mehr",
+      "open": "Öffnen",
+      "copy": "Kopieren",
+      "copied": "Kopiert",
+      "search": "Suchen",
+      "clear": "Leeren",
+      "download": "Herunterladen",
+      "upload": "Hochladen",
+      "send": "Senden",
+      "ok": "OK",
+      "yes": "Ja",
+      "no": "Nein",
+      "discard": "Verwerfen",
+      "undo": "Rückgängig",
+      "selectAll": "Alle auswählen",
+      "loadMore": "Mehr laden"
+    },
+    "states": {
+      "loading": "Wird geladen…",
+      "saving": "Wird gespeichert…",
+      "deleting": "Wird gelöscht…",
+      "uploading": "Wird hochgeladen…",
+      "submitting": "Wird gesendet…",
+      "processing": "Wird verarbeitet…",
+      "empty": "Hier ist noch nichts.",
+      "noResults": "Keine Ergebnisse.",
+      "comingSoon": "Demnächst verfügbar"
+    },
+    "validation": {
+      "required": "Dieses Feld ist erforderlich.",
+      "invalidEmail": "Bitte geben Sie eine gültige E-Mail-Adresse ein.",
+      "invalidUrl": "Bitte geben Sie eine gültige URL ein.",
+      "tooShort": "Mindestens {min} Zeichen erforderlich.",
+      "tooLong": "Höchstens {max} Zeichen erlaubt.",
+      "passwordTooShort": "Das Passwort muss mindestens {min} Zeichen lang sein."
+    },
+    "toast": {
+      "saved": "Änderungen gespeichert.",
+      "saveError": "Ihre Änderungen konnten nicht gespeichert werden. Bitte versuchen Sie es erneut.",
+      "saveFailed": "Speichern fehlgeschlagen. Bitte versuchen Sie es erneut.",
+      "loadError": "Diese Seite konnte nicht geladen werden. Bitte aktualisieren Sie und versuchen Sie es erneut.",
+      "networkError": "Netzwerkfehler. Bitte überprüfen Sie Ihre Verbindung.",
+      "genericError": "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut."
+    },
+    "upgradeCta": {
+      "defaultMessage": "Upgraden Sie auf Pro für mehr KI-Operationen und unbegrenzte Stellen."
+    },
+    "pagination": {
+      "previous": "Zurück",
+      "next": "Weiter",
+      "page": "Seite {page} von {total}",
+      "rowsPerPage": "Zeilen pro Seite",
+      "ofTotal": "{from}–{to} von {total}"
+    },
+    "table": {
+      "noData": "Keine Daten verfügbar.",
+      "selectRow": "Zeile auswählen",
+      "selectAll": "Alle Zeilen auswählen"
+    }
+  },
+  "Errors": {
+    "boundary": {
+      "title": "Etwas ist schiefgelaufen",
+      "description": "Ein unerwarteter Fehler ist aufgetreten. Wir wurden benachrichtigt und werden ihn beheben.",
+      "tryAgain": "Erneut versuchen",
+      "goHome": "Zur Startseite"
+    },
+    "global": {
+      "title": "Anwendungsfehler",
+      "description": "Beim Laden der Seite ist etwas schiefgelaufen.",
+      "tryAgain": "Erneut versuchen"
+    },
+    "notFound": {
+      "title": "Seite nicht gefunden",
+      "description": "Wir konnten die gesuchte Seite nicht finden.",
+      "goHome": "Zurück zum Dashboard",
+      "goLanding": "Zurück zur Startseite"
+    },
+    "dashboard": {
+      "title": "Diese Seite konnte nicht geladen werden",
+      "description": "Beim Laden dieser Seite ist etwas schiefgelaufen. Bitte versuchen Sie es erneut oder aktualisieren Sie.",
+      "tryAgain": "Erneut versuchen"
+    },
+    "rateLimit": {
+      "title": "Sie haben Ihr KI-Operationslimit erreicht",
+      "description": "Upgraden Sie auf Pro für 150 monatliche Operationen und unbegrenzte aktive Stellen.",
+      "upgrade": "Auf Pro upgraden",
+      "later": "Vielleicht später"
+    },
+    "rateLimitModal": {
+      "title": "Bitte langsamer — versuchen Sie es später erneut",
+      "body1": "Sie haben in kurzer Zeit viele Anfragen gesendet.",
+      "body2WithTime": "Bitte versuchen Sie es in {seconds} Sekunden erneut.",
+      "supportLine": "Wenn dies weiterhin auftritt, kontaktieren Sie support@lightrole.com.",
+      "gotIt": "Verstanden"
+    },
+    "upgradeModal": {
+      "title": "Mit Pro freischalten",
+      "description": "Upgraden Sie Ihren Tarif, um diese Funktion zu nutzen.",
+      "upgrade": "Auf Pro upgraden",
+      "later": "Vielleicht später",
+      "seePlans": "Tarife ansehen",
+      "resumeCreditsTitle": "Sie haben alle Lebenslauf-Guthaben in diesem Monat aufgebraucht",
+      "resumeCreditsBody": "Upgraden Sie auf Pro, um weitere Lebensläufe anzupassen — Pro umfasst unbegrenzte Anpassungen.",
+      "clCreditsTitle": "Sie haben alle Anschreiben-Guthaben in diesem Monat aufgebraucht",
+      "clCreditsBody": "Upgraden Sie auf Pro für unbegrenzte KI-generierte Anschreiben.",
+      "activeJobsTitle": "Sie haben das Limit für aktive Stellen erreicht",
+      "activeJobsBody": "Free ist auf wenige aktive Stellen begrenzt. Pro hebt die Grenze auf, sodass Sie jede Gelegenheit verfolgen können.",
+      "analyticsTitle": "Analytics ist eine Pro-Funktion",
+      "analyticsBody": "Upgraden Sie, um das vollständige Analytics-Dashboard freizuschalten — Funnel, Antwortzeiten und Lebenslauf-Performance."
+    },
+    "offline": {
+      "title": "Sie sind offline",
+      "description": "Überprüfen Sie Ihre Internetverbindung und versuchen Sie es erneut.",
+      "bannerOffline": "Sie sind offline. Einige Funktionen sind deaktiviert.",
+      "backOnline": "Sie sind wieder online."
+    }
+  },
+  "Notifications": {
+    "bell": {
+      "ariaLabel": "Benachrichtigungen",
+      "title": "Benachrichtigungen",
+      "empty": "Noch keine Benachrichtigungen.",
+      "markAllRead": "Alle als gelesen markieren",
+      "viewAll": "Alle anzeigen",
+      "unreadCountAria": "{count, plural, =0 {Keine ungelesenen Benachrichtigungen} =1 {1 ungelesene Benachrichtigung} other {# ungelesene Benachrichtigungen}}"
+    },
+    "timeAgo": {
+      "justNow": "Gerade eben",
+      "minutes": "{count, plural, =1 {vor 1 Minute} other {vor # Minuten}}",
+      "hours": "{count, plural, =1 {vor 1 Stunde} other {vor # Stunden}}",
+      "days": "{count, plural, =1 {vor 1 Tag} other {vor # Tagen}}"
+    }
+  },
+  "Auth": {
+    "branding": {
+      "headline": "Verwalten Sie Ihre Jobsuche mit KI.",
+      "tagline": "Optimieren Sie Ihren Lebenslauf für jede Stelle, erstellen Sie maßgeschneiderte Anschreiben und verfolgen Sie jede Bewerbung — alles an einem Ort.",
+      "logoAlt": "LightRole Logo",
+      "testimonialQuote": "Light Role hat mir geholfen, meinen Lebenslauf für jede Bewerbung anzupassen. Von null Rückmeldungen zu drei Angeboten in sechs Wochen.",
+      "testimonialName": "Marcus K.",
+      "testimonialTitle": "Software-Ingenieur",
+      "logoFallback": "Light Role"
+    },
+    "common": {
+      "emailLabel": "E-Mail",
+      "emailPlaceholder": "sie@beispiel.de",
+      "passwordLabel": "Passwort",
+      "passwordPlaceholder": "••••••••",
+      "or": "oder",
+      "continueWithGoogle": "Mit Google fortfahren",
+      "googleNotConfigured": "Google OAuth ist nicht konfiguriert.",
+      "networkError": "Verbindung nicht möglich. Bitte überprüfen Sie Ihre Internetverbindung.",
+      "genericError": "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut."
+    },
+    "login": {
+      "metaTitle": "Anmelden",
+      "title": "Bei Light Role anmelden",
+      "subtitle": "Willkommen zurück. Geben Sie Ihre Daten unten ein.",
+      "forgotPassword": "Passwort vergessen?",
+      "submit": "Anmelden",
+      "submitting": "Anmeldung läuft…",
+      "invalidCredentials": "Ungültige E-Mail oder ungültiges Passwort.",
+      "noAccount": "Noch kein Konto?",
+      "createOne": "Konto erstellen"
+    },
+    "register": {
+      "metaTitle": "Konto erstellen",
+      "title": "Erstellen Sie Ihr Konto",
+      "subtitle": "Beginnen Sie, Ihre Jobsuche mit KI zu verwalten.",
+      "passwordPlaceholder": "Mindestens 8 Zeichen",
+      "submit": "Konto erstellen",
+      "submitting": "Konto wird erstellt…",
+      "alreadyRegistered": "E-Mail bereits registriert. Versuchen Sie stattdessen, sich anzumelden.",
+      "haveAccount": "Haben Sie bereits ein Konto?",
+      "signIn": "Anmelden",
+      "checkEmail": {
+        "title": "Überprüfen Sie Ihre E-Mails",
+        "description": "Wir haben einen Bestätigungslink an Ihren Posteingang gesendet. Klicken Sie darauf, um Ihr Konto zu aktivieren.",
+        "alreadyVerified": "Bereits verifiziert?",
+        "signIn": "Anmelden"
+      }
+    },
+    "forgotPassword": {
+      "metaTitle": "Passwort vergessen",
+      "title": "Passwort vergessen?",
+      "subtitle": "Geben Sie Ihre E-Mail-Adresse ein und wir senden Ihnen einen Link zum Zurücksetzen.",
+      "submit": "Reset-Link senden",
+      "submitting": "Wird gesendet…",
+      "backToLogin": "Zurück zur Anmeldung",
+      "successTitle": "Überprüfen Sie Ihre E-Mails",
+      "successDescription": "Falls ein Konto für {email} existiert, erhalten Sie in Kürze einen Reset-Link."
+    },
+    "resetPassword": {
+      "metaTitle": "Passwort zurücksetzen",
+      "title": "Setzen Sie Ihr Passwort zurück",
+      "subtitle": "Wählen Sie ein neues Passwort für Ihr Konto.",
+      "newPasswordLabel": "Neues Passwort",
+      "confirmPasswordLabel": "Passwort bestätigen",
+      "passwordPlaceholder": "Mindestens 8 Zeichen",
+      "submit": "Passwort zurücksetzen",
+      "submitting": "Wird zurückgesetzt…",
+      "passwordsDoNotMatch": "Die Passwörter stimmen nicht überein.",
+      "tokenInvalid": "Dieser Reset-Link ist ungültig oder abgelaufen.",
+      "invalidLinkTitle": "Ungültiger Reset-Link",
+      "noTokenBody": "Dieser Reset-Link fehlt oder ist ungültig. Fordern Sie einen neuen an.",
+      "requestResetLink": "Neuen Reset-Link anfordern",
+      "showPassword": "Passwort anzeigen",
+      "hidePassword": "Passwort ausblenden",
+      "backToLogin": "Zurück zur Anmeldung",
+      "successTitle": "Passwort zurückgesetzt",
+      "successDescription": "Ihr Passwort wurde aktualisiert. Sie können sich jetzt anmelden.",
+      "goToLogin": "Anmelden"
+    },
+    "verifyEmail": {
+      "metaTitle": "E-Mail verifizieren",
+      "verifyingTitle": "Ihre E-Mail wird verifiziert…",
+      "verifyingDescription": "Bitte warten Sie kurz, dies dauert nur einen Moment.",
+      "successTitle": "E-Mail verifiziert",
+      "successDescription": "Ihre E-Mail wurde verifiziert. Sie können sich jetzt anmelden.",
+      "goToLogin": "Anmelden",
+      "errorTitle": "Verifizierung fehlgeschlagen",
+      "errorDescription": "Dieser Verifizierungslink ist ungültig oder abgelaufen.",
+      "tryAgain": "Erneut versuchen",
+      "noTokenTitle": "Verifizierungslink fehlt",
+      "noTokenDescription": "Diese Seite benötigt ein Verifizierungstoken. Öffnen Sie den Link aus Ihrer E-Mail.",
+      "backToRegister": "Zurück zur Registrierung",
+      "fallbackLoading": "Wird geladen…"
+    },
+    "googleCallback": {
+      "loadingTitle": "Sie werden angemeldet…",
+      "errorTitle": "Anmeldung fehlgeschlagen",
+      "errorDescription": "Wir konnten Sie nicht mit Google anmelden. Bitte versuchen Sie es erneut.",
+      "backToLogin": "Zurück zur Anmeldung",
+      "noCode": "Die Anmeldung mit Google wurde abgebrochen. Bitte versuchen Sie es erneut.",
+      "fallbackLoading": "Wird geladen…"
+    },
+    "validation": {
+      "invalidEmail": "Bitte geben Sie eine gültige E-Mail-Adresse ein.",
+      "passwordRequired": "Passwort ist erforderlich.",
+      "passwordMin": "Das Passwort muss mindestens 8 Zeichen lang sein.",
+      "confirmPasswordRequired": "Bitte bestätigen Sie Ihr Passwort.",
+      "tokenRequired": "Reset-Token fehlt."
+    }
+  },
+  "Marketing": {
+    "metaTitle": "Light Role — KI-gestützte Verwaltung der Jobsuche",
+    "metaDescription": "Passen Sie jeden Lebenslauf an, erstellen Sie jedes Anschreiben und verfolgen Sie jede Bewerbung — alles an einem Ort.",
+    "landing": {
+      "title": "Light Role",
+      "tagline": "KI-gestützte Plattform zur Verwaltung der Jobsuche",
+      "ctaPrimary": "Loslegen",
+      "ctaSecondary": "Anmelden"
+    }
+  },
+  "Pricing": {
+    "metaTitle": "Preise — Light Role",
+    "metaDescription": "Einfache, transparente Preise. Kostenlos starten, upgraden, wenn Sie mehr brauchen.",
+    "heading": "Einfache, transparente Preise",
+    "subheading": "Kostenlos starten. Upgraden, wenn Sie mehr brauchen. Jederzeit kündbar.",
+    "mostPopular": "Am beliebtesten",
+    "billedAnnually": "Jährliche Abrechnung",
+    "priceFootnote": "Preise in Ihrer lokalen Währung, sofern verfügbar. Steuern werden beim Checkout berechnet.",
+    "loadingCta": "Wird geladen…",
+    "copy": {
+      "free": "Zum Ausprobieren von Light Role.",
+      "pro": "Für aktive Jobsuchende.",
+      "unlimited": "Für Power-User, die alles wollen."
+    },
+    "features": {
+      "jobsUnlimited": "Unbegrenzte aktive Stellen",
+      "jobsLimited": "Bis zu {count} aktive Stellen",
+      "resumeTailoringsUnlimited": "Unbegrenzte Lebenslauf-Anpassungen",
+      "resumeTailoringsLimited": "{count} Lebenslauf-Anpassungen / Monat",
+      "coverLettersUnlimited": "Unbegrenzte Anschreiben",
+      "coverLettersLimited": "{count} Anschreiben / Monat",
+      "aiOperationsUnlimited": "Unbegrenzte KI-Operationen",
+      "aiOperationsLimited": "{count} KI-Operationen / Monat",
+      "templates": "Alle Lebenslauf-Vorlagen",
+      "analytics": "Analytics-Dashboard",
+      "priorityAi": "Priorisierte KI-Verarbeitung",
+      "exportPdf": "Export als PDF & DOCX",
+      "support": "Priorisierter Support"
+    },
+    "cta": {
+      "getStartedFree": "Loslegen — kostenlos",
+      "startWithPlan": "Mit {plan} starten",
+      "yourCurrentPlan": "Ihr aktueller Tarif",
+      "downgrade": "Downgraden",
+      "upgradeTo": "Auf {plan} upgraden"
+    }
+  },
+  "Sidebar": {
+    "main": {
+      "dashboard": "Dashboard",
+      "profile": "Profil",
+      "jobs": "Stellenverfolgung",
+      "tailorResume": "Lebenslauf anpassen",
+      "generateCoverLetter": "Anschreiben erstellen",
+      "analytics": "Analytics",
+      "documents": "Dokumente",
+      "resumes": "Lebensläufe",
+      "coverLetters": "Anschreiben"
+    },
+    "user": {
+      "settings": "Einstellungen",
+      "billing": "Abrechnung",
+      "payments": "Zahlungen",
+      "upgradePlan": "Tarif upgraden",
+      "upgradeYourPlan": "Tarif upgraden",
+      "logout": "Abmelden",
+      "loggingOut": "Abmeldung läuft…",
+      "fallbackName": "Konto"
+    },
+    "planBadge": {
+      "free": "Free-Tarif",
+      "pro": "Pro-Tarif",
+      "unlimited": "Unlimited",
+      "upgrade": "Upgraden",
+      "shortFree": "Free",
+      "shortPro": "Pro",
+      "shortUnlimited": "Unlimited",
+      "freePlan": "Free-Tarif",
+      "proPlan": "Pro-Tarif",
+      "unlimitedPlan": "Unlimited-Tarif",
+      "aria": "Aktueller Tarif: {label}"
+    },
+    "dashboardHomeAria": "Light Role — Dashboard",
+    "documents": {
+      "title": "Dokumente",
+      "viewAll": "Alle anzeigen"
+    }
+  },
+  "DashboardShell": {
+    "breadcrumb": {
+      "dashboard": "Dashboard",
+      "resumes": "Lebensläufe",
+      "tailorResume": "Lebenslauf anpassen",
+      "jobs": "Stellen",
+      "settings": "Einstellungen",
+      "applications": "Bewerbungen",
+      "profile": "Profil",
+      "notifications": "Benachrichtigungen",
+      "subscriptions": "Mein Abonnement",
+      "editResume": "Lebenslauf bearbeiten",
+      "jobDetails": "Stellendetails",
+      "details": "Details",
+      "ariaLabel": "Breadcrumb"
+    },
+    "themeSwitcher": {
+      "ariaLabel": "Design wechseln",
+      "light": "Hell",
+      "dark": "Dunkel",
+      "system": "System"
+    },
+    "header": {
+      "openMenu": "Menü öffnen",
+      "closeMenu": "Menü schließen"
+    }
+  },
+  "DashboardHome": {
+    "metaTitle": "Dashboard — Light Role",
+    "greeting": "Hallo, {name}!",
+    "greetingFallback": "Willkommen zurück!",
+    "summaryLine": "{activeCount, plural, =1 {1 aktive Stelle} other {# aktive Stellen}}, {appCount, plural, =1 {1 Bewerbung} other {# Bewerbungen}} in diesem Monat",
+    "quickActions": {
+      "heading": "Schnellaktionen",
+      "createJob": {
+        "title": "Stelle erstellen",
+        "description": "Verfolgen Sie eine neue Bewerbung, indem Sie eine Stellenanzeige hinzufügen."
+      },
+      "tailorResume": {
+        "title": "Lebenslauf anpassen",
+        "description": "Optimieren Sie Ihren Lebenslauf für eine bestimmte Stelle mit KI."
+      },
+      "generateCoverLetter": {
+        "title": "Anschreiben erstellen",
+        "description": "Erstellen Sie ein personalisiertes Anschreiben mit KI-Unterstützung."
+      },
+      "getStarted": "Loslegen",
+      "lockedToast": "Fügen Sie zuerst eine Stelle hinzu, bevor Sie {action}.",
+      "lockedActions": {
+        "tailoring": "Ihren Lebenslauf anpassen",
+        "generating": "ein Anschreiben erstellen"
+      },
+      "dismiss": "Schließen"
+    },
+    "stats": {
+      "heading": "Ihre Statistiken",
+      "remainingThisCycle": "{resumes, plural, =1 {1 Lebenslauf} other {# Lebensläufe}}, {coverLetters, plural, =1 {1 Anschreiben} other {# Anschreiben}} in diesem Zyklus übrig",
+      "upgrade": "Upgraden"
+    },
+    "recentActivity": {
+      "heading": "Letzte Aktivitäten",
+      "viewAll": "Alle anzeigen",
+      "emptyTitle": "Noch keine Stellen",
+      "emptyDescription": "Beginnen Sie mit der Verfolgung Ihrer Jobsuche, indem Sie Ihre erste Stellenanzeige hinzufügen.",
+      "addFirst": "Erste Stelle hinzufügen",
+      "addedJob": "{company} hinzugefügt — {title}"
+    },
+    "completeSteps": {
+      "heading": "Einrichtung abschließen",
+      "subheading": "Ein paar schnelle Schritte, um das Beste aus Light Role herauszuholen.",
+      "dismiss": "Schließen",
+      "progress": "{completed} von {total} abgeschlossen",
+      "stepCreateJob": "Erste Stelle erstellen",
+      "stepTailorResume": "Lebenslauf anpassen",
+      "stepGenerateCl": "Anschreiben erstellen",
+      "stepCompleteProfile": "Profil vervollständigen",
+      "uploadLabel": "Lebenslauf hochladen",
+      "uploadCompletedHint": "Profil importiert.",
+      "uploadPendingHint": "Wir füllen Ihr Profil automatisch aus.",
+      "createLabel": "Erste Stelle erstellen",
+      "createCompletedHint": "Stelle verfolgt.",
+      "createPendingHint": "Fügen Sie eine Anzeige hinzu, um zu beginnen.",
+      "tailorLabel": "Lebenslauf anpassen",
+      "tailorCompletedHint": "Lebenslauf angepasst.",
+      "tailorPendingHint": "Optimieren Sie einen Lebenslauf für eine Ihrer Stellen.",
+      "generateLabel": "Anschreiben erstellen",
+      "generateCompletedHint": "Anschreiben erstellt.",
+      "generatePendingHint": "Erstellen Sie ein Anschreiben in 15 Sekunden.",
+      "dismissedToast": "Einrichtung ausgeblendet. Sie finden sie wieder im Hilfe-Menü.",
+      "dismissErrorToast": "Einrichtung konnte nicht ausgeblendet werden. Bitte versuchen Sie es erneut.",
+      "confirmDialog": {
+        "title": "Einrichtungs-Checkliste ausblenden?",
+        "description": "Sie können dies später in den Einstellungen wieder aktivieren.",
+        "keep": "Sichtbar lassen",
+        "hide": "Ausblenden"
+      }
+    },
+    "statCards": {
+      "aiOperations": "KI-Operationen",
+      "activeJobs": "Aktive Stellen",
+      "applicationsThisMonth": "Bewerbungen diesen Monat",
+      "resumeCredits": "Lebenslauf-Guthaben",
+      "clCredits": "Anschreiben-Guthaben",
+      "unlimited": "Unbegrenzt",
+      "ofLimit": "von {limit}",
+      "resetsOn": "Reset am {date}",
+      "daysUntilReset": "{count, plural, =0 {Reset heute} =1 {Reset in 1 Tag} other {Reset in # Tagen}}",
+      "daysSuffix": "Tage",
+      "todayLabel": "Heute",
+      "activeJobsTooltip": "Aktive Stellen in Ihrem Tracker.",
+      "resumeCreditsTooltip": "In diesem Abrechnungszyklus verbleibende Lebenslauf-Anpassungen.",
+      "clCreditsTooltip": "In diesem Abrechnungszyklus verbleibende Anschreiben-Erstellungen.",
+      "daysUntilResetTooltip": "Zeit bis Ihre monatlichen Limits zurückgesetzt werden."
+    },
+    "relativeDate": {
+      "today": "Heute",
+      "yesterday": "Gestern",
+      "daysAgo": "{count, plural, =1 {vor 1 Tag} other {vor # Tagen}}",
+      "weeksAgo": "{count, plural, =1 {vor 1 Woche} other {vor # Wochen}}",
+      "monthsAgo": "{count, plural, =1 {vor 1 Monat} other {vor # Monaten}}"
+    }
+  },
+  "Resumes": {
+    "list": {
+      "metaTitle": "Lebensläufe — Light Role",
+      "title": "Lebensläufe",
+      "subtitle": "Ihre angepassten Lebensläufe — ein Klick zum Herunterladen oder Bearbeiten.",
+      "ctaTailor": "Neuen Lebenslauf anpassen",
+      "searchPlaceholder": "Suche nach Dateiname, Stelle oder Unternehmen…",
+      "sortLabel": "Lebensläufe sortieren",
+      "sort": {
+        "newest": "Neueste",
+        "oldest": "Älteste",
+        "recentlyUpdated": "Kürzlich aktualisiert",
+        "highestScore": "Höchste Übereinstimmung",
+        "newestFirst": "Neueste zuerst",
+        "oldestFirst": "Älteste zuerst",
+        "nameAsc": "Name A–Z",
+        "nameDesc": "Name Z–A"
+      },
+      "countOne": "1 Lebenslauf",
+      "countOther": "{count} Lebensläufe",
+      "countNone": "Keine Lebensläufe.",
+      "noMatches": "Keine Lebensläufe entsprechen Ihren Filtern.",
+      "clear": "Filter löschen",
+      "empty": {
+        "title": "Noch keine angepassten Lebensläufe.",
+        "description": "Passen Sie Ihren ersten Lebenslauf in etwa 30 Sekunden an eine bestimmte Stelle an.",
+        "cta": "Ersten Lebenslauf anpassen"
+      },
+      "errorState": {
+        "title": "Lebensläufe konnten nicht geladen werden",
+        "description": "Beim Abrufen Ihrer Lebensläufe ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut oder aktualisieren Sie die Seite.",
+        "tryAgain": "Erneut versuchen"
+      },
+      "card": {
+        "openAria": "Lebenslauf öffnen: {name}",
+        "deleteAria": "Lebenslauf löschen",
+        "matchScore": "{score}% Übereinstimmung",
+        "noJob": "Keine Stelle verknüpft",
+        "lastUpdated": "Aktualisiert am {date}",
+        "createdJustNow": "Gerade erstellt",
+        "createdMinutesAgo": "{count, plural, =1 {Vor 1 Minute erstellt} other {Vor # Minuten erstellt}}",
+        "createdHoursAgo": "{count, plural, =1 {Vor 1 Stunde erstellt} other {Vor # Stunden erstellt}}",
+        "createdDaysAgo": "{count, plural, =1 {Vor 1 Tag erstellt} other {Vor # Tagen erstellt}}",
+        "createdAt": "Erstellt am {date}",
+        "tailoredFor": "Angepasst für {title} bei {company}",
+        "tailoredForCompanyOnly": "Angepasst für eine Stelle bei {company}",
+        "tailoredForTitleOnly": "Angepasst für {title}",
+        "tailoredFromProfile": "Aus Ihrem Profil angepasst"
+      },
+      "delete": {
+        "title": "Diesen Lebenslauf löschen?",
+        "body": "„{name}“ wird dauerhaft gelöscht. Dies kann nicht rückgängig gemacht werden.",
+        "bodyHasRating": " Ihre Sternebewertung wird ebenfalls entfernt.",
+        "cancel": "Abbrechen",
+        "confirm": "Löschen",
+        "successToast": "Lebenslauf gelöscht.",
+        "errorToast": "Lebenslauf konnte nicht gelöscht werden. Bitte versuchen Sie es erneut."
+      },
+      "untitledJob": "Stelle ohne Titel",
+      "filter": {
+        "jobButton": "Nach Stelle filtern",
+        "noJobs": "Noch keine Stellen zum Filtern.",
+        "clearSelection": "Auswahl aufheben"
+      }
+    },
+    "tailor": {
+      "metaTitle": "Lebenslauf anpassen",
+      "title": "Lebenslauf anpassen",
+      "subtitle": "KI optimiert Ihren Lebenslauf für eine bestimmte Stelle in etwa 30 Sekunden.",
+      "backToList": "Zurück zu Lebensläufen",
+      "step1": "Stelle",
+      "step2": "Einstellungen",
+      "jobLabel": "Stelle *",
+      "jobPlaceholder": "Stelle auswählen…",
+      "jobsError": "Ihre Stellen konnten nicht geladen werden. Aktualisieren Sie die Seite oder versuchen Sie es erneut.",
+      "submit": "Lebenslauf anpassen",
+      "submitting": "Wird angepasst…",
+      "aiLimitTooltip": "Sie haben Ihr KI-Operationslimit erreicht. Upgraden Sie, um fortzufahren.",
+      "selectJob": "Stelle auswählen",
+      "jobHelp": "Wählen Sie die Stelle aus, für die Sie einen Lebenslauf anpassen möchten.",
+      "noJobs": {
+        "title": "Noch keine Stellen",
+        "body": "Fügen Sie eine Stelle hinzu, bevor Sie einen Lebenslauf anpassen können.",
+        "cta": "Stelle hinzufügen"
+      },
+      "missingProfile": {
+        "title": "Profilinformationen fehlen",
+        "body": "Ein angepasster Lebenslauf benötigt mindestens einen Erfahrungseintrag. Fügen Sie mindestens eine Berufserfahrung oder ein Projekt zu Ihrem Profil hinzu.",
+        "completeCta": "Profil vervollständigen",
+        "cancel": "Abbrechen"
+      },
+      "loading": {
+        "phase1": "Rolle wird analysiert",
+        "phase1Sub": "Die wichtigsten Anforderungen werden extrahiert…",
+        "phase2": "Ihr Hintergrund wird überprüft",
+        "phase2Sub": "Ihre Erfahrung wird mit der Rolle abgeglichen…",
+        "phase3": "Ihr Lebenslauf wird angepasst",
+        "phase3Sub": "Stichpunkte werden neu angeordnet und überarbeitet…",
+        "tipHeading": "Wussten Sie schon?",
+        "tips": [
+          "Ein angepasster Lebenslauf wird 3-mal häufiger beachtet als ein generischer.",
+          "Light Role schreibt Ihre Stichpunkte um, damit sie die Schlüsselwörter der Stelle widerspiegeln.",
+          "Schon kleine Anpassungen können Ihre Übereinstimmungsbewertung deutlich verbessern.",
+          "Halten Sie Ihr Profil aktuell, um die beste Anpassung zu erhalten."
+        ],
+        "creditHint": "Bitte warten — wir verwenden eines Ihrer Guthaben, um dies anzupassen.",
+        "failed": "Etwas ist schiefgelaufen.",
+        "retry": "Erneut versuchen",
+        "progressAria": "Anpassungsfortschritt",
+        "phaseAria": "Phase {step} von {total}: {label}",
+        "phaseState": {
+          "active": "Aktiv",
+          "completed": "Abgeschlossen",
+          "failed": "Fehlgeschlagen",
+          "pending": "Ausstehend"
+        }
+      },
+      "toast": {
+        "success": "Lebenslauf angepasst.",
+        "aiFail": "Die KI konnte gerade nicht anpassen — bitte versuchen Sie es erneut. Es wurden keine Guthaben abgezogen.",
+        "networkFail": "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut.",
+        "profileNotReady": "Ihr Profil ist nicht vollständig genug, um einen Lebenslauf anzupassen.",
+        "jobNotFound": "Stelle nicht gefunden.",
+        "alreadyExists": "Für diese Stelle existiert bereits ein angepasster Lebenslauf."
+      }
+    },
+    "editor": {
+      "metaTitle": "Lebenslauf bearbeiten",
+      "backToList": "Zurück zu Lebensläufen",
+      "edit": "Bearbeiten",
+      "exitEdit": "Bearbeitung beenden",
+      "preview": "Vorschau",
+      "download": "PDF herunterladen",
+      "downloading": "PDF wird vorbereitet…",
+      "downloadError": "Die PDF konnte nicht erstellt werden. Bitte versuchen Sie es erneut.",
+      "downloadSuccess": "Lebenslauf heruntergeladen.",
+      "saveBeforeDownload": "Speichern Sie Ihre Änderungen vor dem Herunterladen.",
+      "filenameLabel": "Dateiname",
+      "filenamePlaceholder": "Lebenslauf ohne Titel",
+      "renameSuccessToast": "Dateiname aktualisiert.",
+      "renameErrorToast": "Dateiname konnte nicht aktualisiert werden. Bitte versuchen Sie es erneut.",
+      "renameNotImplemented": "Umbenennen ist noch nicht verfügbar.",
+      "saveNameAria": "Dateiname speichern",
+      "cancelRenameAria": "Umbenennen abbrechen",
+      "renameAria": "Datei umbenennen",
+      "fontLabel": "Schriftart",
+      "saveButton": "Speichern",
+      "savedAt": "Gespeichert um {time}",
+      "unsavedChanges": "Ungespeicherte Änderungen",
+      "saving": "Wird gespeichert…",
+      "toolbarAria": "Lebenslauf-Bearbeitungsleiste",
+      "invalidFieldsTooltip": "Beheben Sie die markierten Felder vor dem Speichern.",
+      "noChangesTooltip": "Keine Änderungen zum Speichern.",
+      "insightsAside": "Insights & Übereinstimmungsdetails",
+      "tailoredFromProfileSubtitle": "Aus Ihrem Profil angepasst",
+      "notFoundTitle": "Lebenslauf nicht gefunden",
+      "notFoundDescription": "Wir konnten diesen Lebenslauf nicht finden. Möglicherweise wurde er gelöscht.",
+      "discardDialog": {
+        "title": "Änderungen verwerfen?",
+        "body": "Sie haben ungespeicherte Änderungen. Verwerfen?",
+        "cancel": "Abbrechen",
+        "stay": "Bleiben",
+        "discard": "Verwerfen"
+      },
+      "reorderDialog": {
+        "title": "Abschnitte neu anordnen",
+        "body": "Ziehen Sie Abschnitte, um die Reihenfolge im Lebenslauf zu ändern.",
+        "save": "Reihenfolge speichern",
+        "cancel": "Abbrechen",
+        "dragHandleAria": "Ziehen, um Abschnitt neu anzuordnen",
+        "entryCountFilledLabel": "{count, plural, =0 {leer} =1 {1 Eintrag} other {# Einträge}}",
+        "entryCountOneEntry": "1 Eintrag",
+        "entryCountOtherEntries": "{count} Einträge"
+      },
+      "appliedChanges": {
+        "title": "Vorgenommene Änderungen",
+        "description": "Was die KI bei der Anpassung dieses Lebenslaufs geändert hat.",
+        "empty": "Keine Änderungen für diesen Lebenslauf erfasst.",
+        "categoryReorder": "Neuanordnung",
+        "categoryRewrite": "Umformulierung",
+        "categoryAddition": "Ergänzungen",
+        "categoryRemoval": "Entfernungen"
+      },
+      "insightsPanel": {
+        "title": "Lebenslauf-Insights",
+        "shortTitle": "Insights",
+        "matchScore": "Übereinstimmungsbewertung",
+        "matchScoreDescription": "Wie gut dieser Lebenslauf zur Stellenbeschreibung passt.",
+        "matchedKeywords": "Übereinstimmende Schlüsselwörter",
+        "missingKeywords": "Fehlende Schlüsselwörter",
+        "noKeywords": "Keine Schlüsselwortdaten verfügbar.",
+        "noKeywordsMatched": "Noch keine Schlüsselwörter übereinstimmend.",
+        "noOccurrences": "Noch keine Vorkommen im Lebenslauf.",
+        "scrollToOccurrence": "Zum Vorkommen von „{keyword}“ scrollen",
+        "readOnlyEditTooltip": "Wechseln Sie in den Bearbeitungsmodus, um dies zu nutzen."
+      },
+      "rating": {
+        "label": "Übereinstimmungsbewertung",
+        "starsAria": "{score} von 5 Sternen",
+        "scoreOutOf": "{score}/100",
+        "cardTitle": "Wie war diese Anpassung?",
+        "cardDescription": "Ihre Bewertung hilft uns, besser zu werden.",
+        "dismissAria": "Bewertungskarte schließen",
+        "thanksToast": "Vielen Dank für Ihr Feedback!",
+        "submitError": "Ihre Bewertung konnte nicht übermittelt werden. Bitte versuchen Sie es erneut.",
+        "commentLabel": "Kommentar (optional)",
+        "commentPlaceholder": "Was hat gut funktioniert? Was könnte besser sein?",
+        "submitting": "Wird übermittelt…",
+        "submit": "Absenden",
+        "groupAria": "Diese Anpassung bewerten"
+      },
+      "preview": {
+        "loading": "Vorschau wird geladen…",
+        "error": "Vorschau konnte nicht gerendert werden.",
+        "retry": "Erneut versuchen"
+      },
+      "section": {
+        "addEntry": "Eintrag hinzufügen",
+        "removeEntry": "Eintrag entfernen",
+        "moveUp": "Nach oben verschieben",
+        "moveDown": "Nach unten verschieben",
+        "delete": "Löschen",
+        "edit": "Bearbeiten",
+        "saveEntry": "Speichern",
+        "cancelEntry": "Abbrechen",
+        "emptyDefault": "Noch keine Einträge.",
+        "dragEntryAria": "{label} ziehen, um neu anzuordnen",
+        "removeEntryAria": "{label} entfernen",
+        "employmentEntryLabel": "Position",
+        "educationEntryLabel": "Ausbildung",
+        "projectEntryLabel": "Projekt",
+        "achievementEntryLabel": "Auszeichnung",
+        "certificateEntryLabel": "Zertifikat",
+        "volunteerEntryLabel": "Ehrenamtliche Tätigkeit",
+        "bulletPlaceholder": "Stichpunkt zu dieser Rolle hinzufügen…",
+        "projectBulletPlaceholder": "Stichpunkt zu diesem Projekt hinzufügen…",
+        "describeProjectPlaceholder": "Beschreiben Sie das Projekt kurz…",
+        "summaryPlaceholder": "Ein kurzer Absatz, der Sie vorstellt.",
+        "addSkillPlaceholder": "Fähigkeit hinzufügen",
+        "addLanguagePlaceholder": "Sprache hinzufügen",
+        "addTechnologyPlaceholder": "Technologie hinzufügen",
+        "liveUrlPlaceholder": "https://…",
+        "repositoryPlaceholder": "https://github.com/…",
+        "credentialUrlPlaceholder": "https://…",
+        "expiresPrefix": "Läuft ab",
+        "educationDetailsPlaceholder": "Auszeichnungen, Kurse, Note…",
+        "emailExamplePlaceholder": "sie@beispiel.de",
+        "platformExamplePlaceholder": "LinkedIn, GitHub, Portfolio…",
+        "dragLink": "Link ziehen",
+        "removeLink": "Link entfernen",
+        "startShort": "Start",
+        "endShort": "Ende"
+      },
+      "fields": {
+        "monthPlaceholder": "MM/JJJJ",
+        "addChip": "Hinzufügen",
+        "removeChip": "Entfernen",
+        "richtextPlaceholder": "Beginnen Sie zu tippen…",
+        "chipPlaceholder": "Tippen und Enter drücken",
+        "dragChipAria": "{label} ziehen",
+        "removeChipAria": "{label} entfernen",
+        "monthSelectPlaceholder": "Datum auswählen",
+        "pickMonthYearAria": "Monat und Jahr auswählen",
+        "yearLabel": "Jahr",
+        "monthLabel": "Monat",
+        "doneButton": "Fertig",
+        "formatToolbarAria": "Formatierungsleiste",
+        "formatBold": "Fett",
+        "formatItalic": "Kursiv",
+        "formatBulletList": "Aufzählungsliste",
+        "formatClear": "Formatierung entfernen"
+      }
+    },
+    "sectionTitles": {
+      "personalInfo": "Persönliche Daten",
+      "summary": "Zusammenfassung",
+      "skills": "Fähigkeiten",
+      "employment": "Berufserfahrung",
+      "education": "Ausbildung",
+      "languages": "Sprachen",
+      "certificates": "Zertifikate",
+      "projects": "Projekte",
+      "achievements": "Auszeichnungen",
+      "volunteer": "Ehrenamt"
+    }
+  },
+  "Jobs": {
+    "list": {
+      "metaTitle": "Stellen — Light Role",
+      "title": "Stellen",
+      "heading": "Stellenverfolgung",
+      "addJob": "Stelle hinzufügen",
+      "searchPlaceholder": "Suche nach Unternehmen…",
+      "clearSearchAria": "Suche leeren",
+      "clearFilters": "Filter löschen",
+      "clearSelection": "Auswahl aufheben",
+      "statusFilterLabel": "Status",
+      "resultCount": "{count, plural, =1 {# Stelle} other {# Stellen}}",
+      "dismiss": "Schließen",
+      "dropJobsHere": "Stellen hier ablegen",
+      "dropHere": "Hier ablegen",
+      "openJobMenuAria": "Stellenmenü öffnen",
+      "expandSectionAria": "Abschnitt {label} erweitern",
+      "collapseSectionAria": "Abschnitt {label} einklappen",
+      "kanbanViewAria": "Kanban-Ansicht",
+      "tableViewAria": "Tabellenansicht",
+      "hideEmpty": "Leere ausblenden",
+      "showEmpty": "Leere anzeigen",
+      "hideEmptySectionsAria": "Leere Abschnitte ausblenden",
+      "showEmptySectionsAria": "Leere Abschnitte anzeigen",
+      "statusUpdateFailed": "Status der Stelle konnte nicht aktualisiert werden. Bitte versuchen Sie es erneut.",
+      "emptyFiltered": "Keine Stellen entsprechen Ihren Filtern.",
+      "emptyTableRow": "Noch keine Stellen. Fügen Sie Ihre erste Stelle hinzu, um zu beginnen.",
+      "empty": {
+        "title": "Noch keine Stellen",
+        "description": "Verfolgen Sie Ihre erste Stelle — fügen Sie eine Anzeige ein und wir übernehmen das Parsen.",
+        "cta": "Erste Stelle hinzufügen"
+      },
+      "columns": {
+        "title": "Titel",
+        "company": "Unternehmen",
+        "location": "Ort",
+        "salary": "Gehalt",
+        "status": "Status",
+        "dateSaved": "Gespeichert am",
+        "dateApplied": "Beworben am",
+        "deadline": "Frist",
+        "followUp": "Nachfassen",
+        "excitement": "Begeisterung",
+        "actions": "Aktionen"
+      },
+      "dnd": {
+        "pickedUp": "Stelle {id} aufgenommen.",
+        "overTarget": "Stelle {id} ist über Ablagebereich {overId}.",
+        "leftDroppable": "Stelle {id} ist nicht mehr über einem Ablagebereich.",
+        "droppedOver": "Stelle {id} wurde über Ablagebereich {overId} abgelegt.",
+        "dropped": "Stelle {id} wurde abgelegt.",
+        "cancelled": "Ziehen für Stelle {id} wurde abgebrochen."
+      }
+    },
+    "new": {
+      "metaTitle": "Neue Stelle",
+      "title": "Stelle hinzufügen",
+      "subtitle": "Fügen Sie eine Stellenanzeige ein und wir extrahieren die wichtigsten Details für Sie.",
+      "backToJobs": "Zurück zu Stellen",
+      "pasteLabel": "Stellenbeschreibung einfügen",
+      "pastePlaceholder": "Fügen Sie hier die vollständige Stellenbeschreibung ein…",
+      "parseButton": "Mit KI parsen",
+      "parsing": "Wird geparst…",
+      "manualButton": "Manuell eingeben",
+      "titleLabel": "Titel",
+      "titlePlaceholder": "Senior Software-Ingenieur",
+      "companyLabel": "Unternehmen",
+      "companyPlaceholder": "Acme Inc.",
+      "locationLabel": "Ort",
+      "locationPlaceholder": "Remote · Berlin · Hybrid",
+      "urlLabel": "Stellen-URL",
+      "descriptionLabel": "Beschreibung",
+      "descriptionPlaceholder": "Fügen Sie die vollständige Stellenbeschreibung ein oder schreiben Sie sie…",
+      "salaryLabel": "Gehaltsspanne",
+      "salaryPlaceholder": "120k €–150k €",
+      "requirementsLabel": "Anforderungen",
+      "requirementsHint": "Eine pro Zeile. Wird von der KI bei der Anpassung von Lebensläufen verwendet.",
+      "requirementsPlaceholder": "5+ Jahre Python\nErfahrung mit verteilten Systemen",
+      "saveButton": "Stelle speichern",
+      "saving": "Wird gespeichert…",
+      "successToast": "Stelle erstellt.",
+      "errorToast": "Die Stelle konnte nicht erstellt werden. Bitte versuchen Sie es erneut.",
+      "parseErrorToast": "Die KI konnte diese Stelle nicht parsen — bitte füllen Sie die Felder manuell aus.",
+      "aiLimitTooltip": "Sie haben Ihr KI-Operationslimit erreicht. Upgraden Sie, um fortzufahren.",
+      "modeAi": "KI verwenden",
+      "modeManual": "Manuelle Eingabe",
+      "reviewHint": "Überprüfen Sie die geparsten Details vor dem Speichern.",
+      "startOver": "Von vorne beginnen",
+      "confirmAndSave": "Bestätigen und speichern",
+      "invalidFieldsError": "Bitte füllen Sie die erforderlichen Felder aus.",
+      "parsingMessages": [
+        "Anzeige wird gelesen…",
+        "Rolle und Unternehmen werden extrahiert…",
+        "Anforderungen werden extrahiert…",
+        "Fast geschafft…"
+      ]
+    },
+    "details": {
+      "metaTitle": "Stellendetails",
+      "backToJobs": "Zurück zu Stellen",
+      "notFound": "Stelle nicht gefunden",
+      "notFoundDescription": "Wir konnten diese Stelle nicht finden. Möglicherweise wurde sie gelöscht.",
+      "loadError": "Diese Stelle konnte nicht geladen werden. Bitte versuchen Sie es erneut.",
+      "titlePlaceholder": "Rolle ohne Titel",
+      "tabs": {
+        "overview": "Übersicht",
+        "application": "Bewerbung",
+        "documents": "Dokumente"
+      },
+      "overview": {
+        "jobDetails": "Stellendetails",
+        "company": "Unternehmen",
+        "location": "Ort",
+        "locationPlaceholder": "Ort hinzufügen",
+        "url": "Stellen-URL",
+        "salary": "Gehalt",
+        "salaryPlaceholder": "Gehaltsspanne hinzufügen",
+        "description": "Beschreibung",
+        "descriptionPlaceholder": "Beschreibung hinzufügen",
+        "requirements": "Anforderungen",
+        "createdAt": "Hinzugefügt am {date}"
+      },
+      "application": {
+        "heading": "Bewerbung",
+        "status": "Status",
+        "dateApplied": "Beworben am",
+        "followUpDate": "Nachfassen",
+        "deadline": "Frist",
+        "excitement": "Begeisterung",
+        "notes": "Notizen",
+        "notesPlaceholder": "Alles, woran Sie sich zu dieser Rolle erinnern möchten…",
+        "saveButton": "Speichern",
+        "saving": "Wird gespeichert…",
+        "savedToast": "Bewerbung aktualisiert.",
+        "saveError": "Die Bewerbung konnte nicht aktualisiert werden. Bitte versuchen Sie es erneut."
+      },
+      "documents": {
+        "resumeTitle": "Angepasster Lebenslauf",
+        "resumeShort": "Lebenslauf",
+        "coverLetterTitle": "Anschreiben",
+        "coverLetterShort": "Anschreiben",
+        "noResume": "Noch kein angepasster Lebenslauf.",
+        "tailorCta": "Lebenslauf anpassen",
+        "noCoverLetter": "Noch kein Anschreiben.",
+        "generateCta": "Anschreiben erstellen"
+      },
+      "delete": {
+        "title": "Diese Stelle löschen?",
+        "body": "„{title}“ wird zusammen mit den Bewerbungsdaten dauerhaft gelöscht. Verknüpfte Lebensläufe und Anschreiben bleiben in Ihrer Bibliothek erhalten.",
+        "cancel": "Abbrechen",
+        "confirm": "Löschen",
+        "successToast": "Stelle gelöscht.",
+        "errorToast": "Stelle konnte nicht gelöscht werden. Bitte versuchen Sie es erneut."
+      }
+    },
+    "contextMenu": {
+      "view": "Stelle ansehen",
+      "edit": "Bearbeiten",
+      "tailorResume": "Lebenslauf anpassen",
+      "generateCoverLetter": "Anschreiben erstellen",
+      "viewResume": "Angepassten Lebenslauf ansehen",
+      "viewCoverLetter": "Anschreiben ansehen",
+      "delete": "Löschen"
+    },
+    "status": {
+      "saved": "Gespeichert",
+      "applied": "Beworben",
+      "screening": "Screening",
+      "interview": "Vorstellungsgespräch",
+      "offer": "Angebot",
+      "rejected": "Abgelehnt",
+      "accepted": "Angenommen",
+      "withdrawn": "Zurückgezogen"
+    }
+  },
+  "CoverLetters": {
+    "details": {
+      "metaTitle": "Anschreiben",
+      "backToList": "Zurück zu Anschreiben",
+      "edit": "Bearbeiten",
+      "save": "Speichern",
+      "saving": "Wird gespeichert…",
+      "savedToast": "Anschreiben gespeichert.",
+      "saveError": "Ihre Änderungen konnten nicht gespeichert werden. Bitte versuchen Sie es erneut.",
+      "downloadPdf": "PDF herunterladen",
+      "downloadDocx": "DOCX herunterladen",
+      "downloadError": "Die Datei konnte nicht erstellt werden. Bitte versuchen Sie es erneut.",
+      "regenerate": "Neu generieren",
+      "regenerateConfirmTitle": "Dieses Anschreiben neu generieren?",
+      "regenerateConfirmBody": "Dies ersetzt den aktuellen Text. Ein KI-Guthaben wird verwendet.",
+      "regenerateCancel": "Abbrechen",
+      "regenerateConfirm": "Neu generieren",
+      "linkedJob": "Verknüpfte Stelle",
+      "noLinkedJob": "Eigenständiges Anschreiben",
+      "viewJob": "Stelle ansehen",
+      "untitled": "Anschreiben ohne Titel",
+      "nameLabel": "Name",
+      "namePlaceholder": "Anschreiben für…",
+      "contentLabel": "Inhalt",
+      "contentPlaceholder": "Schreiben oder fügen Sie Ihr Anschreiben ein…",
+      "contentPreviewPlaceholder": "Ihr Anschreiben wird hier angezeigt.",
+      "settingsAriaLabel": "Anschreiben-Einstellungen",
+      "styleLabel": "Stil",
+      "toneLabel": "Tonalität",
+      "lengthLabel": "Länge",
+      "previewTab": "Vorschau",
+      "previewLabel": "Vorschau",
+      "livePreviewLabel": "Live-Vorschau",
+      "autosaveHint": "Wird automatisch gespeichert.",
+      "notFoundTitle": "Anschreiben nicht gefunden",
+      "notFoundBody": "Wir konnten dieses Anschreiben nicht finden. Möglicherweise wurde es gelöscht.",
+      "loadErrorTitle": "Dieses Anschreiben konnte nicht geladen werden",
+      "loadErrorBody": "Versuchen Sie es erneut oder aktualisieren Sie die Seite."
+    },
+    "generatePage": {
+      "metaTitle": "Anschreiben erstellen"
+    }
+  },
+  "Subscriptions": {
+    "page": {
+      "metaTitle": "Mein Abonnement",
+      "title": "Mein Abonnement",
+      "subtitle": "Verwalten Sie Ihren Tarif, Ihre Abrechnung und Ihre Zahlungsmethode.",
+      "backToDashboard": "Zurück zum Dashboard"
+    },
+    "header": {
+      "currentPlan": "Aktueller Tarif",
+      "free": "Free",
+      "pro": "Pro",
+      "monthly": "Monatlich",
+      "annual": "Jährlich",
+      "upgrade": "Upgraden",
+      "manage": "Abonnement verwalten",
+      "cancel": "Abonnement kündigen",
+      "renew": "Abonnement erneuern",
+      "resume": "Abonnement fortsetzen",
+      "startedOn": "Gestartet am {date}",
+      "planSuffix": "{name} Tarif",
+      "planImageAlt": "{name} Tarif",
+      "changePlan": "Tarif wechseln",
+      "cancelScheduledToast": "Kündigung geplant.",
+      "cancelConfirmTitle": "Abonnement kündigen?",
+      "cancelConfirmBody": "Ihr Pro-Zugang läuft bis zum Ende des aktuellen Abrechnungszeitraums weiter. Danach werden Sie auf den Free-Tarif umgestellt."
+    },
+    "details": {
+      "status": "Status",
+      "active": "Aktiv",
+      "trialing": "In Testphase",
+      "pastDue": "Überfällig",
+      "canceled": "Gekündigt",
+      "paused": "Pausiert",
+      "nextBilling": "Nächstes Abrechnungsdatum",
+      "renewsOn": "Verlängert sich am {date}",
+      "endsOn": "Endet am {date}",
+      "currentPeriod": "Aktueller Zeitraum",
+      "billingCycle": "Abrechnungszyklus"
+    },
+    "alerts": {
+      "pastDueTitle": "Ihre letzte Zahlung ist fehlgeschlagen",
+      "pastDueBody": "Aktualisieren Sie Ihre Zahlungsmethode, um Ihren Pro-Zugang zu behalten.",
+      "canceledTitle": "Abonnement gekündigt",
+      "canceledBody": "Ihr Pro-Zugang endet am {date}. Erneuern Sie, um Ihre Vorteile zu behalten.",
+      "canceledOnAt": "Gekündigt am {date}",
+      "pausedTitle": "Abonnement pausiert",
+      "pausedBody": "Setzen Sie Ihr Abonnement fort, um die Pro-Funktionen wiederzuerlangen."
+    },
+    "paymentMethod": {
+      "title": "Zahlungsmethode",
+      "cardEndsIn": "Karte endend auf {last4}",
+      "expires": "Läuft ab {month}/{year}",
+      "update": "Aktualisieren",
+      "noMethod": "Keine Zahlungsmethode hinterlegt."
+    },
+    "lineItems": {
+      "title": "Tarifdetails",
+      "billed": "Abgerechnet",
+      "amount": "Betrag",
+      "tax": "Steuer",
+      "total": "Gesamt",
+      "totalIncTax": "Gesamt (inkl. Steuer)",
+      "freePlanDetails": "Free-Tarif",
+      "freePlanLabel": "Free",
+      "freePlanTagline": "Für immer kostenlos",
+      "noRecurringCharges": "Keine wiederkehrenden Gebühren.",
+      "recurringProductsTitle": "Wiederkehrende Posten",
+      "qty": "Menge {count}",
+      "excludingTaxNote": "Preise zzgl. Steuer."
+    },
+    "nextPayment": {
+      "title": "Nächste Zahlung",
+      "amount": "Betrag",
+      "date": "Datum",
+      "noPending": "Keine ausstehende Zahlung geplant.",
+      "dueLabel": "Fällig am {date}"
+    },
+    "pastPayments": {
+      "title": "Vergangene Zahlungen",
+      "cardTitle": "Zahlungen",
+      "empty": "Noch keine Zahlungen.",
+      "viewInvoice": "Rechnung ansehen",
+      "downloadInvoice": "Rechnung herunterladen",
+      "amount": "Betrag",
+      "date": "Datum",
+      "status": "Status",
+      "noPaymentsTitle": "Noch keine Zahlungen",
+      "noPaymentsBody": "Ihre Rechnungen erscheinen hier, sobald Sie upgraden.",
+      "noHistoryBody": "Kein Zahlungsverlauf verfügbar."
+    },
+    "errorBoundary": {
+      "title": "Ihr Abonnement konnte nicht geladen werden",
+      "description": "Beim Abrufen Ihres Abonnements ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut oder aktualisieren Sie die Seite.",
+      "tryAgain": "Erneut versuchen"
+    }
+  },
+  "Checkout": {
+    "metaTitle": "Checkout",
+    "title": "Checkout",
+    "subtitle": "Schließen Sie Ihr Abonnement ab.",
+    "backToUpgrade": "Zurück zum Upgrade",
+    "backToDashboard": "Zurück zum Dashboard",
+    "orderSummary": "Bestellübersicht",
+    "paymentDetails": "Zahlungsdetails",
+    "thenRecurring": "Dann {price} {cycle}",
+    "loading": "Checkout wird vorbereitet…",
+    "error": {
+      "title": "Checkout konnte nicht geladen werden",
+      "description": "Beim Vorbereiten Ihres Checkouts ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.",
+      "tryAgain": "Erneut versuchen",
+      "back": "Zurück zu Tarifen"
+    },
+    "billingToggle": {
+      "monthly": "Monatlich",
+      "annual": "Jährlich",
+      "save": "Spare {percent}%"
+    },
+    "lineItems": {
+      "subtotal": "Zwischensumme",
+      "tax": "Steuer",
+      "discount": "Rabatt",
+      "total": "Gesamt",
+      "dueToday": "Heute fällig",
+      "includingTax": "Inklusive Steuer"
+    },
+    "priceSection": {
+      "billedAs": "Abrechnung {cycle}",
+      "perMonth": "pro Monat",
+      "perYear": "pro Jahr",
+      "monthlyEquivalent": "≈ {price} / Monat"
+    },
+    "success": {
+      "title": "Willkommen bei Pro!",
+      "description": "Ihr Abonnement ist aktiv. Lassen Sie es für Sie arbeiten.",
+      "goToDashboard": "Zum Dashboard",
+      "manageSubscription": "Abonnement verwalten",
+      "processing": "Ihre Zahlung wird bestätigt…",
+      "timeoutTitle": "Wird noch bestätigt…",
+      "timeoutDescription": "Es dauert länger als erwartet. Ihre Zahlung wird verarbeitet — aktualisieren Sie in einem Moment.",
+      "transactionId": "Transaktions-ID",
+      "planLabel": "Tarif",
+      "nextBilling": "Nächstes Abrechnungsdatum",
+      "confirmationEmailHint": "Eine Bestätigungs-E-Mail ist unterwegs."
+    },
+    "failure": {
+      "title": "Zahlung fehlgeschlagen",
+      "description": "Wir konnten Ihre Zahlung nicht verarbeiten. Es wurden keine Gebühren erhoben.",
+      "tryAgain": "Erneut versuchen",
+      "backToPlans": "Zurück zu Tarifen",
+      "commonReasonsHeading": "Häufige Gründe",
+      "commonReasons": [
+        "Die Karte wurde von Ihrer Bank abgelehnt.",
+        "Unzureichende Mittel auf der Karte.",
+        "Falsche Kartendetails oder abgelaufene Karte.",
+        "Netzwerkfehler während der Zahlung."
+      ],
+      "contactSupport": "Wenn dies weiterhin auftritt, kontaktieren Sie support@lightrole.com."
+    }
+  },
+  "Payments": {
+    "metaTitle": "Zahlungen — Light Role",
+    "title": "Zahlungen",
+    "subtitle": "Ihr Abrechnungsverlauf und Ihre Rechnungen.",
+    "table": {
+      "date": "Datum",
+      "description": "Beschreibung",
+      "amount": "Betrag",
+      "status": "Status",
+      "invoice": "Rechnung",
+      "actions": "Aktionen"
+    },
+    "status": {
+      "paid": "Bezahlt",
+      "pending": "Ausstehend",
+      "failed": "Fehlgeschlagen",
+      "refunded": "Erstattet"
+    },
+    "actions": {
+      "download": "Herunterladen",
+      "view": "Ansehen"
+    },
+    "empty": {
+      "title": "Noch keine Zahlungen",
+      "description": "Sobald Sie upgraden, erscheinen Ihre Rechnungen hier."
+    },
+    "filter": {
+      "search": "Zahlungen durchsuchen…",
+      "all": "Alle Status",
+      "noResults": "Keine Zahlungen entsprechen Ihren Filtern."
+    }
+  },
+  "upgrade": {
+    "hero": {
+      "eyebrow": "Auf Pro upgraden",
+      "headline": "Schöpfen Sie das volle Potenzial Ihrer Jobsuche aus",
+      "subheadline": "Passen Sie jeden Lebenslauf an, erstellen Sie jedes Anschreiben und verfolgen Sie unbegrenzt viele Gelegenheiten — alles an einem Ort.",
+      "trust": "Jederzeit kündbar · Sichere Zahlung über Paddle"
+    },
+    "toggle": {
+      "monthly": "Monatlich",
+      "annual": "Jährlich",
+      "save": "Spare {percent}%"
+    },
+    "cards": {
+      "free": {
+        "title": "Free",
+        "description": "Ihr aktueller Tarif",
+        "price": "0 €",
+        "billedAs": "Für immer kostenlos",
+        "currentPlanBadge": "Aktueller Tarif"
+      },
+      "monthly": {
+        "title": "Pro Monatlich",
+        "description": "Flexibel von Monat zu Monat. Jederzeit kündbar.",
+        "billedAs": "Monatliche Abrechnung",
+        "cta": "Loslegen"
+      },
+      "annual": {
+        "title": "Pro Jährlich",
+        "description": "Bestes Preis-Leistungs-Verhältnis. Einmal zahlen, viel sparen.",
+        "billedAs": "Jährliche Abrechnung",
+        "cta": "Loslegen",
+        "savingsBadge": "Spare {percent}%",
+        "monthlyEquivalent": " {price} / Monat"
+      },
+      "unlimited": {
+        "title": "Unlimited",
+        "description": "Power-User — alles, ohne Grenzen.",
+        "billedAs": "Monatliche Abrechnung",
+        "cta": "Loslegen"
+      },
+      "downgradeToFree": "Auf Free downgraden",
+      "downgradeTo": "Auf {title} downgraden",
+      "upgradeTo": "Auf {title} upgraden",
+      "features": {
+        "title": "Alles in Pro:",
+        "list": [
+          "150 KI-Operationen pro Monat (gegenüber 10 bei Free)",
+          "Unbegrenzte aktive Stellen in Ihrem Tracker",
+          "KI-angepasste Lebensläufe für jede Bewerbung",
+          "KI-generierte Anschreiben mit mehreren Varianten",
+          "Intelligentes Parsen von Stellenbeschreibungen — einfügen und loslegen",
+          "Alle Lebenslauf-Vorlagen freigeschaltet",
+          "Analytics-Dashboard zur Verfolgung Ihres Fortschritts",
+          "Priorisierte KI-Generierung",
+          "Jederzeit kündbar — keine Fragen"
+        ]
+      }
+    },
+    "features": {
+      "unlimitedJobs": "Unbegrenzte aktive Stellen",
+      "jobsLimited": "Bis zu {count} aktive Stellen",
+      "unlimitedResumes": "Unbegrenzte angepasste Lebensläufe",
+      "resumesLimited": "{count} angepasste Lebensläufe / Monat",
+      "unlimitedCoverLetters": "Unbegrenzte Anschreiben",
+      "coverLettersLimited": "{count} Anschreiben / Monat",
+      "templates": "Alle Lebenslauf-Vorlagen",
+      "analytics": "Analytics-Dashboard",
+      "priorityAi": "Priorisierte KI-Verarbeitung",
+      "support": "Priorisierter Support"
+    },
+    "comparison": {
+      "title": "Free vs Pro auf einen Blick",
+      "colFeature": "Funktion",
+      "colFree": "Free",
+      "colPro": "Pro"
+    },
+    "trust": {
+      "title": "Warum Jobsuchende Pro wählen",
+      "items": {
+        "cancel": {
+          "title": "Jederzeit kündbar",
+          "description": "Keine Vertragsbindung. Kündigen Sie Ihr Abonnement sofort über Ihr Dashboard, ohne Fragen."
+        },
+        "refresh": {
+          "title": "Limits werden monatlich zurückgesetzt",
+          "description": "Ihr KI-Operationskontingent wird in jedem Abrechnungszyklus aufgefrischt, damit Sie immer Kapazität haben, wenn Sie sie brauchen."
+        },
+        "global": {
+          "title": "Funktioniert überall",
+          "description": "Light Role unterstützt mehrere Sprachen und Währungen, damit Ihre Jobsuche keine Grenzen kennt."
+        }
+      }
+    },
+    "faq": {
+      "title": "Häufig gestellte Fragen",
+      "items": {
+        "cancel": {
+          "q": "Kann ich jederzeit kündigen?",
+          "a": "Ja. Sie können Ihr Abonnement jederzeit über die Abrechnungseinstellungen kündigen. Ihr Pro-Zugang läuft bis zum Ende des aktuellen Abrechnungszeitraums weiter."
+        },
+        "difference": {
+          "q": "Was ist der Unterschied zwischen Free und Pro?",
+          "a": "Der Free-Tarif bietet Ihnen 10 KI-Operationen pro Monat und bis zu 5 aktive Stellen. Pro schaltet 150 KI-Operationen, unbegrenzte aktive Stellen, alle Lebenslauf-Vorlagen, Analytics und priorisierte KI-Verarbeitung frei."
+        },
+        "payment": {
+          "q": "Wie wird die Zahlung abgewickelt?",
+          "a": "Zahlungen werden sicher von Paddle abgewickelt, einem vertrauenswürdigen Merchant of Record. Ihre Kartendaten werden niemals auf unseren Servern gespeichert."
+        },
+        "switch": {
+          "q": "Kann ich zwischen monatlich und jährlich wechseln?",
+          "a": "Ja. Sie können den Abrechnungszyklus jederzeit über die Abrechnungseinstellungen wechseln. Änderungen werden zu Beginn des nächsten Abrechnungszeitraums wirksam."
+        },
+        "refund": {
+          "q": "Gibt es eine Rückerstattungsrichtlinie?",
+          "a": "Wir bieten eine 14-tägige Geld-zurück-Garantie auf Jahrespläne. Bei monatlichen Plänen können Sie vor der nächsten Verlängerung kündigen, um eine erneute Abrechnung zu vermeiden."
+        }
+      }
+    },
+    "footer": {
+      "headline": "Bereit, Ihre nächste Stelle schneller zu landen?",
+      "back": "Zurück zum Dashboard"
+    },
+    "errors": {
+      "plansLoadFailed": "Tarife konnten nicht geladen werden. Bitte versuchen Sie es erneut.",
+      "retry": "Erneut versuchen",
+      "pricesFallback": "Standardpreise werden angezeigt. Lokale Währung nicht verfügbar."
+    }
+  },
+  "sidebar": {
+    "feedback": "Feedback senden",
+    "support": "Support kontaktieren"
+  },
+  "feedback": {
+    "dialog": {
+      "title": "Feedback senden",
+      "description": "Helfen Sie uns, Light Role zu verbessern. Teilen Sie Bugs, Ideen oder alles, was Ihnen einfällt.",
+      "type": {
+        "label": "Typ",
+        "bug": "Bug",
+        "feature_request": "Funktionswunsch",
+        "improvement": "Verbesserung",
+        "other": "Sonstiges"
+      },
+      "message": {
+        "label": "Nachricht",
+        "placeholder": "Sagen Sie uns, was Ihnen einfällt..."
+      },
+      "submit": "Absenden",
+      "cancel": "Abbrechen"
+    },
+    "toast": {
+      "success": "Vielen Dank für Ihr Feedback!"
+    },
+    "error": {
+      "rate_limit": "Sie können einmal pro Stunde Feedback senden. Bitte versuchen Sie es später erneut.",
+      "generic": "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut."
+    }
+  },
+  "settings": {
+    "title": "Einstellungen",
+    "subtitle": "Verwalten Sie Ihre Kontoeinstellungen und Sicherheitseinstellungen.",
+    "tabs": {
+      "ariaLabel": "Einstellungsbereiche",
+      "account": "Konto",
+      "security": "Sicherheit",
+      "notifications": "Benachrichtigungen",
+      "resume": "Lebenslauf"
+    },
+    "account": {
+      "heading": "Konto",
+      "description": "Aktualisieren Sie Ihre persönlichen Informationen und Ihre E-Mail-Adresse.",
+      "placeholders": {
+        "firstName": "Jane",
+        "lastName": "Smith",
+        "email": "sie@beispiel.de"
+      },
+      "language": {
+        "heading": "Sprache",
+        "description": "Wählen Sie die Sprache für die Dashboard-Oberfläche.",
+        "label": "Oberflächensprache",
+        "helperText": "Ihre Auswahl wird in Ihrem Browser gespeichert und bei jedem Besuch angewendet.",
+        "savedToast": "Sprache aktualisiert",
+        "errorToast": "Sprache konnte nicht aktualisiert werden. Bitte versuchen Sie es erneut.",
+        "placeholder": "Sprache auswählen"
+      }
+    },
+    "security": {
+      "heading": "Sicherheit",
+      "description": "Verwalten Sie Ihr Passwort und Ihre Kontosicherheit."
+    },
+    "notifications": {
+      "heading": "Benachrichtigungseinstellungen",
+      "description": "Verwalten Sie, welche Benachrichtigungen Sie von Light Role erhalten."
+    },
+    "resume": {
+      "heading": "Lebenslauf-Einstellungen",
+      "description": "Wählen Sie die Abschnittsreihenfolge und die Schriftart, mit der zukünftige angepasste Lebensläufe beginnen.",
+      "infoBanner": {
+        "title": "Diese Einstellungen wirken sich nur auf zukünftige Generierungen aus",
+        "body": "Bestehende angepasste Lebensläufe behalten die Abschnittsreihenfolge und Schriftart, mit der sie generiert wurden. Änderungen hier gelten für Lebensläufe, die Sie nach dem Speichern generieren."
+      },
+      "sectionOrder": {
+        "title": "Abschnittsreihenfolge",
+        "description": "Ziehen Sie zum Neuanordnen. Persönliche Daten erscheinen immer oben im Lebenslauf."
+      },
+      "font": {
+        "title": "Schriftart",
+        "description": "Wählen Sie die Schriftart für Ihren Lebenslauf. Jede Option wird in ihrer eigenen Schriftart angezeigt.",
+        "label": "Lebenslauf-Schriftart",
+        "placeholder": "Schriftart wählen",
+        "hint": "Alle fünf Schriftarten sind professionelle serifenlose Schriften, die im PDF sauber gerendert werden."
+      },
+      "saveButton": "Änderungen speichern",
+      "savingButton": "Wird gespeichert...",
+      "saveSuccessToast": "Lebenslauf-Einstellungen aktualisiert.",
+      "saveError": {
+        "network": "Ihre Änderungen konnten nicht gespeichert werden. Bitte versuchen Sie es erneut.",
+        "validation": "Wir konnten diese Änderungen nicht speichern. Bitte aktualisieren Sie die Seite und versuchen Sie es erneut."
+      },
+      "loadError": "Ihre Lebenslauf-Einstellungen konnten nicht geladen werden. Bitte aktualisieren Sie die Seite.",
+      "retry": "Erneut versuchen"
+    }
+  },
+  "profile": {
+    "title": "Profil",
+    "subtitle": "Verwalten Sie die maßgeblichen Informationen, die zur Anpassung Ihrer Lebensläufe und Anschreiben verwendet werden.",
+    "resetButton": "Profil zurücksetzen",
+    "comingSoon": "Demnächst verfügbar",
+    "tabs": {
+      "ariaLabel": "Profilbereiche",
+      "personal-info": "Persönliche Daten",
+      "skills": "Fähigkeiten",
+      "profile-summary": "Profil-Zusammenfassung",
+      "employment": "Berufserfahrung",
+      "education": "Ausbildung",
+      "languages": "Sprachen",
+      "certificates": "Zertifikate",
+      "projects": "Projekte",
+      "achievements": "Auszeichnungen",
+      "volunteer": "Ehrenamt"
+    },
+    "common": {
+      "saveButton": "Änderungen speichern",
+      "savingButton": "Wird gespeichert...",
+      "savedToast": "Änderungen gespeichert.",
+      "saveErrorToast": "Ihre Änderungen konnten nicht gespeichert werden. Bitte versuchen Sie es erneut.",
+      "loadErrorMessage": "Ihr Profil konnte nicht geladen werden. Bitte aktualisieren Sie die Seite.",
+      "cancelButton": "Abbrechen",
+      "deletedToast": "Eintrag gelöscht",
+      "undoButton": "Rückgängig",
+      "deleteFailedToast": "Eintrag konnte nicht gelöscht werden"
+    },
+    "reupload": {
+      "title": "Lebenslauf erneut hochladen",
+      "subtitle": "Legen Sie eine neue PDF- oder DOCX-Datei ab (max. 10 MB) und wir parsen jeden Abschnitt Ihres Profils erneut mit KI.",
+      "backLink": "← Zurück zum Profil",
+      "dropPrompt": "Ziehen Sie Ihren Lebenslauf hierher",
+      "clickFallback": "oder klicken Sie zum Durchsuchen",
+      "supportedFormats": "PDF oder DOCX · bis zu 10 MB",
+      "parsing": "Ihr Lebenslauf wird geparst…",
+      "parsingHint": "Dies dauert in der Regel 5–15 Sekunden.",
+      "successToast": "Profil aus Lebenslauf aktualisiert",
+      "errorToast": "Der Lebenslauf konnte nicht geparst werden. Bitte versuchen Sie eine andere Datei.",
+      "invalidFormat": "Es werden nur PDF- und DOCX-Dateien unterstützt.",
+      "fileTooLarge": "Die Datei überschreitet das 10-MB-Limit.",
+      "warning": {
+        "title": "Dies ersetzt Ihr bestehendes Profil",
+        "description": "Beim erneuten Hochladen wird jeder aus Ihrem Lebenslauf geparste Abschnitt überschrieben. Manuell bearbeitete Einträge, die nicht in der neuen Datei enthalten sind, werden entfernt."
+      },
+      "steps": {
+        "title": "Was als Nächstes passiert",
+        "step1Title": "Datei hochladen",
+        "step1Description": "PDF oder DOCX, bis zu 10 MB.",
+        "step2Title": "KI parst Ihren Lebenslauf",
+        "step2Description": "Wir extrahieren Erfahrung, Fähigkeiten, Ausbildung und mehr.",
+        "step3Title": "Im Profil überprüfen",
+        "step3Description": "Passen Sie jeden Abschnitt vor dem Generieren von Dokumenten an."
+      }
+    },
+    "emptyState": {
+      "title": "Lassen Sie uns Ihr Profil einrichten",
+      "subtitle": "Laden Sie Ihren Lebenslauf hoch, um jeden Abschnitt automatisch auszufüllen, oder beginnen Sie von Grund auf und bearbeiten Sie jeden Tab manuell.",
+      "uploadCard": {
+        "title": "Lebenslauf hochladen",
+        "description": "Wir parsen ihn mit KI und füllen alle Abschnitte vor./a"
+      },
+      "manualCard": {
+        "title": "Oder manuell ausfüllen",
+        "description": "Überspringen Sie das Hochladen und bearbeiten Sie jeden Abschnitt selbst, beginnend mit den persönlichen Daten.",
+        "button": "Von Grund auf beginnen"
+      },
+      "successToast": "Profil aus Lebenslauf erstellt"
+    },
+    "unsavedDialog": {
+      "title": "Ungespeicherte Änderungen",
+      "description": "Sie haben ungespeicherte Änderungen. Verwerfen?",
+      "cancelButton": "Abbrechen",
+      "discardButton": "Verwerfen"
+    },
+    "personalInfo": {
+      "heading": "Persönliche Daten",
+      "description": "Ihre Kontaktdaten und Links. Werden als Kopfzeile in jedem Lebenslauf und Anschreiben verwendet.",
+      "fullNameLabel": "Vollständiger Name",
+      "emailLabel": "E-Mail",
+      "phoneLabel": "Telefon",
+      "locationLabel": "Ort",
+      "socialLinksLabel": "Soziale Links",
+      "addSocialLink": "Sozialen Link hinzufügen",
+      "platformLabel": "Plattform",
+      "urlLabel": "URL",
+      "removeSocialLink": "Sozialen Link entfernen"
+    },
+    "skills": {
+      "heading": "Fähigkeiten",
+      "description": "Listen Sie die Fähigkeiten auf, die Sie hervorheben möchten. Sie können sie später im Lebenslauf-Editor neu anordnen.",
+      "nameLabel": "Fähigkeit",
+      "addSkill": "Fähigkeit hinzufügen",
+      "removeSkill": "Fähigkeit entfernen"
+    },
+    "profileSummary": {
+      "heading": "Profil-Zusammenfassung",
+      "description": "Ein kurzer Absatz, der Sie vorstellt. Die KI verwendet dies als Ausgangspunkt bei der Anpassung von Lebensläufen.",
+      "label": "Zusammenfassung",
+      "charactersCount": "{count} Zeichen",
+      "placeholder": "Senior Software-Ingenieur mit 8 Jahren Erfahrung im Aufbau verteilter Systeme..."
+    },
+    "languages": {
+      "heading": "Sprachen",
+      "description": "Sprachen, die Sie sprechen — schriftlich und mündlich. Optionale Sprachniveaus folgen in einem zukünftigen Update.",
+      "nameLabel": "Sprache",
+      "addLanguage": "Sprache hinzufügen",
+      "removeLanguage": "Sprache entfernen"
+    },
+    "employment": {
+      "heading": "Berufserfahrung",
+      "description": "Ihre Berufslaufbahn. Ziehen Sie zum Neuanordnen, bearbeiten oder löschen Sie jeden Eintrag.",
+      "addButton": "Position hinzufügen",
+      "modalTitleAdd": "Position hinzufügen",
+      "modalTitleEdit": "Position bearbeiten",
+      "role": "Rolle",
+      "company": "Unternehmen",
+      "location": "Ort",
+      "startDate": "Startdatum",
+      "endDate": "Enddatum",
+      "isCurrent": "Ich arbeite derzeit hier",
+      "details": "Details",
+      "detailsPlaceholder": "Ein Team von 5 Ingenieuren geleitet...\n3 wichtige Funktionen ausgeliefert...",
+      "detailsHint": "Ein Stichpunkt pro Zeile.",
+      "empty": "Noch keine Berufserfahrung. Klicken Sie auf „Position hinzufügen“, um zu beginnen.",
+      "present": "Aktuell"
+    },
+    "education": {
+      "heading": "Ausbildung",
+      "description": "Schulen, Abschlüsse und akademische Programme.",
+      "addButton": "Ausbildung hinzufügen",
+      "modalTitleAdd": "Ausbildung hinzufügen",
+      "modalTitleEdit": "Ausbildung bearbeiten",
+      "degree": "Abschluss",
+      "institution": "Institution",
+      "fieldOfStudy": "Studienfach",
+      "location": "Ort",
+      "startDate": "Startdatum",
+      "endDate": "Enddatum",
+      "isCurrent": "Ich bin derzeit eingeschrieben",
+      "description": "Beschreibung",
+      "empty": "Noch keine Ausbildungseinträge. Klicken Sie auf „Ausbildung hinzufügen“, um zu beginnen.",
+      "present": "Aktuell"
+    },
+    "certificates": {
+      "heading": "Zertifikate",
+      "description": "Berufliche Zertifizierungen und Lizenzen.",
+      "addButton": "Zertifikat hinzufügen",
+      "modalTitleAdd": "Zertifikat hinzufügen",
+      "modalTitleEdit": "Zertifikat bearbeiten",
+      "name": "Name",
+      "issuer": "Aussteller",
+      "issueDate": "Ausstellungsdatum",
+      "expiryDate": "Ablaufdatum",
+      "credentialUrl": "Zertifikats-URL",
+      "issuedLabel": "Ausgestellt",
+      "empty": "Noch keine Zertifikate. Klicken Sie auf „Zertifikat hinzufügen“, um zu beginnen."
+    },
+    "projects": {
+      "heading": "Projekte",
+      "description": "Persönliche oder berufliche Projekte, die es wert sind, gezeigt zu werden.",
+      "addButton": "Projekt hinzufügen",
+      "modalTitleAdd": "Projekt hinzufügen",
+      "modalTitleEdit": "Projekt bearbeiten",
+      "name": "Name",
+      "description": "Beschreibung",
+      "role": "Rolle",
+      "startDate": "Startdatum",
+      "endDate": "Enddatum",
+      "isCurrent": "Ich arbeite noch daran",
+      "technologies": "Technologien",
+      "technologiesPlaceholder": "TypeScript, React, PostgreSQL",
+      "technologiesHint": "Durch Komma getrennt.",
+      "url": "URL",
+      "repositoryUrl": "Repository-URL",
+      "details": "Details",
+      "detailsPlaceholder": "X mit Y gebaut...\nAn Z Nutzer ausgeliefert...",
+      "detailsHint": "Ein Stichpunkt pro Zeile.",
+      "empty": "Noch keine Projekte. Klicken Sie auf „Projekt hinzufügen“, um zu beginnen.",
+      "present": "Aktuell"
+    },
+    "achievements": {
+      "heading": "Auszeichnungen",
+      "description": "Auszeichnungen, Anerkennungen und bemerkenswerte Erfolge.",
+      "addButton": "Auszeichnung hinzufügen",
+      "modalTitleAdd": "Auszeichnung hinzufügen",
+      "modalTitleEdit": "Auszeichnung bearbeiten",
+      "title": "Titel",
+      "description": "Beschreibung",
+      "date": "Datum",
+      "issuer": "Aussteller",
+      "empty": "Noch keine Auszeichnungen. Klicken Sie auf „Auszeichnung hinzufügen“, um zu beginnen."
+    },
+    "volunteer": {
+      "heading": "Ehrenamt",
+      "description": "Ehrenamtliche Tätigkeiten und gesellschaftliches Engagement.",
+      "addButton": "Ehrenamtliche Rolle hinzufügen",
+      "modalTitleAdd": "Ehrenamtliche Rolle hinzufügen",
+      "modalTitleEdit": "Ehrenamtliche Rolle bearbeiten",
+      "role": "Rolle",
+      "organization": "Organisation",
+      "location": "Ort",
+      "startDate": "Startdatum",
+      "endDate": "Enddatum",
+      "isCurrent": "Ich engagiere mich noch hier",
+      "details": "Details",
+      "detailsPlaceholder": "Wochenend-Lebensmittelaktionen koordiniert...\n8 Studierende betreut...",
+      "detailsHint": "Ein Stichpunkt pro Zeile.",
+      "empty": "Noch keine ehrenamtlichen Einträge. Klicken Sie auf „Ehrenamtliche Rolle hinzufügen“, um zu beginnen.",
+      "present": "Aktuell"
+    }
+  },
+  "analytics": {
+    "page_title": "Analytics",
+    "page_subtitle": "Verfolgen Sie den Fortschritt und die Leistung Ihrer Jobsuche im Laufe der Zeit.",
+    "period_selector_label": "Zeitraum auswählen",
+    "period_7d": "7 Tage",
+    "period_30d": "30 Tage",
+    "period_90d": "90 Tage",
+    "period_all": "Gesamter Zeitraum",
+    "hero_jobs_saved": "Gespeicherte Stellen",
+    "hero_applied": "Beworben",
+    "hero_interviews": "Vorstellungsgespräche",
+    "hero_offers": "Angebote",
+    "funnel_title": "Conversion Funnel",
+    "funnel_empty": "Noch keine Bewerbungen — beginnen Sie, Stellen zu verfolgen, um Ihren Funnel zu sehen.",
+    "funnel_stage_saved": "Gespeichert",
+    "funnel_stage_applied": "Beworben",
+    "funnel_stage_screening": "Screening",
+    "funnel_stage_interview": "Vorstellungsgespräch",
+    "funnel_stage_offer": "Angebot",
+    "funnel_stage_accepted": "Angenommen",
+    "timeline_title": "Bewerbungen im Zeitverlauf",
+    "timeline_empty": "Noch keine Bewerbungen verfolgt.",
+    "timeline_empty_cta": "Stellen verfolgen",
+    "status_title": "Status-Aufschlüsselung",
+    "status_empty": "Noch keine Bewerbungsdaten.",
+    "status_saved": "Gespeichert",
+    "status_applied": "Beworben",
+    "status_screening": "Screening",
+    "status_interview": "Vorstellungsgespräch",
+    "status_offer": "Angebot",
+    "resume_title": "Lebenslauf-Performance",
+    "resume_empty": "Noch keine bewerteten Lebensläufe. Passen Sie einen Lebenslauf an, um zu sehen, wie er abschneidet.",
+    "resume_empty_cta": "Lebenslauf anpassen",
+    "resume_avg_label": "durchschn. Übereinstimmung",
+    "resume_best_label": "Bester Performer",
+    "resume_worst_label": "Verbesserungsbedarf",
+    "resume_trend_improving": "Verbessert sich",
+    "resume_trend_declining": "Verschlechtert sich",
+    "resume_trend_stable": "Stabil",
+    "response_time_title": "Antwortzeit",
+    "response_time_empty": "Bewerben Sie sich auf eine Stelle und warten Sie auf Ihre erste Antwort, um diese Kennzahl zu sehen.",
+    "response_time_label": "durchschn. erste Antwort",
+    "response_time_days_unit": "Tage",
+    "ai_ops_title": "KI-Operationen",
+    "ai_ops_empty": "Noch keine KI-Operationen verwendet.",
+    "ai_ops_total": "Gesamt-Operationen",
+    "ai_op_job_parse": "Stellen-Parsing",
+    "ai_op_resume_analyze": "Lebenslauf-Analyse",
+    "ai_op_cl_generate": "Anschreiben",
+    "ai_op_cl_regenerate": "Anschreiben (Neugenerierung)",
+    "upgrade_overlay_aria_label": "Upgraden Sie auf Pro, um Analytics freizuschalten",
+    "upgrade_title": "Analytics mit Pro freischalten",
+    "upgrade_description": "Erhalten Sie tiefe Einblicke in Ihre Jobsuche — Conversion Funnel, Lebenslauf-Performance, Antwortzeiten und mehr.",
+    "upgrade_cta": "Auf Pro upgraden",
+    "insufficient_headline": "Fast geschafft — verfolgen Sie Ihre Suche weiter, um Analytics freizuschalten",
+    "insufficient_description": "Analytics wird freigeschaltet, sobald Sie genügend Daten haben. Machen Sie weiter!",
+    "insufficient_jobs_label": "Erstellte Stellen",
+    "insufficient_applications_label": "Eingereichte Bewerbungen",
+    "insufficient_resumes_label": "Angepasste Lebensläufe",
+    "insufficient_cta_jobs": "Stelle erstellen",
+    "insufficient_cta_resumes": "Lebenslauf anpassen",
+    "error_generic": "Beim Laden Ihrer Analytics ist etwas schiefgelaufen. Bitte versuchen Sie es erneut.",
+    "error_boundary_message": "Beim Laden Ihrer Analytics ist etwas schiefgelaufen. Wir wurden benachrichtigt.",
+    "error_boundary_retry": "Erneut versuchen"
+  },
+  "support": {
+    "dialog": {
+      "title": "Support kontaktieren",
+      "description": "Wir antworten in der Regel innerhalb von 24 Stunden.",
+      "reply_to_notice": "Wir antworten an {email}",
+      "category": {
+        "label": "Kategorie",
+        "account": "Konto",
+        "billing": "Abrechnung",
+        "technical": "Technisch",
+        "other": "Sonstiges"
+      },
+      "subject": {
+        "label": "Betreff"
+      },
+      "message": {
+        "label": "Nachricht"
+      },
+      "send": "Senden"
+    },
+    "toast": {
+      "success": "Ihre Nachricht wurde gesendet. Überprüfen Sie Ihren Posteingang auf unsere Antwort."
+    },
+    "error": {
+      "rate_limit": "Sie können den Support einmal pro Stunde kontaktieren.",
+      "unavailable": "Nachricht kann derzeit nicht gesendet werden. Bitte schreiben Sie direkt an support@lightrole.com."
+    }
+  },
+  "coverLetters": {
+    "wizard": {
+      "common": {
+        "cancel": "Abbrechen",
+        "next": "Weiter",
+        "back": "Zurück"
+      },
+      "pageTitle": "Anschreiben erstellen",
+      "pageSubtitle": "KI erstellt 3 Varianten, die in ~15 Sekunden auf die Stelle zugeschnitten sind.",
+      "backToList": "Zurück zu Anschreiben",
+      "indicator": {
+        "step1": "Stelle & Quelle auswählen",
+        "step2": "Einstellungen",
+        "step3": "Überprüfen",
+        "progressAria": "Wizard-Fortschritt"
+      },
+      "step1": {
+        "title": "Stelle & Quelle auswählen",
+        "jobLabel": "Stelle *",
+        "jobPlaceholder": "Stelle auswählen…",
+        "jobsError": "Ihre Stellen konnten nicht geladen werden. Aktualisieren Sie die Seite oder versuchen Sie es erneut.",
+        "jobsErrorRetry": "Erneut versuchen",
+        "empty": {
+          "title": "Keine geeigneten Stellen",
+          "body": "Entweder haben Sie keine Stellen oder jede Stelle hat bereits ein Anschreiben. Fügen Sie eine neue Stelle hinzu, um eines zu entwerfen.",
+          "cta": "Stelle hinzufügen"
+        },
+        "sourceLabel": "Quelle *",
+        "sourcePlaceholder": "Quelle auswählen…",
+        "source": {
+          "tr": {
+            "label": "Angepasster Lebenslauf (für diese Stelle)",
+            "sub": "Empfohlen — verwendet Ihren TR, der für diese Rolle optimiert wurde"
+          },
+          "profile": {
+            "label": "Mein Profil",
+            "sub": "Verwendet stattdessen Ihre Roh-Profildaten"
+          }
+        },
+        "noTr": {
+          "title": "Das Anschreiben wird aus Ihrem Profil erstellt.",
+          "body": "Für diese Stelle existiert kein angepasster Lebenslauf."
+        },
+        "contextLabel": "Zusätzlicher Kontext",
+        "contextOptional": "(optional)",
+        "contextPlaceholder": "Gibt es etwas Bestimmtes, das Sie aufnehmen möchten? (optional) — z.B. eine persönliche Verbindung zum Unternehmen, ein Projekt, das Sie hervorheben möchten, oder eine Empfehlung.",
+        "contextCounter": "{count} / 500 Zeichen",
+        "profileHint": "Vervollständigen Sie Ihr Profil, um fortzufahren.",
+        "modal": {
+          "missingProfile": {
+            "title": "Profilinformationen fehlen",
+            "body": "Ein Anschreiben benötigt mindestens einen Erfahrungseintrag, aus dem es schöpfen kann. Fügen Sie mindestens eine Berufserfahrung oder ein Projekt zu Ihrem Profil hinzu.",
+            "completeCta": "Profil vervollständigen"
+          },
+          "alreadyExists": {
+            "title": "Anschreiben existiert bereits",
+            "body": "Sie haben bereits ein Anschreiben für diese Stelle entworfen.",
+            "viewCta": "Vorhandenes ansehen",
+            "createdAt": "Erstellt am {date}"
+          }
+        }
+      },
+      "step2": {
+        "title": "Generierungseinstellungen",
+        "styleLabel": "Stil",
+        "toneLabel": "Tonalität",
+        "lengthLabel": "Länge",
+        "generate": "Generieren",
+        "aiLimitTooltip": "Sie haben Ihr KI-Operationslimit erreicht. Upgraden Sie, um fortzufahren.",
+        "style": {
+          "jobMatched": {
+            "title": "Stellenangepasst",
+            "desc": "Auf die Anforderungen der Stelle zugeschnitten"
+          },
+          "formal": {
+            "title": "Formell",
+            "desc": "Traditionelle, strukturierte Sprache"
+          },
+          "professional": {
+            "title": "Professionell",
+            "desc": "Geschliffen und branchengerecht"
+          }
+        },
+        "tone": {
+          "confident": {
+            "title": "Selbstbewusst",
+            "desc": "Starke und durchsetzungsfähige Stimme"
+          },
+          "humble": {
+            "title": "Bescheiden",
+            "desc": "Bescheidener und kollaborativer Ton"
+          },
+          "enthusiastic": {
+            "title": "Begeistert",
+            "desc": "Energisch und leidenschaftlich"
+          }
+        },
+        "length": {
+          "short": {
+            "title": "Kurz",
+            "desc": "200–300 Wörter"
+          },
+          "medium": {
+            "title": "Mittel",
+            "desc": "300–400 Wörter"
+          },
+          "long": {
+            "title": "Lang",
+            "desc": "400–500 Wörter"
+          }
+        }
+      },
+      "loading": {
+        "phase1": {
+          "label": "Rolle wird analysiert",
+          "subtitle": "Die wichtigsten Anforderungen werden extrahiert…"
+        },
+        "phase2": {
+          "label": "Ihr Hintergrund wird überprüft",
+          "subtitle": "Ihre Erfahrung wird mit der Rolle abgeglichen…"
+        },
+        "phase3": {
+          "label": "Ihr Anschreiben wird erstellt",
+          "subtitle": "Drei Varianten in Ihrer Tonalität werden entworfen…"
+        },
+        "failed": "Etwas ist schiefgelaufen.",
+        "tipHeading": "Wussten Sie schon?",
+        "tips": [
+          "Ein starker Eröffnungssatz erhöht die Antwortrate mehr als ein ausgefallener Schlusssatz.",
+          "Light Role entwirft 3 Versionen, damit Sie die Stimme wählen können, die passt — nicht nur die Worte.",
+          "Die Erwähnung eines konkreten Projekts oder Wertes des Unternehmens zeigt Recherche, nicht nur Begeisterung.",
+          "Ihr Anschreiben ergänzt Ihren Lebenslauf — es wiederholt ihn nicht."
+        ],
+        "creditHint": "Bitte warten — wir verwenden eines Ihrer Guthaben, um dies zu entwerfen.",
+        "aiFailToast": "Die KI konnte gerade nicht entwerfen — bitte versuchen Sie es erneut. Es wurden keine Guthaben abgezogen.",
+        "networkFailToast": "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut.",
+        "profileNotReadyToast": "Ihr Profil ist nicht vollständig genug, um ein Anschreiben zu entwerfen.",
+        "jobNotFoundToast": "Stelle nicht gefunden.",
+        "alreadyExistsToast": "Für diese Stelle existiert bereits ein Anschreiben.",
+        "progressAria": "Fortschritt der Anschreiben-Erstellung"
+      },
+      "step3": {
+        "title": "Varianten überprüfen",
+        "subtitle": "Dies sind 3 unterschiedliche Versionen Ihres Anschreibens — wählen Sie die, die Sie am meisten anspricht.",
+        "tab": {
+          "variant1": "Variante 1",
+          "variant2": "Variante 2",
+          "variant3": "Variante 3"
+        },
+        "useVariant": "Diese Variante verwenden",
+        "selected": "Ausgewählt",
+        "back": "Zurück zu Einstellungen",
+        "editSelected": "Ausgewählte bearbeiten",
+        "saving": "Wird gespeichert…",
+        "pickFirst": "Wählen Sie zuerst eine Variante.",
+        "defensiveError": "Beim Laden der Varianten ist etwas schiefgelaufen. Bitte versuchen Sie es erneut.",
+        "saveSuccess": "Anschreiben gespeichert.",
+        "saveConflict": "Für diese Stelle existiert bereits ein Anschreiben.",
+        "saveError": "Ihr Anschreiben konnte nicht gespeichert werden. Bitte versuchen Sie es erneut."
+      }
+    },
+    "list": {
+      "title": "Anschreiben",
+      "subtitle": "KI-generierte Anschreiben, zugeschnitten auf Ihre Stellen.",
+      "breadcrumbDashboard": "Dashboard",
+      "breadcrumbCurrent": "Anschreiben",
+      "ctaGenerate": "Neues Anschreiben erstellen",
+      "searchPlaceholder": "Suche nach Name, Unternehmen oder Stelle…",
+      "searchAriaLabel": "Anschreiben durchsuchen",
+      "clearSearchAria": "Suche leeren",
+      "sortLabel": "Anschreiben sortieren",
+      "sort": {
+        "newest": "Neueste",
+        "oldest": "Älteste",
+        "recently_updated": "Kürzlich aktualisiert"
+      },
+      "clear": "Leeren",
+      "countOne": "1 Anschreiben",
+      "countOther": "{count} Anschreiben",
+      "countNone": "Keine Anschreiben.",
+      "countNoMatches": "Keine Anschreiben entsprechen Ihren Filtern.",
+      "card": {
+        "deleteAria": "Anschreiben löschen",
+        "openAria": "Anschreiben öffnen: {name}",
+        "sourceFromTailoredResume": "Aus angepasstem Lebenslauf",
+        "sourceFromProfile": "Aus Profil",
+        "subtitleStandalone": "Eigenständiges Anschreiben",
+        "subtitleLinkedFallback": "Mit einer Stelle verknüpft"
+      },
+      "delete": {
+        "title": "Dieses Anschreiben löschen?",
+        "body": "„{name}“ wird dauerhaft gelöscht. Die verknüpfte Stelle bleibt unberührt, und Sie können jederzeit ein neues Anschreiben dafür erstellen.",
+        "cancel": "Abbrechen",
+        "confirm": "Löschen",
+        "successToast": "Anschreiben gelöscht.",
+        "errorToast": "Anschreiben konnte nicht gelöscht werden. Bitte versuchen Sie es erneut."
+      },
+      "empty": {
+        "title": "Noch keine Anschreiben.",
+        "description": "Erstellen Sie ein maßgeschneidertes Anschreiben aus einer Ihrer Stellen in etwa 15 Sekunden.",
+        "cta": "Erstes Anschreiben erstellen"
+      },
+      "noMatches": {
+        "message": "Keine Anschreiben entsprechen Ihrer Suche.",
+        "cta": "Filter löschen"
+      },
+      "errorState": {
+        "title": "Anschreiben konnten nicht geladen werden",
+        "description": "Beim Abrufen Ihrer Anschreiben ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut oder aktualisieren Sie die Seite.",
+        "tryAgain": "Erneut versuchen"
+      }
+    }
+  }
+}

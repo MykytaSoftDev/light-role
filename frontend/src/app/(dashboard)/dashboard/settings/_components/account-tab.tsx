@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { api } from "@/lib/api";
 import { cn } from "@/lib/utils";
+import { LanguageSelector } from "./language-selector";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CircleAlert, CircleCheck, Info, Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -246,6 +247,20 @@ export function AccountTab() {
           </Button>
         </form>
       )}
+
+      {/* Language section — saves immediately on change, separate from the
+          form above. Displayed regardless of user load state. */}
+      <div className="space-y-4">
+        <div>
+          <h2 className="text-foreground text-xl font-semibold">
+            {t("account.language.heading")}
+          </h2>
+          <p className="text-muted-foreground mt-1 text-sm">
+            {t("account.language.description")}
+          </p>
+        </div>
+        <LanguageSelector />
+      </div>
     </div>
   );
 }

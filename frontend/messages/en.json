@@ -1352,6 +1352,15 @@
         "firstName": "Jane",
         "lastName": "Smith",
         "email": "you@example.com"
+      },
+      "language": {
+        "heading": "Language",
+        "description": "Choose the language for the dashboard interface.",
+        "label": "Interface language",
+        "helperText": "Your selection is saved to your browser and applies on every visit.",
+        "savedToast": "Language updated",
+        "errorToast": "Could not update language. Please try again.",
+        "placeholder": "Select a language"
       }
     },
     "security": {

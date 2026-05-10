@@ -1,0 +1,1922 @@
+{
+  "app": {
+    "name": "Light Role",
+    "tagline": "Plataforma de gestión de búsqueda de empleo con IA"
+  },
+  "Common": {
+    "actions": {
+      "save": "Guardar",
+      "saving": "Guardando…",
+      "saveChanges": "Guardar cambios",
+      "cancel": "Cancelar",
+      "close": "Cerrar",
+      "delete": "Eliminar",
+      "deleting": "Eliminando…",
+      "edit": "Editar",
+      "remove": "Quitar",
+      "add": "Añadir",
+      "back": "Atrás",
+      "next": "Siguiente",
+      "continue": "Continuar",
+      "submit": "Enviar",
+      "confirm": "Confirmar",
+      "tryAgain": "Inténtalo de nuevo",
+      "retry": "Reintentar",
+      "refresh": "Actualizar",
+      "reset": "Restablecer",
+      "create": "Crear",
+      "view": "Ver",
+      "viewAll": "Ver todo",
+      "more": "Más",
+      "open": "Abrir",
+      "copy": "Copiar",
+      "copied": "Copiado",
+      "search": "Buscar",
+      "clear": "Limpiar",
+      "download": "Descargar",
+      "upload": "Subir",
+      "send": "Enviar",
+      "ok": "OK",
+      "yes": "Sí",
+      "no": "No",
+      "discard": "Descartar",
+      "undo": "Deshacer",
+      "selectAll": "Seleccionar todo",
+      "loadMore": "Cargar más"
+    },
+    "states": {
+      "loading": "Cargando…",
+      "saving": "Guardando…",
+      "deleting": "Eliminando…",
+      "uploading": "Subiendo…",
+      "submitting": "Enviando…",
+      "processing": "Procesando…",
+      "empty": "Aún no hay nada aquí.",
+      "noResults": "Sin resultados.",
+      "comingSoon": "Próximamente"
+    },
+    "validation": {
+      "required": "Este campo es obligatorio.",
+      "invalidEmail": "Introduzca una dirección de correo electrónico válida.",
+      "invalidUrl": "Introduzca una URL válida.",
+      "tooShort": "Debe tener al menos {min} caracteres.",
+      "tooLong": "Debe tener como máximo {max} caracteres.",
+      "passwordTooShort": "La contraseña debe tener al menos {min} caracteres."
+    },
+    "toast": {
+      "saved": "Cambios guardados.",
+      "saveError": "No se pudieron guardar los cambios. Inténtelo de nuevo.",
+      "saveFailed": "No se pudo guardar. Inténtelo de nuevo.",
+      "loadError": "No se pudo cargar esta página. Actualice e inténtelo de nuevo.",
+      "networkError": "Error de red. Compruebe su conexión.",
+      "genericError": "Algo salió mal. Inténtelo de nuevo."
+    },
+    "upgradeCta": {
+      "defaultMessage": "Mejora a Pro para más operaciones de IA y empleos ilimitados."
+    },
+    "pagination": {
+      "previous": "Anterior",
+      "next": "Siguiente",
+      "page": "Página {page} de {total}",
+      "rowsPerPage": "Filas por página",
+      "ofTotal": "{from}–{to} de {total}"
+    },
+    "table": {
+      "noData": "No hay datos disponibles.",
+      "selectRow": "Seleccionar fila",
+      "selectAll": "Seleccionar todas las filas"
+    }
+  },
+  "Errors": {
+    "boundary": {
+      "title": "Algo salió mal",
+      "description": "Se produjo un error inesperado. Hemos sido notificados y lo solucionaremos.",
+      "tryAgain": "Inténtalo de nuevo",
+      "goHome": "Ir a la página principal"
+    },
+    "global": {
+      "title": "Error de la aplicación",
+      "description": "Algo salió mal al cargar la página.",
+      "tryAgain": "Inténtalo de nuevo"
+    },
+    "notFound": {
+      "title": "Página no encontrada",
+      "description": "No pudimos encontrar la página que buscabas.",
+      "goHome": "Volver al panel",
+      "goLanding": "Volver a la página principal"
+    },
+    "dashboard": {
+      "title": "No se pudo cargar esta página",
+      "description": "Algo salió mal al cargar esta página. Inténtelo de nuevo o actualice.",
+      "tryAgain": "Inténtalo de nuevo"
+    },
+    "rateLimit": {
+      "title": "Has alcanzado tu límite de operaciones de IA",
+      "description": "Mejora a Pro para 150 operaciones mensuales y empleos activos ilimitados.",
+      "upgrade": "Mejorar a Pro",
+      "later": "Quizá más tarde"
+    },
+    "rateLimitModal": {
+      "title": "Más despacio: inténtalo de nuevo más tarde",
+      "body1": "Has enviado muchas solicitudes en poco tiempo.",
+      "body2WithTime": "Inténtalo de nuevo en {seconds} segundos.",
+      "supportLine": "Si esto sigue ocurriendo, contacta con support@lightrole.com.",
+      "gotIt": "Entendido"
+    },
+    "upgradeModal": {
+      "title": "Desbloquear con Pro",
+      "description": "Mejora tu plan para usar esta función.",
+      "upgrade": "Mejorar a Pro",
+      "later": "Quizá más tarde",
+      "seePlans": "Ver planes",
+      "resumeCreditsTitle": "Has usado todos tus créditos de currículum este mes",
+      "resumeCreditsBody": "Mejora a Pro para adaptar más currículums: Pro incluye adaptaciones ilimitadas.",
+      "clCreditsTitle": "Has usado todos tus créditos de cartas de presentación este mes",
+      "clCreditsBody": "Mejora a Pro para cartas de presentación generadas por IA ilimitadas.",
+      "activeJobsTitle": "Has alcanzado el límite de empleos activos",
+      "activeJobsBody": "Free está limitado a unos pocos empleos activos. Pro elimina el tope para que puedas seguir cada oportunidad.",
+      "analyticsTitle": "Analítica es una función Pro",
+      "analyticsBody": "Mejora para desbloquear el panel de analítica completo: embudo, tiempos de respuesta y rendimiento del currículum."
+    },
+    "offline": {
+      "title": "Estás sin conexión",
+      "description": "Comprueba tu conexión a internet e inténtalo de nuevo.",
+      "bannerOffline": "Estás sin conexión. Algunas funciones están deshabilitadas.",
+      "backOnline": "Vuelves a estar en línea."
+    }
+  },
+  "Notifications": {
+    "bell": {
+      "ariaLabel": "Notificaciones",
+      "title": "Notificaciones",
+      "empty": "Aún no hay notificaciones.",
+      "markAllRead": "Marcar todas como leídas",
+      "viewAll": "Ver todo",
+      "unreadCountAria": "{count, plural, =0 {Sin notificaciones sin leer} =1 {1 notificación sin leer} other {# notificaciones sin leer}}"
+    },
+    "timeAgo": {
+      "justNow": "Ahora mismo",
+      "minutes": "{count, plural, =1 {hace 1 minuto} other {hace # minutos}}",
+      "hours": "{count, plural, =1 {hace 1 hora} other {hace # horas}}",
+      "days": "{count, plural, =1 {hace 1 día} other {hace # días}}"
+    }
+  },
+  "Auth": {
+    "branding": {
+      "headline": "Gestiona tu búsqueda de empleo con IA.",
+      "tagline": "Optimiza tu currículum para cada puesto, genera cartas de presentación a medida y haz seguimiento de cada candidatura, todo en un solo lugar.",
+      "logoAlt": "Logotipo de LightRole",
+      "testimonialQuote": "Light Role me ayudó a adaptar mi currículum para cada candidatura. Pasé de cero respuestas a tres ofertas en seis semanas.",
+      "testimonialName": "Marcus K.",
+      "testimonialTitle": "Ingeniero de software",
+      "logoFallback": "Light Role"
+    },
+    "common": {
+      "emailLabel": "Correo electrónico",
+      "emailPlaceholder": "tu@ejemplo.com",
+      "passwordLabel": "Contraseña",
+      "passwordPlaceholder": "••••••••",
+      "or": "o",
+      "continueWithGoogle": "Continuar con Google",
+      "googleNotConfigured": "Google OAuth no está configurado.",
+      "networkError": "No se puede conectar. Comprueba tu conexión a internet.",
+      "genericError": "Algo salió mal. Inténtalo de nuevo."
+    },
+    "login": {
+      "metaTitle": "Iniciar sesión",
+      "title": "Inicia sesión en Light Role",
+      "subtitle": "Bienvenido de nuevo. Introduce tus datos a continuación.",
+      "forgotPassword": "¿Olvidaste tu contraseña?",
+      "submit": "Iniciar sesión",
+      "submitting": "Iniciando sesión…",
+      "invalidCredentials": "Correo electrónico o contraseña no válidos.",
+      "noAccount": "¿No tienes una cuenta?",
+      "createOne": "Crea una"
+    },
+    "register": {
+      "metaTitle": "Crear cuenta",
+      "title": "Crea tu cuenta",
+      "subtitle": "Empieza a gestionar tu búsqueda de empleo con IA.",
+      "passwordPlaceholder": "Al menos 8 caracteres",
+      "submit": "Crear cuenta",
+      "submitting": "Creando cuenta…",
+      "alreadyRegistered": "El correo electrónico ya está registrado. Prueba a iniciar sesión.",
+      "haveAccount": "¿Ya tienes una cuenta?",
+      "signIn": "Iniciar sesión",
+      "checkEmail": {
+        "title": "Revisa tu correo",
+        "description": "Hemos enviado un enlace de verificación a tu bandeja de entrada. Haz clic en él para activar tu cuenta.",
+        "alreadyVerified": "¿Ya verificada?",
+        "signIn": "Iniciar sesión"
+      }
+    },
+    "forgotPassword": {
+      "metaTitle": "Olvidé mi contraseña",
+      "title": "¿Olvidaste tu contraseña?",
+      "subtitle": "Introduce tu correo electrónico y te enviaremos un enlace para restablecerla.",
+      "submit": "Enviar enlace de restablecimiento",
+      "submitting": "Enviando…",
+      "backToLogin": "Volver a iniciar sesión",
+      "successTitle": "Revisa tu correo",
+      "successDescription": "Si existe una cuenta para {email}, recibirás un enlace de restablecimiento en breve."
+    },
+    "resetPassword": {
+      "metaTitle": "Restablecer contraseña",
+      "title": "Restablece tu contraseña",
+      "subtitle": "Elige una nueva contraseña para tu cuenta.",
+      "newPasswordLabel": "Nueva contraseña",
+      "confirmPasswordLabel": "Confirmar contraseña",
+      "passwordPlaceholder": "Al menos 8 caracteres",
+      "submit": "Restablecer contraseña",
+      "submitting": "Restableciendo…",
+      "passwordsDoNotMatch": "Las contraseñas no coinciden.",
+      "tokenInvalid": "Este enlace de restablecimiento no es válido o ha caducado.",
+      "invalidLinkTitle": "Enlace de restablecimiento no válido",
+      "noTokenBody": "Este enlace de restablecimiento falta o no es válido. Solicita uno nuevo.",
+      "requestResetLink": "Solicitar un nuevo enlace",
+      "showPassword": "Mostrar contraseña",
+      "hidePassword": "Ocultar contraseña",
+      "backToLogin": "Volver a iniciar sesión",
+      "successTitle": "Contraseña restablecida",
+      "successDescription": "Tu contraseña se ha actualizado. Ya puedes iniciar sesión.",
+      "goToLogin": "Iniciar sesión"
+    },
+    "verifyEmail": {
+      "metaTitle": "Verificar correo electrónico",
+      "verifyingTitle": "Verificando tu correo electrónico…",
+      "verifyingDescription": "Un momento, esto solo lleva un instante.",
+      "successTitle": "Correo electrónico verificado",
+      "successDescription": "Tu correo electrónico ha sido verificado. Ya puedes iniciar sesión.",
+      "goToLogin": "Iniciar sesión",
+      "errorTitle": "Verificación fallida",
+      "errorDescription": "Este enlace de verificación no es válido o ha caducado.",
+      "tryAgain": "Inténtalo de nuevo",
+      "noTokenTitle": "Falta el enlace de verificación",
+      "noTokenDescription": "Esta página necesita un token de verificación. Abre el enlace desde tu correo.",
+      "backToRegister": "Volver al registro",
+      "fallbackLoading": "Cargando…"
+    },
+    "googleCallback": {
+      "loadingTitle": "Iniciando sesión…",
+      "errorTitle": "Inicio de sesión fallido",
+      "errorDescription": "No pudimos iniciar tu sesión con Google. Inténtalo de nuevo.",
+      "backToLogin": "Volver a iniciar sesión",
+      "noCode": "Se canceló el inicio de sesión con Google. Inténtalo de nuevo.",
+      "fallbackLoading": "Cargando…"
+    },
+    "validation": {
+      "invalidEmail": "Introduce una dirección de correo electrónico válida.",
+      "passwordRequired": "La contraseña es obligatoria.",
+      "passwordMin": "La contraseña debe tener al menos 8 caracteres.",
+      "confirmPasswordRequired": "Confirma tu contraseña.",
+      "tokenRequired": "Falta el token de restablecimiento."
+    }
+  },
+  "Marketing": {
+    "metaTitle": "Light Role — Gestión de búsqueda de empleo con IA",
+    "metaDescription": "Adapta cada currículum, genera cada carta de presentación y haz seguimiento de cada candidatura, todo en un solo lugar.",
+    "landing": {
+      "title": "Light Role",
+      "tagline": "Plataforma de gestión de búsqueda de empleo con IA",
+      "ctaPrimary": "Comenzar",
+      "ctaSecondary": "Iniciar sesión"
+    }
+  },
+  "Pricing": {
+    "metaTitle": "Precios — Light Role",
+    "metaDescription": "Precios simples y transparentes. Empieza gratis y mejora cuando necesites más.",
+    "heading": "Precios simples y transparentes",
+    "subheading": "Empieza gratis. Mejora cuando necesites más. Cancela cuando quieras.",
+    "mostPopular": "Más popular",
+    "billedAnnually": "Facturado anualmente",
+    "priceFootnote": "Precios en tu moneda local cuando esté disponible. Los impuestos se calculan al pagar.",
+    "loadingCta": "Cargando…",
+    "copy": {
+      "free": "Para probar Light Role.",
+      "pro": "Para quienes buscan empleo activamente.",
+      "unlimited": "Para usuarios avanzados que lo quieren todo."
+    },
+    "features": {
+      "jobsUnlimited": "Empleos activos ilimitados",
+      "jobsLimited": "Hasta {count} empleos activos",
+      "resumeTailoringsUnlimited": "Adaptaciones de currículum ilimitadas",
+      "resumeTailoringsLimited": "{count} adaptaciones de currículum / mes",
+      "coverLettersUnlimited": "Cartas de presentación ilimitadas",
+      "coverLettersLimited": "{count} cartas de presentación / mes",
+      "aiOperationsUnlimited": "Operaciones de IA ilimitadas",
+      "aiOperationsLimited": "{count} operaciones de IA / mes",
+      "templates": "Todas las plantillas de currículum",
+      "analytics": "Panel de analítica",
+      "priorityAi": "Procesamiento prioritario de IA",
+      "exportPdf": "Exportar a PDF y DOCX",
+      "support": "Soporte prioritario"
+    },
+    "cta": {
+      "getStartedFree": "Empieza, es gratis",
+      "startWithPlan": "Empezar con {plan}",
+      "yourCurrentPlan": "Tu plan actual",
+      "downgrade": "Bajar de plan",
+      "upgradeTo": "Mejorar a {plan}"
+    }
+  },
+  "Sidebar": {
+    "main": {
+      "dashboard": "Panel",
+      "profile": "Perfil",
+      "jobs": "Seguimiento de empleos",
+      "tailorResume": "Adaptar currículum",
+      "generateCoverLetter": "Generar carta de presentación",
+      "analytics": "Analítica",
+      "documents": "Documentos",
+      "resumes": "Currículums",
+      "coverLetters": "Cartas de presentación"
+    },
+    "user": {
+      "settings": "Ajustes",
+      "billing": "Facturación",
+      "payments": "Pagos",
+      "upgradePlan": "Mejorar plan",
+      "upgradeYourPlan": "Mejora tu plan",
+      "logout": "Cerrar sesión",
+      "loggingOut": "Cerrando sesión…",
+      "fallbackName": "Cuenta"
+    },
+    "planBadge": {
+      "free": "Plan Free",
+      "pro": "Plan Pro",
+      "unlimited": "Ilimitado",
+      "upgrade": "Mejorar",
+      "shortFree": "Free",
+      "shortPro": "Pro",
+      "shortUnlimited": "Ilimitado",
+      "freePlan": "Plan Free",
+      "proPlan": "Plan Pro",
+      "unlimitedPlan": "Plan Ilimitado",
+      "aria": "Plan actual: {label}"
+    },
+    "dashboardHomeAria": "Light Role — Panel",
+    "documents": {
+      "title": "Documentos",
+      "viewAll": "Ver todo"
+    }
+  },
+  "DashboardShell": {
+    "breadcrumb": {
+      "dashboard": "Panel",
+      "resumes": "Currículums",
+      "tailorResume": "Adaptar currículum",
+      "jobs": "Empleos",
+      "settings": "Ajustes",
+      "applications": "Candidaturas",
+      "profile": "Perfil",
+      "notifications": "Notificaciones",
+      "subscriptions": "Mi suscripción",
+      "editResume": "Editar currículum",
+      "jobDetails": "Detalles del empleo",
+      "details": "Detalles",
+      "ariaLabel": "Ruta de navegación"
+    },
+    "themeSwitcher": {
+      "ariaLabel": "Cambiar tema",
+      "light": "Claro",
+      "dark": "Oscuro",
+      "system": "Sistema"
+    },
+    "header": {
+      "openMenu": "Abrir menú",
+      "closeMenu": "Cerrar menú"
+    }
+  },
+  "DashboardHome": {
+    "metaTitle": "Panel — Light Role",
+    "greeting": "¡Hola, {name}!",
+    "greetingFallback": "¡Bienvenido de nuevo!",
+    "summaryLine": "{activeCount, plural, =1 {1 empleo activo} other {# empleos activos}}, {appCount, plural, =1 {1 candidatura} other {# candidaturas}} este mes",
+    "quickActions": {
+      "heading": "Acciones rápidas",
+      "createJob": {
+        "title": "Crear un empleo",
+        "description": "Haz seguimiento de una nueva candidatura añadiendo una oferta de empleo."
+      },
+      "tailorResume": {
+        "title": "Adaptar currículum",
+        "description": "Optimiza tu currículum para un empleo específico con IA."
+      },
+      "generateCoverLetter": {
+        "title": "Generar carta de presentación",
+        "description": "Crea una carta de presentación personalizada con ayuda de IA."
+      },
+      "getStarted": "Comenzar",
+      "lockedToast": "Añade un empleo antes de {action}.",
+      "lockedActions": {
+        "tailoring": "adaptar tu currículum",
+        "generating": "generar una carta de presentación"
+      },
+      "dismiss": "Descartar"
+    },
+    "stats": {
+      "heading": "Tus estadísticas",
+      "remainingThisCycle": "{resumes, plural, =1 {1 currículum} other {# currículums}}, {coverLetters, plural, =1 {1 carta de presentación} other {# cartas de presentación}} restantes este ciclo",
+      "upgrade": "Mejorar"
+    },
+    "recentActivity": {
+      "heading": "Actividad reciente",
+      "viewAll": "Ver todo",
+      "emptyTitle": "Aún no hay empleos",
+      "emptyDescription": "Empieza a hacer seguimiento de tu búsqueda de empleo añadiendo tu primera oferta.",
+      "addFirst": "Añade tu primer empleo",
+      "addedJob": "Añadido {company} — {title}"
+    },
+    "completeSteps": {
+      "heading": "Completa tu configuración",
+      "subheading": "Unos pocos pasos rápidos para sacar el máximo partido a Light Role.",
+      "dismiss": "Descartar",
+      "progress": "{completed} de {total} completados",
+      "stepCreateJob": "Crea tu primer empleo",
+      "stepTailorResume": "Adapta tu currículum",
+      "stepGenerateCl": "Genera una carta de presentación",
+      "stepCompleteProfile": "Completa tu perfil",
+      "uploadLabel": "Sube tu currículum",
+      "uploadCompletedHint": "Perfil importado.",
+      "uploadPendingHint": "Completaremos tu perfil automáticamente.",
+      "createLabel": "Crea tu primer empleo",
+      "createCompletedHint": "Empleo registrado.",
+      "createPendingHint": "Añade una oferta para empezar.",
+      "tailorLabel": "Adapta un currículum",
+      "tailorCompletedHint": "Currículum adaptado.",
+      "tailorPendingHint": "Optimiza un currículum para uno de tus empleos.",
+      "generateLabel": "Genera una carta de presentación",
+      "generateCompletedHint": "Carta de presentación generada.",
+      "generatePendingHint": "Redacta una carta de presentación en 15 segundos.",
+      "dismissedToast": "Configuración oculta. Puedes encontrarla de nuevo en el menú de ayuda.",
+      "dismissErrorToast": "No se pudo ocultar la configuración. Inténtalo de nuevo.",
+      "confirmDialog": {
+        "title": "¿Ocultar la lista de configuración?",
+        "description": "Puedes volver a habilitarla más tarde desde los ajustes.",
+        "keep": "Mantener visible",
+        "hide": "Ocultar"
+      }
+    },
+    "statCards": {
+      "aiOperations": "Operaciones de IA",
+      "activeJobs": "Empleos activos",
+      "applicationsThisMonth": "Candidaturas este mes",
+      "resumeCredits": "Créditos de currículum",
+      "clCredits": "Créditos de cartas de presentación",
+      "unlimited": "Ilimitado",
+      "ofLimit": "de {limit}",
+      "resetsOn": "Se restablece el {date}",
+      "daysUntilReset": "{count, plural, =0 {Se restablece hoy} =1 {Se restablece en 1 día} other {Se restablece en # días}}",
+      "daysSuffix": "días",
+      "todayLabel": "Hoy",
+      "activeJobsTooltip": "Empleos activos en tu seguimiento.",
+      "resumeCreditsTooltip": "Adaptaciones de currículum restantes en este ciclo de facturación.",
+      "clCreditsTooltip": "Generaciones de cartas de presentación restantes en este ciclo de facturación.",
+      "daysUntilResetTooltip": "Tiempo hasta que se restablezcan tus límites mensuales."
+    },
+    "relativeDate": {
+      "today": "Hoy",
+      "yesterday": "Ayer",
+      "daysAgo": "{count, plural, =1 {hace 1 día} other {hace # días}}",
+      "weeksAgo": "{count, plural, =1 {hace 1 semana} other {hace # semanas}}",
+      "monthsAgo": "{count, plural, =1 {hace 1 mes} other {hace # meses}}"
+    }
+  },
+  "Resumes": {
+    "list": {
+      "metaTitle": "Currículums — Light Role",
+      "title": "Currículums",
+      "subtitle": "Tus currículums adaptados: un clic para descargar o editar.",
+      "ctaTailor": "Adaptar nuevo currículum",
+      "searchPlaceholder": "Buscar por nombre de archivo, empleo o empresa…",
+      "sortLabel": "Ordenar currículums",
+      "sort": {
+        "newest": "Más recientes",
+        "oldest": "Más antiguos",
+        "recentlyUpdated": "Actualizados recientemente",
+        "highestScore": "Mayor coincidencia",
+        "newestFirst": "Más recientes primero",
+        "oldestFirst": "Más antiguos primero",
+        "nameAsc": "Nombre A–Z",
+        "nameDesc": "Nombre Z–A"
+      },
+      "countOne": "1 currículum",
+      "countOther": "{count} currículums",
+      "countNone": "Sin currículums.",
+      "noMatches": "Ningún currículum coincide con tus filtros.",
+      "clear": "Limpiar filtros",
+      "empty": {
+        "title": "Aún no hay currículums adaptados.",
+        "description": "Adapta tu primer currículum a un empleo específico en unos 30 segundos.",
+        "cta": "Adapta tu primer currículum"
+      },
+      "errorState": {
+        "title": "No se pudieron cargar los currículums",
+        "description": "Tuvimos un error al obtener tus currículums. Inténtalo de nuevo o actualiza la página.",
+        "tryAgain": "Inténtalo de nuevo"
+      },
+      "card": {
+        "openAria": "Abrir currículum: {name}",
+        "deleteAria": "Eliminar currículum",
+        "matchScore": "{score}% de coincidencia",
+        "noJob": "Sin empleo vinculado",
+        "lastUpdated": "Actualizado {date}",
+        "createdJustNow": "Creado ahora mismo",
+        "createdMinutesAgo": "{count, plural, =1 {Creado hace 1 minuto} other {Creado hace # minutos}}",
+        "createdHoursAgo": "{count, plural, =1 {Creado hace 1 hora} other {Creado hace # horas}}",
+        "createdDaysAgo": "{count, plural, =1 {Creado hace 1 día} other {Creado hace # días}}",
+        "createdAt": "Creado {date}",
+        "tailoredFor": "Adaptado para {title} en {company}",
+        "tailoredForCompanyOnly": "Adaptado para un puesto en {company}",
+        "tailoredForTitleOnly": "Adaptado para {title}",
+        "tailoredFromProfile": "Adaptado desde tu perfil"
+      },
+      "delete": {
+        "title": "¿Eliminar este currículum?",
+        "body": "“{name}” se eliminará de forma permanente. Esto no se puede deshacer.",
+        "bodyHasRating": " Tu valoración con estrellas también se eliminará.",
+        "cancel": "Cancelar",
+        "confirm": "Eliminar",
+        "successToast": "Currículum eliminado.",
+        "errorToast": "No se pudo eliminar el currículum. Inténtalo de nuevo."
+      },
+      "untitledJob": "Empleo sin título",
+      "filter": {
+        "jobButton": "Filtrar por empleo",
+        "noJobs": "Aún no hay empleos por los que filtrar.",
+        "clearSelection": "Limpiar selección"
+      }
+    },
+    "tailor": {
+      "metaTitle": "Adaptar currículum",
+      "title": "Adaptar currículum",
+      "subtitle": "La IA optimiza tu currículum para un empleo específico en unos 30 segundos.",
+      "backToList": "Volver a Currículums",
+      "step1": "Empleo",
+      "step2": "Ajustes",
+      "jobLabel": "Empleo *",
+      "jobPlaceholder": "Selecciona un empleo…",
+      "jobsError": "No se pudieron cargar tus empleos. Actualiza la página o inténtalo de nuevo.",
+      "submit": "Adaptar currículum",
+      "submitting": "Adaptando…",
+      "aiLimitTooltip": "Has alcanzado tu límite de operaciones de IA. Mejora para continuar.",
+      "selectJob": "Selecciona un empleo",
+      "jobHelp": "Elige el empleo para el que quieres adaptar un currículum.",
+      "noJobs": {
+        "title": "Aún no hay empleos",
+        "body": "Añade un empleo antes de poder adaptar un currículum.",
+        "cta": "Añadir un empleo"
+      },
+      "missingProfile": {
+        "title": "Falta información del perfil",
+        "body": "Un currículum adaptado necesita al menos una experiencia de la que partir. Añade al menos una entrada de empleo o un proyecto a tu perfil.",
+        "completeCta": "Completar perfil",
+        "cancel": "Cancelar"
+      },
+      "loading": {
+        "phase1": "Analizando el puesto",
+        "phase1Sub": "Extrayendo los requisitos imprescindibles del puesto…",
+        "phase2": "Revisando tu trayectoria",
+        "phase2Sub": "Comparando tu experiencia con el puesto…",
+        "phase3": "Adaptando tu currículum",
+        "phase3Sub": "Reordenando y reescribiendo viñetas…",
+        "tipHeading": "¿Sabías que?",
+        "tips": [
+          "Un currículum adaptado se nota 3 veces más que uno genérico.",
+          "Light Role reescribe tus viñetas para reflejar las palabras clave del empleo.",
+          "Incluso pequeños cambios pueden mejorar mucho tu puntuación de coincidencia.",
+          "Mantén tu perfil actualizado para obtener la mejor adaptación."
+        ],
+        "creditHint": "Un momento: estamos usando uno de tus créditos para adaptarlo.",
+        "failed": "Algo salió mal.",
+        "retry": "Inténtalo de nuevo",
+        "progressAria": "Progreso de la adaptación",
+        "phaseAria": "Fase {step} de {total}: {label}",
+        "phaseState": {
+          "active": "Activa",
+          "completed": "Completada",
+          "failed": "Fallida",
+          "pending": "Pendiente"
+        }
+      },
+      "toast": {
+        "success": "Currículum adaptado.",
+        "aiFail": "La IA no pudo adaptar ahora mismo: inténtalo de nuevo. No se han descontado créditos.",
+        "networkFail": "Algo salió mal. Inténtalo de nuevo.",
+        "profileNotReady": "Tu perfil no está lo suficientemente completo para adaptar un currículum.",
+        "jobNotFound": "Empleo no encontrado.",
+        "alreadyExists": "Ya existe un currículum adaptado para este empleo."
+      }
+    },
+    "editor": {
+      "metaTitle": "Editar currículum",
+      "backToList": "Volver a Currículums",
+      "edit": "Editar",
+      "exitEdit": "Salir de edición",
+      "preview": "Vista previa",
+      "download": "Descargar PDF",
+      "downloading": "Preparando PDF…",
+      "downloadError": "No se pudo generar el PDF. Inténtalo de nuevo.",
+      "downloadSuccess": "Currículum descargado.",
+      "saveBeforeDownload": "Guarda los cambios antes de descargar.",
+      "filenameLabel": "Nombre de archivo",
+      "filenamePlaceholder": "Currículum sin título",
+      "renameSuccessToast": "Nombre de archivo actualizado.",
+      "renameErrorToast": "No se pudo actualizar el nombre del archivo. Inténtalo de nuevo.",
+      "renameNotImplemented": "Renombrar aún no está disponible.",
+      "saveNameAria": "Guardar nombre de archivo",
+      "cancelRenameAria": "Cancelar renombrar",
+      "renameAria": "Renombrar archivo",
+      "fontLabel": "Fuente",
+      "saveButton": "Guardar",
+      "savedAt": "Guardado {time}",
+      "unsavedChanges": "Cambios sin guardar",
+      "saving": "Guardando…",
+      "toolbarAria": "Barra de herramientas de edición de currículum",
+      "invalidFieldsTooltip": "Corrige los campos resaltados antes de guardar.",
+      "noChangesTooltip": "No hay cambios que guardar.",
+      "insightsAside": "Información y detalles de coincidencia",
+      "tailoredFromProfileSubtitle": "Adaptado desde tu perfil",
+      "notFoundTitle": "Currículum no encontrado",
+      "notFoundDescription": "No pudimos encontrar este currículum. Es posible que se haya eliminado.",
+      "discardDialog": {
+        "title": "¿Descartar cambios?",
+        "body": "Tienes cambios sin guardar. ¿Quieres descartarlos?",
+        "cancel": "Cancelar",
+        "stay": "Quedarse",
+        "discard": "Descartar"
+      },
+      "reorderDialog": {
+        "title": "Reordenar secciones",
+        "body": "Arrastra las secciones para cambiar el orden en que aparecen en el currículum.",
+        "save": "Guardar orden",
+        "cancel": "Cancelar",
+        "dragHandleAria": "Arrastra para reordenar la sección",
+        "entryCountFilledLabel": "{count, plural, =0 {vacía} =1 {1 entrada} other {# entradas}}",
+        "entryCountOneEntry": "1 entrada",
+        "entryCountOtherEntries": "{count} entradas"
+      },
+      "appliedChanges": {
+        "title": "Cambios aplicados",
+        "description": "Lo que la IA cambió al adaptar este currículum.",
+        "empty": "No se han registrado cambios para este currículum.",
+        "categoryReorder": "Reordenamiento",
+        "categoryRewrite": "Reescritura",
+        "categoryAddition": "Adiciones",
+        "categoryRemoval": "Eliminaciones"
+      },
+      "insightsPanel": {
+        "title": "Información del currículum",
+        "shortTitle": "Información",
+        "matchScore": "Puntuación de coincidencia",
+        "matchScoreDescription": "Qué tan bien coincide este currículum con la descripción del empleo.",
+        "matchedKeywords": "Palabras clave coincidentes",
+        "missingKeywords": "Palabras clave que faltan",
+        "noKeywords": "No hay datos de palabras clave disponibles.",
+        "noKeywordsMatched": "Aún no coinciden palabras clave.",
+        "noOccurrences": "Aún no hay apariciones en el currículum.",
+        "scrollToOccurrence": "Desplazarse a la aparición de “{keyword}”",
+        "readOnlyEditTooltip": "Cambia al modo de edición para usar esto."
+      },
+      "rating": {
+        "label": "Puntuación de coincidencia",
+        "starsAria": "{score} de 5 estrellas",
+        "scoreOutOf": "{score}/100",
+        "cardTitle": "¿Qué te ha parecido esta adaptación?",
+        "cardDescription": "Tu valoración nos ayuda a mejorar.",
+        "dismissAria": "Descartar tarjeta de valoración",
+        "thanksToast": "¡Gracias por tus comentarios!",
+        "submitError": "No se pudo enviar tu valoración. Inténtalo de nuevo.",
+        "commentLabel": "Comentario (opcional)",
+        "commentPlaceholder": "¿Qué funcionó bien? ¿Qué podría mejorar?",
+        "submitting": "Enviando…",
+        "submit": "Enviar",
+        "groupAria": "Valora esta adaptación"
+      },
+      "preview": {
+        "loading": "Cargando vista previa…",
+        "error": "No se pudo mostrar la vista previa.",
+        "retry": "Inténtalo de nuevo"
+      },
+      "section": {
+        "addEntry": "Añadir entrada",
+        "removeEntry": "Quitar entrada",
+        "moveUp": "Mover arriba",
+        "moveDown": "Mover abajo",
+        "delete": "Eliminar",
+        "edit": "Editar",
+        "saveEntry": "Guardar",
+        "cancelEntry": "Cancelar",
+        "emptyDefault": "Aún no hay entradas.",
+        "dragEntryAria": "Arrastra {label} para reordenar",
+        "removeEntryAria": "Quitar {label}",
+        "employmentEntryLabel": "Puesto",
+        "educationEntryLabel": "Educación",
+        "projectEntryLabel": "Proyecto",
+        "achievementEntryLabel": "Logro",
+        "certificateEntryLabel": "Certificado",
+        "volunteerEntryLabel": "Rol de voluntariado",
+        "bulletPlaceholder": "Añade una viñeta sobre este puesto…",
+        "projectBulletPlaceholder": "Añade una viñeta sobre este proyecto…",
+        "describeProjectPlaceholder": "Describe el proyecto brevemente…",
+        "summaryPlaceholder": "Un párrafo corto que te presente.",
+        "addSkillPlaceholder": "Añadir una habilidad",
+        "addLanguagePlaceholder": "Añadir un idioma",
+        "addTechnologyPlaceholder": "Añadir una tecnología",
+        "liveUrlPlaceholder": "https://…",
+        "repositoryPlaceholder": "https://github.com/…",
+        "credentialUrlPlaceholder": "https://…",
+        "expiresPrefix": "Caduca",
+        "educationDetailsPlaceholder": "Honores, asignaturas, nota media…",
+        "emailExamplePlaceholder": "tu@ejemplo.com",
+        "platformExamplePlaceholder": "LinkedIn, GitHub, Portafolio…",
+        "dragLink": "Arrastrar enlace",
+        "removeLink": "Quitar enlace",
+        "startShort": "Inicio",
+        "endShort": "Fin"
+      },
+      "fields": {
+        "monthPlaceholder": "MM/AAAA",
+        "addChip": "Añadir",
+        "removeChip": "Quitar",
+        "richtextPlaceholder": "Empieza a escribir…",
+        "chipPlaceholder": "Escribe y pulsa Enter",
+        "dragChipAria": "Arrastrar {label}",
+        "removeChipAria": "Quitar {label}",
+        "monthSelectPlaceholder": "Selecciona fecha",
+        "pickMonthYearAria": "Elegir mes y año",
+        "yearLabel": "Año",
+        "monthLabel": "Mes",
+        "doneButton": "Hecho",
+        "formatToolbarAria": "Barra de herramientas de formato",
+        "formatBold": "Negrita",
+        "formatItalic": "Cursiva",
+        "formatBulletList": "Lista con viñetas",
+        "formatClear": "Quitar formato"
+      }
+    },
+    "sectionTitles": {
+      "personalInfo": "Información personal",
+      "summary": "Resumen",
+      "skills": "Habilidades",
+      "employment": "Experiencia",
+      "education": "Educación",
+      "languages": "Idiomas",
+      "certificates": "Certificados",
+      "projects": "Proyectos",
+      "achievements": "Logros",
+      "volunteer": "Voluntariado"
+    }
+  },
+  "Jobs": {
+    "list": {
+      "metaTitle": "Empleos — Light Role",
+      "title": "Empleos",
+      "heading": "Seguimiento de empleos",
+      "addJob": "Añadir empleo",
+      "searchPlaceholder": "Buscar por empresa…",
+      "clearSearchAria": "Borrar búsqueda",
+      "clearFilters": "Limpiar filtros",
+      "clearSelection": "Limpiar selección",
+      "statusFilterLabel": "Estado",
+      "resultCount": "{count, plural, =1 {# empleo} other {# empleos}}",
+      "dismiss": "Descartar",
+      "dropJobsHere": "Suelta los empleos aquí",
+      "dropHere": "Suelta aquí",
+      "openJobMenuAria": "Abrir menú del empleo",
+      "expandSectionAria": "Expandir la sección {label}",
+      "collapseSectionAria": "Contraer la sección {label}",
+      "kanbanViewAria": "Vista Kanban",
+      "tableViewAria": "Vista de tabla",
+      "hideEmpty": "Ocultar vacías",
+      "showEmpty": "Mostrar vacías",
+      "hideEmptySectionsAria": "Ocultar secciones vacías",
+      "showEmptySectionsAria": "Mostrar secciones vacías",
+      "statusUpdateFailed": "No se pudo actualizar el estado del empleo. Inténtalo de nuevo.",
+      "emptyFiltered": "Ningún empleo coincide con tus filtros.",
+      "emptyTableRow": "Aún no hay empleos. Añade tu primer empleo para empezar.",
+      "empty": {
+        "title": "Aún no hay empleos",
+        "description": "Haz seguimiento de tu primer empleo: pega una oferta y nos encargaremos del análisis.",
+        "cta": "Añade tu primer empleo"
+      },
+      "columns": {
+        "title": "Título",
+        "company": "Empresa",
+        "location": "Ubicación",
+        "salary": "Salario",
+        "status": "Estado",
+        "dateSaved": "Fecha de guardado",
+        "dateApplied": "Fecha de candidatura",
+        "deadline": "Fecha límite",
+        "followUp": "Seguimiento",
+        "excitement": "Entusiasmo",
+        "actions": "Acciones"
+      },
+      "dnd": {
+        "pickedUp": "Empleo {id} levantado.",
+        "overTarget": "El empleo {id} está sobre el área soltable {overId}.",
+        "leftDroppable": "El empleo {id} ya no está sobre un área soltable.",
+        "droppedOver": "El empleo {id} se soltó sobre el área soltable {overId}.",
+        "dropped": "El empleo {id} se soltó.",
+        "cancelled": "Se canceló el arrastre del empleo {id}."
+      }
+    },
+    "new": {
+      "metaTitle": "Nuevo empleo",
+      "title": "Añadir un empleo",
+      "subtitle": "Pega una oferta de empleo y analizaremos los detalles clave por ti.",
+      "backToJobs": "Volver a Empleos",
+      "pasteLabel": "Pega la descripción del empleo",
+      "pastePlaceholder": "Pega aquí la descripción completa del empleo…",
+      "parseButton": "Analizar con IA",
+      "parsing": "Analizando…",
+      "manualButton": "Introducir manualmente",
+      "titleLabel": "Título",
+      "titlePlaceholder": "Ingeniero de Software Senior",
+      "companyLabel": "Empresa",
+      "companyPlaceholder": "Acme Inc.",
+      "locationLabel": "Ubicación",
+      "locationPlaceholder": "Remoto · Berlín · Híbrido",
+      "urlLabel": "URL del empleo",
+      "descriptionLabel": "Descripción",
+      "descriptionPlaceholder": "Pega o escribe la descripción completa del empleo…",
+      "salaryLabel": "Rango salarial",
+      "salaryPlaceholder": "120 000–150 000 €",
+      "requirementsLabel": "Requisitos",
+      "requirementsHint": "Uno por línea. Lo usa la IA al adaptar currículums.",
+      "requirementsPlaceholder": "Más de 5 años de Python\nExperiencia con sistemas distribuidos",
+      "saveButton": "Guardar empleo",
+      "saving": "Guardando…",
+      "successToast": "Empleo creado.",
+      "errorToast": "No se pudo crear el empleo. Inténtalo de nuevo.",
+      "parseErrorToast": "La IA no pudo analizar este empleo: rellena los campos manualmente.",
+      "aiLimitTooltip": "Has alcanzado tu límite de operaciones de IA. Mejora para continuar.",
+      "modeAi": "Usar IA",
+      "modeManual": "Entrada manual",
+      "reviewHint": "Revisa los detalles analizados antes de guardar.",
+      "startOver": "Empezar de nuevo",
+      "confirmAndSave": "Confirmar y guardar",
+      "invalidFieldsError": "Rellena los campos obligatorios.",
+      "parsingMessages": [
+        "Leyendo la oferta…",
+        "Extrayendo el puesto y la empresa…",
+        "Identificando los requisitos…",
+        "Casi listo…"
+      ]
+    },
+    "details": {
+      "metaTitle": "Detalles del empleo",
+      "backToJobs": "Volver a Empleos",
+      "notFound": "Empleo no encontrado",
+      "notFoundDescription": "No pudimos encontrar este empleo. Es posible que se haya eliminado.",
+      "loadError": "No se pudo cargar este empleo. Inténtalo de nuevo.",
+      "titlePlaceholder": "Puesto sin título",
+      "tabs": {
+        "overview": "Resumen",
+        "application": "Candidatura",
+        "documents": "Documentos"
+      },
+      "overview": {
+        "jobDetails": "Detalles del empleo",
+        "company": "Empresa",
+        "location": "Ubicación",
+        "locationPlaceholder": "Añadir una ubicación",
+        "url": "URL del empleo",
+        "salary": "Salario",
+        "salaryPlaceholder": "Añadir un rango salarial",
+        "description": "Descripción",
+        "descriptionPlaceholder": "Añadir una descripción",
+        "requirements": "Requisitos",
+        "createdAt": "Añadido {date}"
+      },
+      "application": {
+        "heading": "Candidatura",
+        "status": "Estado",
+        "dateApplied": "Fecha de candidatura",
+        "followUpDate": "Seguimiento",
+        "deadline": "Fecha límite",
+        "excitement": "Entusiasmo",
+        "notes": "Notas",
+        "notesPlaceholder": "Cualquier cosa que quieras recordar sobre este puesto…",
+        "saveButton": "Guardar",
+        "saving": "Guardando…",
+        "savedToast": "Candidatura actualizada.",
+        "saveError": "No se pudo actualizar la candidatura. Inténtalo de nuevo."
+      },
+      "documents": {
+        "resumeTitle": "Currículum adaptado",
+        "resumeShort": "Currículum",
+        "coverLetterTitle": "Carta de presentación",
+        "coverLetterShort": "Carta de presentación",
+        "noResume": "Aún no hay currículum adaptado.",
+        "tailorCta": "Adaptar currículum",
+        "noCoverLetter": "Aún no hay carta de presentación.",
+        "generateCta": "Generar carta de presentación"
+      },
+      "delete": {
+        "title": "¿Eliminar este empleo?",
+        "body": "“{title}” se eliminará de forma permanente junto con sus datos de candidatura. Los currículums y cartas de presentación vinculados permanecen en tu biblioteca.",
+        "cancel": "Cancelar",
+        "confirm": "Eliminar",
+        "successToast": "Empleo eliminado.",
+        "errorToast": "No se pudo eliminar el empleo. Inténtalo de nuevo."
+      }
+    },
+    "contextMenu": {
+      "view": "Ver empleo",
+      "edit": "Editar",
+      "tailorResume": "Adaptar currículum",
+      "generateCoverLetter": "Generar carta de presentación",
+      "viewResume": "Ver currículum adaptado",
+      "viewCoverLetter": "Ver carta de presentación",
+      "delete": "Eliminar"
+    },
+    "status": {
+      "saved": "Guardado",
+      "applied": "Solicitado",
+      "screening": "Preselección",
+      "interview": "Entrevista",
+      "offer": "Oferta",
+      "rejected": "Rechazado",
+      "accepted": "Aceptado",
+      "withdrawn": "Retirado"
+    }
+  },
+  "CoverLetters": {
+    "details": {
+      "metaTitle": "Carta de presentación",
+      "backToList": "Volver a Cartas de presentación",
+      "edit": "Editar",
+      "save": "Guardar",
+      "saving": "Guardando…",
+      "savedToast": "Carta de presentación guardada.",
+      "saveError": "No se pudieron guardar los cambios. Inténtalo de nuevo.",
+      "downloadPdf": "Descargar PDF",
+      "downloadDocx": "Descargar DOCX",
+      "downloadError": "No se pudo generar el archivo. Inténtalo de nuevo.",
+      "regenerate": "Regenerar",
+      "regenerateConfirmTitle": "¿Regenerar esta carta de presentación?",
+      "regenerateConfirmBody": "Esto reemplazará el texto actual. Se usará un crédito de IA.",
+      "regenerateCancel": "Cancelar",
+      "regenerateConfirm": "Regenerar",
+      "linkedJob": "Empleo vinculado",
+      "noLinkedJob": "Carta de presentación independiente",
+      "viewJob": "Ver empleo",
+      "untitled": "Carta de presentación sin título",
+      "nameLabel": "Nombre",
+      "namePlaceholder": "Carta de presentación para…",
+      "contentLabel": "Contenido",
+      "contentPlaceholder": "Escribe o pega tu carta de presentación…",
+      "contentPreviewPlaceholder": "Aquí aparecerá tu carta de presentación.",
+      "settingsAriaLabel": "Ajustes de carta de presentación",
+      "styleLabel": "Estilo",
+      "toneLabel": "Tono",
+      "lengthLabel": "Longitud",
+      "previewTab": "Vista previa",
+      "previewLabel": "Vista previa",
+      "livePreviewLabel": "Vista previa en vivo",
+      "autosaveHint": "Se guarda automáticamente.",
+      "notFoundTitle": "Carta de presentación no encontrada",
+      "notFoundBody": "No pudimos encontrar esta carta de presentación. Es posible que se haya eliminado.",
+      "loadErrorTitle": "No se pudo cargar esta carta de presentación",
+      "loadErrorBody": "Inténtalo de nuevo o actualiza la página."
+    },
+    "generatePage": {
+      "metaTitle": "Generar carta de presentación"
+    }
+  },
+  "Subscriptions": {
+    "page": {
+      "metaTitle": "Mi suscripción",
+      "title": "Mi suscripción",
+      "subtitle": "Gestiona tu plan, facturación y método de pago.",
+      "backToDashboard": "Volver al panel"
+    },
+    "header": {
+      "currentPlan": "Plan actual",
+      "free": "Free",
+      "pro": "Pro",
+      "monthly": "Mensual",
+      "annual": "Anual",
+      "upgrade": "Mejorar",
+      "manage": "Gestionar suscripción",
+      "cancel": "Cancelar suscripción",
+      "renew": "Renovar suscripción",
+      "resume": "Reanudar suscripción",
+      "startedOn": "Iniciado el {date}",
+      "planSuffix": "Plan {name}",
+      "planImageAlt": "Plan {name}",
+      "changePlan": "Cambiar plan",
+      "cancelScheduledToast": "Cancelación programada.",
+      "cancelConfirmTitle": "¿Cancelar tu suscripción?",
+      "cancelConfirmBody": "Tu acceso Pro continúa hasta el final del período de facturación actual. Después, pasarás al plan Free."
+    },
+    "details": {
+      "status": "Estado",
+      "active": "Activa",
+      "trialing": "En prueba",
+      "pastDue": "Vencida",
+      "canceled": "Cancelada",
+      "paused": "En pausa",
+      "nextBilling": "Próxima fecha de facturación",
+      "renewsOn": "Se renueva el {date}",
+      "endsOn": "Termina el {date}",
+      "currentPeriod": "Período actual",
+      "billingCycle": "Ciclo de facturación"
+    },
+    "alerts": {
+      "pastDueTitle": "Tu último pago falló",
+      "pastDueBody": "Actualiza tu método de pago para mantener tu acceso Pro.",
+      "canceledTitle": "Suscripción cancelada",
+      "canceledBody": "Tu acceso Pro termina el {date}. Renueva para mantener tus beneficios.",
+      "canceledOnAt": "Cancelada el {date}",
+      "pausedTitle": "Suscripción en pausa",
+      "pausedBody": "Reanuda tu suscripción para recuperar las funciones Pro."
+    },
+    "paymentMethod": {
+      "title": "Método de pago",
+      "cardEndsIn": "Tarjeta terminada en {last4}",
+      "expires": "Caduca {month}/{year}",
+      "update": "Actualizar",
+      "noMethod": "No hay método de pago registrado."
+    },
+    "lineItems": {
+      "title": "Detalles del plan",
+      "billed": "Facturado",
+      "amount": "Importe",
+      "tax": "Impuestos",
+      "total": "Total",
+      "totalIncTax": "Total (impuestos incluidos)",
+      "freePlanDetails": "Plan Free",
+      "freePlanLabel": "Free",
+      "freePlanTagline": "Gratis para siempre",
+      "noRecurringCharges": "Sin cargos recurrentes.",
+      "recurringProductsTitle": "Elementos recurrentes",
+      "qty": "Cant. {count}",
+      "excludingTaxNote": "Precios mostrados sin impuestos."
+    },
+    "nextPayment": {
+      "title": "Próximo pago",
+      "amount": "Importe",
+      "date": "Fecha",
+      "noPending": "No hay pagos próximos programados.",
+      "dueLabel": "Vence el {date}"
+    },
+    "pastPayments": {
+      "title": "Pagos anteriores",
+      "cardTitle": "Pagos",
+      "empty": "Aún no hay pagos.",
+      "viewInvoice": "Ver factura",
+      "downloadInvoice": "Descargar factura",
+      "amount": "Importe",
+      "date": "Fecha",
+      "status": "Estado",
+      "noPaymentsTitle": "Aún no hay pagos",
+      "noPaymentsBody": "Tus facturas aparecerán aquí cuando mejores tu plan.",
+      "noHistoryBody": "No hay historial de pagos disponible."
+    },
+    "errorBoundary": {
+      "title": "No se pudo cargar tu suscripción",
+      "description": "Tuvimos un error al obtener tu suscripción. Inténtalo de nuevo o actualiza la página.",
+      "tryAgain": "Inténtalo de nuevo"
+    }
+  },
+  "Checkout": {
+    "metaTitle": "Pago",
+    "title": "Pago",
+    "subtitle": "Completa tu suscripción.",
+    "backToUpgrade": "Volver a mejorar",
+    "backToDashboard": "Volver al panel",
+    "orderSummary": "Resumen del pedido",
+    "paymentDetails": "Detalles de pago",
+    "thenRecurring": "Luego {price} {cycle}",
+    "loading": "Preparando el pago…",
+    "error": {
+      "title": "No se pudo cargar el pago",
+      "description": "Tuvimos un error al preparar tu pago. Inténtalo de nuevo.",
+      "tryAgain": "Inténtalo de nuevo",
+      "back": "Volver a planes"
+    },
+    "billingToggle": {
+      "monthly": "Mensual",
+      "annual": "Anual",
+      "save": "Ahorra {percent}%"
+    },
+    "lineItems": {
+      "subtotal": "Subtotal",
+      "tax": "Impuestos",
+      "discount": "Descuento",
+      "total": "Total",
+      "dueToday": "A pagar hoy",
+      "includingTax": "Impuestos incluidos"
+    },
+    "priceSection": {
+      "billedAs": "Facturado {cycle}",
+      "perMonth": "al mes",
+      "perYear": "al año",
+      "monthlyEquivalent": "≈ {price} / mes"
+    },
+    "success": {
+      "title": "¡Bienvenido a Pro!",
+      "description": "Tu suscripción está activa. Vamos a ponerla a trabajar.",
+      "goToDashboard": "Ir al panel",
+      "manageSubscription": "Gestionar suscripción",
+      "processing": "Confirmando tu pago…",
+      "timeoutTitle": "Aún confirmando…",
+      "timeoutDescription": "Está tardando más de lo esperado. Tu pago se está procesando: actualiza en un momento.",
+      "transactionId": "ID de transacción",
+      "planLabel": "Plan",
+      "nextBilling": "Próxima fecha de facturación",
+      "confirmationEmailHint": "Un correo de confirmación está en camino."
+    },
+    "failure": {
+      "title": "Pago fallido",
+      "description": "No pudimos procesar tu pago. No se realizó ningún cargo.",
+      "tryAgain": "Inténtalo de nuevo",
+      "backToPlans": "Volver a planes",
+      "commonReasonsHeading": "Causas comunes",
+      "commonReasons": [
+        "El banco rechazó la tarjeta.",
+        "Fondos insuficientes en la tarjeta.",
+        "Datos de la tarjeta incorrectos o tarjeta caducada.",
+        "Error de red durante el pago."
+      ],
+      "contactSupport": "Si esto sigue ocurriendo, contacta con support@lightrole.com."
+    }
+  },
+  "Payments": {
+    "metaTitle": "Pagos — Light Role",
+    "title": "Pagos",
+    "subtitle": "Tu historial de facturación y facturas.",
+    "table": {
+      "date": "Fecha",
+      "description": "Descripción",
+      "amount": "Importe",
+      "status": "Estado",
+      "invoice": "Factura",
+      "actions": "Acciones"
+    },
+    "status": {
+      "paid": "Pagado",
+      "pending": "Pendiente",
+      "failed": "Fallido",
+      "refunded": "Reembolsado"
+    },
+    "actions": {
+      "download": "Descargar",
+      "view": "Ver"
+    },
+    "empty": {
+      "title": "Aún no hay pagos",
+      "description": "Cuando mejores tu plan, tus facturas aparecerán aquí."
+    },
+    "filter": {
+      "search": "Buscar pagos…",
+      "all": "Todos los estados",
+      "noResults": "Ningún pago coincide con tus filtros."
+    }
+  },
+  "upgrade": {
+    "hero": {
+      "eyebrow": "Mejora a Pro",
+      "headline": "Desbloquea todo el poder de tu búsqueda de empleo",
+      "subheadline": "Adapta cada currículum, genera cada carta de presentación y haz seguimiento de oportunidades ilimitadas, todo en un solo lugar.",
+      "trust": "Cancela cuando quieras · Pago seguro con Paddle"
+    },
+    "toggle": {
+      "monthly": "Mensual",
+      "annual": "Anual",
+      "save": "Ahorra {percent}%"
+    },
+    "cards": {
+      "free": {
+        "title": "Free",
+        "description": "Tu plan actual",
+        "price": "0 $",
+        "billedAs": "Gratis para siempre",
+        "currentPlanBadge": "Plan actual"
+      },
+      "monthly": {
+        "title": "Pro Mensual",
+        "description": "Flexible mes a mes. Cancela cuando quieras.",
+        "billedAs": "Facturado mensualmente",
+        "cta": "Comenzar"
+      },
+      "annual": {
+        "title": "Pro Anual",
+        "description": "Mejor precio. Paga una vez y ahorra más.",
+        "billedAs": "Facturado anualmente",
+        "cta": "Comenzar",
+        "savingsBadge": "Ahorra {percent}%",
+        "monthlyEquivalent": " {price} / mes"
+      },
+      "unlimited": {
+        "title": "Ilimitado",
+        "description": "Usuarios avanzados: todo, sin límites.",
+        "billedAs": "Facturado mensualmente",
+        "cta": "Comenzar"
+      },
+      "downgradeToFree": "Bajar a Free",
+      "downgradeTo": "Bajar a {title}",
+      "upgradeTo": "Mejorar a {title}",
+      "features": {
+        "title": "Todo lo de Pro:",
+        "list": [
+          "150 operaciones de IA al mes (frente a 10 en Free)",
+          "Empleos activos ilimitados en tu seguimiento",
+          "Currículums adaptados con IA para cada candidatura",
+          "Cartas de presentación generadas con IA con varias variantes",
+          "Análisis inteligente de descripciones de empleo: pega y listo",
+          "Todas las plantillas de currículum desbloqueadas",
+          "Panel de analítica para seguir tu progreso",
+          "Generación de IA prioritaria",
+          "Cancela cuando quieras, sin preguntas"
+        ]
+      }
+    },
+    "features": {
+      "unlimitedJobs": "Empleos activos ilimitados",
+      "jobsLimited": "Hasta {count} empleos activos",
+      "unlimitedResumes": "Currículums adaptados ilimitados",
+      "resumesLimited": "{count} currículums adaptados / mes",
+      "unlimitedCoverLetters": "Cartas de presentación ilimitadas",
+      "coverLettersLimited": "{count} cartas de presentación / mes",
+      "templates": "Todas las plantillas de currículum",
+      "analytics": "Panel de analítica",
+      "priorityAi": "Procesamiento prioritario de IA",
+      "support": "Soporte prioritario"
+    },
+    "comparison": {
+      "title": "Free vs Pro de un vistazo",
+      "colFeature": "Función",
+      "colFree": "Free",
+      "colPro": "Pro"
+    },
+    "trust": {
+      "title": "Por qué quienes buscan empleo eligen Pro",
+      "items": {
+        "cancel": {
+          "title": "Cancela cuando quieras",
+          "description": "Sin contratos de permanencia. Cancela tu suscripción al instante desde tu panel, sin preguntas."
+        },
+        "refresh": {
+          "title": "Los límites se restablecen cada mes",
+          "description": "Tu cuota de operaciones de IA se renueva en cada ciclo de facturación, así siempre tienes capacidad cuando la necesitas."
+        },
+        "global": {
+          "title": "Funciona en todas partes",
+          "description": "Light Role admite varios idiomas y monedas para que tu búsqueda de empleo no tenga fronteras."
+        }
+      }
+    },
+    "faq": {
+      "title": "Preguntas frecuentes",
+      "items": {
+        "cancel": {
+          "q": "¿Puedo cancelar cuando quiera?",
+          "a": "Sí. Puedes cancelar tu suscripción en cualquier momento desde la página de ajustes de facturación. Tu acceso Pro continúa hasta el final del período de facturación actual."
+        },
+        "difference": {
+          "q": "¿Cuál es la diferencia entre Free y Pro?",
+          "a": "El plan Free te ofrece 10 operaciones de IA al mes y hasta 5 empleos activos. Pro desbloquea 150 operaciones de IA, empleos activos ilimitados, todas las plantillas de currículum, analítica y procesamiento prioritario de IA."
+        },
+        "payment": {
+          "q": "¿Cómo se procesa el pago?",
+          "a": "Los pagos los gestiona Paddle de forma segura, un Comerciante Registrado de confianza. Los datos de tu tarjeta nunca se almacenan en nuestros servidores."
+        },
+        "switch": {
+          "q": "¿Puedo cambiar entre mensual y anual?",
+          "a": "Sí. Puedes cambiar el ciclo de facturación desde la página de ajustes de facturación en cualquier momento. Los cambios surten efecto al inicio del siguiente período de facturación."
+        },
+        "refund": {
+          "q": "¿Hay política de reembolso?",
+          "a": "Ofrecemos una garantía de devolución de 14 días en los planes anuales. En los planes mensuales, puedes cancelar antes de la siguiente renovación para evitar que se te vuelva a cobrar."
+        }
+      }
+    },
+    "footer": {
+      "headline": "¿Listo para conseguir tu próximo empleo más rápido?",
+      "back": "Volver al panel"
+    },
+    "errors": {
+      "plansLoadFailed": "No se pudieron cargar los planes. Inténtalo de nuevo.",
+      "retry": "Inténtalo de nuevo",
+      "pricesFallback": "Mostrando precios predeterminados. Moneda local no disponible."
+    }
+  },
+  "sidebar": {
+    "feedback": "Enviar comentarios",
+    "support": "Contactar con soporte"
+  },
+  "feedback": {
+    "dialog": {
+      "title": "Enviar comentarios",
+      "description": "Ayúdanos a mejorar Light Role. Comparte errores, ideas o lo que tengas en mente.",
+      "type": {
+        "label": "Tipo",
+        "bug": "Error",
+        "feature_request": "Solicitud de función",
+        "improvement": "Mejora",
+        "other": "Otro"
+      },
+      "message": {
+        "label": "Mensaje",
+        "placeholder": "Cuéntanos qué tienes en mente..."
+      },
+      "submit": "Enviar",
+      "cancel": "Cancelar"
+    },
+    "toast": {
+      "success": "¡Gracias por tus comentarios!"
+    },
+    "error": {
+      "rate_limit": "Puedes enviar comentarios una vez por hora. Inténtalo de nuevo más tarde.",
+      "generic": "Algo salió mal. Inténtalo de nuevo."
+    }
+  },
+  "settings": {
+    "title": "Ajustes",
+    "subtitle": "Gestione las preferencias de su cuenta y los ajustes de seguridad.",
+    "tabs": {
+      "ariaLabel": "Secciones de ajustes",
+      "account": "Cuenta",
+      "security": "Seguridad",
+      "notifications": "Notificaciones",
+      "resume": "Currículum"
+    },
+    "account": {
+      "heading": "Cuenta",
+      "description": "Actualice su información personal y dirección de correo electrónico.",
+      "placeholders": {
+        "firstName": "Jane",
+        "lastName": "Smith",
+        "email": "tu@ejemplo.com"
+      },
+      "language": {
+        "heading": "Idioma",
+        "description": "Elige el idioma de la interfaz del panel.",
+        "label": "Idioma de la interfaz",
+        "helperText": "Tu selección se guarda en el navegador y se aplica en cada visita.",
+        "savedToast": "Idioma actualizado",
+        "errorToast": "No se pudo actualizar el idioma. Inténtalo de nuevo.",
+        "placeholder": "Selecciona un idioma"
+      }
+    },
+    "security": {
+      "heading": "Seguridad",
+      "description": "Gestione su contraseña y la seguridad de su cuenta."
+    },
+    "notifications": {
+      "heading": "Preferencias de notificaciones",
+      "description": "Gestione las notificaciones que recibe de Light Role."
+    },
+    "resume": {
+      "heading": "Preferencias de currículum",
+      "description": "Elija el orden de las secciones y la fuente con los que comenzarán los futuros currículums adaptados.",
+      "infoBanner": {
+        "title": "Estos ajustes solo afectan a las generaciones futuras",
+        "body": "Los currículums adaptados existentes conservan el orden de secciones y la fuente con los que se generaron. Los cambios aquí se aplican a los currículums que generes después de guardar."
+      },
+      "sectionOrder": {
+        "title": "Orden de secciones",
+        "description": "Arrastre para reordenar. La información personal siempre aparece en la parte superior del currículum."
+      },
+      "font": {
+        "title": "Fuente",
+        "description": "Elija la tipografía para su currículum. Cada opción se muestra con su propia fuente.",
+        "label": "Fuente del currículum",
+        "placeholder": "Elige una fuente",
+        "hint": "Las cinco fuentes son sans-serif profesionales que se renderizan bien en PDF."
+      },
+      "saveButton": "Guardar cambios",
+      "savingButton": "Guardando...",
+      "saveSuccessToast": "Preferencias de currículum actualizadas.",
+      "saveError": {
+        "network": "No se pudieron guardar los cambios. Inténtelo de nuevo.",
+        "validation": "No pudimos guardar esos cambios. Actualice la página e inténtelo de nuevo."
+      },
+      "loadError": "No se pudieron cargar las preferencias de currículum. Actualice la página.",
+      "retry": "Inténtelo de nuevo"
+    }
+  },
+  "profile": {
+    "title": "Perfil",
+    "subtitle": "Gestione la información de fuente única que se usa para adaptar sus currículums y cartas de presentación.",
+    "resetButton": "Restablecer perfil",
+    "comingSoon": "Próximamente",
+    "tabs": {
+      "ariaLabel": "Secciones del perfil",
+      "personal-info": "Información personal",
+      "skills": "Habilidades",
+      "profile-summary": "Resumen del perfil",
+      "employment": "Experiencia",
+      "education": "Educación",
+      "languages": "Idiomas",
+      "certificates": "Certificados",
+      "projects": "Proyectos",
+      "achievements": "Logros",
+      "volunteer": "Voluntariado"
+    },
+    "common": {
+      "saveButton": "Guardar cambios",
+      "savingButton": "Guardando...",
+      "savedToast": "Cambios guardados.",
+      "saveErrorToast": "No se pudieron guardar los cambios. Inténtelo de nuevo.",
+      "loadErrorMessage": "No se pudo cargar su perfil. Actualice la página.",
+      "cancelButton": "Cancelar",
+      "deletedToast": "Entrada eliminada",
+      "undoButton": "Deshacer",
+      "deleteFailedToast": "No se pudo eliminar la entrada"
+    },
+    "reupload": {
+      "title": "Vuelva a subir su currículum",
+      "subtitle": "Suelte un PDF o DOCX nuevo (máx. 10 MB) y volveremos a analizar todas las secciones de su perfil con IA.",
+      "backLink": "← Volver al perfil",
+      "dropPrompt": "Arrastre y suelte su currículum aquí",
+      "clickFallback": "o haga clic para buscar",
+      "supportedFormats": "PDF o DOCX · hasta 10 MB",
+      "parsing": "Analizando su currículum…",
+      "parsingHint": "Suele tardar entre 5 y 15 segundos.",
+      "successToast": "Perfil actualizado desde el currículum",
+      "errorToast": "No se pudo analizar el currículum. Pruebe con otro archivo.",
+      "invalidFormat": "Solo se admiten archivos PDF y DOCX.",
+      "fileTooLarge": "El archivo supera el límite de 10 MB.",
+      "warning": {
+        "title": "Esto reemplaza su perfil existente",
+        "description": "Volver a subir sobrescribe todas las secciones analizadas desde su currículum. Las entradas editadas manualmente que no estén en el nuevo archivo se eliminarán."
+      },
+      "steps": {
+        "title": "Qué ocurre a continuación",
+        "step1Title": "Suba su archivo",
+        "step1Description": "PDF o DOCX, hasta 10 MB.",
+        "step2Title": "La IA analiza su currículum",
+        "step2Description": "Extraemos experiencia, habilidades, educación y más.",
+        "step3Title": "Revise en Perfil",
+        "step3Description": "Ajuste cualquier sección antes de generar documentos."
+      }
+    },
+    "emptyState": {
+      "title": "Vamos a configurar su perfil",
+      "subtitle": "Suba su currículum para autocompletar todas las secciones, o empiece desde cero y edite cada pestaña manualmente.",
+      "uploadCard": {
+        "title": "Suba su currículum",
+        "description": "Lo analizaremos con IA y rellenaremos todas las secciones./a"
+      },
+      "manualCard": {
+        "title": "O rellénelo manualmente",
+        "description": "Sáltese la subida y edite cada sección usted mismo, empezando por Información personal.",
+        "button": "Empezar desde cero"
+      },
+      "successToast": "Perfil creado desde el currículum"
+    },
+    "unsavedDialog": {
+      "title": "Cambios sin guardar",
+      "description": "Tiene cambios sin guardar. ¿Desea descartarlos?",
+      "cancelButton": "Cancelar",
+      "discardButton": "Descartar"
+    },
+    "personalInfo": {
+      "heading": "Información personal",
+      "description": "Sus datos de contacto y enlaces. Se usan como cabecera en cada currículum y carta de presentación.",
+      "fullNameLabel": "Nombre completo",
+      "emailLabel": "Correo electrónico",
+      "phoneLabel": "Teléfono",
+      "locationLabel": "Ubicación",
+      "socialLinksLabel": "Enlaces sociales",
+      "addSocialLink": "Añadir enlace social",
+      "platformLabel": "Plataforma",
+      "urlLabel": "URL",
+      "removeSocialLink": "Quitar enlace social"
+    },
+    "skills": {
+      "heading": "Habilidades",
+      "description": "Enumere las habilidades que quiera destacar. Reordénelas más tarde en el editor de currículum.",
+      "nameLabel": "Habilidad",
+      "addSkill": "Añadir habilidad",
+      "removeSkill": "Quitar habilidad"
+    },
+    "profileSummary": {
+      "heading": "Resumen del perfil",
+      "description": "Un párrafo corto que le presente. La IA lo usa como punto de partida al adaptar currículums.",
+      "label": "Resumen",
+      "charactersCount": "{count} caracteres",
+      "placeholder": "Ingeniero de software senior con 8 años construyendo sistemas distribuidos..."
+    },
+    "languages": {
+      "heading": "Idiomas",
+      "description": "Idiomas que habla, escritos y hablados. Los niveles de competencia opcionales llegarán en una actualización futura.",
+      "nameLabel": "Idioma",
+      "addLanguage": "Añadir idioma",
+      "removeLanguage": "Quitar idioma"
+    },
+    "employment": {
+      "heading": "Experiencia",
+      "description": "Su historial laboral. Arrastre para reordenar, edite o elimine cada entrada.",
+      "addButton": "Añadir puesto",
+      "modalTitleAdd": "Añadir puesto",
+      "modalTitleEdit": "Editar puesto",
+      "role": "Puesto",
+      "company": "Empresa",
+      "location": "Ubicación",
+      "startDate": "Fecha de inicio",
+      "endDate": "Fecha de fin",
+      "isCurrent": "Trabajo aquí actualmente",
+      "details": "Detalles",
+      "detailsPlaceholder": "Lideré un equipo de 5 ingenieros...\nLancé 3 funciones importantes...",
+      "detailsHint": "Una viñeta por línea.",
+      "empty": "Aún no hay experiencia laboral. Haga clic en \"Añadir puesto\" para empezar.",
+      "present": "Actualidad"
+    },
+    "education": {
+      "heading": "Educación",
+      "description": "Centros, titulaciones y programas académicos.",
+      "addButton": "Añadir educación",
+      "modalTitleAdd": "Añadir educación",
+      "modalTitleEdit": "Editar educación",
+      "degree": "Titulación",
+      "institution": "Institución",
+      "fieldOfStudy": "Campo de estudio",
+      "location": "Ubicación",
+      "startDate": "Fecha de inicio",
+      "endDate": "Fecha de fin",
+      "isCurrent": "Estoy matriculado actualmente",
+      "description": "Descripción",
+      "empty": "Aún no hay entradas de educación. Haga clic en \"Añadir educación\" para empezar.",
+      "present": "Actualidad"
+    },
+    "certificates": {
+      "heading": "Certificados",
+      "description": "Certificaciones profesionales y licencias.",
+      "addButton": "Añadir certificado",
+      "modalTitleAdd": "Añadir certificado",
+      "modalTitleEdit": "Editar certificado",
+      "name": "Nombre",
+      "issuer": "Emisor",
+      "issueDate": "Fecha de emisión",
+      "expiryDate": "Fecha de caducidad",
+      "credentialUrl": "URL de la credencial",
+      "issuedLabel": "Emitido",
+      "empty": "Aún no hay certificados. Haga clic en \"Añadir certificado\" para empezar."
+    },
+    "projects": {
+      "heading": "Proyectos",
+      "description": "Proyectos personales o profesionales que merezca la pena destacar.",
+      "addButton": "Añadir proyecto",
+      "modalTitleAdd": "Añadir proyecto",
+      "modalTitleEdit": "Editar proyecto",
+      "name": "Nombre",
+      "description": "Descripción",
+      "role": "Rol",
+      "startDate": "Fecha de inicio",
+      "endDate": "Fecha de fin",
+      "isCurrent": "Sigo trabajando en esto",
+      "technologies": "Tecnologías",
+      "technologiesPlaceholder": "TypeScript, React, PostgreSQL",
+      "technologiesHint": "Separadas por comas.",
+      "url": "URL",
+      "repositoryUrl": "URL del repositorio",
+      "details": "Detalles",
+      "detailsPlaceholder": "Construí X usando Y...\nDesplegado a Z usuarios...",
+      "detailsHint": "Una viñeta por línea.",
+      "empty": "Aún no hay proyectos. Haga clic en \"Añadir proyecto\" para empezar.",
+      "present": "Actualidad"
+    },
+    "achievements": {
+      "heading": "Logros",
+      "description": "Premios, reconocimientos y éxitos destacables.",
+      "addButton": "Añadir logro",
+      "modalTitleAdd": "Añadir logro",
+      "modalTitleEdit": "Editar logro",
+      "title": "Título",
+      "description": "Descripción",
+      "date": "Fecha",
+      "issuer": "Emisor",
+      "empty": "Aún no hay logros. Haga clic en \"Añadir logro\" para empezar."
+    },
+    "volunteer": {
+      "heading": "Voluntariado",
+      "description": "Roles de voluntariado y participación en la comunidad.",
+      "addButton": "Añadir rol de voluntariado",
+      "modalTitleAdd": "Añadir rol de voluntariado",
+      "modalTitleEdit": "Editar rol de voluntariado",
+      "role": "Rol",
+      "organization": "Organización",
+      "location": "Ubicación",
+      "startDate": "Fecha de inicio",
+      "endDate": "Fecha de fin",
+      "isCurrent": "Sigo siendo voluntario aquí",
+      "details": "Detalles",
+      "detailsPlaceholder": "Coordiné colectas de comida los fines de semana...\nMentoricé a 8 estudiantes...",
+      "detailsHint": "Una viñeta por línea.",
+      "empty": "Aún no hay entradas de voluntariado. Haga clic en \"Añadir rol de voluntariado\" para empezar.",
+      "present": "Actualidad"
+    }
+  },
+  "analytics": {
+    "page_title": "Analítica",
+    "page_subtitle": "Haz seguimiento de tu progreso y rendimiento de búsqueda de empleo a lo largo del tiempo.",
+    "period_selector_label": "Selecciona un período",
+    "period_7d": "7 días",
+    "period_30d": "30 días",
+    "period_90d": "90 días",
+    "period_all": "Todo el tiempo",
+    "hero_jobs_saved": "Empleos guardados",
+    "hero_applied": "Solicitados",
+    "hero_interviews": "Entrevistas",
+    "hero_offers": "Ofertas",
+    "funnel_title": "Embudo de conversión",
+    "funnel_empty": "Aún no hay candidaturas: empieza a hacer seguimiento de empleos para ver tu embudo.",
+    "funnel_stage_saved": "Guardado",
+    "funnel_stage_applied": "Solicitado",
+    "funnel_stage_screening": "Preselección",
+    "funnel_stage_interview": "Entrevista",
+    "funnel_stage_offer": "Oferta",
+    "funnel_stage_accepted": "Aceptado",
+    "timeline_title": "Candidaturas a lo largo del tiempo",
+    "timeline_empty": "Aún no hay candidaturas registradas.",
+    "timeline_empty_cta": "Empezar a hacer seguimiento de empleos",
+    "status_title": "Desglose por estado",
+    "status_empty": "Aún no hay datos de candidaturas.",
+    "status_saved": "Guardado",
+    "status_applied": "Solicitado",
+    "status_screening": "Preselección",
+    "status_interview": "Entrevista",
+    "status_offer": "Oferta",
+    "resume_title": "Rendimiento del currículum",
+    "resume_empty": "Aún no hay currículums puntuados. Adapta un currículum para ver su rendimiento.",
+    "resume_empty_cta": "Adaptar un currículum",
+    "resume_avg_label": "puntuación media de coincidencia",
+    "resume_best_label": "Mejor rendimiento",
+    "resume_worst_label": "Necesita mejorar",
+    "resume_trend_improving": "Mejorando",
+    "resume_trend_declining": "Empeorando",
+    "resume_trend_stable": "Estable",
+    "response_time_title": "Tiempo de respuesta",
+    "response_time_empty": "Solicita un empleo y espera tu primera respuesta para ver esta métrica.",
+    "response_time_label": "primera respuesta media",
+    "response_time_days_unit": "días",
+    "ai_ops_title": "Operaciones de IA",
+    "ai_ops_empty": "Aún no se han utilizado operaciones de IA.",
+    "ai_ops_total": "Operaciones totales",
+    "ai_op_job_parse": "Análisis de empleo",
+    "ai_op_resume_analyze": "Análisis de currículum",
+    "ai_op_cl_generate": "Carta de presentación",
+    "ai_op_cl_regenerate": "Carta de presentación (Regen)",
+    "upgrade_overlay_aria_label": "Mejora a Pro para desbloquear Analítica",
+    "upgrade_title": "Desbloquea Analítica con Pro",
+    "upgrade_description": "Obtén información detallada sobre tu búsqueda de empleo: embudo de conversión, rendimiento del currículum, tiempos de respuesta y más.",
+    "upgrade_cta": "Mejorar a Pro",
+    "insufficient_headline": "Casi listo: sigue haciendo seguimiento de tu búsqueda para desbloquear la analítica",
+    "insufficient_description": "La analítica se desbloquea cuando tengas datos suficientes. ¡Sigue así!",
+    "insufficient_jobs_label": "Empleos creados",
+    "insufficient_applications_label": "Candidaturas enviadas",
+    "insufficient_resumes_label": "Currículums adaptados",
+    "insufficient_cta_jobs": "Crear un empleo",
+    "insufficient_cta_resumes": "Adaptar un currículum",
+    "error_generic": "Algo salió mal al cargar tu analítica. Inténtalo de nuevo.",
+    "error_boundary_message": "Algo salió mal al cargar tu analítica. Hemos sido notificados.",
+    "error_boundary_retry": "Inténtalo de nuevo"
+  },
+  "support": {
+    "dialog": {
+      "title": "Contactar con soporte",
+      "description": "Solemos responder en menos de 24 horas.",
+      "reply_to_notice": "Responderemos a {email}",
+      "category": {
+        "label": "Categoría",
+        "account": "Cuenta",
+        "billing": "Facturación",
+        "technical": "Técnico",
+        "other": "Otro"
+      },
+      "subject": {
+        "label": "Asunto"
+      },
+      "message": {
+        "label": "Mensaje"
+      },
+      "send": "Enviar"
+    },
+    "toast": {
+      "success": "Tu mensaje ha sido enviado. Revisa tu bandeja de entrada para ver nuestra respuesta."
+    },
+    "error": {
+      "rate_limit": "Puedes contactar con soporte una vez por hora.",
+      "unavailable": "No se puede enviar el mensaje en este momento. Escribe directamente a support@lightrole.com."
+    }
+  },
+  "coverLetters": {
+    "wizard": {
+      "common": {
+        "cancel": "Cancelar",
+        "next": "Siguiente",
+        "back": "Atrás"
+      },
+      "pageTitle": "Generar carta de presentación",
+      "pageSubtitle": "La IA redacta 3 variantes adaptadas al empleo en unos 15 segundos.",
+      "backToList": "Volver a Cartas de presentación",
+      "indicator": {
+        "step1": "Seleccionar empleo y origen",
+        "step2": "Ajustes",
+        "step3": "Revisar",
+        "progressAria": "Progreso del asistente"
+      },
+      "step1": {
+        "title": "Seleccionar empleo y origen",
+        "jobLabel": "Empleo *",
+        "jobPlaceholder": "Selecciona un empleo…",
+        "jobsError": "No se pudieron cargar tus empleos. Actualiza la página o inténtalo de nuevo.",
+        "jobsErrorRetry": "Inténtalo de nuevo",
+        "empty": {
+          "title": "No hay empleos elegibles",
+          "body": "O no tienes empleos, o todos ya tienen una carta de presentación. Añade un nuevo empleo para redactar una.",
+          "cta": "Añadir un empleo"
+        },
+        "sourceLabel": "Origen *",
+        "sourcePlaceholder": "Selecciona un origen…",
+        "source": {
+          "tr": {
+            "label": "Currículum adaptado (para este empleo)",
+            "sub": "Recomendado: usa tu currículum adaptado optimizado para este puesto"
+          },
+          "profile": {
+            "label": "Mi perfil",
+            "sub": "Usa los datos sin procesar de tu perfil"
+          }
+        },
+        "noTr": {
+          "title": "La carta de presentación se generará desde tu Perfil.",
+          "body": "No existe un currículum adaptado para este empleo."
+        },
+        "contextLabel": "Contexto adicional",
+        "contextOptional": "(opcional)",
+        "contextPlaceholder": "¿Algo concreto que quieras incluir? (opcional) — p. ej. una conexión personal con la empresa, un proyecto que quieras destacar o una recomendación.",
+        "contextCounter": "{count} / 500 caracteres",
+        "profileHint": "Completa tu perfil para continuar.",
+        "modal": {
+          "missingProfile": {
+            "title": "Falta información del perfil",
+            "body": "Una carta de presentación necesita al menos una experiencia de la que partir. Añade al menos una entrada de empleo o un proyecto a tu perfil.",
+            "completeCta": "Completar perfil"
+          },
+          "alreadyExists": {
+            "title": "Ya existe una carta de presentación",
+            "body": "Ya redactaste una carta de presentación para este empleo.",
+            "viewCta": "Ver existente",
+            "createdAt": "Creada {date}"
+          }
+        }
+      },
+      "step2": {
+        "title": "Ajustes de generación",
+        "styleLabel": "Estilo",
+        "toneLabel": "Tono",
+        "lengthLabel": "Longitud",
+        "generate": "Generar",
+        "aiLimitTooltip": "Has alcanzado tu límite de operaciones de IA. Mejora para continuar.",
+        "style": {
+          "jobMatched": {
+            "title": "Adaptado al empleo",
+            "desc": "Adaptado a los requisitos del empleo"
+          },
+          "formal": {
+            "title": "Formal",
+            "desc": "Lenguaje tradicional y estructurado"
+          },
+          "professional": {
+            "title": "Profesional",
+            "desc": "Pulido y apropiado para la industria"
+          }
+        },
+        "tone": {
+          "confident": {
+            "title": "Seguro",
+            "desc": "Voz fuerte y firme"
+          },
+          "humble": {
+            "title": "Humilde",
+            "desc": "Tono modesto y colaborativo"
+          },
+          "enthusiastic": {
+            "title": "Entusiasta",
+            "desc": "Enérgico y apasionado"
+          }
+        },
+        "length": {
+          "short": {
+            "title": "Corta",
+            "desc": "200–300 palabras"
+          },
+          "medium": {
+            "title": "Media",
+            "desc": "300–400 palabras"
+          },
+          "long": {
+            "title": "Larga",
+            "desc": "400–500 palabras"
+          }
+        }
+      },
+      "loading": {
+        "phase1": {
+          "label": "Analizando el puesto",
+          "subtitle": "Extrayendo los requisitos imprescindibles del puesto…"
+        },
+        "phase2": {
+          "label": "Revisando tu trayectoria",
+          "subtitle": "Comparando tu experiencia con el puesto…"
+        },
+        "phase3": {
+          "label": "Redactando tu carta de presentación",
+          "subtitle": "Redactando tres variantes en tu tono…"
+        },
+        "failed": "Algo salió mal.",
+        "tipHeading": "¿Sabías que?",
+        "tips": [
+          "Una buena frase de apertura mejora más las tasas de respuesta que un cierre elaborado.",
+          "Light Role redacta 3 versiones para que elijas la voz que encaja, no solo las palabras.",
+          "Mencionar un proyecto o valor concreto de la empresa demuestra investigación, no solo entusiasmo.",
+          "Tu carta de presentación complementa tu currículum, no lo repite."
+        ],
+        "creditHint": "Un momento: estamos usando uno de tus créditos para redactarla.",
+        "aiFailToast": "La IA no pudo redactar ahora mismo: inténtalo de nuevo. No se han descontado créditos.",
+        "networkFailToast": "Algo salió mal. Inténtalo de nuevo.",
+        "profileNotReadyToast": "Tu perfil no está lo suficientemente completo para redactar una carta de presentación.",
+        "jobNotFoundToast": "Empleo no encontrado.",
+        "alreadyExistsToast": "Ya existe una carta de presentación para este empleo.",
+        "progressAria": "Progreso de la generación de la carta de presentación"
+      },
+      "step3": {
+        "title": "Revisar variantes",
+        "subtitle": "Estas son 3 versiones distintas de tu carta de presentación: elige la que mejor te represente.",
+        "tab": {
+          "variant1": "Variante 1",
+          "variant2": "Variante 2",
+          "variant3": "Variante 3"
+        },
+        "useVariant": "Usar esta variante",
+        "selected": "Seleccionada",
+        "back": "Volver a Ajustes",
+        "editSelected": "Editar la seleccionada",
+        "saving": "Guardando…",
+        "pickFirst": "Elige primero una variante.",
+        "defensiveError": "Algo salió mal al cargar las variantes. Inténtalo de nuevo.",
+        "saveSuccess": "Carta de presentación guardada.",
+        "saveConflict": "Ya existe una carta de presentación para este empleo.",
+        "saveError": "No se pudo guardar tu carta de presentación. Inténtalo de nuevo."
+      }
+    },
+    "list": {
+      "title": "Cartas de presentación",
+      "subtitle": "Cartas de presentación generadas con IA adaptadas a tus empleos.",
+      "breadcrumbDashboard": "Panel",
+      "breadcrumbCurrent": "Cartas de presentación",
+      "ctaGenerate": "Generar nueva carta de presentación",
+      "searchPlaceholder": "Buscar por nombre, empresa o empleo…",
+      "searchAriaLabel": "Buscar cartas de presentación",
+      "clearSearchAria": "Borrar búsqueda",
+      "sortLabel": "Ordenar cartas de presentación",
+      "sort": {
+        "newest": "Más recientes",
+        "oldest": "Más antiguas",
+        "recently_updated": "Actualizadas recientemente"
+      },
+      "clear": "Limpiar",
+      "countOne": "1 carta de presentación",
+      "countOther": "{count} cartas de presentación",
+      "countNone": "Sin cartas de presentación.",
+      "countNoMatches": "Ninguna carta de presentación coincide con tus filtros.",
+      "card": {
+        "deleteAria": "Eliminar carta de presentación",
+        "openAria": "Abrir carta de presentación: {name}",
+        "sourceFromTailoredResume": "Desde currículum adaptado",
+        "sourceFromProfile": "Desde el perfil",
+        "subtitleStandalone": "Carta de presentación independiente",
+        "subtitleLinkedFallback": "Vinculada a un empleo"
+      },
+      "delete": {
+        "title": "¿Eliminar esta carta de presentación?",
+        "body": "“{name}” se eliminará de forma permanente. El empleo vinculado permanece intacto y puedes generar una nueva carta de presentación para él en cualquier momento.",
+        "cancel": "Cancelar",
+        "confirm": "Eliminar",
+        "successToast": "Carta de presentación eliminada.",
+        "errorToast": "No se pudo eliminar la carta de presentación. Inténtalo de nuevo."
+      },
+      "empty": {
+        "title": "Aún no hay cartas de presentación.",
+        "description": "Genera una carta de presentación adaptada desde uno de tus empleos en unos 15 segundos.",
+        "cta": "Genera tu primera carta de presentación"
+      },
+      "noMatches": {
+        "message": "Ninguna carta de presentación coincide con tu búsqueda.",
+        "cta": "Limpiar filtros"
+      },
+      "errorState": {
+        "title": "No se pudieron cargar las cartas de presentación",
+        "description": "Tuvimos un error al obtener tus cartas de presentación. Inténtalo de nuevo o actualiza la página.",
+        "tryAgain": "Inténtalo de nuevo"
+      }
+    }
+  }
+}

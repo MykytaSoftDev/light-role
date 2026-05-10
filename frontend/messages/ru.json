@@ -1,0 +1,1922 @@
+{
+  "app": {
+    "name": "Light Role",
+    "tagline": "Платформа управления поиском работы на основе ИИ"
+  },
+  "Common": {
+    "actions": {
+      "save": "Сохранить",
+      "saving": "Сохранение…",
+      "saveChanges": "Сохранить изменения",
+      "cancel": "Отмена",
+      "close": "Закрыть",
+      "delete": "Удалить",
+      "deleting": "Удаление…",
+      "edit": "Изменить",
+      "remove": "Убрать",
+      "add": "Добавить",
+      "back": "Назад",
+      "next": "Далее",
+      "continue": "Продолжить",
+      "submit": "Отправить",
+      "confirm": "Подтвердить",
+      "tryAgain": "Попробовать снова",
+      "retry": "Повторить",
+      "refresh": "Обновить",
+      "reset": "Сбросить",
+      "create": "Создать",
+      "view": "Просмотр",
+      "viewAll": "Показать все",
+      "more": "Ещё",
+      "open": "Открыть",
+      "copy": "Копировать",
+      "copied": "Скопировано",
+      "search": "Поиск",
+      "clear": "Очистить",
+      "download": "Скачать",
+      "upload": "Загрузить",
+      "send": "Отправить",
+      "ok": "OK",
+      "yes": "Да",
+      "no": "Нет",
+      "discard": "Отбросить",
+      "undo": "Отменить",
+      "selectAll": "Выбрать всё",
+      "loadMore": "Загрузить ещё"
+    },
+    "states": {
+      "loading": "Загрузка…",
+      "saving": "Сохранение…",
+      "deleting": "Удаление…",
+      "uploading": "Загрузка…",
+      "submitting": "Отправка…",
+      "processing": "Обработка…",
+      "empty": "Здесь пока ничего нет.",
+      "noResults": "Ничего не найдено.",
+      "comingSoon": "Скоро"
+    },
+    "validation": {
+      "required": "Это поле обязательно.",
+      "invalidEmail": "Введите корректный адрес электронной почты.",
+      "invalidUrl": "Введите корректный URL.",
+      "tooShort": "Минимум {min} символов.",
+      "tooLong": "Максимум {max} символов.",
+      "passwordTooShort": "Пароль должен содержать минимум {min} символов."
+    },
+    "toast": {
+      "saved": "Изменения сохранены.",
+      "saveError": "Не удалось сохранить изменения. Попробуйте ещё раз.",
+      "saveFailed": "Не удалось сохранить. Попробуйте ещё раз.",
+      "loadError": "Не удалось загрузить страницу. Обновите её и попробуйте снова.",
+      "networkError": "Ошибка сети. Проверьте подключение.",
+      "genericError": "Что-то пошло не так. Попробуйте ещё раз."
+    },
+    "upgradeCta": {
+      "defaultMessage": "Перейдите на Pro, чтобы получить больше операций ИИ и неограниченное число вакансий."
+    },
+    "pagination": {
+      "previous": "Назад",
+      "next": "Вперёд",
+      "page": "Страница {page} из {total}",
+      "rowsPerPage": "Строк на странице",
+      "ofTotal": "{from}–{to} из {total}"
+    },
+    "table": {
+      "noData": "Данные отсутствуют.",
+      "selectRow": "Выбрать строку",
+      "selectAll": "Выбрать все строки"
+    }
+  },
+  "Errors": {
+    "boundary": {
+      "title": "Что-то пошло не так",
+      "description": "Произошла непредвиденная ошибка. Мы уже знаем о ней и исправим.",
+      "tryAgain": "Попробовать снова",
+      "goHome": "На главную"
+    },
+    "global": {
+      "title": "Ошибка приложения",
+      "description": "Не удалось загрузить страницу.",
+      "tryAgain": "Попробовать снова"
+    },
+    "notFound": {
+      "title": "Страница не найдена",
+      "description": "Не удалось найти запрошенную страницу.",
+      "goHome": "Вернуться в панель",
+      "goLanding": "Вернуться на главную"
+    },
+    "dashboard": {
+      "title": "Не удалось загрузить страницу",
+      "description": "Что-то пошло не так при загрузке страницы. Попробуйте ещё раз или обновите её.",
+      "tryAgain": "Попробовать снова"
+    },
+    "rateLimit": {
+      "title": "Вы достигли лимита операций ИИ",
+      "description": "Перейдите на Pro: 150 операций в месяц и неограниченное число активных вакансий.",
+      "upgrade": "Перейти на Pro",
+      "later": "Возможно, позже"
+    },
+    "rateLimitModal": {
+      "title": "Слишком быстро — попробуйте позже",
+      "body1": "Вы отправили много запросов за короткое время.",
+      "body2WithTime": "Попробуйте снова через {seconds} секунд.",
+      "supportLine": "Если это повторяется, напишите на support@lightrole.com.",
+      "gotIt": "Понятно"
+    },
+    "upgradeModal": {
+      "title": "Откройте с Pro",
+      "description": "Перейдите на платный план, чтобы использовать эту возможность.",
+      "upgrade": "Перейти на Pro",
+      "later": "Возможно, позже",
+      "seePlans": "Посмотреть тарифы",
+      "resumeCreditsTitle": "Вы использовали все кредиты на резюме в этом месяце",
+      "resumeCreditsBody": "Перейдите на Pro, чтобы адаптировать больше резюме — Pro включает безлимитную адаптацию.",
+      "clCreditsTitle": "Вы использовали все кредиты на сопроводительные письма в этом месяце",
+      "clCreditsBody": "Перейдите на Pro для безлимитной генерации сопроводительных писем с ИИ.",
+      "activeJobsTitle": "Вы достигли лимита активных вакансий",
+      "activeJobsBody": "На Free доступно лишь несколько активных вакансий. Pro снимает ограничение, и вы сможете отслеживать каждую возможность.",
+      "analyticsTitle": "Аналитика — возможность Pro",
+      "analyticsBody": "Перейдите на Pro, чтобы открыть полную панель аналитики — воронку, время отклика и эффективность резюме."
+    },
+    "offline": {
+      "title": "Нет подключения",
+      "description": "Проверьте интернет-соединение и попробуйте снова.",
+      "bannerOffline": "Вы офлайн. Некоторые функции недоступны.",
+      "backOnline": "Связь восстановлена."
+    }
+  },
+  "Notifications": {
+    "bell": {
+      "ariaLabel": "Уведомления",
+      "title": "Уведомления",
+      "empty": "Уведомлений пока нет.",
+      "markAllRead": "Отметить все как прочитанные",
+      "viewAll": "Показать все",
+      "unreadCountAria": "{count, plural, =0 {Нет непрочитанных уведомлений} one {# непрочитанное уведомление} few {# непрочитанных уведомления} many {# непрочитанных уведомлений} other {# непрочитанных уведомления}}"
+    },
+    "timeAgo": {
+      "justNow": "Только что",
+      "minutes": "{count, plural, one {# минуту назад} few {# минуты назад} many {# минут назад} other {# минуты назад}}",
+      "hours": "{count, plural, one {# час назад} few {# часа назад} many {# часов назад} other {# часа назад}}",
+      "days": "{count, plural, one {# день назад} few {# дня назад} many {# дней назад} other {# дня назад}}"
+    }
+  },
+  "Auth": {
+    "branding": {
+      "headline": "Управляйте поиском работы с помощью ИИ.",
+      "tagline": "Адаптируйте резюме под каждую вакансию, создавайте сопроводительные письма и отслеживайте все отклики — в одном месте.",
+      "logoAlt": "Логотип LightRole",
+      "testimonialQuote": "Light Role помог мне адаптировать резюме под каждый отклик. За шесть недель я прошёл путь от нулевых ответов до трёх офферов.",
+      "testimonialName": "Маркус К.",
+      "testimonialTitle": "Инженер-программист",
+      "logoFallback": "Light Role"
+    },
+    "common": {
+      "emailLabel": "Email",
+      "emailPlaceholder": "you@example.com",
+      "passwordLabel": "Пароль",
+      "passwordPlaceholder": "••••••••",
+      "or": "или",
+      "continueWithGoogle": "Продолжить с Google",
+      "googleNotConfigured": "Google OAuth не настроен.",
+      "networkError": "Не удалось подключиться. Проверьте интернет-соединение.",
+      "genericError": "Что-то пошло не так. Попробуйте ещё раз."
+    },
+    "login": {
+      "metaTitle": "Вход",
+      "title": "Вход в Light Role",
+      "subtitle": "С возвращением. Введите свои данные ниже.",
+      "forgotPassword": "Забыли пароль?",
+      "submit": "Войти",
+      "submitting": "Вход…",
+      "invalidCredentials": "Неверный email или пароль.",
+      "noAccount": "Нет аккаунта?",
+      "createOne": "Создать"
+    },
+    "register": {
+      "metaTitle": "Создать аккаунт",
+      "title": "Создайте аккаунт",
+      "subtitle": "Начните управлять поиском работы с ИИ.",
+      "passwordPlaceholder": "Минимум 8 символов",
+      "submit": "Создать аккаунт",
+      "submitting": "Создание аккаунта…",
+      "alreadyRegistered": "Этот email уже зарегистрирован. Попробуйте войти.",
+      "haveAccount": "Уже есть аккаунт?",
+      "signIn": "Войти",
+      "checkEmail": {
+        "title": "Проверьте почту",
+        "description": "Мы отправили ссылку для подтверждения на ваш email. Перейдите по ней, чтобы активировать аккаунт.",
+        "alreadyVerified": "Уже подтвердили?",
+        "signIn": "Войти"
+      }
+    },
+    "forgotPassword": {
+      "metaTitle": "Забыли пароль",
+      "title": "Забыли пароль?",
+      "subtitle": "Введите email, и мы пришлём ссылку для сброса пароля.",
+      "submit": "Отправить ссылку",
+      "submitting": "Отправка…",
+      "backToLogin": "Назад ко входу",
+      "successTitle": "Проверьте почту",
+      "successDescription": "Если аккаунт для {email} существует, вы получите ссылку для сброса пароля в ближайшее время."
+    },
+    "resetPassword": {
+      "metaTitle": "Сброс пароля",
+      "title": "Сбросьте пароль",
+      "subtitle": "Выберите новый пароль для аккаунта.",
+      "newPasswordLabel": "Новый пароль",
+      "confirmPasswordLabel": "Подтвердите пароль",
+      "passwordPlaceholder": "Минимум 8 символов",
+      "submit": "Сбросить пароль",
+      "submitting": "Сброс…",
+      "passwordsDoNotMatch": "Пароли не совпадают.",
+      "tokenInvalid": "Эта ссылка для сброса недействительна или устарела.",
+      "invalidLinkTitle": "Недействительная ссылка для сброса",
+      "noTokenBody": "Ссылка для сброса отсутствует или некорректна. Запросите новую.",
+      "requestResetLink": "Запросить новую ссылку",
+      "showPassword": "Показать пароль",
+      "hidePassword": "Скрыть пароль",
+      "backToLogin": "Назад ко входу",
+      "successTitle": "Пароль сброшен",
+      "successDescription": "Ваш пароль обновлён. Теперь вы можете войти.",
+      "goToLogin": "Войти"
+    },
+    "verifyEmail": {
+      "metaTitle": "Подтверждение email",
+      "verifyingTitle": "Подтверждаем ваш email…",
+      "verifyingDescription": "Подождите немного, это займёт всего секунду.",
+      "successTitle": "Email подтверждён",
+      "successDescription": "Ваш email подтверждён. Теперь вы можете войти.",
+      "goToLogin": "Войти",
+      "errorTitle": "Подтверждение не удалось",
+      "errorDescription": "Эта ссылка для подтверждения недействительна или устарела.",
+      "tryAgain": "Попробовать снова",
+      "noTokenTitle": "Ссылка для подтверждения отсутствует",
+      "noTokenDescription": "Для этой страницы нужен токен подтверждения. Откройте ссылку из письма.",
+      "backToRegister": "Назад к регистрации",
+      "fallbackLoading": "Загрузка…"
+    },
+    "googleCallback": {
+      "loadingTitle": "Выполняем вход…",
+      "errorTitle": "Не удалось войти",
+      "errorDescription": "Не удалось войти через Google. Попробуйте снова.",
+      "backToLogin": "Назад ко входу",
+      "noCode": "Вход через Google был отменён. Попробуйте снова.",
+      "fallbackLoading": "Загрузка…"
+    },
+    "validation": {
+      "invalidEmail": "Введите корректный адрес электронной почты.",
+      "passwordRequired": "Введите пароль.",
+      "passwordMin": "Пароль должен содержать минимум 8 символов.",
+      "confirmPasswordRequired": "Подтвердите пароль.",
+      "tokenRequired": "Отсутствует токен сброса."
+    }
+  },
+  "Marketing": {
+    "metaTitle": "Light Role — управление поиском работы на основе ИИ",
+    "metaDescription": "Адаптируйте каждое резюме, создавайте каждое сопроводительное письмо и отслеживайте каждый отклик — в одном месте.",
+    "landing": {
+      "title": "Light Role",
+      "tagline": "Платформа управления поиском работы на основе ИИ",
+      "ctaPrimary": "Начать",
+      "ctaSecondary": "Войти"
+    }
+  },
+  "Pricing": {
+    "metaTitle": "Тарифы — Light Role",
+    "metaDescription": "Простые и прозрачные тарифы. Бесплатный старт, апгрейд по мере необходимости.",
+    "heading": "Простые и прозрачные тарифы",
+    "subheading": "Начните бесплатно. Перейдите на платный план, когда понадобится больше. Отмена в любой момент.",
+    "mostPopular": "Самый популярный",
+    "billedAnnually": "Оплата ежегодно",
+    "priceFootnote": "Цены в местной валюте, где это доступно. Налоги рассчитываются при оформлении.",
+    "loadingCta": "Загрузка…",
+    "copy": {
+      "free": "Чтобы попробовать Light Role.",
+      "pro": "Для активного поиска работы.",
+      "unlimited": "Для опытных пользователей, которым нужно всё."
+    },
+    "features": {
+      "jobsUnlimited": "Неограниченное число активных вакансий",
+      "jobsLimited": "До {count} активных вакансий",
+      "resumeTailoringsUnlimited": "Безлимитная адаптация резюме",
+      "resumeTailoringsLimited": "{count} адаптаций резюме в месяц",
+      "coverLettersUnlimited": "Безлимитные сопроводительные письма",
+      "coverLettersLimited": "{count} сопроводительных писем в месяц",
+      "aiOperationsUnlimited": "Безлимитные операции ИИ",
+      "aiOperationsLimited": "{count} операций ИИ в месяц",
+      "templates": "Все шаблоны резюме",
+      "analytics": "Панель аналитики",
+      "priorityAi": "Приоритетная обработка ИИ",
+      "exportPdf": "Экспорт в PDF и DOCX",
+      "support": "Приоритетная поддержка"
+    },
+    "cta": {
+      "getStartedFree": "Начать — это бесплатно",
+      "startWithPlan": "Начать с {plan}",
+      "yourCurrentPlan": "Ваш текущий план",
+      "downgrade": "Понизить план",
+      "upgradeTo": "Перейти на {plan}"
+    }
+  },
+  "Sidebar": {
+    "main": {
+      "dashboard": "Панель управления",
+      "profile": "Профиль",
+      "jobs": "Отслеживание вакансий",
+      "tailorResume": "Адаптировать резюме",
+      "generateCoverLetter": "Создать сопроводительное письмо",
+      "analytics": "Аналитика",
+      "documents": "Документы",
+      "resumes": "Резюме",
+      "coverLetters": "Сопроводительные письма"
+    },
+    "user": {
+      "settings": "Настройки",
+      "billing": "Оплата",
+      "payments": "Платежи",
+      "upgradePlan": "Сменить план",
+      "upgradeYourPlan": "Сменить ваш план",
+      "logout": "Выйти",
+      "loggingOut": "Выход…",
+      "fallbackName": "Аккаунт"
+    },
+    "planBadge": {
+      "free": "План Free",
+      "pro": "План Pro",
+      "unlimited": "Unlimited",
+      "upgrade": "Сменить план",
+      "shortFree": "Free",
+      "shortPro": "Pro",
+      "shortUnlimited": "Unlimited",
+      "freePlan": "План Free",
+      "proPlan": "План Pro",
+      "unlimitedPlan": "План Unlimited",
+      "aria": "Текущий план: {label}"
+    },
+    "dashboardHomeAria": "Light Role — Панель управления",
+    "documents": {
+      "title": "Документы",
+      "viewAll": "Показать все"
+    }
+  },
+  "DashboardShell": {
+    "breadcrumb": {
+      "dashboard": "Панель управления",
+      "resumes": "Резюме",
+      "tailorResume": "Адаптировать резюме",
+      "jobs": "Вакансии",
+      "settings": "Настройки",
+      "applications": "Отклики",
+      "profile": "Профиль",
+      "notifications": "Уведомления",
+      "subscriptions": "Моя подписка",
+      "editResume": "Редактировать резюме",
+      "jobDetails": "Сведения о вакансии",
+      "details": "Сведения",
+      "ariaLabel": "Хлебные крошки"
+    },
+    "themeSwitcher": {
+      "ariaLabel": "Переключить тему",
+      "light": "Светлая",
+      "dark": "Тёмная",
+      "system": "Системная"
+    },
+    "header": {
+      "openMenu": "Открыть меню",
+      "closeMenu": "Закрыть меню"
+    }
+  },
+  "DashboardHome": {
+    "metaTitle": "Панель управления — Light Role",
+    "greeting": "Здравствуйте, {name}!",
+    "greetingFallback": "С возвращением!",
+    "summaryLine": "{activeCount, plural, one {# активная вакансия} few {# активные вакансии} many {# активных вакансий} other {# активной вакансии}}, {appCount, plural, one {# отклик} few {# отклика} many {# откликов} other {# отклика}} в этом месяце",
+    "quickActions": {
+      "heading": "Быстрые действия",
+      "createJob": {
+        "title": "Создать вакансию",
+        "description": "Отслеживайте новый отклик, добавив объявление о работе."
+      },
+      "tailorResume": {
+        "title": "Адаптировать резюме",
+        "description": "Оптимизируйте резюме под конкретную вакансию с помощью ИИ."
+      },
+      "generateCoverLetter": {
+        "title": "Создать сопроводительное письмо",
+        "description": "Создайте персональное сопроводительное письмо с помощью ИИ."
+      },
+      "getStarted": "Начать",
+      "lockedToast": "Сначала добавьте вакансию: {action}.",
+      "lockedActions": {
+        "tailoring": "перед адаптацией резюме",
+        "generating": "перед созданием сопроводительного письма"
+      },
+      "dismiss": "Скрыть"
+    },
+    "stats": {
+      "heading": "Ваша статистика",
+      "remainingThisCycle": "осталось в этом цикле: {resumes, plural, one {# резюме} few {# резюме} many {# резюме} other {# резюме}}, {coverLetters, plural, one {# сопроводительное письмо} few {# сопроводительных письма} many {# сопроводительных писем} other {# сопроводительного письма}}",
+      "upgrade": "Сменить план"
+    },
+    "recentActivity": {
+      "heading": "Недавняя активность",
+      "viewAll": "Показать все",
+      "emptyTitle": "Вакансий пока нет",
+      "emptyDescription": "Начните отслеживать поиск работы — добавьте первое объявление.",
+      "addFirst": "Добавить первую вакансию",
+      "addedJob": "Добавлено: {company} — {title}"
+    },
+    "completeSteps": {
+      "heading": "Завершите настройку",
+      "subheading": "Несколько быстрых шагов, чтобы получить максимум от Light Role.",
+      "dismiss": "Скрыть",
+      "progress": "Выполнено {completed} из {total}",
+      "stepCreateJob": "Создайте первую вакансию",
+      "stepTailorResume": "Адаптируйте резюме",
+      "stepGenerateCl": "Создайте сопроводительное письмо",
+      "stepCompleteProfile": "Заполните профиль",
+      "uploadLabel": "Загрузите своё резюме",
+      "uploadCompletedHint": "Профиль импортирован.",
+      "uploadPendingHint": "Мы автоматически заполним профиль.",
+      "createLabel": "Создайте первую вакансию",
+      "createCompletedHint": "Вакансия отслеживается.",
+      "createPendingHint": "Добавьте объявление, чтобы начать.",
+      "tailorLabel": "Адаптируйте резюме",
+      "tailorCompletedHint": "Резюме адаптировано.",
+      "tailorPendingHint": "Оптимизируйте резюме под одну из ваших вакансий.",
+      "generateLabel": "Создайте сопроводительное письмо",
+      "generateCompletedHint": "Сопроводительное письмо создано.",
+      "generatePendingHint": "Подготовьте сопроводительное письмо за 15 секунд.",
+      "dismissedToast": "Настройка скрыта. Её можно вернуть из меню справки.",
+      "dismissErrorToast": "Не удалось скрыть настройку. Попробуйте ещё раз.",
+      "confirmDialog": {
+        "title": "Скрыть чек-лист настройки?",
+        "description": "Вы сможете включить его снова из настроек.",
+        "keep": "Оставить",
+        "hide": "Скрыть"
+      }
+    },
+    "statCards": {
+      "aiOperations": "Операции ИИ",
+      "activeJobs": "Активные вакансии",
+      "applicationsThisMonth": "Отклики в этом месяце",
+      "resumeCredits": "Кредиты на резюме",
+      "clCredits": "Кредиты на сопроводительные письма",
+      "unlimited": "Безлимит",
+      "ofLimit": "из {limit}",
+      "resetsOn": "Обновится {date}",
+      "daysUntilReset": "{count, plural, =0 {Обновится сегодня} one {Обновится через # день} few {Обновится через # дня} many {Обновится через # дней} other {Обновится через # дня}}",
+      "daysSuffix": "дн.",
+      "todayLabel": "Сегодня",
+      "activeJobsTooltip": "Активные вакансии в вашем трекере.",
+      "resumeCreditsTooltip": "Адаптации резюме, доступные в этом расчётном периоде.",
+      "clCreditsTooltip": "Генерации сопроводительных писем, доступные в этом расчётном периоде.",
+      "daysUntilResetTooltip": "Время до обновления месячных лимитов."
+    },
+    "relativeDate": {
+      "today": "Сегодня",
+      "yesterday": "Вчера",
+      "daysAgo": "{count, plural, one {# день назад} few {# дня назад} many {# дней назад} other {# дня назад}}",
+      "weeksAgo": "{count, plural, one {# неделю назад} few {# недели назад} many {# недель назад} other {# недели назад}}",
+      "monthsAgo": "{count, plural, one {# месяц назад} few {# месяца назад} many {# месяцев назад} other {# месяца назад}}"
+    }
+  },
+  "Resumes": {
+    "list": {
+      "metaTitle": "Резюме — Light Role",
+      "title": "Резюме",
+      "subtitle": "Ваши адаптированные резюме — скачать или редактировать в один клик.",
+      "ctaTailor": "Адаптировать новое резюме",
+      "searchPlaceholder": "Поиск по имени файла, вакансии или компании…",
+      "sortLabel": "Сортировка резюме",
+      "sort": {
+        "newest": "Новые",
+        "oldest": "Старые",
+        "recentlyUpdated": "Недавно обновлённые",
+        "highestScore": "Лучшее совпадение",
+        "newestFirst": "Сначала новые",
+        "oldestFirst": "Сначала старые",
+        "nameAsc": "Имя А–Я",
+        "nameDesc": "Имя Я–А"
+      },
+      "countOne": "1 резюме",
+      "countOther": "{count} резюме",
+      "countNone": "Резюме нет.",
+      "noMatches": "Резюме по фильтрам не найдены.",
+      "clear": "Сбросить фильтры",
+      "empty": {
+        "title": "Адаптированных резюме пока нет.",
+        "description": "Адаптируйте первое резюме под конкретную вакансию примерно за 30 секунд.",
+        "cta": "Адаптировать первое резюме"
+      },
+      "errorState": {
+        "title": "Не удалось загрузить резюме",
+        "description": "При загрузке резюме произошла ошибка. Попробуйте снова или обновите страницу.",
+        "tryAgain": "Попробовать снова"
+      },
+      "card": {
+        "openAria": "Открыть резюме: {name}",
+        "deleteAria": "Удалить резюме",
+        "matchScore": "Совпадение {score}%",
+        "noJob": "Вакансия не привязана",
+        "lastUpdated": "Обновлено {date}",
+        "createdJustNow": "Создано только что",
+        "createdMinutesAgo": "{count, plural, one {Создано # минуту назад} few {Создано # минуты назад} many {Создано # минут назад} other {Создано # минуты назад}}",
+        "createdHoursAgo": "{count, plural, one {Создано # час назад} few {Создано # часа назад} many {Создано # часов назад} other {Создано # часа назад}}",
+        "createdDaysAgo": "{count, plural, one {Создано # день назад} few {Создано # дня назад} many {Создано # дней назад} other {Создано # дня назад}}",
+        "createdAt": "Создано {date}",
+        "tailoredFor": "Адаптировано под {title} в {company}",
+        "tailoredForCompanyOnly": "Адаптировано под роль в {company}",
+        "tailoredForTitleOnly": "Адаптировано под {title}",
+        "tailoredFromProfile": "Адаптировано из вашего профиля"
+      },
+      "delete": {
+        "title": "Удалить это резюме?",
+        "body": "«{name}» будет безвозвратно удалено. Это действие нельзя отменить.",
+        "bodyHasRating": " Ваша оценка также будет удалена.",
+        "cancel": "Отмена",
+        "confirm": "Удалить",
+        "successToast": "Резюме удалено.",
+        "errorToast": "Не удалось удалить резюме. Попробуйте ещё раз."
+      },
+      "untitledJob": "Вакансия без названия",
+      "filter": {
+        "jobButton": "Фильтр по вакансии",
+        "noJobs": "Пока нет вакансий для фильтрации.",
+        "clearSelection": "Сбросить выбор"
+      }
+    },
+    "tailor": {
+      "metaTitle": "Адаптация резюме",
+      "title": "Адаптировать резюме",
+      "subtitle": "ИИ оптимизирует ваше резюме под конкретную вакансию примерно за 30 секунд.",
+      "backToList": "Назад к резюме",
+      "step1": "Вакансия",
+      "step2": "Настройки",
+      "jobLabel": "Вакансия *",
+      "jobPlaceholder": "Выберите вакансию…",
+      "jobsError": "Не удалось загрузить ваши вакансии. Обновите страницу или попробуйте снова.",
+      "submit": "Адаптировать резюме",
+      "submitting": "Адаптация…",
+      "aiLimitTooltip": "Вы достигли лимита операций ИИ. Перейдите на платный план, чтобы продолжить.",
+      "selectJob": "Выберите вакансию",
+      "jobHelp": "Выберите вакансию, под которую хотите адаптировать резюме.",
+      "noJobs": {
+        "title": "Вакансий пока нет",
+        "body": "Добавьте вакансию, прежде чем адаптировать резюме.",
+        "cta": "Добавить вакансию"
+      },
+      "missingProfile": {
+        "title": "Не хватает данных в профиле",
+        "body": "Для адаптации резюме нужен хотя бы один опыт. Добавьте в профиль хотя бы одну запись о работе или один проект.",
+        "completeCta": "Заполнить профиль",
+        "cancel": "Отмена"
+      },
+      "loading": {
+        "phase1": "Анализируем вакансию",
+        "phase1Sub": "Выделяем ключевые требования…",
+        "phase2": "Изучаем ваш опыт",
+        "phase2Sub": "Сопоставляем ваш опыт с ролью…",
+        "phase3": "Адаптируем резюме",
+        "phase3Sub": "Перестраиваем порядок и переписываем пункты…",
+        "tipHeading": "А вы знали?",
+        "tips": [
+          "Адаптированное резюме замечают в 3 раза чаще, чем универсальное.",
+          "Light Role переписывает пункты так, чтобы они отражали ключевые слова из вакансии.",
+          "Даже небольшие правки под роль могут заметно повысить процент совпадения.",
+          "Поддерживайте профиль в актуальном состоянии для лучшей адаптации."
+        ],
+        "creditHint": "Подождите немного — мы используем один из ваших кредитов на адаптацию.",
+        "failed": "Что-то пошло не так.",
+        "retry": "Попробовать снова",
+        "progressAria": "Прогресс адаптации",
+        "phaseAria": "Этап {step} из {total}: {label}",
+        "phaseState": {
+          "active": "Выполняется",
+          "completed": "Завершено",
+          "failed": "Ошибка",
+          "pending": "Ожидание"
+        }
+      },
+      "toast": {
+        "success": "Резюме адаптировано.",
+        "aiFail": "ИИ не смог адаптировать резюме сейчас — попробуйте ещё раз. Кредиты не списаны.",
+        "networkFail": "Что-то пошло не так. Попробуйте ещё раз.",
+        "profileNotReady": "Ваш профиль недостаточно заполнен для адаптации резюме.",
+        "jobNotFound": "Вакансия не найдена.",
+        "alreadyExists": "Адаптированное резюме для этой вакансии уже существует."
+      }
+    },
+    "editor": {
+      "metaTitle": "Редактирование резюме",
+      "backToList": "Назад к резюме",
+      "edit": "Изменить",
+      "exitEdit": "Выйти из режима правки",
+      "preview": "Предпросмотр",
+      "download": "Скачать PDF",
+      "downloading": "Подготовка PDF…",
+      "downloadError": "Не удалось сформировать PDF. Попробуйте ещё раз.",
+      "downloadSuccess": "Резюме скачано.",
+      "saveBeforeDownload": "Сохраните изменения перед скачиванием.",
+      "filenameLabel": "Имя файла",
+      "filenamePlaceholder": "Резюме без названия",
+      "renameSuccessToast": "Имя файла обновлено.",
+      "renameErrorToast": "Не удалось обновить имя файла. Попробуйте ещё раз.",
+      "renameNotImplemented": "Переименование пока недоступно.",
+      "saveNameAria": "Сохранить имя файла",
+      "cancelRenameAria": "Отменить переименование",
+      "renameAria": "Переименовать файл",
+      "fontLabel": "Шрифт",
+      "saveButton": "Сохранить",
+      "savedAt": "Сохранено в {time}",
+      "unsavedChanges": "Несохранённые изменения",
+      "saving": "Сохранение…",
+      "toolbarAria": "Панель инструментов редактора резюме",
+      "invalidFieldsTooltip": "Исправьте отмеченные поля перед сохранением.",
+      "noChangesTooltip": "Изменений для сохранения нет.",
+      "insightsAside": "Аналитика и совпадения",
+      "tailoredFromProfileSubtitle": "Адаптировано из вашего профиля",
+      "notFoundTitle": "Резюме не найдено",
+      "notFoundDescription": "Не удалось найти это резюме. Возможно, оно было удалено.",
+      "discardDialog": {
+        "title": "Отбросить изменения?",
+        "body": "У вас есть несохранённые изменения. Отбросить их?",
+        "cancel": "Отмена",
+        "stay": "Остаться",
+        "discard": "Отбросить"
+      },
+      "reorderDialog": {
+        "title": "Изменить порядок разделов",
+        "body": "Перетаскивайте разделы, чтобы изменить порядок их отображения в резюме.",
+        "save": "Сохранить порядок",
+        "cancel": "Отмена",
+        "dragHandleAria": "Перетащите, чтобы изменить порядок раздела",
+        "entryCountFilledLabel": "{count, plural, =0 {пусто} one {# запись} few {# записи} many {# записей} other {# записи}}",
+        "entryCountOneEntry": "1 запись",
+        "entryCountOtherEntries": "{count} записей"
+      },
+      "appliedChanges": {
+        "title": "Применённые изменения",
+        "description": "Что ИИ изменил при адаптации этого резюме.",
+        "empty": "Изменения для этого резюме не зафиксированы.",
+        "categoryReorder": "Изменение порядка",
+        "categoryRewrite": "Переписывание",
+        "categoryAddition": "Добавления",
+        "categoryRemoval": "Удаления"
+      },
+      "insightsPanel": {
+        "title": "Аналитика резюме",
+        "shortTitle": "Аналитика",
+        "matchScore": "Процент совпадения",
+        "matchScoreDescription": "Насколько резюме соответствует описанию вакансии.",
+        "matchedKeywords": "Совпавшие ключевые слова",
+        "missingKeywords": "Недостающие ключевые слова",
+        "noKeywords": "Данные по ключевым словам недоступны.",
+        "noKeywordsMatched": "Совпадений по ключевым словам пока нет.",
+        "noOccurrences": "Упоминаний в резюме пока нет.",
+        "scrollToOccurrence": "Перейти к упоминанию «{keyword}»",
+        "readOnlyEditTooltip": "Перейдите в режим редактирования, чтобы воспользоваться этим."
+      },
+      "rating": {
+        "label": "Оценка совпадения",
+        "starsAria": "{score} из 5 звёзд",
+        "scoreOutOf": "{score}/100",
+        "cardTitle": "Как вам адаптация?",
+        "cardDescription": "Ваша оценка помогает нам становиться лучше.",
+        "dismissAria": "Скрыть карточку оценки",
+        "thanksToast": "Спасибо за отзыв!",
+        "submitError": "Не удалось отправить оценку. Попробуйте ещё раз.",
+        "commentLabel": "Комментарий (необязательно)",
+        "commentPlaceholder": "Что получилось хорошо? Что можно улучшить?",
+        "submitting": "Отправка…",
+        "submit": "Отправить",
+        "groupAria": "Оцените эту адаптацию"
+      },
+      "preview": {
+        "loading": "Загрузка предпросмотра…",
+        "error": "Не удалось отобразить предпросмотр.",
+        "retry": "Попробовать снова"
+      },
+      "section": {
+        "addEntry": "Добавить запись",
+        "removeEntry": "Удалить запись",
+        "moveUp": "Переместить вверх",
+        "moveDown": "Переместить вниз",
+        "delete": "Удалить",
+        "edit": "Изменить",
+        "saveEntry": "Сохранить",
+        "cancelEntry": "Отмена",
+        "emptyDefault": "Записей пока нет.",
+        "dragEntryAria": "Перетащите {label}, чтобы изменить порядок",
+        "removeEntryAria": "Удалить {label}",
+        "employmentEntryLabel": "Должность",
+        "educationEntryLabel": "Образование",
+        "projectEntryLabel": "Проект",
+        "achievementEntryLabel": "Достижение",
+        "certificateEntryLabel": "Сертификат",
+        "volunteerEntryLabel": "Волонтёрство",
+        "bulletPlaceholder": "Добавьте пункт об этой роли…",
+        "projectBulletPlaceholder": "Добавьте пункт об этом проекте…",
+        "describeProjectPlaceholder": "Кратко опишите проект…",
+        "summaryPlaceholder": "Короткий абзац, который вас представляет.",
+        "addSkillPlaceholder": "Добавьте навык",
+        "addLanguagePlaceholder": "Добавьте язык",
+        "addTechnologyPlaceholder": "Добавьте технологию",
+        "liveUrlPlaceholder": "https://…",
+        "repositoryPlaceholder": "https://github.com/…",
+        "credentialUrlPlaceholder": "https://…",
+        "expiresPrefix": "Истекает",
+        "educationDetailsPlaceholder": "Награды, дисциплины, средний балл…",
+        "emailExamplePlaceholder": "you@example.com",
+        "platformExamplePlaceholder": "LinkedIn, GitHub, Портфолио…",
+        "dragLink": "Перетащить ссылку",
+        "removeLink": "Удалить ссылку",
+        "startShort": "Начало",
+        "endShort": "Окончание"
+      },
+      "fields": {
+        "monthPlaceholder": "ММ/ГГГГ",
+        "addChip": "Добавить",
+        "removeChip": "Удалить",
+        "richtextPlaceholder": "Начните вводить текст…",
+        "chipPlaceholder": "Введите и нажмите Enter",
+        "dragChipAria": "Перетащить {label}",
+        "removeChipAria": "Удалить {label}",
+        "monthSelectPlaceholder": "Выберите дату",
+        "pickMonthYearAria": "Выберите месяц и год",
+        "yearLabel": "Год",
+        "monthLabel": "Месяц",
+        "doneButton": "Готово",
+        "formatToolbarAria": "Панель форматирования",
+        "formatBold": "Полужирный",
+        "formatItalic": "Курсив",
+        "formatBulletList": "Маркированный список",
+        "formatClear": "Очистить форматирование"
+      }
+    },
+    "sectionTitles": {
+      "personalInfo": "Личная информация",
+      "summary": "Краткое резюме",
+      "skills": "Навыки",
+      "employment": "Опыт работы",
+      "education": "Образование",
+      "languages": "Языки",
+      "certificates": "Сертификаты",
+      "projects": "Проекты",
+      "achievements": "Достижения",
+      "volunteer": "Волонтёрство"
+    }
+  },
+  "Jobs": {
+    "list": {
+      "metaTitle": "Вакансии — Light Role",
+      "title": "Вакансии",
+      "heading": "Отслеживание вакансий",
+      "addJob": "Добавить вакансию",
+      "searchPlaceholder": "Поиск по компании…",
+      "clearSearchAria": "Очистить поиск",
+      "clearFilters": "Сбросить фильтры",
+      "clearSelection": "Сбросить выбор",
+      "statusFilterLabel": "Статус",
+      "resultCount": "{count, plural, one {# вакансия} few {# вакансии} many {# вакансий} other {# вакансии}}",
+      "dismiss": "Скрыть",
+      "dropJobsHere": "Перетащите вакансии сюда",
+      "dropHere": "Перетащите сюда",
+      "openJobMenuAria": "Открыть меню вакансии",
+      "expandSectionAria": "Развернуть раздел {label}",
+      "collapseSectionAria": "Свернуть раздел {label}",
+      "kanbanViewAria": "Канбан",
+      "tableViewAria": "Таблица",
+      "hideEmpty": "Скрыть пустые",
+      "showEmpty": "Показать пустые",
+      "hideEmptySectionsAria": "Скрыть пустые разделы",
+      "showEmptySectionsAria": "Показать пустые разделы",
+      "statusUpdateFailed": "Не удалось обновить статус вакансии. Попробуйте ещё раз.",
+      "emptyFiltered": "Вакансий по вашим фильтрам нет.",
+      "emptyTableRow": "Вакансий пока нет. Добавьте первую, чтобы начать.",
+      "empty": {
+        "title": "Вакансий пока нет",
+        "description": "Отслеживайте свою первую вакансию — вставьте объявление, и мы сами разберём детали.",
+        "cta": "Добавить первую вакансию"
+      },
+      "columns": {
+        "title": "Должность",
+        "company": "Компания",
+        "location": "Локация",
+        "salary": "Зарплата",
+        "status": "Статус",
+        "dateSaved": "Дата сохранения",
+        "dateApplied": "Дата отклика",
+        "deadline": "Дедлайн",
+        "followUp": "Повторное обращение",
+        "excitement": "Заинтересованность",
+        "actions": "Действия"
+      },
+      "dnd": {
+        "pickedUp": "Вакансия {id} взята.",
+        "overTarget": "Вакансия {id} над зоной {overId}.",
+        "leftDroppable": "Вакансия {id} больше не над зоной для перетаскивания.",
+        "droppedOver": "Вакансия {id} помещена в зону {overId}.",
+        "dropped": "Вакансия {id} отпущена.",
+        "cancelled": "Перетаскивание вакансии {id} отменено."
+      }
+    },
+    "new": {
+      "metaTitle": "Новая вакансия",
+      "title": "Добавить вакансию",
+      "subtitle": "Вставьте объявление о работе, и мы извлечём ключевые детали за вас.",
+      "backToJobs": "Назад к вакансиям",
+      "pasteLabel": "Вставьте описание вакансии",
+      "pastePlaceholder": "Вставьте полное описание вакансии сюда…",
+      "parseButton": "Разобрать с ИИ",
+      "parsing": "Разбор…",
+      "manualButton": "Заполнить вручную",
+      "titleLabel": "Должность",
+      "titlePlaceholder": "Старший инженер-программист",
+      "companyLabel": "Компания",
+      "companyPlaceholder": "Acme Inc.",
+      "locationLabel": "Локация",
+      "locationPlaceholder": "Удалённо · Берлин · Гибрид",
+      "urlLabel": "Ссылка на вакансию",
+      "descriptionLabel": "Описание",
+      "descriptionPlaceholder": "Вставьте или введите полное описание вакансии…",
+      "salaryLabel": "Диапазон зарплаты",
+      "salaryPlaceholder": "$120k–$150k",
+      "requirementsLabel": "Требования",
+      "requirementsHint": "По одному в строке. Используются ИИ при адаптации резюме.",
+      "requirementsPlaceholder": "5+ лет на Python\nОпыт работы с распределёнными системами",
+      "saveButton": "Сохранить вакансию",
+      "saving": "Сохранение…",
+      "successToast": "Вакансия создана.",
+      "errorToast": "Не удалось создать вакансию. Попробуйте ещё раз.",
+      "parseErrorToast": "ИИ не смог разобрать эту вакансию — заполните поля вручную.",
+      "aiLimitTooltip": "Вы достигли лимита операций ИИ. Перейдите на платный план, чтобы продолжить.",
+      "modeAi": "С помощью ИИ",
+      "modeManual": "Ручной ввод",
+      "reviewHint": "Проверьте разобранные детали перед сохранением.",
+      "startOver": "Начать заново",
+      "confirmAndSave": "Подтвердить и сохранить",
+      "invalidFieldsError": "Заполните обязательные поля.",
+      "parsingMessages": [
+        "Читаем объявление…",
+        "Извлекаем должность и компанию…",
+        "Выделяем требования…",
+        "Почти готово…"
+      ]
+    },
+    "details": {
+      "metaTitle": "Сведения о вакансии",
+      "backToJobs": "Назад к вакансиям",
+      "notFound": "Вакансия не найдена",
+      "notFoundDescription": "Не удалось найти эту вакансию. Возможно, она была удалена.",
+      "loadError": "Не удалось загрузить эту вакансию. Попробуйте ещё раз.",
+      "titlePlaceholder": "Должность не указана",
+      "tabs": {
+        "overview": "Обзор",
+        "application": "Отклик",
+        "documents": "Документы"
+      },
+      "overview": {
+        "jobDetails": "Сведения о вакансии",
+        "company": "Компания",
+        "location": "Локация",
+        "locationPlaceholder": "Укажите локацию",
+        "url": "Ссылка на вакансию",
+        "salary": "Зарплата",
+        "salaryPlaceholder": "Укажите диапазон зарплаты",
+        "description": "Описание",
+        "descriptionPlaceholder": "Добавьте описание",
+        "requirements": "Требования",
+        "createdAt": "Добавлено {date}"
+      },
+      "application": {
+        "heading": "Отклик",
+        "status": "Статус",
+        "dateApplied": "Дата отклика",
+        "followUpDate": "Повторное обращение",
+        "deadline": "Дедлайн",
+        "excitement": "Заинтересованность",
+        "notes": "Заметки",
+        "notesPlaceholder": "Что-нибудь, что вы хотите запомнить об этой роли…",
+        "saveButton": "Сохранить",
+        "saving": "Сохранение…",
+        "savedToast": "Отклик обновлён.",
+        "saveError": "Не удалось обновить отклик. Попробуйте ещё раз."
+      },
+      "documents": {
+        "resumeTitle": "Адаптированное резюме",
+        "resumeShort": "Резюме",
+        "coverLetterTitle": "Сопроводительное письмо",
+        "coverLetterShort": "Сопроводительное письмо",
+        "noResume": "Адаптированного резюме пока нет.",
+        "tailorCta": "Адаптировать резюме",
+        "noCoverLetter": "Сопроводительного письма пока нет.",
+        "generateCta": "Создать сопроводительное письмо"
+      },
+      "delete": {
+        "title": "Удалить эту вакансию?",
+        "body": "«{title}» будет безвозвратно удалена вместе с данными об отклике. Связанные резюме и сопроводительные письма останутся в вашей библиотеке.",
+        "cancel": "Отмена",
+        "confirm": "Удалить",
+        "successToast": "Вакансия удалена.",
+        "errorToast": "Не удалось удалить вакансию. Попробуйте ещё раз."
+      }
+    },
+    "contextMenu": {
+      "view": "Открыть вакансию",
+      "edit": "Изменить",
+      "tailorResume": "Адаптировать резюме",
+      "generateCoverLetter": "Создать сопроводительное письмо",
+      "viewResume": "Открыть адаптированное резюме",
+      "viewCoverLetter": "Открыть сопроводительное письмо",
+      "delete": "Удалить"
+    },
+    "status": {
+      "saved": "Сохранено",
+      "applied": "Откликнулся",
+      "screening": "Скрининг",
+      "interview": "Интервью",
+      "offer": "Оффер",
+      "rejected": "Отказ",
+      "accepted": "Принят",
+      "withdrawn": "Отозвано"
+    }
+  },
+  "CoverLetters": {
+    "details": {
+      "metaTitle": "Сопроводительное письмо",
+      "backToList": "Назад к сопроводительным письмам",
+      "edit": "Изменить",
+      "save": "Сохранить",
+      "saving": "Сохранение…",
+      "savedToast": "Сопроводительное письмо сохранено.",
+      "saveError": "Не удалось сохранить изменения. Попробуйте ещё раз.",
+      "downloadPdf": "Скачать PDF",
+      "downloadDocx": "Скачать DOCX",
+      "downloadError": "Не удалось сформировать файл. Попробуйте ещё раз.",
+      "regenerate": "Пересоздать",
+      "regenerateConfirmTitle": "Пересоздать это сопроводительное письмо?",
+      "regenerateConfirmBody": "Текущий текст будет заменён. Спишется один кредит ИИ.",
+      "regenerateCancel": "Отмена",
+      "regenerateConfirm": "Пересоздать",
+      "linkedJob": "Связанная вакансия",
+      "noLinkedJob": "Самостоятельное сопроводительное письмо",
+      "viewJob": "Открыть вакансию",
+      "untitled": "Сопроводительное письмо без названия",
+      "nameLabel": "Название",
+      "namePlaceholder": "Сопроводительное письмо для…",
+      "contentLabel": "Содержание",
+      "contentPlaceholder": "Напишите или вставьте сопроводительное письмо…",
+      "contentPreviewPlaceholder": "Здесь появится ваше сопроводительное письмо.",
+      "settingsAriaLabel": "Настройки сопроводительного письма",
+      "styleLabel": "Стиль",
+      "toneLabel": "Тон",
+      "lengthLabel": "Длина",
+      "previewTab": "Предпросмотр",
+      "previewLabel": "Предпросмотр",
+      "livePreviewLabel": "Живой предпросмотр",
+      "autosaveHint": "Сохраняется автоматически.",
+      "notFoundTitle": "Сопроводительное письмо не найдено",
+      "notFoundBody": "Не удалось найти это сопроводительное письмо. Возможно, оно было удалено.",
+      "loadErrorTitle": "Не удалось загрузить это сопроводительное письмо",
+      "loadErrorBody": "Попробуйте снова или обновите страницу."
+    },
+    "generatePage": {
+      "metaTitle": "Создать сопроводительное письмо"
+    }
+  },
+  "Subscriptions": {
+    "page": {
+      "metaTitle": "Моя подписка",
+      "title": "Моя подписка",
+      "subtitle": "Управляйте планом, оплатой и способом платежа.",
+      "backToDashboard": "Назад в панель управления"
+    },
+    "header": {
+      "currentPlan": "Текущий план",
+      "free": "Free",
+      "pro": "Pro",
+      "monthly": "Ежемесячно",
+      "annual": "Ежегодно",
+      "upgrade": "Сменить план",
+      "manage": "Управление подпиской",
+      "cancel": "Отменить подписку",
+      "renew": "Продлить подписку",
+      "resume": "Возобновить подписку",
+      "startedOn": "Начало {date}",
+      "planSuffix": "План {name}",
+      "planImageAlt": "План {name}",
+      "changePlan": "Изменить план",
+      "cancelScheduledToast": "Отмена запланирована.",
+      "cancelConfirmTitle": "Отменить подписку?",
+      "cancelConfirmBody": "Доступ к Pro сохранится до конца текущего расчётного периода. После этого вы будете переведены на план Free."
+    },
+    "details": {
+      "status": "Статус",
+      "active": "Активна",
+      "trialing": "Пробный период",
+      "pastDue": "Просрочена",
+      "canceled": "Отменена",
+      "paused": "Приостановлена",
+      "nextBilling": "Дата следующего списания",
+      "renewsOn": "Продлевается {date}",
+      "endsOn": "Завершится {date}",
+      "currentPeriod": "Текущий период",
+      "billingCycle": "Расчётный период"
+    },
+    "alerts": {
+      "pastDueTitle": "Последний платёж не прошёл",
+      "pastDueBody": "Обновите способ оплаты, чтобы сохранить доступ к Pro.",
+      "canceledTitle": "Подписка отменена",
+      "canceledBody": "Доступ к Pro закончится {date}. Продлите подписку, чтобы сохранить преимущества.",
+      "canceledOnAt": "Отменена {date}",
+      "pausedTitle": "Подписка приостановлена",
+      "pausedBody": "Возобновите подписку, чтобы вернуть возможности Pro."
+    },
+    "paymentMethod": {
+      "title": "Способ оплаты",
+      "cardEndsIn": "Карта оканчивается на {last4}",
+      "expires": "Срок действия {month}/{year}",
+      "update": "Обновить",
+      "noMethod": "Способ оплаты не указан."
+    },
+    "lineItems": {
+      "title": "Детали плана",
+      "billed": "Списано",
+      "amount": "Сумма",
+      "tax": "Налог",
+      "total": "Итого",
+      "totalIncTax": "Итого (с налогом)",
+      "freePlanDetails": "План Free",
+      "freePlanLabel": "Free",
+      "freePlanTagline": "Бесплатно навсегда",
+      "noRecurringCharges": "Регулярных списаний нет.",
+      "recurringProductsTitle": "Регулярные позиции",
+      "qty": "Кол-во: {count}",
+      "excludingTaxNote": "Цены указаны без учёта налога."
+    },
+    "nextPayment": {
+      "title": "Следующий платёж",
+      "amount": "Сумма",
+      "date": "Дата",
+      "noPending": "Предстоящих платежей нет.",
+      "dueLabel": "Списание {date}"
+    },
+    "pastPayments": {
+      "title": "Прошлые платежи",
+      "cardTitle": "Платежи",
+      "empty": "Платежей пока нет.",
+      "viewInvoice": "Открыть счёт",
+      "downloadInvoice": "Скачать счёт",
+      "amount": "Сумма",
+      "date": "Дата",
+      "status": "Статус",
+      "noPaymentsTitle": "Платежей пока нет",
+      "noPaymentsBody": "Ваши счета появятся здесь после перехода на платный план.",
+      "noHistoryBody": "История платежей отсутствует."
+    },
+    "errorBoundary": {
+      "title": "Не удалось загрузить вашу подписку",
+      "description": "При загрузке подписки произошла ошибка. Попробуйте снова или обновите страницу.",
+      "tryAgain": "Попробовать снова"
+    }
+  },
+  "Checkout": {
+    "metaTitle": "Оформление",
+    "title": "Оформление",
+    "subtitle": "Завершите оформление подписки.",
+    "backToUpgrade": "Назад к смене плана",
+    "backToDashboard": "Назад в панель управления",
+    "orderSummary": "Сводка заказа",
+    "paymentDetails": "Платёжные данные",
+    "thenRecurring": "Далее {price} {cycle}",
+    "loading": "Подготовка оформления…",
+    "error": {
+      "title": "Не удалось загрузить оформление",
+      "description": "При подготовке оформления произошла ошибка. Попробуйте ещё раз.",
+      "tryAgain": "Попробовать снова",
+      "back": "Назад к тарифам"
+    },
+    "billingToggle": {
+      "monthly": "Ежемесячно",
+      "annual": "Ежегодно",
+      "save": "Экономия {percent}%"
+    },
+    "lineItems": {
+      "subtotal": "Промежуточный итог",
+      "tax": "Налог",
+      "discount": "Скидка",
+      "total": "Итого",
+      "dueToday": "К оплате сегодня",
+      "includingTax": "С учётом налога"
+    },
+    "priceSection": {
+      "billedAs": "Оплата {cycle}",
+      "perMonth": "в месяц",
+      "perYear": "в год",
+      "monthlyEquivalent": "≈ {price} / месяц"
+    },
+    "success": {
+      "title": "Добро пожаловать в Pro!",
+      "description": "Ваша подписка активна. Используйте её на полную.",
+      "goToDashboard": "В панель управления",
+      "manageSubscription": "Управление подпиской",
+      "processing": "Подтверждаем платёж…",
+      "timeoutTitle": "Подтверждение продолжается…",
+      "timeoutDescription": "Это занимает дольше обычного. Платёж обрабатывается — обновите страницу через минуту.",
+      "transactionId": "ID транзакции",
+      "planLabel": "План",
+      "nextBilling": "Дата следующего списания",
+      "confirmationEmailHint": "Письмо с подтверждением уже в пути."
+    },
+    "failure": {
+      "title": "Платёж не прошёл",
+      "description": "Не удалось обработать ваш платёж. Деньги не списаны.",
+      "tryAgain": "Попробовать снова",
+      "backToPlans": "Назад к тарифам",
+      "commonReasonsHeading": "Возможные причины",
+      "commonReasons": [
+        "Карта отклонена банком.",
+        "Недостаточно средств на карте.",
+        "Неверные данные карты или истёкший срок действия.",
+        "Сетевая ошибка во время платежа."
+      ],
+      "contactSupport": "Если это повторяется, напишите на support@lightrole.com."
+    }
+  },
+  "Payments": {
+    "metaTitle": "Платежи — Light Role",
+    "title": "Платежи",
+    "subtitle": "Ваша история платежей и счета.",
+    "table": {
+      "date": "Дата",
+      "description": "Описание",
+      "amount": "Сумма",
+      "status": "Статус",
+      "invoice": "Счёт",
+      "actions": "Действия"
+    },
+    "status": {
+      "paid": "Оплачено",
+      "pending": "В обработке",
+      "failed": "Ошибка",
+      "refunded": "Возвращено"
+    },
+    "actions": {
+      "download": "Скачать",
+      "view": "Открыть"
+    },
+    "empty": {
+      "title": "Платежей пока нет",
+      "description": "После перехода на платный план ваши счета появятся здесь."
+    },
+    "filter": {
+      "search": "Поиск платежей…",
+      "all": "Все статусы",
+      "noResults": "Платежей по фильтрам не найдено."
+    }
+  },
+  "upgrade": {
+    "hero": {
+      "eyebrow": "Перейти на Pro",
+      "headline": "Раскройте все возможности поиска работы",
+      "subheadline": "Адаптируйте каждое резюме, создавайте каждое сопроводительное письмо и отслеживайте сколько угодно вакансий — всё в одном месте.",
+      "trust": "Отмена в любой момент · Безопасная оплата через Paddle"
+    },
+    "toggle": {
+      "monthly": "Ежемесячно",
+      "annual": "Ежегодно",
+      "save": "Экономия {percent}%"
+    },
+    "cards": {
+      "free": {
+        "title": "Free",
+        "description": "Ваш текущий план",
+        "price": "$0",
+        "billedAs": "Бесплатно навсегда",
+        "currentPlanBadge": "Текущий план"
+      },
+      "monthly": {
+        "title": "Pro Ежемесячно",
+        "description": "Гибкая помесячная оплата. Отмена в любой момент.",
+        "billedAs": "Ежемесячная оплата",
+        "cta": "Начать"
+      },
+      "annual": {
+        "title": "Pro Ежегодно",
+        "description": "Лучшее предложение. Один платёж — большая экономия.",
+        "billedAs": "Ежегодная оплата",
+        "cta": "Начать",
+        "savingsBadge": "Экономия {percent}%",
+        "monthlyEquivalent": " {price} / месяц"
+      },
+      "unlimited": {
+        "title": "Unlimited",
+        "description": "Для опытных пользователей — всё без ограничений.",
+        "billedAs": "Ежемесячная оплата",
+        "cta": "Начать"
+      },
+      "downgradeToFree": "Понизить до Free",
+      "downgradeTo": "Понизить до {title}",
+      "upgradeTo": "Перейти на {title}",
+      "features": {
+        "title": "Всё, что включено в Pro:",
+        "list": [
+          "150 операций ИИ в месяц (против 10 на Free)",
+          "Неограниченное число активных вакансий в трекере",
+          "Резюме, адаптированные ИИ под каждый отклик",
+          "Сопроводительные письма от ИИ в нескольких вариантах",
+          "Умный разбор описаний вакансий — вставил и готово",
+          "Все шаблоны резюме разблокированы",
+          "Панель аналитики для отслеживания прогресса",
+          "Приоритетная генерация ИИ",
+          "Отмена в любой момент — без вопросов"
+        ]
+      }
+    },
+    "features": {
+      "unlimitedJobs": "Неограниченное число активных вакансий",
+      "jobsLimited": "До {count} активных вакансий",
+      "unlimitedResumes": "Безлимитные адаптированные резюме",
+      "resumesLimited": "{count} адаптированных резюме в месяц",
+      "unlimitedCoverLetters": "Безлимитные сопроводительные письма",
+      "coverLettersLimited": "{count} сопроводительных писем в месяц",
+      "templates": "Все шаблоны резюме",
+      "analytics": "Панель аналитики",
+      "priorityAi": "Приоритетная обработка ИИ",
+      "support": "Приоритетная поддержка"
+    },
+    "comparison": {
+      "title": "Free и Pro: краткое сравнение",
+      "colFeature": "Возможность",
+      "colFree": "Free",
+      "colPro": "Pro"
+    },
+    "trust": {
+      "title": "Почему соискатели выбирают Pro",
+      "items": {
+        "cancel": {
+          "title": "Отмена в любой момент",
+          "description": "Никаких контрактов с привязкой. Отмените подписку прямо из панели управления — без вопросов."
+        },
+        "refresh": {
+          "title": "Лимиты обновляются ежемесячно",
+          "description": "Лимит операций ИИ обновляется в начале каждого расчётного периода — мощностей хватит, когда они понадобятся."
+        },
+        "global": {
+          "title": "Работает повсюду",
+          "description": "Light Role поддерживает несколько языков и валют, чтобы у вашего поиска работы не было границ."
+        }
+      }
+    },
+    "faq": {
+      "title": "Часто задаваемые вопросы",
+      "items": {
+        "cancel": {
+          "q": "Можно ли отменить подписку в любой момент?",
+          "a": "Да. Подписку можно отменить в любое время на странице настроек оплаты. Доступ к Pro сохранится до конца текущего расчётного периода."
+        },
+        "difference": {
+          "q": "В чём разница между Free и Pro?",
+          "a": "План Free даёт 10 операций ИИ в месяц и до 5 активных вакансий. Pro открывает 150 операций ИИ, неограниченное число активных вакансий, все шаблоны резюме, аналитику и приоритетную обработку ИИ."
+        },
+        "payment": {
+          "q": "Как обрабатываются платежи?",
+          "a": "Платежи безопасно обрабатывает Paddle — надёжный Merchant of Record. Данные вашей карты не хранятся на наших серверах."
+        },
+        "switch": {
+          "q": "Можно ли переключаться между ежемесячной и годовой оплатой?",
+          "a": "Да. Расчётный период можно изменить на странице настроек оплаты в любое время. Изменения вступают в силу с начала следующего расчётного периода."
+        },
+        "refund": {
+          "q": "Есть ли политика возврата?",
+          "a": "Мы предлагаем 14-дневную гарантию возврата средств для годовых тарифов. На ежемесячных тарифах вы можете отменить подписку до следующего продления, чтобы избежать повторного списания."
+        }
+      }
+    },
+    "footer": {
+      "headline": "Готовы быстрее получить следующий оффер?",
+      "back": "Назад в панель управления"
+    },
+    "errors": {
+      "plansLoadFailed": "Не удалось загрузить тарифы. Попробуйте ещё раз.",
+      "retry": "Попробовать снова",
+      "pricesFallback": "Показаны базовые цены. Местная валюта недоступна."
+    }
+  },
+  "sidebar": {
+    "feedback": "Отправить отзыв",
+    "support": "Связаться с поддержкой"
+  },
+  "feedback": {
+    "dialog": {
+      "title": "Отправить отзыв",
+      "description": "Помогите нам сделать Light Role лучше. Поделитесь багами, идеями или мыслями.",
+      "type": {
+        "label": "Тип",
+        "bug": "Баг",
+        "feature_request": "Предложение функции",
+        "improvement": "Улучшение",
+        "other": "Другое"
+      },
+      "message": {
+        "label": "Сообщение",
+        "placeholder": "Расскажите, что у вас на уме..."
+      },
+      "submit": "Отправить",
+      "cancel": "Отмена"
+    },
+    "toast": {
+      "success": "Спасибо за отзыв!"
+    },
+    "error": {
+      "rate_limit": "Отзыв можно отправить раз в час. Попробуйте позже.",
+      "generic": "Что-то пошло не так. Попробуйте ещё раз."
+    }
+  },
+  "settings": {
+    "title": "Настройки",
+    "subtitle": "Управляйте настройками аккаунта и параметрами безопасности.",
+    "tabs": {
+      "ariaLabel": "Разделы настроек",
+      "account": "Аккаунт",
+      "security": "Безопасность",
+      "notifications": "Уведомления",
+      "resume": "Резюме"
+    },
+    "account": {
+      "heading": "Аккаунт",
+      "description": "Обновите личные данные и адрес электронной почты.",
+      "placeholders": {
+        "firstName": "Иван",
+        "lastName": "Иванов",
+        "email": "you@example.com"
+      },
+      "language": {
+        "heading": "Язык",
+        "description": "Выберите язык интерфейса панели управления.",
+        "label": "Язык интерфейса",
+        "helperText": "Выбор сохраняется в вашем браузере и применяется при каждом посещении.",
+        "savedToast": "Язык обновлён",
+        "errorToast": "Не удалось обновить язык. Попробуйте ещё раз.",
+        "placeholder": "Выберите язык"
+      }
+    },
+    "security": {
+      "heading": "Безопасность",
+      "description": "Управляйте паролем и безопасностью аккаунта."
+    },
+    "notifications": {
+      "heading": "Настройки уведомлений",
+      "description": "Управляйте тем, какие уведомления вы получаете от Light Role."
+    },
+    "resume": {
+      "heading": "Настройки резюме",
+      "description": "Выберите порядок разделов и шрифт, которые будут использоваться по умолчанию для будущих адаптированных резюме.",
+      "infoBanner": {
+        "title": "Эти настройки применяются только к будущим резюме",
+        "body": "Существующие адаптированные резюме сохраняют тот порядок разделов и шрифт, с которыми были созданы. Изменения здесь применяются к резюме, созданным после сохранения."
+      },
+      "sectionOrder": {
+        "title": "Порядок разделов",
+        "description": "Перетаскивайте, чтобы изменить порядок. Личная информация всегда отображается в начале резюме."
+      },
+      "font": {
+        "title": "Шрифт",
+        "description": "Выберите шрифт для резюме. Каждый вариант отображается своим шрифтом.",
+        "label": "Шрифт резюме",
+        "placeholder": "Выберите шрифт",
+        "hint": "Все пять шрифтов — профессиональные без засечек, которые чисто отображаются в PDF."
+      },
+      "saveButton": "Сохранить изменения",
+      "savingButton": "Сохранение...",
+      "saveSuccessToast": "Настройки резюме обновлены.",
+      "saveError": {
+        "network": "Не удалось сохранить изменения. Попробуйте ещё раз.",
+        "validation": "Не удалось сохранить эти изменения. Обновите страницу и попробуйте снова."
+      },
+      "loadError": "Не удалось загрузить настройки резюме. Обновите страницу.",
+      "retry": "Попробовать снова"
+    }
+  },
+  "profile": {
+    "title": "Профиль",
+    "subtitle": "Управляйте источником данных, который используется для адаптации резюме и сопроводительных писем.",
+    "resetButton": "Сбросить профиль",
+    "comingSoon": "Скоро",
+    "tabs": {
+      "ariaLabel": "Разделы профиля",
+      "personal-info": "Личная информация",
+      "skills": "Навыки",
+      "profile-summary": "Краткое описание",
+      "employment": "Опыт работы",
+      "education": "Образование",
+      "languages": "Языки",
+      "certificates": "Сертификаты",
+      "projects": "Проекты",
+      "achievements": "Достижения",
+      "volunteer": "Волонтёрство"
+    },
+    "common": {
+      "saveButton": "Сохранить изменения",
+      "savingButton": "Сохранение...",
+      "savedToast": "Изменения сохранены.",
+      "saveErrorToast": "Не удалось сохранить изменения. Попробуйте ещё раз.",
+      "loadErrorMessage": "Не удалось загрузить профиль. Обновите страницу.",
+      "cancelButton": "Отмена",
+      "deletedToast": "Запись удалена",
+      "undoButton": "Отменить",
+      "deleteFailedToast": "Не удалось удалить запись"
+    },
+    "reupload": {
+      "title": "Загрузите резюме заново",
+      "subtitle": "Перетащите свежий PDF или DOCX (до 10 МБ), и мы заново разберём все разделы профиля с помощью ИИ.",
+      "backLink": "← Назад в профиль",
+      "dropPrompt": "Перетащите своё резюме сюда",
+      "clickFallback": "или нажмите, чтобы выбрать файл",
+      "supportedFormats": "PDF или DOCX · до 10 МБ",
+      "parsing": "Разбираем ваше резюме…",
+      "parsingHint": "Обычно это занимает 5–15 секунд.",
+      "successToast": "Профиль обновлён из резюме",
+      "errorToast": "Не удалось разобрать резюме. Попробуйте другой файл.",
+      "invalidFormat": "Поддерживаются только PDF и DOCX.",
+      "fileTooLarge": "Файл превышает лимит в 10 МБ.",
+      "warning": {
+        "title": "Это заменит ваш текущий профиль",
+        "description": "Повторная загрузка перезапишет все разделы, разобранные из резюме. Вручную добавленные записи, которых нет в новом файле, будут удалены."
+      },
+      "steps": {
+        "title": "Что произойдёт дальше",
+        "step1Title": "Загрузите файл",
+        "step1Description": "PDF или DOCX, до 10 МБ.",
+        "step2Title": "ИИ разбирает резюме",
+        "step2Description": "Извлекаем опыт, навыки, образование и многое другое.",
+        "step3Title": "Проверьте профиль",
+        "step3Description": "Подправьте любой раздел перед созданием документов."
+      }
+    },
+    "emptyState": {
+      "title": "Давайте настроим ваш профиль",
+      "subtitle": "Загрузите резюме, чтобы автоматически заполнить все разделы, или начните с нуля и заполните каждую вкладку вручную.",
+      "uploadCard": {
+        "title": "Загрузите резюме",
+        "description": "Мы разберём его с помощью ИИ и заполним все разделы./a"
+      },
+      "manualCard": {
+        "title": "Или заполните вручную",
+        "description": "Пропустите загрузку и заполните каждый раздел сами, начиная с личной информации.",
+        "button": "Начать с нуля"
+      },
+      "successToast": "Профиль создан из резюме"
+    },
+    "unsavedDialog": {
+      "title": "Несохранённые изменения",
+      "description": "У вас есть несохранённые изменения. Отбросить их?",
+      "cancelButton": "Отмена",
+      "discardButton": "Отбросить"
+    },
+    "personalInfo": {
+      "heading": "Личная информация",
+      "description": "Ваши контактные данные и ссылки. Используются как заголовок в каждом резюме и сопроводительном письме.",
+      "fullNameLabel": "Полное имя",
+      "emailLabel": "Email",
+      "phoneLabel": "Телефон",
+      "locationLabel": "Локация",
+      "socialLinksLabel": "Соцсети",
+      "addSocialLink": "Добавить соцсеть",
+      "platformLabel": "Платформа",
+      "urlLabel": "URL",
+      "removeSocialLink": "Удалить соцсеть"
+    },
+    "skills": {
+      "heading": "Навыки",
+      "description": "Перечислите навыки, которые хотите показать. Порядок можно изменить позже в редакторе резюме.",
+      "nameLabel": "Навык",
+      "addSkill": "Добавить навык",
+      "removeSkill": "Удалить навык"
+    },
+    "profileSummary": {
+      "heading": "Краткое описание",
+      "description": "Короткий абзац, который вас представляет. ИИ использует его как отправную точку при адаптации резюме.",
+      "label": "Описание",
+      "charactersCount": "{count} символов",
+      "placeholder": "Старший инженер-программист с 8-летним опытом разработки распределённых систем..."
+    },
+    "languages": {
+      "heading": "Языки",
+      "description": "Языки, которыми вы владеете — письменно и устно. Уровни владения появятся в будущем обновлении.",
+      "nameLabel": "Язык",
+      "addLanguage": "Добавить язык",
+      "removeLanguage": "Удалить язык"
+    },
+    "employment": {
+      "heading": "Опыт работы",
+      "description": "Ваша история работы. Перетаскивайте, чтобы изменить порядок, редактируйте или удаляйте записи.",
+      "addButton": "Добавить должность",
+      "modalTitleAdd": "Добавить должность",
+      "modalTitleEdit": "Редактировать должность",
+      "role": "Должность",
+      "company": "Компания",
+      "location": "Локация",
+      "startDate": "Дата начала",
+      "endDate": "Дата окончания",
+      "isCurrent": "Я работаю здесь сейчас",
+      "details": "Подробности",
+      "detailsPlaceholder": "Руководил командой из 5 инженеров...\nЗапустил 3 крупные функции...",
+      "detailsHint": "По одному пункту на строку.",
+      "empty": "Записей о работе пока нет. Нажмите «Добавить должность», чтобы начать.",
+      "present": "По настоящее время"
+    },
+    "education": {
+      "heading": "Образование",
+      "description": "Учебные заведения, степени и академические программы.",
+      "addButton": "Добавить образование",
+      "modalTitleAdd": "Добавить образование",
+      "modalTitleEdit": "Редактировать образование",
+      "degree": "Степень",
+      "institution": "Учебное заведение",
+      "fieldOfStudy": "Специальность",
+      "location": "Локация",
+      "startDate": "Дата начала",
+      "endDate": "Дата окончания",
+      "isCurrent": "Я учусь здесь сейчас",
+      "description": "Описание",
+      "empty": "Записей об образовании пока нет. Нажмите «Добавить образование», чтобы начать.",
+      "present": "По настоящее время"
+    },
+    "certificates": {
+      "heading": "Сертификаты",
+      "description": "Профессиональные сертификаты и лицензии.",
+      "addButton": "Добавить сертификат",
+      "modalTitleAdd": "Добавить сертификат",
+      "modalTitleEdit": "Редактировать сертификат",
+      "name": "Название",
+      "issuer": "Кем выдан",
+      "issueDate": "Дата выдачи",
+      "expiryDate": "Срок действия",
+      "credentialUrl": "Ссылка на сертификат",
+      "issuedLabel": "Выдан",
+      "empty": "Сертификатов пока нет. Нажмите «Добавить сертификат», чтобы начать."
+    },
+    "projects": {
+      "heading": "Проекты",
+      "description": "Личные или профессиональные проекты, которые стоит показать.",
+      "addButton": "Добавить проект",
+      "modalTitleAdd": "Добавить проект",
+      "modalTitleEdit": "Редактировать проект",
+      "name": "Название",
+      "description": "Описание",
+      "role": "Роль",
+      "startDate": "Дата начала",
+      "endDate": "Дата окончания",
+      "isCurrent": "Я всё ещё работаю над этим",
+      "technologies": "Технологии",
+      "technologiesPlaceholder": "TypeScript, React, PostgreSQL",
+      "technologiesHint": "Через запятую.",
+      "url": "URL",
+      "repositoryUrl": "URL репозитория",
+      "details": "Подробности",
+      "detailsPlaceholder": "Создал X с использованием Y...\nЗапустил для Z пользователей...",
+      "detailsHint": "По одному пункту на строку.",
+      "empty": "Проектов пока нет. Нажмите «Добавить проект», чтобы начать.",
+      "present": "По настоящее время"
+    },
+    "achievements": {
+      "heading": "Достижения",
+      "description": "Награды, признания и значимые победы.",
+      "addButton": "Добавить достижение",
+      "modalTitleAdd": "Добавить достижение",
+      "modalTitleEdit": "Редактировать достижение",
+      "title": "Название",
+      "description": "Описание",
+      "date": "Дата",
+      "issuer": "Кем выдано",
+      "empty": "Достижений пока нет. Нажмите «Добавить достижение», чтобы начать."
+    },
+    "volunteer": {
+      "heading": "Волонтёрство",
+      "description": "Волонтёрские роли и участие в сообществе.",
+      "addButton": "Добавить волонтёрскую роль",
+      "modalTitleAdd": "Добавить волонтёрскую роль",
+      "modalTitleEdit": "Редактировать волонтёрскую роль",
+      "role": "Роль",
+      "organization": "Организация",
+      "location": "Локация",
+      "startDate": "Дата начала",
+      "endDate": "Дата окончания",
+      "isCurrent": "Я всё ещё занимаюсь этим",
+      "details": "Подробности",
+      "detailsPlaceholder": "Организовал акции по сбору продуктов по выходным...\nНаставлял 8 студентов...",
+      "detailsHint": "По одному пункту на строку.",
+      "empty": "Записей о волонтёрстве пока нет. Нажмите «Добавить волонтёрскую роль», чтобы начать.",
+      "present": "По настоящее время"
+    }
+  },
+  "analytics": {
+    "page_title": "Аналитика",
+    "page_subtitle": "Отслеживайте прогресс и эффективность поиска работы со временем.",
+    "period_selector_label": "Выберите период",
+    "period_7d": "7 дней",
+    "period_30d": "30 дней",
+    "period_90d": "90 дней",
+    "period_all": "Всё время",
+    "hero_jobs_saved": "Сохранено вакансий",
+    "hero_applied": "Откликов",
+    "hero_interviews": "Интервью",
+    "hero_offers": "Офферов",
+    "funnel_title": "Воронка конверсии",
+    "funnel_empty": "Откликов пока нет — начните отслеживать вакансии, чтобы увидеть воронку.",
+    "funnel_stage_saved": "Сохранено",
+    "funnel_stage_applied": "Откликнулся",
+    "funnel_stage_screening": "Скрининг",
+    "funnel_stage_interview": "Интервью",
+    "funnel_stage_offer": "Оффер",
+    "funnel_stage_accepted": "Принят",
+    "timeline_title": "Отклики во времени",
+    "timeline_empty": "Откликов пока не зафиксировано.",
+    "timeline_empty_cta": "Начать отслеживание вакансий",
+    "status_title": "Распределение по статусам",
+    "status_empty": "Данных по откликам пока нет.",
+    "status_saved": "Сохранено",
+    "status_applied": "Откликнулся",
+    "status_screening": "Скрининг",
+    "status_interview": "Интервью",
+    "status_offer": "Оффер",
+    "resume_title": "Эффективность резюме",
+    "resume_empty": "Оценённых резюме пока нет. Адаптируйте резюме, чтобы увидеть его эффективность.",
+    "resume_empty_cta": "Адаптировать резюме",
+    "resume_avg_label": "средняя оценка совпадения",
+    "resume_best_label": "Лучшее по эффективности",
+    "resume_worst_label": "Требует доработки",
+    "resume_trend_improving": "Растёт",
+    "resume_trend_declining": "Падает",
+    "resume_trend_stable": "Стабильно",
+    "response_time_title": "Время отклика",
+    "response_time_empty": "Откликнитесь на вакансию и дождитесь первого ответа, чтобы увидеть эту метрику.",
+    "response_time_label": "среднее время первого ответа",
+    "response_time_days_unit": "дн.",
+    "ai_ops_title": "Операции ИИ",
+    "ai_ops_empty": "Операции ИИ пока не использовались.",
+    "ai_ops_total": "Всего операций",
+    "ai_op_job_parse": "Разбор вакансий",
+    "ai_op_resume_analyze": "Анализ резюме",
+    "ai_op_cl_generate": "Сопроводительное письмо",
+    "ai_op_cl_regenerate": "Сопроводительное письмо (пересоздание)",
+    "upgrade_overlay_aria_label": "Перейдите на Pro, чтобы открыть аналитику",
+    "upgrade_title": "Откройте аналитику с Pro",
+    "upgrade_description": "Получите глубокие инсайты о поиске работы — воронку конверсии, эффективность резюме, время отклика и многое другое.",
+    "upgrade_cta": "Перейти на Pro",
+    "insufficient_headline": "Почти готово — продолжайте отслеживать поиск, чтобы открыть аналитику",
+    "insufficient_description": "Аналитика откроется, когда накопится достаточно данных. Не останавливайтесь!",
+    "insufficient_jobs_label": "Создано вакансий",
+    "insufficient_applications_label": "Отправлено откликов",
+    "insufficient_resumes_label": "Адаптировано резюме",
+    "insufficient_cta_jobs": "Создать вакансию",
+    "insufficient_cta_resumes": "Адаптировать резюме",
+    "error_generic": "Что-то пошло не так при загрузке аналитики. Попробуйте ещё раз.",
+    "error_boundary_message": "Что-то пошло не так при загрузке аналитики. Мы уже знаем об этом.",
+    "error_boundary_retry": "Попробовать снова"
+  },
+  "support": {
+    "dialog": {
+      "title": "Связаться с поддержкой",
+      "description": "Мы обычно отвечаем в течение 24 часов.",
+      "reply_to_notice": "Мы ответим на {email}",
+      "category": {
+        "label": "Категория",
+        "account": "Аккаунт",
+        "billing": "Оплата",
+        "technical": "Технический вопрос",
+        "other": "Другое"
+      },
+      "subject": {
+        "label": "Тема"
+      },
+      "message": {
+        "label": "Сообщение"
+      },
+      "send": "Отправить"
+    },
+    "toast": {
+      "success": "Ваше сообщение отправлено. Ответ ищите в почте."
+    },
+    "error": {
+      "rate_limit": "Связаться с поддержкой можно раз в час.",
+      "unavailable": "Сейчас не удаётся отправить сообщение. Напишите напрямую на support@lightrole.com."
+    }
+  },
+  "coverLetters": {
+    "wizard": {
+      "common": {
+        "cancel": "Отмена",
+        "next": "Далее",
+        "back": "Назад"
+      },
+      "pageTitle": "Создать сопроводительное письмо",
+      "pageSubtitle": "ИИ создаёт 3 варианта под вакансию примерно за 15 секунд.",
+      "backToList": "Назад к сопроводительным письмам",
+      "indicator": {
+        "step1": "Вакансия и источник",
+        "step2": "Настройки",
+        "step3": "Просмотр",
+        "progressAria": "Прогресс мастера"
+      },
+      "step1": {
+        "title": "Вакансия и источник",
+        "jobLabel": "Вакансия *",
+        "jobPlaceholder": "Выберите вакансию…",
+        "jobsError": "Не удалось загрузить ваши вакансии. Обновите страницу или попробуйте снова.",
+        "jobsErrorRetry": "Попробовать снова",
+        "empty": {
+          "title": "Подходящих вакансий нет",
+          "body": "Либо у вас нет вакансий, либо для каждой уже есть сопроводительное письмо. Добавьте новую вакансию, чтобы создать письмо.",
+          "cta": "Добавить вакансию"
+        },
+        "sourceLabel": "Источник *",
+        "sourcePlaceholder": "Выберите источник…",
+        "source": {
+          "tr": {
+            "label": "Адаптированное резюме (для этой вакансии)",
+            "sub": "Рекомендуется — использует ваше резюме, оптимизированное под эту роль"
+          },
+          "profile": {
+            "label": "Мой профиль",
+            "sub": "Использует данные вашего профиля"
+          }
+        },
+        "noTr": {
+          "title": "Сопроводительное письмо будет создано из вашего профиля.",
+          "body": "Адаптированного резюме для этой вакансии нет."
+        },
+        "contextLabel": "Дополнительный контекст",
+        "contextOptional": "(необязательно)",
+        "contextPlaceholder": "Хотите что-то особенное добавить? (необязательно) — например, личное знакомство с компанией, проект, который стоит выделить, или рекомендацию.",
+        "contextCounter": "{count} / 500 символов",
+        "profileHint": "Заполните профиль, чтобы продолжить.",
+        "modal": {
+          "missingProfile": {
+            "title": "Не хватает данных в профиле",
+            "body": "Для сопроводительного письма нужен хотя бы один опыт. Добавьте в профиль хотя бы одну запись о работе или один проект.",
+            "completeCta": "Заполнить профиль"
+          },
+          "alreadyExists": {
+            "title": "Сопроводительное письмо уже есть",
+            "body": "Вы уже создали сопроводительное письмо для этой вакансии.",
+            "viewCta": "Открыть существующее",
+            "createdAt": "Создано {date}"
+          }
+        }
+      },
+      "step2": {
+        "title": "Настройки генерации",
+        "styleLabel": "Стиль",
+        "toneLabel": "Тон",
+        "lengthLabel": "Длина",
+        "generate": "Создать",
+        "aiLimitTooltip": "Вы достигли лимита операций ИИ. Перейдите на платный план, чтобы продолжить.",
+        "style": {
+          "jobMatched": {
+            "title": "Под вакансию",
+            "desc": "Адаптировано к требованиям вакансии"
+          },
+          "formal": {
+            "title": "Формальный",
+            "desc": "Традиционный, структурированный язык"
+          },
+          "professional": {
+            "title": "Профессиональный",
+            "desc": "Сдержанный и уместный для отрасли"
+          }
+        },
+        "tone": {
+          "confident": {
+            "title": "Уверенный",
+            "desc": "Сильный и уверенный голос"
+          },
+          "humble": {
+            "title": "Скромный",
+            "desc": "Сдержанный и располагающий тон"
+          },
+          "enthusiastic": {
+            "title": "Воодушевлённый",
+            "desc": "Энергичный и страстный"
+          }
+        },
+        "length": {
+          "short": {
+            "title": "Короткое",
+            "desc": "200–300 слов"
+          },
+          "medium": {
+            "title": "Среднее",
+            "desc": "300–400 слов"
+          },
+          "long": {
+            "title": "Длинное",
+            "desc": "400–500 слов"
+          }
+        }
+      },
+      "loading": {
+        "phase1": {
+          "label": "Анализируем вакансию",
+          "subtitle": "Выделяем ключевые требования…"
+        },
+        "phase2": {
+          "label": "Изучаем ваш опыт",
+          "subtitle": "Сопоставляем ваш опыт с ролью…"
+        },
+        "phase3": {
+          "label": "Создаём сопроводительное письмо",
+          "subtitle": "Готовим три варианта в выбранном тоне…"
+        },
+        "failed": "Что-то пошло не так.",
+        "tipHeading": "А вы знали?",
+        "tips": [
+          "Сильное первое предложение повышает отклик сильнее, чем эффектная концовка.",
+          "Light Role создаёт 3 варианта, чтобы вы выбрали голос, а не только слова.",
+          "Упоминание конкретного проекта или ценности компании показывает не только энтузиазм, но и подготовку.",
+          "Сопроводительное письмо дополняет резюме, а не повторяет его."
+        ],
+        "creditHint": "Подождите немного — мы используем один из ваших кредитов.",
+        "aiFailToast": "ИИ не смог создать письмо сейчас — попробуйте ещё раз. Кредиты не списаны.",
+        "networkFailToast": "Что-то пошло не так. Попробуйте ещё раз.",
+        "profileNotReadyToast": "Ваш профиль недостаточно заполнен для создания сопроводительного письма.",
+        "jobNotFoundToast": "Вакансия не найдена.",
+        "alreadyExistsToast": "Сопроводительное письмо для этой вакансии уже существует.",
+        "progressAria": "Прогресс создания сопроводительного письма"
+      },
+      "step3": {
+        "title": "Выберите вариант",
+        "subtitle": "Это 3 разных варианта вашего сопроводительного письма — выберите тот, что вам ближе.",
+        "tab": {
+          "variant1": "Вариант 1",
+          "variant2": "Вариант 2",
+          "variant3": "Вариант 3"
+        },
+        "useVariant": "Использовать этот вариант",
+        "selected": "Выбрано",
+        "back": "Назад к настройкам",
+        "editSelected": "Редактировать выбранный",
+        "saving": "Сохранение…",
+        "pickFirst": "Сначала выберите вариант.",
+        "defensiveError": "Что-то пошло не так при загрузке вариантов. Попробуйте ещё раз.",
+        "saveSuccess": "Сопроводительное письмо сохранено.",
+        "saveConflict": "Сопроводительное письмо для этой вакансии уже существует.",
+        "saveError": "Не удалось сохранить сопроводительное письмо. Попробуйте ещё раз."
+      }
+    },
+    "list": {
+      "title": "Сопроводительные письма",
+      "subtitle": "Сопроводительные письма от ИИ, адаптированные под ваши вакансии.",
+      "breadcrumbDashboard": "Панель управления",
+      "breadcrumbCurrent": "Сопроводительные письма",
+      "ctaGenerate": "Создать новое сопроводительное письмо",
+      "searchPlaceholder": "Поиск по названию, компании или вакансии…",
+      "searchAriaLabel": "Поиск сопроводительных писем",
+      "clearSearchAria": "Очистить поиск",
+      "sortLabel": "Сортировка сопроводительных писем",
+      "sort": {
+        "newest": "Новые",
+        "oldest": "Старые",
+        "recently_updated": "Недавно обновлённые"
+      },
+      "clear": "Очистить",
+      "countOne": "1 сопроводительное письмо",
+      "countOther": "{count} сопроводительных писем",
+      "countNone": "Сопроводительных писем нет.",
+      "countNoMatches": "Сопроводительных писем по фильтрам не найдено.",
+      "card": {
+        "deleteAria": "Удалить сопроводительное письмо",
+        "openAria": "Открыть сопроводительное письмо: {name}",
+        "sourceFromTailoredResume": "Из адаптированного резюме",
+        "sourceFromProfile": "Из профиля",
+        "subtitleStandalone": "Самостоятельное сопроводительное письмо",
+        "subtitleLinkedFallback": "Связано с вакансией"
+      },
+      "delete": {
+        "title": "Удалить это сопроводительное письмо?",
+        "body": "«{name}» будет безвозвратно удалено. Связанная вакансия останется без изменений, и вы сможете создать новое письмо в любое время.",
+        "cancel": "Отмена",
+        "confirm": "Удалить",
+        "successToast": "Сопроводительное письмо удалено.",
+        "errorToast": "Не удалось удалить сопроводительное письмо. Попробуйте ещё раз."
+      },
+      "empty": {
+        "title": "Сопроводительных писем пока нет.",
+        "description": "Создайте сопроводительное письмо для одной из ваших вакансий примерно за 15 секунд.",
+        "cta": "Создать первое сопроводительное письмо"
+      },
+      "noMatches": {
+        "message": "Сопроводительных писем по вашему запросу не найдено.",
+        "cta": "Сбросить фильтры"
+      },
+      "errorState": {
+        "title": "Не удалось загрузить сопроводительные письма",
+        "description": "При загрузке сопроводительных писем произошла ошибка. Попробуйте снова или обновите страницу.",
+        "tryAgain": "Попробовать снова"
+      }
+    }
+  }
+}
