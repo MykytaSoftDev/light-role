@@ -207,7 +207,20 @@ export function Step1JobSource({
                 }
               >
                 <SelectTrigger>
-                  <SelectValue placeholder={t("step1.sourcePlaceholder")} />
+                  <SelectValue placeholder={t("step1.sourcePlaceholder")}>
+                    {sourceType === "tailored_resume" && (
+                      <span className="flex items-center gap-2">
+                        <FileText className="h-4 w-4 text-muted-foreground" />
+                        {t("step1.source.tr.label")}
+                      </span>
+                    )}
+                    {sourceType === "profile" && (
+                      <span className="flex items-center gap-2">
+                        <User className="h-4 w-4 text-muted-foreground" />
+                        {t("step1.source.profile.label")}
+                      </span>
+                    )}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="tailored_resume">

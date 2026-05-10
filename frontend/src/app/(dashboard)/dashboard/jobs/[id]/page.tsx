@@ -69,7 +69,7 @@ interface Job {
   is_ai_parsed: boolean;
   created_at: string;
   application: Application;
-  resumes: JobResumeInfo[];
+  tailored_resume: JobResumeInfo | null;
   cover_letters: JobCoverLetterInfo[];
 }
 
@@ -965,7 +965,7 @@ export default function JobDetailPage() {
           Documents
         </h3>
         {(() => {
-          const latestResume = job.resumes?.[0];
+          const latestResume = job.tailored_resume ?? null;
           const latestCoverLetter = job.cover_letters?.[0];
           return (
             <div className="grid gap-4 sm:grid-cols-2">

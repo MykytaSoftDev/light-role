@@ -28,10 +28,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
-import { getTailoredResumeForJob } from "@/lib/tailored-resume-api";
-import { queryKeys } from "@/hooks/api/keys";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -45,19 +42,14 @@ interface JobContextMenuJob {
     resume_id: string | null;
     cover_letter_id: string | null;
   };
+  tailored_resume: { id: string } | null;
+  cover_letters: { id: string }[];
 }
 
 interface JobContextMenuProps {
   job: JobContextMenuJob;
   trigger: ReactNode;
   onDelete: (jobId: string) => void;
-  /**
-   * When true (default), the tailored-resume lookup is gated on `menuOpen`
-   * so the Jobs list page (which can render dozens of rows) doesn't stampede
-   * the API. Set to `false` on single-instance surfaces like the job detail
-   * page where eager fetch is fine.
-   */
-  lazyTailoredResume?: boolean;
 }
 
 // ---------------------------------------------------------------------------
@@ -68,28 +60,18 @@ export function JobContextMenu({
   job,
   trigger,
   onDelete,
-  lazyTailoredResume = true,
 }: JobContextMenuProps) {
   const router = useRouter();
-  const { application } = job;
 
   const [menuOpen, setMenuOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
 
-  // GET /api/v1/jobs/{id}/tailored-resume — 200 → exists, 204 → null. Lazy by
-  // default so the Jobs list page only fires per-row when the menu opens.
-  // Per-job query key so React Query caches each row independently.
-  const tailoredResumeQuery = useQuery({
-    queryKey: [...queryKeys.jobs.detail(job.id), "tailored-resume"] as const,
-    queryFn: () => getTailoredResumeForJob(job.id),
-    enabled: lazyTailoredResume ? menuOpen : true,
-    staleTime: 1000 * 60 * 2,
-  });
-
-  const tailoredResumeId = tailoredResumeQuery.data?.id ?? null;
-  const tailoredResumeChecking = tailoredResumeQuery.isLoading;
+  // Detection is now synchronous from the JobResponse fields populated by the
+  // backend (one-to-one tailored_resume, plus cover_letters list).
+  const tailoredResumeId = job.tailored_resume?.id ?? null;
+  const coverLetterId = job.cover_letters?.[0]?.id ?? null;
 
   const confirmDelete = async () => {
     setIsDeleting(true);
@@ -129,19 +111,9 @@ export function JobContextMenu({
 
           <DropdownMenuSeparator />
 
-          {/* Resume action — Tailor vs View based on /jobs/{id}/tailored-resume.
-              While the lookup is in flight (first menu open) we render the
-              spinner-prefixed item rather than guess; clicking it is a no-op. */}
-          {tailoredResumeChecking && tailoredResumeId === null ? (
-            <DropdownMenuItem
-              disabled
-              onSelect={(e) => e.preventDefault()}
-              className="opacity-70"
-            >
-              <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />
-              Checking resume…
-            </DropdownMenuItem>
-          ) : tailoredResumeId ? (
+          {/* Resume action — Tailor vs View based on job.tailored_resume
+              (one-to-one). Synchronous from the job prop; no extra query. */}
+          {tailoredResumeId ? (
             <DropdownMenuItem
               onSelect={() => router.push(`/dashboard/resumes/${tailoredResumeId}`)}
             >
@@ -160,11 +132,8 @@ export function JobContextMenu({
           )}
 
           {/* Cover letter action — Generate vs View based on
-              application.cover_letter_id (per CL-11). The Job response
-              already includes the linked CL id so we don't need a
-              separate existence-check round-trip the way the resume side
-              does. The wizard expects `?job_id=` (not `?job=`). */}
-          {application.cover_letter_id === null ? (
+              job.cover_letters[0]. The wizard expects `?job_id=` (not `?job=`). */}
+          {coverLetterId === null ? (
             <DropdownMenuItem
               onSelect={() =>
                 router.push(`/dashboard/cover-letters/generate?job_id=${job.id}`)
@@ -176,7 +145,7 @@ export function JobContextMenu({
           ) : (
             <DropdownMenuItem
               onSelect={() =>
-                router.push(`/dashboard/cover-letters/${application.cover_letter_id}`)
+                router.push(`/dashboard/cover-letters/${coverLetterId}`)
               }
             >
               <Mail className="h-3.5 w-3.5 text-muted-foreground" />

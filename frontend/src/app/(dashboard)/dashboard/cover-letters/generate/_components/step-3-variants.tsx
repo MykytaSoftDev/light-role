@@ -13,7 +13,7 @@
  */
 import * as React from "react";
 import { useTranslations } from "next-intl";
-import { AlertCircle, ArrowLeft, ArrowRight, Check, Loader2 } from "lucide-react";
+import { AlertCircle, ArrowRight, Check, Loader2 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -39,7 +39,6 @@ interface Step3Props {
   selectedVariantIdx: number | null;
   isFinalizing: boolean;
   onSelectVariant: (idx: number) => void;
-  onBack: () => void;
   onFinalize: () => void;
 }
 
@@ -48,7 +47,6 @@ export function Step3Variants({
   selectedVariantIdx,
   isFinalizing,
   onSelectVariant,
-  onBack,
   onFinalize,
 }: Step3Props) {
   const t = useTranslations("coverLetters.wizard");
@@ -59,17 +57,11 @@ export function Step3Variants({
   if (!variants || variants.length === 0) {
     return (
       <Card>
-        <CardContent className="space-y-4 pt-6">
+        <CardContent className="pt-6">
           <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
             <AlertDescription>{t("step3.defensiveError")}</AlertDescription>
           </Alert>
-          <div className="flex justify-start">
-            <Button type="button" variant="outline" onClick={onBack}>
-              <ArrowLeft className="mr-1.5 h-4 w-4" />
-              {t("step3.back")}
-            </Button>
-          </div>
         </CardContent>
       </Card>
     );
@@ -148,17 +140,7 @@ export function Step3Variants({
         </Tabs>
 
         {/* Footer */}
-        <div className="flex flex-col-reverse gap-2 border-t border-border pt-4 sm:flex-row sm:justify-between">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={onBack}
-            disabled={isFinalizing}
-          >
-            <ArrowLeft className="mr-1.5 h-4 w-4" />
-            {t("step3.back")}
-          </Button>
-
+        <div className="flex justify-end border-t border-border pt-4">
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>

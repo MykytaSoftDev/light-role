@@ -228,22 +228,6 @@ export function CoverLetterWizard({ initialJobId }: CoverLetterWizardProps) {
     retry: 1,
   });
 
-  // ---- AI-limit early check (mount-only stub — see PRD §3.5.5 + spec §2.7.C)
-  const [aiAtLimit, setAiAtLimit] = React.useState(false);
-  React.useEffect(() => {
-    fetch(
-      `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/api/v1/users/me/usage`,
-      { credentials: "include" },
-    )
-      .then((r) => (r.ok ? r.json() : null))
-      .then((d) => {
-        if (d) {
-          setAiAtLimit(d.ai_operations_used >= d.ai_operations_limit);
-        }
-      })
-      .catch(() => {});
-  }, []);
-
   // ---- Profile-not-ready gate on mount -----------------------------------
   React.useEffect(() => {
     if (profile.isLoading) return;
@@ -352,7 +336,7 @@ export function CoverLetterWizard({ initialJobId }: CoverLetterWizardProps) {
   // ---- Handlers ----------------------------------------------------------
 
   const handleGenerate = React.useCallback(async () => {
-    if (aiAtLimit || !state.jobId || !state.sourceType) return;
+    if (!state.jobId || !state.sourceType) return;
     setState((s) => ({ ...s, step: "loading" }));
     generateMut.reset();
     try {
@@ -417,7 +401,6 @@ export function CoverLetterWizard({ initialJobId }: CoverLetterWizardProps) {
             if (cle.creditError) {
               upgrade.openFromCreditError(cle.creditError);
             }
-            setAiAtLimit(true);
             setState((s) => ({ ...s, step: 2 }));
             return;
           case "RATE_LIMITED":
@@ -440,7 +423,7 @@ export function CoverLetterWizard({ initialJobId }: CoverLetterWizardProps) {
         }
       }, 600);
     }
-  }, [aiAtLimit, state.jobId, state.sourceType, generateMut, t, upgrade, rateLimit, queryClient, eligibleJobs.data]);
+  }, [state.jobId, state.sourceType, generateMut, t, upgrade, rateLimit, queryClient, eligibleJobs.data]);
 
   const handleFinalize = React.useCallback(async () => {
     try {
@@ -561,7 +544,6 @@ export function CoverLetterWizard({ initialJobId }: CoverLetterWizardProps) {
             style={state.style}
             tone={state.tone}
             length={state.length}
-            aiAtLimit={aiAtLimit}
             onStyleChange={(v) => setState((s) => ({ ...s, style: v }))}
             onToneChange={(v) => setState((s) => ({ ...s, tone: v }))}
             onLengthChange={(v) => setState((s) => ({ ...s, length: v }))}
@@ -578,7 +560,6 @@ export function CoverLetterWizard({ initialJobId }: CoverLetterWizardProps) {
             onSelectVariant={(idx) =>
               setState((s) => ({ ...s, selectedVariantIdx: idx }))
             }
-            onBack={() => setState((s) => ({ ...s, step: 2 }))}
             onFinalize={handleFinalize}
           />
         )}

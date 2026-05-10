@@ -68,7 +68,11 @@ def get_jobs(
     """Return a paginated, filtered, sorted list of the user's jobs."""
     query = (
         db.query(Job)
-        .options(joinedload(Job.application))
+        .options(
+            joinedload(Job.application),
+            joinedload(Job.tailored_resume),
+            joinedload(Job.cover_letters),
+        )
         .join(Application, Job.application)
         .filter(Job.user_id == user.id)
     )
@@ -102,6 +106,7 @@ def get_job(job_id: UUID, user: User, db: Session) -> Job:
         .options(
             joinedload(Job.application),
             joinedload(Job.cover_letters),
+            joinedload(Job.tailored_resume),
         )
         .filter(Job.id == job_id, Job.user_id == user.id)
         .first()

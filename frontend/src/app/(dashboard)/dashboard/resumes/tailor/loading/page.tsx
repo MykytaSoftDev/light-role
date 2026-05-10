@@ -4,8 +4,9 @@
  * TAILOR-7 — Loading screen.
  *
  * Full-bleed overlay covering the dashboard chrome. Reads `?job_id=` from
- * the URL, fires `tailorResumeForJob` on mount, and races the API promise
- * against simulated phase timers (5s + 10s = 15s minimum).
+ * the URL, fires `tailorResumeForJob` on mount, and dispatches success /
+ * error UX as soon as the API resolves. Phase timers (5s + 10s) advance
+ * the visual indicator while in flight but don't gate dispatch.
  *
  * Spec: docs/v2/specs/tailor-flow-spec.md §2.
  *
@@ -24,11 +25,7 @@ import { UpgradeModal } from "@/components/shared/upgrade-modal";
 import { useUpgradeModal } from "@/hooks/use-upgrade-modal";
 import { RateLimitModal } from "@/components/shared/rate-limit-modal";
 import { useRateLimitModal } from "@/hooks/use-rate-limit-modal";
-import {
-  TailorError,
-  tailorResumeForJob,
-  type TailoredResume,
-} from "@/lib/tailored-resume-api";
+import { TailorError, tailorResumeForJob } from "@/lib/tailored-resume-api";
 
 // ---------------------------------------------------------------------------
 // Static config
@@ -36,7 +33,6 @@ import {
 
 const PHASE_1_DURATION_MS = 5_000;
 const PHASE_2_DURATION_MS = 10_000;
-const MIN_TOTAL_MS = PHASE_1_DURATION_MS + PHASE_2_DURATION_MS; // 15s
 const TIP_ROTATE_MS = 6_000;
 
 const PHASES = [
@@ -99,6 +95,18 @@ function TailorLoadingContent() {
   const upgrade = useUpgradeModal();
   const rateLimit = useRateLimitModal();
 
+  // Stash modal hooks in refs so the polling effect below can read live
+  // values without re-running on every render. The hooks return a fresh
+  // object literal each render, so depending on them directly resets
+  // `startedAt` every time the tip-rotation interval re-renders, and the
+  // 15s `MIN_TOTAL_MS` gate never trips. See bug: 402 → infinite spinner.
+  const upgradeRef = React.useRef(upgrade);
+  upgradeRef.current = upgrade;
+  const rateLimitRef = React.useRef(rateLimit);
+  rateLimitRef.current = rateLimit;
+  const routerRef = React.useRef(router);
+  routerRef.current = router;
+
   // No job_id → bounce back to wizard.
   React.useEffect(() => {
     if (!jobId) {
@@ -111,17 +119,12 @@ function TailorLoadingContent() {
   const [phase3Failed, setPhase3Failed] = React.useState(false);
   const [tipIndex, setTipIndex] = React.useState(0);
 
-  // Holds the API outcome — neither phase progression nor redirect fires
-  // until both this is set AND the simulated timeline is past phase 3 start.
-  const apiResultRef = React.useRef<
-    | { kind: "success"; resume: TailoredResume }
-    | { kind: "error"; error: TailorError }
-    | null
-  >(null);
-
   // ---- Side effects -----------------------------------------------------
 
-  // 1. Fire the API immediately on mount.
+  // 1. Fire the API immediately on mount and dispatch as soon as it resolves.
+  //    The phase timers below are purely visual — we no longer gate the
+  //    success/error dispatch on a 15s minimum. A typical tailor call resolves
+  //    in 1-10s; making the user wait longer for the same result felt sluggish.
   React.useEffect(() => {
     if (!jobId) return;
 
@@ -129,9 +132,8 @@ function TailorLoadingContent() {
     (async () => {
       try {
         const resume = await tailorResumeForJob(jobId);
-        if (!cancelled) {
-          apiResultRef.current = { kind: "success", resume };
-        }
+        if (cancelled) return;
+        routerRef.current.replace(`/dashboard/resumes/${resume.id}`);
       } catch (err) {
         if (cancelled) return;
         const error =
@@ -143,7 +145,30 @@ function TailorLoadingContent() {
                   ? err.message
                   : "Something went wrong. Please try again."
               );
-        apiResultRef.current = { kind: "error", error };
+
+        // MONETIZE-14 / MONETIZE-15 — credit + rate-limit errors stay on the
+        // overlay (no redirect) so the modal can render with full context.
+        // Closing the modal is what navigates the user back to the wizard.
+        // Set the "failed" visual synchronously with opening the modal — no
+        // 600ms flash since the user stays on this screen anyway.
+        if (error.code === "OUT_OF_QUOTA" && error.creditError) {
+          setPhase3Failed(true);
+          upgradeRef.current.openFromCreditError(error.creditError);
+          return;
+        }
+        if (error.code === "RATE_LIMITED" && error.rateLimitError) {
+          setPhase3Failed(true);
+          rateLimitRef.current.openFromRateLimitError(error.rateLimitError);
+          return;
+        }
+
+        // All other errors: flash phase 3 → failed for ~600ms before navigating
+        // away, so the user sees a beat of "failed" indication before the route.
+        setPhase3Failed(true);
+        setTimeout(() => {
+          if (cancelled) return;
+          handleErrorRedirect(error, jobId, routerRef.current);
+        }, 600);
       }
     })();
 
@@ -152,78 +177,28 @@ function TailorLoadingContent() {
     };
   }, [jobId]);
 
-  // 2. Simulated phase timeline. Once we hit the redirect gate, we either
-  //    forward to the editor (success) or back to the wizard (error).
+  // 2. Visual phase timeline. Pure cosmetics — these timers just advance the
+  //    "active phase" indicator while the API is in flight. If the API
+  //    resolves before they fire, the page navigates away and the timers
+  //    are cleaned up on unmount.
   React.useEffect(() => {
     if (!jobId) return;
 
-    const startedAt = Date.now();
-    let phaseTimer1: ReturnType<typeof setTimeout> | null = null;
-    let phaseTimer2: ReturnType<typeof setTimeout> | null = null;
-    let pollInterval: ReturnType<typeof setInterval> | null = null;
-    let cancelled = false;
-
     // Phase 1 → Phase 2 at 5s.
-    phaseTimer1 = setTimeout(() => {
-      if (cancelled) return;
+    const phaseTimer1 = setTimeout(() => {
       setActivePhase(1);
     }, PHASE_1_DURATION_MS);
 
     // Phase 2 → Phase 3 at 15s.
-    phaseTimer2 = setTimeout(() => {
-      if (cancelled) return;
+    const phaseTimer2 = setTimeout(() => {
       setActivePhase(2);
-    }, MIN_TOTAL_MS);
-
-    // After the 15s minimum has elapsed, poll for the API result every 200ms.
-    // (We could also use Promise.then + a "min elapsed" gate, but a poll keeps
-    // the timeline & API outcome paths fully decoupled.)
-    pollInterval = setInterval(() => {
-      if (cancelled) return;
-      const elapsed = Date.now() - startedAt;
-      const result = apiResultRef.current;
-      if (elapsed < MIN_TOTAL_MS || !result) return;
-
-      // Both gates satisfied — clear timers and route.
-      if (pollInterval) clearInterval(pollInterval);
-
-      if (result.kind === "success") {
-        router.replace(`/dashboard/resumes/${result.resume.id}`);
-        return;
-      }
-
-      // Error path: flash phase 3 → failed and dispatch the right UX.
-      const error = result.error;
-
-      // MONETIZE-14 / MONETIZE-15 — credit + rate-limit errors stay on the
-      // overlay (no redirect) so the modal can render with full context.
-      // Closing the modal is what navigates the user back to the wizard.
-      if (error.code === "OUT_OF_QUOTA" && error.creditError) {
-        setPhase3Failed(true);
-        upgrade.openFromCreditError(error.creditError);
-        return;
-      }
-      if (error.code === "RATE_LIMITED" && error.rateLimitError) {
-        setPhase3Failed(true);
-        rateLimit.openFromRateLimitError(error.rateLimitError);
-        return;
-      }
-
-      // All other errors: flash phase 3 → failed for ~600ms before navigating.
-      setPhase3Failed(true);
-      setTimeout(() => {
-        if (cancelled) return;
-        handleErrorRedirect(error, jobId, router);
-      }, 600);
-    }, 200);
+    }, PHASE_1_DURATION_MS + PHASE_2_DURATION_MS);
 
     return () => {
-      cancelled = true;
-      if (phaseTimer1) clearTimeout(phaseTimer1);
-      if (phaseTimer2) clearTimeout(phaseTimer2);
-      if (pollInterval) clearInterval(pollInterval);
+      clearTimeout(phaseTimer1);
+      clearTimeout(phaseTimer2);
     };
-  }, [jobId, router, upgrade, rateLimit]);
+  }, [jobId]);
 
   // 3. Tip rotation every 6s.
   React.useEffect(() => {
@@ -255,7 +230,7 @@ function TailorLoadingContent() {
       {/*
         Ambient backdrop — same animated streaks used on auth pages. Without
         a backdrop the screen reads as empty (especially on light theme),
-        which is jarring during a 15s wait.
+        which is jarring while the API is in flight.
       */}
       <StreakBackground />
 

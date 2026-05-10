@@ -20,12 +20,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 
 import type { CLLength, CLStyle, CLTone } from "@/types/cover-letter";
 
@@ -163,7 +157,6 @@ interface Step2Props {
   style: CLStyle;
   tone: CLTone;
   length: CLLength;
-  aiAtLimit: boolean;
   onStyleChange: (v: CLStyle) => void;
   onToneChange: (v: CLTone) => void;
   onLengthChange: (v: CLLength) => void;
@@ -175,7 +168,6 @@ export function Step2Settings({
   style,
   tone,
   length,
-  aiAtLimit,
   onStyleChange,
   onToneChange,
   onLengthChange,
@@ -272,27 +264,10 @@ export function Step2Settings({
             <ArrowLeft className="mr-1.5 h-4 w-4" />
             {t("common.back")}
           </Button>
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <span className={aiAtLimit ? "cursor-not-allowed" : undefined}>
-                  <Button
-                    type="button"
-                    onClick={onGenerate}
-                    disabled={aiAtLimit}
-                  >
-                    <Sparkles className="mr-1.5 h-4 w-4" />
-                    {t("step2.generate")}
-                  </Button>
-                </span>
-              </TooltipTrigger>
-              {aiAtLimit && (
-                <TooltipContent>
-                  {t("step2.aiLimitTooltip")}
-                </TooltipContent>
-              )}
-            </Tooltip>
-          </TooltipProvider>
+          <Button type="button" onClick={onGenerate}>
+            <Sparkles className="mr-1.5 h-4 w-4" />
+            {t("step2.generate")}
+          </Button>
         </div>
       </CardContent>
     </Card>

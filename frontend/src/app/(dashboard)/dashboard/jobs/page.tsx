@@ -79,6 +79,8 @@ interface Job {
   is_ai_parsed: boolean;
   created_at: string;
   application: Application;
+  tailored_resume: { id: string; name: string; match_score?: number | null; updated_at: string } | null;
+  cover_letters: { id: string; name: string; updated_at: string }[];
 }
 
 type JobsMap = Record<string, Job[]>;

@@ -64,6 +64,15 @@ class JobCoverLetterInfo(BaseModel):
     updated_at: datetime
 
 
+class JobResumeInfo(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: UUID
+    name: str
+    match_score: int | None = None
+    updated_at: datetime
+
+
 class JobResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
@@ -80,6 +89,7 @@ class JobResponse(BaseModel):
     updated_at: datetime
     application: Optional[ApplicationResponse] = None
     cover_letters: list[JobCoverLetterInfo] = []
+    tailored_resume: Optional[JobResumeInfo] = None
 
 
 class JobListResponse(BaseModel):
