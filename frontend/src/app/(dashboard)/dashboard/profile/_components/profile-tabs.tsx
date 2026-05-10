@@ -124,17 +124,19 @@ export function ProfileTabs({ initialTab }: ProfileTabsProps) {
 
   return (
     <>
-      <Tabs value={value} onValueChange={handleChange}>
-        <TabsList
-          aria-label={t("tabs.ariaLabel")}
-          className="scrollbar-none justify-start overflow-x-auto"
-        >
-          {VALID_TABS.map((key) => (
-            <TabsTrigger key={key} value={key}>
-              {t(`tabs.${key}`)}
-            </TabsTrigger>
-          ))}
-        </TabsList>
+      <Tabs value={value} onValueChange={handleChange} className="w-full min-w-0">
+        <div className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
+          <TabsList
+            aria-label={t("tabs.ariaLabel")}
+            className="scrollbar-none w-max justify-start"
+          >
+            {VALID_TABS.map((key) => (
+              <TabsTrigger key={key} value={key}>
+                {t(`tabs.${key}`)}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </div>
 
         <TabsContent value="personal-info" className="mt-6">
           <PersonalInfoTab
