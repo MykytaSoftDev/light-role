@@ -222,15 +222,30 @@
     },
     "reupload": {
       "title": "Reupload your resume",
-      "subtitle": "Supports PDF and DOCX (max 10 MB)",
+      "subtitle": "Drop a fresh PDF or DOCX (max 10 MB) and we'll re-parse every section of your profile with AI.",
       "backLink": "← Back to profile",
       "dropPrompt": "Drag & Drop your resume here",
       "clickFallback": "or click to browse",
+      "supportedFormats": "PDF or DOCX · up to 10 MB",
       "parsing": "Parsing your resume…",
+      "parsingHint": "This usually takes 5–15 seconds.",
       "successToast": "Profile updated from resume",
       "errorToast": "Couldn't parse the resume. Please try a different file.",
       "invalidFormat": "Only PDF and DOCX files are supported.",
-      "fileTooLarge": "File exceeds the 10 MB limit."
+      "fileTooLarge": "File exceeds the 10 MB limit.",
+      "warning": {
+        "title": "This replaces your existing profile",
+        "description": "Re-uploading overwrites every section parsed from your resume. Manually edited entries that aren't in the new file will be removed."
+      },
+      "steps": {
+        "title": "What happens next",
+        "step1Title": "Upload your file",
+        "step1Description": "PDF or DOCX, up to 10 MB.",
+        "step2Title": "AI parses your resume",
+        "step2Description": "We extract experience, skills, education and more.",
+        "step3Title": "Review on Profile",
+        "step3Description": "Tweak any section before generating documents."
+      }
     },
     "emptyState": {
       "title": "Let's set up your profile",
