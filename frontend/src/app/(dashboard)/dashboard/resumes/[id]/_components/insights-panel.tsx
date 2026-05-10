@@ -23,6 +23,7 @@
  *     RatingCard sibling — see git history).
  */
 import * as React from "react";
+import { useTranslations } from "next-intl";
 
 import {
   Card,
@@ -60,6 +61,7 @@ export function InsightsPanel({
   sectionsOrder,
   isEditMode,
 }: InsightsPanelProps) {
+  const t = useTranslations("Resumes.editor.insightsPanel");
   const card = (
     <Card
       className={cn(
@@ -68,7 +70,7 @@ export function InsightsPanel({
       )}
     >
       <CardHeader>
-        <CardTitle className="text-base">Insights</CardTitle>
+        <CardTitle className="text-base">{t("shortTitle")}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
         <MatchedKeywords
@@ -97,7 +99,7 @@ export function InsightsPanel({
           <div>{card}</div>
         </TooltipTrigger>
         <TooltipContent side="left" sideOffset={8}>
-          Insights are read-only while editing.
+          {t("readOnlyEditTooltip")}
         </TooltipContent>
       </Tooltip>
     );

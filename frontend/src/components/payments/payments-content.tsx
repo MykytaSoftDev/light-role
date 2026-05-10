@@ -2,7 +2,7 @@
 
 import { ErrorContent } from "@/components/layout/error-content";
 import { LoadingScreen } from "@/components/layout/loading-screen";
-import { columns } from "@/components/payments/columns";
+import { useColumns } from "@/components/payments/columns";
 import { DataTable } from "@/components/payments/data-table";
 import { usePagination } from "@/hooks/use-pagination";
 import { usePlan } from "@/hooks/use-plan";
@@ -13,6 +13,7 @@ import { useEffect, useState } from "react";
 export function PaymentsContent() {
   const { after, goToNextPage, goToPrevPage, hasPrev } = usePagination();
   const { subscriptionId, isLoading: planLoading } = usePlan();
+  const columns = useColumns();
 
   const [transactionResponse, setTransactionResponse] = useState<TransactionResponse>({
     data: [],

@@ -10,6 +10,7 @@
  * Spec: docs/v2/specs/editor-edit-mode-spec.md §2.
  */
 import * as React from "react";
+import { useTranslations } from "next-intl";
 import { Pencil } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -20,6 +21,7 @@ interface EditButtonProps {
 
 export const EditButton = React.forwardRef<HTMLButtonElement, EditButtonProps>(
   function EditButton({ onClick }, ref) {
+    const t = useTranslations("Resumes.editor");
     return (
       <Button
         ref={ref}
@@ -29,10 +31,10 @@ export const EditButton = React.forwardRef<HTMLButtonElement, EditButtonProps>(
         // Lives inside the PreviewFrame's top-bar slot — left-aligned via
         // the parent's flex container. No absolute positioning needed.
         className="h-8 transition-opacity duration-200"
-        aria-label="Enter edit mode"
+        aria-label={t("edit")}
       >
         <Pencil className="h-4 w-4" />
-        Edit
+        {t("edit")}
       </Button>
     );
   }

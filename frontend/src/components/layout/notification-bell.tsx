@@ -17,6 +17,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useQueryClient } from "@tanstack/react-query";
 import { Bell } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -24,16 +25,20 @@ import { useState } from "react";
 // Helpers
 // ---------------------------------------------------------------------------
 
-function timeAgo(isoDate: string): string {
-  const diff = Date.now() - new Date(isoDate).getTime();
-  const minutes = Math.floor(diff / 60_000);
-  if (minutes < 1) return "just now";
-  if (minutes < 60) return `${minutes}m ago`;
-  const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `${hours}h ago`;
-  const days = Math.floor(hours / 24);
-  if (days < 30) return `${days}d ago`;
-  return new Date(isoDate).toLocaleDateString();
+function makeTimeAgo(
+  t: (key: string, values?: Record<string, string | number>) => string
+) {
+  return (isoDate: string): string => {
+    const diff = Date.now() - new Date(isoDate).getTime();
+    const minutes = Math.floor(diff / 60_000);
+    if (minutes < 1) return t("justNow");
+    if (minutes < 60) return t("minutes", { count: minutes });
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return t("hours", { count: hours });
+    const days = Math.floor(hours / 24);
+    if (days < 30) return t("days", { count: days });
+    return new Date(isoDate).toLocaleDateString();
+  };
 }
 
 /** Map entity_type values to dashboard routes.
@@ -74,6 +79,9 @@ export function NotificationBell({ className }: { className?: string }) {
   const router = useRouter();
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
+  const t = useTranslations("Notifications.bell");
+  const tTime = useTranslations("Notifications.timeAgo");
+  const timeAgo = makeTimeAgo(tTime);
 
   const { data } = useNotifications();
 
@@ -126,6 +134,9 @@ export function NotificationBell({ className }: { className?: string }) {
     }
   };
 
+  const unreadAriaLabel =
+    unreadCount > 0 ? t("unreadCountAria", { count: unreadCount }) : t("ariaLabel");
+
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>
@@ -137,7 +148,7 @@ export function NotificationBell({ className }: { className?: string }) {
             "text-foreground/70 hover:bg-accent hover:text-accent-foreground relative flex items-center justify-center rounded-md p-2 transition-colors",
             className
           )}
-          aria-label={unreadCount > 0 ? `${unreadCount} unread notifications` : "Notifications"}
+          aria-label={unreadAriaLabel}
         >
           <Bell className="size-5" />
           {unreadCount > 0 && (
@@ -154,7 +165,7 @@ export function NotificationBell({ className }: { className?: string }) {
       <DropdownMenuContent align="end" className="w-80 p-0" sideOffset={8}>
         {/* Header */}
         <div className="flex items-center justify-between border-b px-4 py-3">
-          <span className="text-sm font-semibold">Notifications</span>
+          <span className="text-sm font-semibold">{t("title")}</span>
           {unreadCount > 0 && (
             <Button
               variant="ghost"
@@ -162,7 +173,7 @@ export function NotificationBell({ className }: { className?: string }) {
               className="text-muted-foreground hover:text-foreground h-auto px-2 py-1 text-xs"
               onClick={handleMarkAllAsRead}
             >
-              Mark all as read
+              {t("markAllRead")}
             </Button>
           )}
         </div>
@@ -172,7 +183,7 @@ export function NotificationBell({ className }: { className?: string }) {
           {notifications.length === 0 ? (
             <div className="flex flex-col items-center justify-center gap-1 py-10 text-center">
               <Bell className="text-muted-foreground/40 size-8" />
-              <p className="text-muted-foreground text-sm">No notifications</p>
+              <p className="text-muted-foreground text-sm">{t("empty")}</p>
             </div>
           ) : (
             notifications.map((notification) => (

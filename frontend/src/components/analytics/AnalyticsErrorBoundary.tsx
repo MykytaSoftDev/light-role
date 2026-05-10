@@ -3,6 +3,11 @@
 import React from "react";
 import * as Sentry from "@sentry/nextjs";
 
+// i18n note: this is a class-component error boundary; React class components
+// can't use the useTranslations hook. The `message` and `retryLabel` props
+// are the supported translation seam — parents should pass translated strings
+// (analytics.error_boundary_message / analytics.error_boundary_retry).
+
 interface State {
   hasError: boolean;
 }

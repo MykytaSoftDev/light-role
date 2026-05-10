@@ -15,6 +15,7 @@
  * excluded since it's not in any reorderable list.
  */
 import * as React from "react";
+import { useTranslations } from "next-intl";
 import { Check } from "lucide-react";
 
 import {
@@ -44,6 +45,22 @@ export function AppliedChangesAccordion({
   appliedChanges,
   sectionsOrder,
 }: AppliedChangesAccordionProps) {
+  const t = useTranslations("Resumes.editor.appliedChanges");
+  const tSection = useTranslations("Resumes.sectionTitles");
+  const translatedLabels: Record<ReorderableSectionKey, string> = React.useMemo(
+    () => ({
+      summary: tSection("summary"),
+      employment: tSection("employment"),
+      education: tSection("education"),
+      skills: tSection("skills"),
+      languages: tSection("languages"),
+      certificates: tSection("certificates"),
+      projects: tSection("projects"),
+      achievements: tSection("achievements"),
+      volunteer: tSection("volunteer"),
+    }),
+    [tSection]
+  );
   // Filter and dedupe sectionsOrder to known keys; if the order is empty,
   // fall back to the default 9-section order so the user still sees
   // every row (even if all unchanged).
@@ -77,7 +94,7 @@ export function AppliedChangesAccordion({
   return (
     <div>
       <h3 className="text-sm font-semibold tracking-tight mb-3">
-        Applied changes
+        {t("title")}
       </h3>
 
       <Accordion type="multiple" className="space-y-1.5">
@@ -110,7 +127,7 @@ export function AppliedChangesAccordion({
                       className="h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400"
                       aria-hidden
                     />
-                    <span>{SECTION_LABELS[key]}</span>
+                    <span>{translatedLabels[key]}</span>
                   </span>
                 </AccordionTrigger>
                 <AccordionContent
@@ -141,7 +158,7 @@ export function AppliedChangesAccordion({
                 "px-3 py-2 text-sm text-muted-foreground cursor-default"
               }
             >
-              <span>{SECTION_LABELS[key]}</span>
+              <span>{translatedLabels[key]}</span>
             </div>
           );
         })}

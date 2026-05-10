@@ -13,6 +13,7 @@
  *   Row 5: description (Tiptap paragraph)
  */
 import * as React from "react";
+import { useTranslations } from "next-intl";
 import {
   DndContext,
   KeyboardSensor,
@@ -60,6 +61,8 @@ export function ProjectsEditor({
   onFocusApplied,
   keywords,
 }: ProjectsEditorProps) {
+  const tSection = useTranslations("Resumes.sectionTitles");
+  const tProfile = useTranslations("profile.projects");
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
     useSensor(KeyboardSensor, {
@@ -106,11 +109,11 @@ export function ProjectsEditor({
 
   return (
     <EditableSection
-      title="Projects"
-      addLabel="Add project"
+      title={tSection("projects")}
+      addLabel={tProfile("addButton")}
       onAdd={handleAdd}
       isEmpty={value.length === 0}
-      emptyMessage="No projects yet — click + to add."
+      emptyMessage={tProfile("empty")}
     >
       <DndContext
         sensors={sensors}
@@ -152,6 +155,9 @@ const ProjectEntryEditor = React.memo(function ProjectEntryEditor({
   onRemove,
   keywords,
 }: ProjectEntryEditorProps) {
+  const tProfile = useTranslations("profile.projects");
+  const tEmployment = useTranslations("profile.employment");
+  const tEditor = useTranslations("Resumes.editor.section");
   const nameRef = React.useRef<HTMLInputElement>(null);
   React.useEffect(() => {
     if (autoFocus) {
@@ -179,7 +185,7 @@ const ProjectEntryEditor = React.memo(function ProjectEntryEditor({
   return (
     <EditableEntry
       id={entry.id ?? "__missing"}
-      label="Project entry"
+      label={tEditor("projectEntryLabel")}
       onRemove={onRemove}
     >
       <div className="resume-entry-row flex items-baseline justify-between gap-4">
@@ -189,8 +195,8 @@ const ProjectEntryEditor = React.memo(function ProjectEntryEditor({
               ref={nameRef}
               value={entry.name}
               onChange={(name) => onChange({ name })}
-              placeholder="Project name"
-              aria-label="Project name"
+              placeholder={tProfile("name")}
+              aria-label={tProfile("name")}
             />
           </span>
         </div>
@@ -199,20 +205,20 @@ const ProjectEntryEditor = React.memo(function ProjectEntryEditor({
             <MonthInput
               value={entry.start_date ?? null}
               onChange={(d) => onChange({ start_date: d })}
-              placeholder="Start"
+              placeholder={tEditor("startShort")}
               clearable
-              ariaLabel="Start date"
+              ariaLabel={tProfile("startDate")}
             />
             <span className="text-muted-foreground/70">–</span>
             {entry.is_current ? (
-              <span className="px-1 text-sm">Present</span>
+              <span className="px-1 text-sm">{tEmployment("present")}</span>
             ) : (
               <MonthInput
                 value={entry.end_date ?? null}
                 onChange={(d) => onChange({ end_date: d })}
-                placeholder="End"
+                placeholder={tEditor("endShort")}
                 clearable
-                ariaLabel="End date"
+                ariaLabel={tProfile("endDate")}
               />
             )}
           </span>
@@ -228,17 +234,17 @@ const ProjectEntryEditor = React.memo(function ProjectEntryEditor({
               end_date: checked ? null : entry.end_date,
             })
           }
-          aria-label="This project is ongoing"
+          aria-label={tProfile("isCurrent")}
         />
-        <span>This project is ongoing</span>
+        <span>{tProfile("isCurrent")}</span>
       </label>
 
       <p className="resume-entry-subtitle flex flex-wrap items-baseline gap-x-2">
         <InlineTextField
           value={entry.role ?? ""}
           onChange={(v) => onChange({ role: v || null })}
-          placeholder="Role"
-          aria-label="Role"
+          placeholder={tProfile("role")}
+          aria-label={tProfile("role")}
         />
         <span aria-hidden className="text-muted-foreground/60">
           ·
@@ -246,8 +252,8 @@ const ProjectEntryEditor = React.memo(function ProjectEntryEditor({
         <span className="flex-1 min-w-[12rem]">
           <ChipInputField
             size="xs"
-            placeholder="Add a technology"
-            ariaLabel="Add a technology"
+            placeholder={tEditor("addTechnologyPlaceholder")}
+            ariaLabel={tProfile("technologies")}
             values={techChips}
             onAdd={(label) =>
               onChange({ technologies: [...(entry.technologies ?? []), label] })
@@ -276,8 +282,8 @@ const ProjectEntryEditor = React.memo(function ProjectEntryEditor({
         <InlineTextField
           value={entry.url ?? ""}
           onChange={(v) => onChange({ url: v || null })}
-          placeholder="https://… (live URL)"
-          aria-label="Live URL"
+          placeholder={tEditor("liveUrlPlaceholder")}
+          aria-label={tProfile("url")}
         />
         <span aria-hidden className="text-muted-foreground/60">
           ·
@@ -285,8 +291,8 @@ const ProjectEntryEditor = React.memo(function ProjectEntryEditor({
         <InlineTextField
           value={entry.repository_url ?? ""}
           onChange={(v) => onChange({ repository_url: v || null })}
-          placeholder="https://… (repository)"
-          aria-label="Repository URL"
+          placeholder={tEditor("repositoryPlaceholder")}
+          aria-label={tProfile("repositoryUrl")}
         />
       </p>
 
@@ -295,8 +301,8 @@ const ProjectEntryEditor = React.memo(function ProjectEntryEditor({
           value={initialBullets}
           onChange={(html) => onChange({ details: htmlToBulletList(html) })}
           enableBulletList
-          placeholder="• Add a bullet describing the project"
-          ariaLabel="Bullets"
+          placeholder={tEditor("projectBulletPlaceholder")}
+          ariaLabel={tProfile("details")}
           keywords={keywords}
         />
       </div>
@@ -306,8 +312,8 @@ const ProjectEntryEditor = React.memo(function ProjectEntryEditor({
           value={entry.description ?? ""}
           onChange={(html) => onChange({ description: html })}
           enableBulletList={false}
-          placeholder="Describe the project"
-          ariaLabel="Description"
+          placeholder={tEditor("describeProjectPlaceholder")}
+          ariaLabel={tProfile("description")}
           keywords={keywords}
         />
       </div>

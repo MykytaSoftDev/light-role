@@ -111,7 +111,7 @@ export function WizardLoading({ isError }: WizardLoadingProps) {
         >
           <ul
             className="divide-y divide-border/60 p-2"
-            aria-label="Cover letter generation progress"
+            aria-label={t("progressAria")}
           >
             {phases.map((p, idx) => (
               <PhaseRow

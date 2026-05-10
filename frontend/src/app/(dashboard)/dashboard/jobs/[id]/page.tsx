@@ -28,6 +28,7 @@ import {
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -139,6 +140,7 @@ interface SaveIndicatorProps {
 }
 
 function SaveIndicator({ state, error }: SaveIndicatorProps) {
+  const tCommon = useTranslations("Common");
   if (state === "idle") return null;
   return (
     <span
@@ -152,19 +154,19 @@ function SaveIndicator({ state, error }: SaveIndicatorProps) {
       {state === "saving" && (
         <>
           <Loader2 className="h-3 w-3 animate-spin" />
-          Saving...
+          {tCommon("states.saving")}
         </>
       )}
       {state === "saved" && (
         <>
           <Check className="h-3 w-3" />
-          Saved
+          {tCommon("toast.saved")}
         </>
       )}
       {state === "error" && (
         <>
           <X className="h-3 w-3" />
-          {error ?? "Failed to save"}
+          {error ?? tCommon("toast.saveError")}
         </>
       )}
     </span>
@@ -194,6 +196,7 @@ function InlineField({
   as = "input",
   rows = 4,
 }: InlineFieldProps) {
+  const tCommon = useTranslations("Common");
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(value);
   const [saveState, setSaveState] = useState<SaveState>("idle");
@@ -229,7 +232,7 @@ function InlineField({
       savedTimerRef.current = setTimeout(() => setSaveState("idle"), 2000);
     } catch (err) {
       setSaveState("error");
-      setSaveError(err instanceof Error ? err.message : "Failed to save");
+      setSaveError(err instanceof Error ? err.message : tCommon("toast.saveError"));
     }
   }
 
@@ -298,7 +301,7 @@ function InlineField({
             type="button"
             onClick={startEdit}
             className="mt-0.5 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-foreground"
-            aria-label="Edit field"
+            aria-label={tCommon("actions.edit")}
           >
             <Pencil className="h-3.5 w-3.5" />
           </button>
@@ -321,6 +324,7 @@ interface StarRatingProps {
 }
 
 function StarRating({ value, onChange }: StarRatingProps) {
+  const t = useTranslations("Jobs.details");
   const [hovered, setHovered] = useState<number | null>(null);
   const [saveState, setSaveState] = useState<SaveState>("idle");
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -348,7 +352,7 @@ function StarRating({ value, onChange }: StarRatingProps) {
             <button
               key={i}
               type="button"
-              aria-label={`Set excitement to ${starNum}`}
+              aria-label={`${t("application.excitement")}: ${starNum}`}
               onClick={() => handleClick(starNum)}
               onMouseEnter={() => setHovered(starNum)}
               onMouseLeave={() => setHovered(null)}
@@ -382,10 +386,16 @@ interface StatusSelectProps {
 }
 
 function StatusSelect({ applicationId, value, onChange }: StatusSelectProps) {
+  const tStatus = useTranslations("Jobs.status");
+  const tDetails = useTranslations("Jobs.details.application");
   const [saveState, setSaveState] = useState<SaveState>("idle");
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const currentStatus = STATUSES.includes(value as Status) ? (value as Status) : "saved";
   const colors = STATUS_COLORS[currentStatus];
+
+  function statusLabel(s: Status): string {
+    return tStatus(s);
+  }
 
   async function handleChange(newStatus: string) {
     setSaveState("saving");
@@ -419,10 +429,10 @@ function StatusSelect({ applicationId, value, onChange }: StatusSelectProps) {
             "transition-opacity hover:opacity-80 cursor-pointer",
             colors.badge
           )}
-          aria-label="Application status"
+          aria-label={tDetails("status")}
         >
           <span className={cn("h-1.5 w-1.5 rounded-full", colors.dot)} />
-          <Select.Value />
+          <Select.Value>{statusLabel(currentStatus)}</Select.Value>
           <ChevronDown className="h-3 w-3 opacity-60" />
         </Select.Trigger>
 
@@ -443,7 +453,7 @@ function StatusSelect({ applicationId, value, onChange }: StatusSelectProps) {
                   >
                     <span className={cn("h-2 w-2 rounded-full", sc.dot)} />
                     <Select.ItemText>
-                      {s.charAt(0).toUpperCase() + s.slice(1)}
+                      {statusLabel(s)}
                     </Select.ItemText>
                     <Select.ItemIndicator className="ml-auto">
                       <Check className="h-3.5 w-3.5" />
@@ -519,6 +529,7 @@ interface NotesFieldProps {
 }
 
 function NotesField({ value, onSave }: NotesFieldProps) {
+  const t = useTranslations("Jobs.details.application");
   const [draft, setDraft] = useState(value ?? "");
   const [saveState, setSaveState] = useState<SaveState>("idle");
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -545,7 +556,7 @@ function NotesField({ value, onSave }: NotesFieldProps) {
     <div className="space-y-1">
       <div className="flex items-center justify-between">
         <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-          Notes
+          {t("notes")}
         </label>
         <SaveIndicator state={saveState} />
       </div>
@@ -554,7 +565,7 @@ function NotesField({ value, onSave }: NotesFieldProps) {
         onChange={(e) => setDraft(e.target.value)}
         onBlur={handleBlur}
         rows={4}
-        placeholder="Add notes about this application..."
+        placeholder={t("notesPlaceholder")}
         className={cn(
           "flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm",
           "ring-offset-background placeholder:text-muted-foreground",
@@ -579,6 +590,8 @@ interface DeleteModalProps {
 }
 
 function DeleteModal({ open, onOpenChange, onConfirm, isDeleting, jobTitle }: DeleteModalProps) {
+  const tDel = useTranslations("Jobs.details.delete");
+  const tCommon = useTranslations("Common");
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
@@ -586,11 +599,9 @@ function DeleteModal({ open, onOpenChange, onConfirm, isDeleting, jobTitle }: De
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-destructive/10 mb-2">
             <Trash2 className="h-5 w-5 text-destructive" />
           </div>
-          <DialogTitle>Delete Job?</DialogTitle>
+          <DialogTitle>{tDel("title")}</DialogTitle>
           <DialogDescription>
-            This will permanently delete{" "}
-            <span className="font-medium text-foreground">&ldquo;{jobTitle}&rdquo;</span> and all
-            associated data. This cannot be undone.
+            {tDel("body", { title: jobTitle })}
           </DialogDescription>
         </DialogHeader>
 
@@ -600,18 +611,18 @@ function DeleteModal({ open, onOpenChange, onConfirm, isDeleting, jobTitle }: De
             disabled={isDeleting}
             onClick={() => onOpenChange(false)}
           >
-            Cancel
+            {tCommon("actions.cancel")}
           </Button>
           <Button variant="destructive" onClick={onConfirm} disabled={isDeleting}>
             {isDeleting ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" />
-                Deleting...
+                {tCommon("states.deleting")}
               </>
             ) : (
               <>
                 <Trash2 className="h-4 w-4" />
-                Delete
+                {tCommon("actions.delete")}
               </>
             )}
           </Button>
@@ -675,6 +686,11 @@ export default function JobDetailPage() {
   const params = useParams<{ id: string }>();
   const jobId = params?.id;
   const router = useRouter();
+  const t = useTranslations("Jobs.details");
+  const tOverview = useTranslations("Jobs.details.overview");
+  const tApp = useTranslations("Jobs.details.application");
+  const tDocs = useTranslations("Jobs.details.documents");
+  const tCommon = useTranslations("Common");
 
   const [job, setJob] = useState<Job | null>(null);
   const [loading, setLoading] = useState(true);
@@ -701,8 +717,8 @@ export default function JobDetailPage() {
         if (!cancelled) {
           setFetchError(
             err.message?.includes("404")
-              ? "Job not found."
-              : "Failed to load job. Please refresh the page."
+              ? t("notFound")
+              : t("loadError")
           );
           setLoading(false);
         }
@@ -765,19 +781,17 @@ export default function JobDetailPage() {
           className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-6"
         >
           <ArrowLeft className="h-4 w-4" />
-          Jobs
+          {t("backToJobs")}
         </Link>
         <div className="rounded-xl border border-border bg-card p-12 text-center">
-          <p className="text-lg font-medium">{fetchError ?? "Job not found."}</p>
-          <p className="mt-1 text-sm text-muted-foreground">
-            It may have been deleted or you may not have access.
-          </p>
+          <p className="text-lg font-medium">{fetchError ?? t("notFound")}</p>
+          <p className="mt-1 text-sm text-muted-foreground">{t("notFoundDescription")}</p>
           <Button
             variant="outline"
             className="mt-6"
             onClick={() => router.push("/dashboard/jobs")}
           >
-            Back to Jobs
+            {t("backToJobs")}
           </Button>
         </div>
       </div>
@@ -797,7 +811,7 @@ export default function JobDetailPage() {
         className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
       >
         <ArrowLeft className="h-4 w-4" />
-        Jobs
+        {t("backToJobs")}
       </Link>
 
       {/* Page header */}
@@ -806,7 +820,7 @@ export default function JobDetailPage() {
           {/* Title — inline editable */}
           <InlineField
             value={job.title}
-            placeholder="Job title"
+            placeholder={t("titlePlaceholder")}
             className="text-2xl font-bold tracking-tight"
             inputClassName="text-2xl font-bold h-auto py-1"
             onSave={(val) => patchJob({ title: val })}
@@ -814,7 +828,7 @@ export default function JobDetailPage() {
           {/* Company — inline editable */}
           <InlineField
             value={job.company}
-            placeholder="Company name"
+            placeholder={tOverview("company")}
             className="text-base text-muted-foreground"
             onSave={(val) => patchJob({ company: val })}
           />
@@ -837,10 +851,10 @@ export default function JobDetailPage() {
           type="button"
           onClick={() => setDeleteModalOpen(true)}
           className="inline-flex shrink-0 items-center gap-1.5 rounded-md border border-transparent px-3 py-1.5 text-sm font-medium text-red-500 transition-colors hover:border-red-200 hover:bg-red-50 hover:text-red-600 dark:hover:border-red-800 dark:hover:bg-red-950/30 dark:hover:text-red-400"
-          aria-label="Delete job"
+          aria-label={tCommon("actions.delete")}
         >
           <Trash2 className="h-4 w-4" />
-          Delete
+          {tCommon("actions.delete")}
         </button>
       </div>
 
@@ -849,17 +863,17 @@ export default function JobDetailPage() {
         {/* Left column — 2/3 width */}
         <div className="space-y-5 lg:col-span-2">
           {/* Job details card */}
-          <SectionCard title="Job Details">
+          <SectionCard title={tOverview("jobDetails")}>
             <div className="grid gap-5 sm:grid-cols-2">
               {/* Location */}
               <div className="space-y-1.5">
                 <label className="flex items-center gap-1 text-xs font-medium text-muted-foreground uppercase tracking-wide">
                   <MapPin className="h-3 w-3" />
-                  Location
+                  {tOverview("location")}
                 </label>
                 <InlineField
                   value={job.location ?? ""}
-                  placeholder="Add location..."
+                  placeholder={tOverview("locationPlaceholder")}
                   onSave={(val) => patchJob({ location: val || null })}
                 />
               </div>
@@ -867,11 +881,11 @@ export default function JobDetailPage() {
               {/* Salary */}
               <div className="space-y-1.5">
                 <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                  Salary Range
+                  {tOverview("salary")}
                 </label>
                 <InlineField
                   value={job.salary ?? ""}
-                  placeholder="Add salary range..."
+                  placeholder={tOverview("salaryPlaceholder")}
                   onSave={(val) => patchJob({ salary: val || null })}
                 />
               </div>
@@ -879,10 +893,10 @@ export default function JobDetailPage() {
           </SectionCard>
 
           {/* Job Description */}
-          <SectionCard title="Job Description">
+          <SectionCard title={tOverview("description")}>
             <InlineField
               value={job.description_raw ?? ""}
-              placeholder="No description added. Click to add one..."
+              placeholder={tOverview("descriptionPlaceholder")}
               as="textarea"
               rows={8}
               onSave={(val) => patchJob({ description_raw: val || null })}
@@ -891,7 +905,7 @@ export default function JobDetailPage() {
 
           {/* Requirements */}
           {job.requirements.length > 0 && (
-            <SectionCard title="Requirements">
+            <SectionCard title={tOverview("requirements")}>
               <div className="flex flex-wrap gap-2">
                 {job.requirements.map((req, i) => (
                   <span
@@ -909,25 +923,25 @@ export default function JobDetailPage() {
         {/* Right column — 1/3 width */}
         <div className="space-y-5">
           {/* Application tracking card */}
-          <SectionCard title="Application Tracking">
+          <SectionCard title={tApp("heading")}>
             <div className="space-y-4">
               {/* Date Applied */}
               <DateField
-                label="Date Applied"
+                label={tApp("dateApplied")}
                 value={application.date_applied}
                 onSave={(val) => patchApplication({ date_applied: val })}
               />
 
               {/* Deadline */}
               <DateField
-                label="Deadline"
+                label={tApp("deadline")}
                 value={application.deadline}
                 onSave={(val) => patchApplication({ deadline: val })}
               />
 
               {/* Follow-up Date */}
               <DateField
-                label="Follow-up Date"
+                label={tApp("followUpDate")}
                 value={application.follow_up_date}
                 onSave={(val) => patchApplication({ follow_up_date: val })}
               />
@@ -938,7 +952,7 @@ export default function JobDetailPage() {
               {/* Excitement level */}
               <div className="space-y-1.5">
                 <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                  Excitement Level
+                  {tApp("excitement")}
                 </label>
                 <StarRating
                   value={application.excitement_level}
@@ -962,7 +976,7 @@ export default function JobDetailPage() {
       {/* Documents section */}
       <div>
         <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-          Documents
+          {t("tabs.documents")}
         </h3>
         {(() => {
           const latestResume = job.tailored_resume ?? null;
@@ -976,9 +990,9 @@ export default function JobDetailPage() {
                     <FileText className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
                   </div>
                   <div>
-                    <p className="text-sm font-medium">Resume</p>
+                    <p className="text-sm font-medium">{tDocs("resumeShort")}</p>
                     <p className="mt-0.5 text-xs text-muted-foreground">
-                      {latestResume ? "Resume ready" : "No resume tailored yet"}
+                      {latestResume ? tDocs("resumeTitle") : tDocs("noResume")}
                     </p>
                   </div>
                 </div>
@@ -986,13 +1000,13 @@ export default function JobDetailPage() {
                   <Link href={`/dashboard/resumes/${latestResume.id}`}>
                     <Button size="sm" variant="outline" className="shrink-0 gap-1.5">
                       <ExternalLink className="h-3.5 w-3.5" />
-                      View
+                      {tCommon("actions.view")}
                     </Button>
                   </Link>
                 ) : (
                   <Link href={`/dashboard/resumes/tailor?job_id=${job.id}`}>
                     <Button size="sm" className="shrink-0">
-                      Tailor Resume
+                      {tDocs("tailorCta")}
                     </Button>
                   </Link>
                 )}
@@ -1005,9 +1019,9 @@ export default function JobDetailPage() {
                     <FileText className="h-5 w-5 text-violet-600 dark:text-violet-400" />
                   </div>
                   <div>
-                    <p className="text-sm font-medium">Cover Letter</p>
+                    <p className="text-sm font-medium">{tDocs("coverLetterShort")}</p>
                     <p className="mt-0.5 text-xs text-muted-foreground">
-                      {latestCoverLetter ? "Cover letter ready" : "No cover letter yet"}
+                      {latestCoverLetter ? tDocs("coverLetterTitle") : tDocs("noCoverLetter")}
                     </p>
                   </div>
                 </div>
@@ -1015,7 +1029,7 @@ export default function JobDetailPage() {
                   <Link href={`/dashboard/cover-letters/${latestCoverLetter.id}`}>
                     <Button size="sm" variant="outline" className="shrink-0 gap-1.5">
                       <ExternalLink className="h-3.5 w-3.5" />
-                      View
+                      {tCommon("actions.view")}
                     </Button>
                   </Link>
                 ) : (
@@ -1024,7 +1038,7 @@ export default function JobDetailPage() {
                   // wizard with no job selected.
                   <Link href={`/dashboard/cover-letters/generate?job_id=${job.id}`}>
                     <Button size="sm" className="shrink-0">
-                      Generate
+                      {tDocs("generateCta")}
                     </Button>
                   </Link>
                 )}

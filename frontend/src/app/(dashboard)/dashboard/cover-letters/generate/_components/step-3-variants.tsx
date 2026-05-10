@@ -93,7 +93,7 @@ export function Step3Variants({
                   {selectedVariantIdx === idx && (
                     <Check
                       className="h-3.5 w-3.5 text-primary"
-                      aria-label="selected"
+                      aria-label={t("step3.selected")}
                     />
                   )}
                 </span>

@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import Link from "next/link";
 import { AlertTriangle } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 
 export default function DashboardError({
@@ -12,6 +13,9 @@ export default function DashboardError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const t = useTranslations("Errors.dashboard");
+  const tBreadcrumb = useTranslations("DashboardShell.breadcrumb");
+
   useEffect(() => {
     console.error(error);
   }, [error]);
@@ -22,18 +26,16 @@ export default function DashboardError({
         <AlertTriangle className="h-8 w-8 text-destructive" />
       </div>
 
-      <h2 className="mt-5 text-2xl font-bold tracking-tight">
-        Something went wrong
-      </h2>
+      <h2 className="mt-5 text-2xl font-bold tracking-tight">{t("title")}</h2>
 
       <p className="mt-2 max-w-sm text-sm text-muted-foreground">
-        An unexpected error occurred. Please try again.
+        {t("description")}
       </p>
 
       <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-        <Button onClick={reset}>Try Again</Button>
+        <Button onClick={reset}>{t("tryAgain")}</Button>
         <Button asChild variant="outline">
-          <Link href="/dashboard">Go to Dashboard</Link>
+          <Link href="/dashboard">{tBreadcrumb("dashboard")}</Link>
         </Button>
       </div>
     </div>

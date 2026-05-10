@@ -2,6 +2,7 @@ import { Transaction } from "@paddle/paddle-node-sdk";
 import dayjs from "dayjs";
 import { ExternalLink, Gift, Receipt } from "lucide-react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 
 import { Status } from "@/components/shared/status";
 import { Button } from "@/components/ui/button";
@@ -19,18 +20,21 @@ interface Props {
 export function SubscriptionPastPaymentsCard({ subscriptionId, transactions }: Props) {
   const isFreePlan = subscriptionId === "free";
   const hasTransactions = transactions && transactions.length > 0;
+  const tPast = useTranslations("Subscriptions.pastPayments");
+  const tHeader = useTranslations("Subscriptions.header");
+  const tCommon = useTranslations("Common");
 
   return (
     <div data-slot="card" className="bg-card rounded-xl border p-6">
       <div className="flex flex-wrap items-center justify-between border-b pb-5">
         <div className="flex items-center gap-2">
           <Receipt className="text-muted-foreground h-5 w-5" />
-          <span className="text-lg font-bold">Payments</span>
+          <span className="text-lg font-bold">{tPast("cardTitle")}</span>
         </div>
         {!isFreePlan && (
           <Button asChild={true} size="sm" variant="outline">
             <Link href={DASHBOARD_PAGES.PAYMENTS} className="flex items-center gap-1">
-              View all
+              {tCommon("actions.viewAll")}
               <ExternalLink className="h-3 w-3" />
             </Link>
           </Button>
@@ -44,10 +48,8 @@ export function SubscriptionPastPaymentsCard({ subscriptionId, transactions }: P
               <Gift className="text-muted-foreground h-8 w-8" />
             </div>
             <div className="text-center">
-              <div className="text-foreground mb-2 text-lg font-semibold">No Payments Required</div>
-              <div className="text-muted-foreground text-sm">
-                Your free plan doesn&apos;t require any payments
-              </div>
+              <div className="text-foreground mb-2 text-lg font-semibold">{tPast("noPaymentsTitle")}</div>
+              <div className="text-muted-foreground text-sm">{tPast("noPaymentsBody")}</div>
             </div>
           </div>
         ) : hasTransactions ? (
@@ -70,7 +72,9 @@ export function SubscriptionPastPaymentsCard({ subscriptionId, transactions }: P
                     <span className="text-foreground text-sm font-semibold">
                       {getPaymentReason(transaction.origin)}
                     </span>
-                    <span className="text-sm">{transaction.items[0].price?.name} Plan</span>
+                    <span className="text-sm">
+                      {tHeader("planSuffix", { name: transaction.items[0].price?.name ?? "" })}
+                    </span>
                   </div>
                   <div className="flex flex-wrap items-center gap-5">
                     <div className="bg-muted rounded-md px-2 py-1 text-sm font-semibold">
@@ -86,10 +90,8 @@ export function SubscriptionPastPaymentsCard({ subscriptionId, transactions }: P
           // Paid plan with no transactions
           <div className="flex flex-col items-center justify-center space-y-4 py-12">
             <div className="text-center">
-              <div className="text-foreground mb-2 text-lg font-semibold">No Payment History</div>
-              <div className="text-muted-foreground text-sm">
-                No payments have been processed yet
-              </div>
+              <div className="text-foreground mb-2 text-lg font-semibold">{tPast("empty")}</div>
+              <div className="text-muted-foreground text-sm">{tPast("noHistoryBody")}</div>
             </div>
           </div>
         )}

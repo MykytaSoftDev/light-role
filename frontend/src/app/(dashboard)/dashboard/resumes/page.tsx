@@ -19,6 +19,7 @@
  */
 
 import { Suspense, useCallback, useEffect, useMemo } from "react";
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -105,6 +106,9 @@ function applySort(
 // ---------------------------------------------------------------------------
 
 function ResumesListInner() {
+  const t = useTranslations("Resumes.list");
+  const tCommon = useTranslations("Common.actions");
+  const tBreadcrumb = useTranslations("DashboardShell.breadcrumb");
   const router = useRouter();
   const searchParams = useSearchParams();
   const queryClient = useQueryClient();
@@ -183,7 +187,7 @@ function ResumesListInner() {
       const label =
         r.job_company && r.job_title
           ? `${r.job_title} — ${r.job_company}`
-          : r.job_title || r.job_company || "Untitled job";
+          : r.job_title || r.job_company || t("untitledJob");
       seen.set(r.job_id, { id: r.job_id, label });
     }
     return Array.from(seen.values()).sort((a, b) =>
@@ -221,10 +225,10 @@ function ResumesListInner() {
       if (ctx?.snapshot) {
         queryClient.setQueryData(queryKeys.resumes.lists(), ctx.snapshot);
       }
-      toast.error("Failed to delete resume. Please try again.");
+      toast.error(t("delete.errorToast"));
     },
     onSuccess: () => {
-      toast.success("Resume deleted.");
+      toast.success(t("delete.successToast"));
     },
     onSettled: () => {
       // Reconcile with server (also clears any per-job tailored-resume cache
@@ -262,23 +266,21 @@ function ResumesListInner() {
       {/* Breadcrumb (spec §1.2) */}
       <Breadcrumb
         items={[
-          { label: "Dashboard", href: "/dashboard" },
-          { label: "Resumes" },
+          { label: tBreadcrumb("dashboard"), href: "/dashboard" },
+          { label: tBreadcrumb("resumes") },
         ]}
       />
 
       {/* Header */}
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Resumes</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Tailored resumes you&apos;ve generated for your jobs.
-          </p>
+          <h1 className="text-2xl font-bold tracking-tight">{t("title")}</h1>
+          <p className="mt-1 text-sm text-muted-foreground">{t("subtitle")}</p>
         </div>
         <Button asChild className="gap-1.5">
           <Link href="/dashboard/resumes/tailor">
             <Plus className="h-4 w-4" />
-            Tailor New Resume
+            {t("ctaTailor")}
           </Link>
         </Button>
       </div>
@@ -307,9 +309,9 @@ function ResumesListInner() {
         <div className="flex flex-1 items-center justify-center rounded-xl border border-border bg-muted/30 py-16">
           <EmptyState
             icon={<AlertCircle className="h-8 w-8 text-destructive" />}
-            title="Couldn't load resumes"
-            description="We hit an error fetching your resumes. Try again, or refresh the page."
-            action={{ label: "Try again", onClick: () => refetch() }}
+            title={t("errorState.title")}
+            description={t("errorState.description")}
+            action={{ label: tCommon("tryAgain"), onClick: () => refetch() }}
           />
         </div>
       ) : totalResumes === 0 ? (

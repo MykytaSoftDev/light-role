@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Search, X } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,11 +21,7 @@ export type SortValue = "newest" | "oldest" | "recently_updated";
 
 export const DEFAULT_SORT: SortValue = "newest";
 
-const SORT_LABELS: Record<SortValue, string> = {
-  newest: "Newest",
-  oldest: "Oldest",
-  recently_updated: "Recently updated",
-};
+// Sort labels resolved via t() inside the component below.
 
 interface CoverLettersFilterBarProps {
   search: string;
@@ -60,6 +57,14 @@ export function CoverLettersFilterBar({
   count,
   onClearAll,
 }: CoverLettersFilterBarProps) {
+  const t = useTranslations("coverLetters.list");
+
+  const SORT_LABELS: Record<SortValue, string> = {
+    newest: t("sort.newest"),
+    oldest: t("sort.oldest"),
+    recently_updated: t("sort.recently_updated"),
+  };
+
   // Local immediate-update value for the input; debounced upward 200ms so URL
   // writes don't fire on every keystroke. Mirrors `ResumesFilterBar`.
   const [localSearch, setLocalSearch] = useState(search);
@@ -87,17 +92,17 @@ export function CoverLettersFilterBar({
         <Search className="pointer-events-none absolute left-2.5 h-3.5 w-3.5 text-muted-foreground" />
         <Input
           type="text"
-          placeholder="Search by name, company, or job…"
+          placeholder={t("searchPlaceholder")}
           value={localSearch}
           onChange={(e) => setLocalSearch(e.target.value)}
-          aria-label="Search cover letters"
+          aria-label={t("searchAriaLabel")}
           className="h-9 pl-8 pr-8"
         />
         {localSearch && (
           <button
             type="button"
             onClick={() => setLocalSearch("")}
-            aria-label="Clear search"
+            aria-label={t("clearSearchAria")}
             className="absolute right-2 text-muted-foreground hover:text-foreground"
           >
             <X className="h-3.5 w-3.5" />
@@ -108,10 +113,10 @@ export function CoverLettersFilterBar({
       {/* Sort */}
       <Select value={sort} onValueChange={(v) => onSortChange(v as SortValue)}>
         <SelectTrigger
-          aria-label="Sort cover letters"
+          aria-label={t("sortLabel")}
           className="h-9 w-[180px]"
         >
-          <SelectValue placeholder="Newest" />
+          <SelectValue placeholder={t("sort.newest")} />
         </SelectTrigger>
         <SelectContent>
           {(Object.keys(SORT_LABELS) as SortValue[]).map((opt) => (
@@ -131,7 +136,7 @@ export function CoverLettersFilterBar({
           className="h-9 gap-1.5"
         >
           <X className="h-3.5 w-3.5" />
-          Clear
+          {t("clear")}
         </Button>
       )}
 
@@ -139,9 +144,11 @@ export function CoverLettersFilterBar({
       <span className="ml-auto text-xs text-muted-foreground">
         {count === 0
           ? hasFilters
-            ? "No cover letters match your filters."
-            : "No cover letters."
-          : `${count} cover letter${count !== 1 ? "s" : ""}`}
+            ? t("countNoMatches")
+            : t("countNone")
+          : count === 1
+            ? t("countOne")
+            : t("countOther", { count })}
       </span>
     </div>
   );

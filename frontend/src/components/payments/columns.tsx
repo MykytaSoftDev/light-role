@@ -9,7 +9,8 @@ import { Transaction } from "@paddle/paddle-node-sdk";
 import { ColumnDef } from "@tanstack/react-table";
 import dayjs from "dayjs";
 import { Download, Loader2 } from "lucide-react";
-import { useState } from "react";
+import { useTranslations } from "next-intl";
+import { useMemo, useState } from "react";
 
 // Column size is set as `auto` as React table column sizing is not working well.
 const columnSize = "auto" as unknown as number;
@@ -31,58 +32,73 @@ function InvoiceDownloadButton({ transactionId }: { transactionId: string }) {
   );
 }
 
-export const columns: ColumnDef<Transaction>[] = [
-  {
-    accessorKey: "billedAt",
-    header: "Date",
-    size: columnSize,
-    cell: ({ row }) => {
-      const billedDate = row.getValue("billedAt") as string;
-      return billedDate ? dayjs(billedDate).format("MMM DD, YYYY [at] h:mma") : "-";
-    },
-  },
-  {
-    accessorKey: "amount",
-    header: () => <div className="text-right font-medium">Amount</div>,
-    enableResizing: false,
-    size: columnSize,
-    cell: ({ row }) => {
-      const formatted = parseMoney(row.original.details?.totals?.total, row.original.currencyCode);
-      return <div className="text-right font-medium">{formatted}</div>;
-    },
-  },
-  {
-    accessorKey: "status",
-    header: "Status",
-    size: columnSize,
-    cell: ({ row }) => {
-      return <Status status={row.original.status} />;
-    },
-  },
-  {
-    accessorKey: "description",
-    header: "Description",
-    size: columnSize,
-    cell: ({ row }) => {
-      return (
-        <div className={"max-w-[250px]"}>
-          <div className={"flex gap-1 truncate whitespace-nowrap"}>
-            <span className={"font-semibold"}>{getPaymentReason(row.original.origin)}</span>
-            <span className={"truncate font-medium"}>
-              {row.original.items[0].price?.description}
-            </span>
-          </div>
-        </div>
-      );
-    },
-  },
-  {
-    id: "invoice",
-    header: "Invoice",
-    size: columnSize,
-    cell: ({ row }) => {
-      if (!row.original.invoiceId) return null;
-      return <InvoiceDownloadButton transactionId={row.original.id} />;
-    },
-  },
-];
+/**
+ * React hook that returns the column definitions for the Payments table with
+ * translated headers. Module-level static columns aren't compatible with
+ * `useTranslations`, so consumers call this hook from inside their component.
+ */
+export function useColumns(): ColumnDef<Transaction>[] {
+  const t = useTranslations("Payments.table");
+
+  return useMemo<ColumnDef<Transaction>[]>(
+    () => [
+      {
+        accessorKey: "billedAt",
+        header: t("date"),
+        size: columnSize,
+        cell: ({ row }) => {
+          const billedDate = row.getValue("billedAt") as string;
+          return billedDate ? dayjs(billedDate).format("MMM DD, YYYY [at] h:mma") : "-";
+        },
+      },
+      {
+        accessorKey: "amount",
+        header: () => <div className="text-right font-medium">{t("amount")}</div>,
+        enableResizing: false,
+        size: columnSize,
+        cell: ({ row }) => {
+          const formatted = parseMoney(
+            row.original.details?.totals?.total,
+            row.original.currencyCode
+          );
+          return <div className="text-right font-medium">{formatted}</div>;
+        },
+      },
+      {
+        accessorKey: "status",
+        header: t("status"),
+        size: columnSize,
+        cell: ({ row }) => {
+          return <Status status={row.original.status} />;
+        },
+      },
+      {
+        accessorKey: "description",
+        header: t("description"),
+        size: columnSize,
+        cell: ({ row }) => {
+          return (
+            <div className={"max-w-[250px]"}>
+              <div className={"flex gap-1 truncate whitespace-nowrap"}>
+                <span className={"font-semibold"}>{getPaymentReason(row.original.origin)}</span>
+                <span className={"truncate font-medium"}>
+                  {row.original.items[0].price?.description}
+                </span>
+              </div>
+            </div>
+          );
+        },
+      },
+      {
+        id: "invoice",
+        header: t("invoice"),
+        size: columnSize,
+        cell: ({ row }) => {
+          if (!row.original.invoiceId) return null;
+          return <InvoiceDownloadButton transactionId={row.original.id} />;
+        },
+      },
+    ],
+    [t]
+  );
+}

@@ -9,6 +9,7 @@ import { api } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CircleAlert, Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -16,22 +17,28 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-const loginSchema = z.object({
-  email: z.string().email("Please enter a valid email address"),
-  password: z.string().min(1, "Password is required"),
-});
+function makeLoginSchema(t: (key: string) => string) {
+  return z.object({
+    email: z.string().email(t("invalidEmail")),
+    password: z.string().min(1, t("passwordRequired")),
+  });
+}
 
-type LoginFormValues = z.infer<typeof loginSchema>;
+type LoginFormValues = z.infer<ReturnType<typeof makeLoginSchema>>;
 
 export default function LoginPage() {
   const router = useRouter();
+  const t = useTranslations("Auth.login");
+  const tCommon = useTranslations("Auth.common");
+  const tBranding = useTranslations("Auth.branding");
+  const tValidation = useTranslations("Auth.validation");
   const [serverError, setServerError] = useState<string | null>(null);
 
   const handleGoogleSignIn = () => {
     const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
     console.log(clientId);
     if (!clientId) {
-      alert("Google OAuth is not configured");
+      alert(tCommon("googleNotConfigured"));
       return;
     }
     const redirectUri = `${window.location.origin}/auth/callback/google`;
@@ -39,6 +46,8 @@ export default function LoginPage() {
     const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=${encodeURIComponent(scope)}`;
     window.location.href = authUrl;
   };
+
+  const loginSchema = makeLoginSchema(tValidation);
 
   const {
     register,
@@ -55,12 +64,12 @@ export default function LoginPage() {
       if (res.ok) {
         router.push("/dashboard");
       } else if (res.status === 401 || res.status === 400) {
-        setServerError("Invalid email or password.");
+        setServerError(t("invalidCredentials"));
       } else {
-        setServerError("Something went wrong. Please try again.");
+        setServerError(tCommon("genericError"));
       }
     } catch {
-      setServerError("Unable to connect. Check your internet connection.");
+      setServerError(tCommon("networkError"));
     }
   }
 
@@ -81,7 +90,7 @@ export default function LoginPage() {
             src="/assets/logo/lightrole-text.svg"
             width={250}
             height={300}
-            alt="LightRole Logo"
+            alt={tBranding("logoAlt")}
           />
           {/* <span className="text-base font-semibold tracking-tight">Light Role</span> */}
         </div>
@@ -89,29 +98,29 @@ export default function LoginPage() {
         {/* Hero copy */}
         <div className="relative z-10 space-y-4">
           <h1 className="text-3xl leading-tight font-semibold tracking-tight">
-            Manage your job search
-            <br />
-            with AI.
+            {tBranding("headline")}
           </h1>
           <p className="text-muted-foreground max-w-xs text-base leading-relaxed">
-            Optimize your resume for every role, generate tailored cover letters, and track every
-            application - all in one place.
+            {tBranding("tagline")}
           </p>
         </div>
 
         {/* Testimonial */}
         <div className="relative z-10 space-y-3">
           <blockquote className="text-muted-foreground text-sm leading-relaxed italic">
-            &ldquo;Light Role helped me tailor my resume for every application. I went from zero
-            callbacks to three offers in six weeks.&rdquo;
+            &ldquo;{tBranding("testimonialQuote")}&rdquo;
           </blockquote>
           <div className="flex items-center gap-3">
             <div className="bg-muted text-muted-foreground flex h-8 w-8 items-center justify-center rounded-full text-xs font-medium select-none">
               MK
             </div>
             <div>
-              <p className="text-foreground text-xs font-medium">Marcus K.</p>
-              <p className="text-muted-foreground text-xs">Software Engineer</p>
+              <p className="text-foreground text-xs font-medium">
+                {tBranding("testimonialName")}
+              </p>
+              <p className="text-muted-foreground text-xs">
+                {tBranding("testimonialTitle")}
+              </p>
             </div>
           </div>
         </div>
@@ -132,28 +141,28 @@ export default function LoginPage() {
               src="/assets/logo/lightrole-text.svg"
               width={250}
               height={300}
-              alt="LightRole Logo"
+              alt={tBranding("logoAlt")}
             />
           </div>
 
           {/* Page header */}
           <div className="mb-8 space-y-1">
             <h1 className="text-foreground text-2xl font-semibold tracking-tight">
-              Sign in to Light Role
+              {t("title")}
             </h1>
-            <p className="text-muted-foreground text-sm">Welcome back. Enter your details below.</p>
+            <p className="text-muted-foreground text-sm">{t("subtitle")}</p>
           </div>
 
           {/* Form */}
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
             {/* Email field */}
             <div className="space-y-1.5">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">{tCommon("emailLabel")}</Label>
               <Input
                 id="email"
                 type="email"
                 autoComplete="email"
-                placeholder="you@example.com"
+                placeholder={tCommon("emailPlaceholder")}
                 {...register("email")}
                 className={cn(errors.email && "border-destructive focus-visible:ring-destructive")}
               />
@@ -163,19 +172,19 @@ export default function LoginPage() {
             {/* Password field */}
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password">{tCommon("passwordLabel")}</Label>
                 <Link
                   href="/auth/forgot-password"
                   className="text-primary hover:text-primary/80 text-xs underline-offset-4 transition-colors hover:underline"
                 >
-                  Forgot password?
+                  {t("forgotPassword")}
                 </Link>
               </div>
               <Input
                 id="password"
                 type="password"
                 autoComplete="current-password"
-                placeholder="••••••••"
+                placeholder={tCommon("passwordPlaceholder")}
                 {...register("password")}
                 className={cn(
                   errors.password && "border-destructive focus-visible:ring-destructive"
@@ -199,10 +208,10 @@ export default function LoginPage() {
               {isSubmitting ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  Signing in...
+                  {t("submitting")}
                 </>
               ) : (
-                "Sign in"
+                t("submit")
               )}
             </Button>
           </form>
@@ -213,7 +222,9 @@ export default function LoginPage() {
               <span className="border-border w-full border-t" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-background text-muted-foreground px-2 tracking-wider">or</span>
+              <span className="bg-background text-muted-foreground px-2 tracking-wider">
+                {tCommon("or")}
+              </span>
             </div>
           </div>
 
@@ -225,17 +236,17 @@ export default function LoginPage() {
             onClick={handleGoogleSignIn}
           >
             <GoogleIcon />
-            Continue with Google
+            {tCommon("continueWithGoogle")}
           </Button>
 
           {/* Footer link */}
           <p className="text-muted-foreground mt-8 text-center text-sm">
-            Don&apos;t have an account?{" "}
+            {t("noAccount")}{" "}
             <Link
               href="/auth/register"
               className="text-primary hover:text-primary/80 font-medium underline-offset-4 hover:underline"
             >
-              Create one
+              {t("createOne")}
             </Link>
           </p>
         </div>

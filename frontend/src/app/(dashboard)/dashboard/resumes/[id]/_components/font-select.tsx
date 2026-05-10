@@ -10,6 +10,7 @@
  * Spec: docs/v2/specs/editor-edit-mode-spec.md §3.3.1 / §6.
  */
 import * as React from "react";
+import { useTranslations } from "next-intl";
 
 import {
   Select,
@@ -31,6 +32,7 @@ interface FontSelectProps {
 }
 
 export function FontSelect({ value, onChange, disabled }: FontSelectProps) {
+  const t = useTranslations("Resumes.editor");
   // Normalize incoming value — if a previously-saved resume has an unknown
   // font string, fall back to Inter to keep the trigger readable.
   const normalized: ResumeFont = (RESUME_FONTS as readonly string[]).includes(value)
@@ -40,7 +42,7 @@ export function FontSelect({ value, onChange, disabled }: FontSelectProps) {
   return (
     <Select value={normalized} onValueChange={onChange} disabled={disabled}>
       <SelectTrigger
-        aria-label="Font"
+        aria-label={t("fontLabel")}
         className="h-8 w-[160px] text-sm"
       >
         <SelectValue>

@@ -3,6 +3,7 @@ import { ChevronLeft } from "lucide-react";
 import { cookies } from "next/headers";
 import Image from "next/image";
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import "@/styles/checkout.css";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
@@ -31,6 +32,9 @@ export default async function UpgradeLayout({ children }: { children: React.Reac
     // Network error — allow the page to render, client-side will handle it
   }
 
+  const tBranding = await getTranslations("Auth.branding");
+  const tFooter = await getTranslations("upgrade.footer");
+
   return (
     <div className="bg-background min-h-screen">
       <header className="border-border border-b">
@@ -40,14 +44,14 @@ export default async function UpgradeLayout({ children }: { children: React.Reac
             className="text-muted-foreground hover:text-foreground flex items-center gap-2 text-sm transition-colors"
           >
             <ChevronLeft className="h-4 w-4" />
-            Back to Dashboard
+            {tFooter("back")}
           </a>
           <div className="flex flex-1 justify-center">
             <Image
               src="/assets/logo/lightrole-text.svg"
               width={200}
               height={200}
-              alt="LightRole Logo"
+              alt={tBranding("logoAlt")}
             />
           </div>
           {/* Spacer mirrors the back link width so the logo stays centered */}

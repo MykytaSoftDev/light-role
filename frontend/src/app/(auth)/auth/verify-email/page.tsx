@@ -1,6 +1,7 @@
 "use client";
 
 import { api } from "@/lib/api";
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
@@ -13,6 +14,8 @@ function VerifyEmailContent() {
   const router = useRouter();
   const token = searchParams?.get("token") ?? null;
   const [state, setState] = useState<VerifyState>(token ? "loading" : "no-token");
+
+  const t = useTranslations("Auth.verifyEmail");
 
   useEffect(() => {
     if (!token) {
@@ -48,8 +51,10 @@ function VerifyEmailContent() {
       <div className="flex min-h-screen items-center justify-center bg-background px-4">
         <div className="w-full max-w-sm text-center">
           <div className="border-primary mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-2 border-t-transparent" />
-          <h1 className="text-2xl font-semibold">Verifying your email</h1>
-          <p className="text-muted-foreground mt-2 text-sm">Just a moment...</p>
+          <h1 className="text-2xl font-semibold">{t("verifyingTitle")}</h1>
+          <p className="text-muted-foreground mt-2 text-sm">
+            {t("verifyingDescription")}
+          </p>
         </div>
       </div>
     );
@@ -60,8 +65,8 @@ function VerifyEmailContent() {
       <div className="flex min-h-screen items-center justify-center bg-background px-4">
         <div className="w-full max-w-sm text-center">
           <CircleCheck className="mx-auto mb-4 h-8 w-8 text-emerald-500" />
-          <h1 className="text-2xl font-semibold">Email verified</h1>
-          <p className="text-muted-foreground mt-2 text-sm">Redirecting to dashboard...</p>
+          <h1 className="text-2xl font-semibold">{t("successTitle")}</h1>
+          <p className="text-muted-foreground mt-2 text-sm">{t("successDescription")}</p>
         </div>
       </div>
     );
@@ -72,15 +77,13 @@ function VerifyEmailContent() {
       <div className="flex min-h-screen items-center justify-center bg-background px-4">
         <div className="w-full max-w-sm text-center">
           <CircleX className="mx-auto mb-4 h-8 w-8 text-destructive" />
-          <h1 className="text-2xl font-semibold">Verification failed</h1>
-          <p className="text-muted-foreground mt-2 text-sm">
-            This link has expired or is invalid.
-          </p>
+          <h1 className="text-2xl font-semibold">{t("errorTitle")}</h1>
+          <p className="text-muted-foreground mt-2 text-sm">{t("errorDescription")}</p>
           <Link
             href="/auth/register"
             className="text-primary hover:text-primary/80 mt-6 inline-block text-sm font-medium underline-offset-4 hover:underline"
           >
-            Back to register
+            {t("backToRegister")}
           </Link>
         </div>
       </div>
@@ -92,16 +95,26 @@ function VerifyEmailContent() {
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="w-full max-w-sm text-center">
         <MailWarning className="mx-auto mb-4 h-8 w-8 text-muted-foreground" />
-        <h1 className="text-2xl font-semibold">No verification link</h1>
-        <p className="text-muted-foreground mt-2 text-sm">
-          No verification token was found. Check your email for the verification link.
-        </p>
+        <h1 className="text-2xl font-semibold">{t("noTokenTitle")}</h1>
+        <p className="text-muted-foreground mt-2 text-sm">{t("noTokenDescription")}</p>
         <Link
           href="/auth/login"
           className="text-primary hover:text-primary/80 mt-6 inline-block text-sm font-medium underline-offset-4 hover:underline"
         >
-          Back to sign in
+          {t("goToLogin")}
         </Link>
+      </div>
+    </div>
+  );
+}
+
+function VerifyEmailFallback() {
+  const t = useTranslations("Auth.verifyEmail");
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-background px-4">
+      <div className="w-full max-w-sm text-center">
+        <div className="border-primary mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-2 border-t-transparent" />
+        <p className="text-muted-foreground text-sm">{t("fallbackLoading")}</p>
       </div>
     </div>
   );
@@ -109,16 +122,7 @@ function VerifyEmailContent() {
 
 export default function VerifyEmailPage() {
   return (
-    <Suspense
-      fallback={
-        <div className="flex min-h-screen items-center justify-center bg-background px-4">
-          <div className="w-full max-w-sm text-center">
-            <div className="border-primary mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-2 border-t-transparent" />
-            <p className="text-muted-foreground text-sm">Loading...</p>
-          </div>
-        </div>
-      }
-    >
+    <Suspense fallback={<VerifyEmailFallback />}>
       <VerifyEmailContent />
     </Suspense>
   );

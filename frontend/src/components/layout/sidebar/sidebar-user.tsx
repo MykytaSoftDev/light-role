@@ -1,6 +1,7 @@
 "use client";
 
 import { Bell, ChevronsUpDown, CreditCard, Receipt, Settings, Sparkles } from "lucide-react";
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 
 import LogoutButton from "@/components/layout/sidebar/logout-button";
@@ -32,7 +33,12 @@ export function SidebarUser() {
   const currentPlan = usePlan();
   console.log(currentPlan);
   const { isMobile } = useSidebar();
-  const userName = data?.first_name ? `${data.first_name} ${data.last_name}` : "User";
+  const tUser = useTranslations("Sidebar.user");
+  const tNotifications = useTranslations("Notifications.bell");
+  const tBreadcrumb = useTranslations("DashboardShell.breadcrumb");
+  const userName = data?.first_name
+    ? `${data.first_name} ${data.last_name}`
+    : tUser("fallbackName");
   const email = data?.email ? data.email : "";
   const plan = currentPlan.plan || "free";
   const subscriptionId = currentPlan.subscriptionId || "free";
@@ -98,7 +104,7 @@ export function SidebarUser() {
               <DropdownMenuGroup>
                 <DropdownMenuItem>
                   <Sparkles />
-                  <Link href={DASHBOARD_PAGES.UPGRADE}>Upgrade your Plan</Link>
+                  <Link href={DASHBOARD_PAGES.UPGRADE}>{tUser("upgradeYourPlan")}</Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
               </DropdownMenuGroup>
@@ -108,16 +114,18 @@ export function SidebarUser() {
             <DropdownMenuGroup>
               <DropdownMenuItem>
                 <Settings />
-                <Link href={DASHBOARD_PAGES.SETTINGS}>Settings</Link>
+                <Link href={DASHBOARD_PAGES.SETTINGS}>{tUser("settings")}</Link>
               </DropdownMenuItem>
               <DropdownMenuItem>
                 <Bell />
-                <Link href={DASHBOARD_PAGES.NOTIFICATIONS}>Notifications</Link>
+                <Link href={DASHBOARD_PAGES.NOTIFICATIONS}>
+                  {tNotifications("title")}
+                </Link>
               </DropdownMenuItem>
               {plan !== "free" ? (
                 <DropdownMenuItem>
                   <CreditCard />
-                  <Link href={DASHBOARD_PAGES.PAYMENTS}>Payments</Link>
+                  <Link href={DASHBOARD_PAGES.PAYMENTS}>{tUser("payments")}</Link>
                 </DropdownMenuItem>
               ) : (
                 ""
@@ -125,7 +133,7 @@ export function SidebarUser() {
               <DropdownMenuItem>
                 <Receipt />
                 <Link href={`${DASHBOARD_PAGES.SUBSCRIPTIONS}/${subscriptionId}`}>
-                  My Subscription
+                  {tBreadcrumb("subscriptions")}
                 </Link>
               </DropdownMenuItem>
             </DropdownMenuGroup>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { FileText, Star, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -39,9 +40,10 @@ function ScoreBadge({ score }: { score: number }) {
 }
 
 function RatingStars({ value }: { value: number }) {
+  const t = useTranslations("Resumes.editor.rating");
   const v = Math.min(Math.max(value, 1), 5);
   return (
-    <span className="flex gap-0.5" aria-label={`${v} of 5 stars`}>
+    <span className="flex gap-0.5" aria-label={t("starsAria", { score: v })}>
       {Array.from({ length: 5 }).map((_, i) => (
         <Star
           key={i}
@@ -62,26 +64,29 @@ function RatingStars({ value }: { value: number }) {
  * thereafter. The 7-day cutoff matches the convention Linear uses — relative
  * deeper than ~a week ("47 days ago") is just noise.
  */
-function formatRelativeOrAbsolute(iso: string): string {
-  const created = new Date(iso).getTime();
-  const now = Date.now();
-  const diffMs = now - created;
-  if (diffMs < 0) return "Created just now"; // clock skew safety
-  const seconds = Math.floor(diffMs / 1000);
-  if (seconds < 60) return "Created just now";
-  const minutes = Math.floor(seconds / 60);
-  if (minutes < 60)
-    return `Created ${minutes} minute${minutes !== 1 ? "s" : ""} ago`;
-  const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `Created ${hours} hour${hours !== 1 ? "s" : ""} ago`;
-  const days = Math.floor(hours / 24);
-  if (days < 7) return `Created ${days} day${days !== 1 ? "s" : ""} ago`;
-  const formatted = new Date(iso).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-  return `Created ${formatted}`;
+function makeFormatRelativeOrAbsolute(
+  t: (key: string, values?: Record<string, string | number>) => string
+) {
+  return (iso: string): string => {
+    const created = new Date(iso).getTime();
+    const now = Date.now();
+    const diffMs = now - created;
+    if (diffMs < 0) return t("createdJustNow");
+    const seconds = Math.floor(diffMs / 1000);
+    if (seconds < 60) return t("createdJustNow");
+    const minutes = Math.floor(seconds / 60);
+    if (minutes < 60) return t("createdMinutesAgo", { count: minutes });
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return t("createdHoursAgo", { count: hours });
+    const days = Math.floor(hours / 24);
+    if (days < 7) return t("createdDaysAgo", { count: days });
+    const formatted = new Date(iso).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
+    return t("createdAt", { date: formatted });
+  };
 }
 
 /**
@@ -89,14 +94,16 @@ function formatRelativeOrAbsolute(iso: string): string {
  * and may diverge from the source job's title, so we always render the job
  * anchor underneath when available.
  */
-function buildSubtitle(
-  jobCompany: string | null,
-  jobTitle: string | null
-): string {
-  if (jobCompany && jobTitle) return `Tailored for ${jobCompany} — ${jobTitle}`;
-  if (jobCompany) return `Tailored for ${jobCompany}`;
-  if (jobTitle) return `Tailored for ${jobTitle}`;
-  return "Tailored from your profile";
+function makeBuildSubtitle(
+  t: (key: string, values?: Record<string, string | number>) => string
+) {
+  return (jobCompany: string | null, jobTitle: string | null): string => {
+    if (jobCompany && jobTitle)
+      return t("tailoredFor", { company: jobCompany, title: jobTitle });
+    if (jobCompany) return t("tailoredForCompanyOnly", { company: jobCompany });
+    if (jobTitle) return t("tailoredForTitleOnly", { title: jobTitle });
+    return t("tailoredFromProfile");
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -121,9 +128,12 @@ interface ResumeCardProps {
  * loses `Cmd+Click → open in new tab`. Acceptable per spec §2.2.
  */
 export function ResumeCard({ resume, onDelete }: ResumeCardProps) {
+  const t = useTranslations("Resumes.list.card");
   const router = useRouter();
   const [confirmDelete, setConfirmDelete] = useState(false);
 
+  const buildSubtitle = makeBuildSubtitle(t);
+  const formatRelativeOrAbsolute = makeFormatRelativeOrAbsolute(t);
   const subtitle = buildSubtitle(resume.job_company, resume.job_title);
 
   return (
@@ -136,7 +146,7 @@ export function ResumeCard({ resume, onDelete }: ResumeCardProps) {
           "transition-shadow hover:shadow-sm hover:border-border/60",
           "focus:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
         )}
-        aria-label={`Open resume: ${resume.name}`}
+        aria-label={t("openAria", { name: resume.name })}
       >
         {/* Top: icon + name + trash */}
         <div className="flex items-start gap-3">
@@ -160,7 +170,7 @@ export function ResumeCard({ resume, onDelete }: ResumeCardProps) {
           <span
             role="button"
             tabIndex={0}
-            aria-label="Delete resume"
+            aria-label={t("deleteAria")}
             onClick={(e) => {
               e.stopPropagation();
               setConfirmDelete(true);

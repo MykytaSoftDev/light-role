@@ -12,6 +12,7 @@
  * and surfaced through `user.complete_steps_dismissed_at`.
  */
 
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -90,6 +91,7 @@ export function CompleteStepsPanel({
   jobsTotal,
   jobsLoading,
 }: CompleteStepsPanelProps) {
+  const t = useTranslations("DashboardHome.completeSteps");
   const queryClient = useQueryClient();
 
   const { data: user, isPending: userLoading } = useUser();
@@ -130,10 +132,10 @@ export function CompleteStepsPanel({
       );
       // Re-fetch in the background to stay canonical.
       queryClient.invalidateQueries({ queryKey: queryKeys.user.me });
-      toast.success("Get Started panel dismissed");
+      toast.success(t("dismissedToast"));
     },
     onError: () => {
-      toast.error("Couldn't dismiss the panel. Try again.");
+      toast.error(t("dismissErrorToast"));
     },
   });
 
@@ -165,42 +167,35 @@ export function CompleteStepsPanel({
     return [
       {
         id: "upload-profile",
-        label: "Upload your resume to fill your profile",
+        label: t("uploadLabel"),
         href: "/dashboard/profile",
         completed: profileComplete,
-        completedHint: "Resume parsed and saved",
-        pendingHint: "We'll extract your experience automatically",
+        completedHint: t("uploadCompletedHint"),
+        pendingHint: t("uploadPendingHint"),
       },
       {
         id: "create-job",
-        label: "Create your first job",
+        label: t("createLabel"),
         href: "/dashboard/jobs/new",
         completed: jobsCount >= 1,
-        completedHint:
-          jobsCount === 1 ? "Tracking 1 job" : `Tracking ${jobsCount} jobs`,
-        pendingHint: "Paste a job description and we'll structure it for you",
+        completedHint: t("createCompletedHint"),
+        pendingHint: t("createPendingHint"),
       },
       {
         id: "tailor-resume",
-        label: "Tailor a resume for that job",
+        label: t("tailorLabel"),
         href: hasJobs ? jobLinkedHref : "/dashboard/jobs",
         completed: resumesCount >= 1,
-        completedHint:
-          resumesCount === 1
-            ? "1 tailored resume ready"
-            : `${resumesCount} tailored resumes ready`,
-        pendingHint: "Pick a job and click \"Tailor resume\"",
+        completedHint: t("tailorCompletedHint"),
+        pendingHint: t("tailorPendingHint"),
       },
       {
         id: "generate-cl",
-        label: "Generate a cover letter",
+        label: t("generateLabel"),
         href: hasJobs ? jobLinkedHref : "/dashboard/jobs",
         completed: clCount >= 1,
-        completedHint:
-          clCount === 1
-            ? "1 cover letter ready"
-            : `${clCount} cover letters ready`,
-        pendingHint: "Use the same job to draft your cover letter",
+        completedHint: t("generateCompletedHint"),
+        pendingHint: t("generatePendingHint"),
       },
     ];
   }, [
@@ -210,6 +205,7 @@ export function CompleteStepsPanel({
     coverLettersData,
     mostRecentJobId,
     hasJobs,
+    t,
   ]);
 
   const completed = steps.filter((s) => s.completed).length;
@@ -242,10 +238,10 @@ export function CompleteStepsPanel({
               />
               <div className="min-w-0">
                 <h2 className="text-sm font-semibold text-foreground">
-                  Get Started
+                  {t("heading")}
                 </h2>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  Finish setting up your workspace
+                  {t("subheading")}
                 </p>
               </div>
             </div>
@@ -255,18 +251,14 @@ export function CompleteStepsPanel({
               onClick={handleDismissClick}
               disabled={dismissMutation.isPending}
               className="text-muted-foreground hover:text-foreground hover:bg-muted disabled:opacity-50 transition-colors shrink-0 -mt-1 -mr-1 p-1 rounded-md"
-              aria-label="Dismiss Get Started panel"
+              aria-label={t("dismiss")}
             >
               <X size={15} />
             </button>
           </div>
 
-          {/* Progress */}
           <p className="text-xs text-muted-foreground mb-2">
-            <span className="font-medium text-foreground">
-              {completed} of {total}
-            </span>{" "}
-            complete
+            {t("progress", { completed, total })}
           </p>
           <Progress
             value={progressValue}
@@ -285,26 +277,22 @@ export function CompleteStepsPanel({
         </CardContent>
       </Card>
 
-      {/* Dismiss confirmation dialog */}
       <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Hide the Get Started panel?</DialogTitle>
-            <DialogDescription>
-              You can&apos;t bring it back from the dashboard. Any incomplete
-              steps will still be reachable from the sidebar.
-            </DialogDescription>
+            <DialogTitle>{t("confirmDialog.title")}</DialogTitle>
+            <DialogDescription>{t("confirmDialog.description")}</DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button variant="ghost" onClick={() => setConfirmOpen(false)}>
-              Keep it
+              {t("confirmDialog.keep")}
             </Button>
             <Button
               variant="default"
               onClick={handleConfirmDismiss}
               disabled={dismissMutation.isPending}
             >
-              Hide
+              {t("confirmDialog.hide")}
             </Button>
           </DialogFooter>
         </DialogContent>

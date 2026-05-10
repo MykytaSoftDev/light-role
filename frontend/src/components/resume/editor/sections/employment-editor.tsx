@@ -15,6 +15,7 @@
  * via `htmlToBulletList` (bound by use-resume-draft → sanitize → diff).
  */
 import * as React from "react";
+import { useTranslations } from "next-intl";
 import {
   DndContext,
   KeyboardSensor,
@@ -63,6 +64,8 @@ export function EmploymentEditor({
   onFocusApplied,
   keywords,
 }: EmploymentEditorProps) {
+  const tSection = useTranslations("Resumes.sectionTitles");
+  const tProfile = useTranslations("profile.employment");
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
     useSensor(KeyboardSensor, {
@@ -106,11 +109,11 @@ export function EmploymentEditor({
 
   return (
     <EditableSection
-      title="Experience"
-      addLabel="Add experience"
+      title={tSection("employment")}
+      addLabel={tProfile("addButton")}
       onAdd={handleAdd}
       isEmpty={value.length === 0}
-      emptyMessage="No experience yet — click + to add."
+      emptyMessage={tProfile("empty")}
     >
       <DndContext
         sensors={sensors}
@@ -156,6 +159,8 @@ const EmploymentEntryEditor = React.memo(function EmploymentEntryEditor({
   onRemove,
   keywords,
 }: EmploymentEntryEditorProps) {
+  const tProfile = useTranslations("profile.employment");
+  const tEditor = useTranslations("Resumes.editor.section");
   const roleRef = React.useRef<HTMLInputElement>(null);
   React.useEffect(() => {
     if (autoFocus) {
@@ -177,7 +182,7 @@ const EmploymentEntryEditor = React.memo(function EmploymentEntryEditor({
   return (
     <EditableEntry
       id={entry.id ?? "__missing"}
-      label="Experience entry"
+      label={tEditor("employmentEntryLabel")}
       onRemove={onRemove}
     >
       {/* Row 1 — role + dates + is_current */}
@@ -188,8 +193,8 @@ const EmploymentEntryEditor = React.memo(function EmploymentEntryEditor({
               ref={roleRef}
               value={entry.role}
               onChange={(role) => onChange({ role })}
-              placeholder="Role"
-              aria-label="Role"
+              placeholder={tProfile("role")}
+              aria-label={tProfile("role")}
             />
           </span>
         </div>
@@ -198,19 +203,19 @@ const EmploymentEntryEditor = React.memo(function EmploymentEntryEditor({
             <MonthInput
               value={entry.start_date || null}
               onChange={(d) => onChange({ start_date: d ?? "" })}
-              placeholder="Start"
-              ariaLabel="Start date"
+              placeholder={tEditor("startShort")}
+              ariaLabel={tProfile("startDate")}
             />
             <span className="text-muted-foreground/70">–</span>
             {entry.is_current ? (
-              <span className="px-1 text-sm">Present</span>
+              <span className="px-1 text-sm">{tProfile("present")}</span>
             ) : (
               <MonthInput
                 value={entry.end_date ?? null}
                 onChange={(d) => onChange({ end_date: d })}
-                placeholder="End"
+                placeholder={tEditor("endShort")}
                 clearable
-                ariaLabel="End date"
+                ariaLabel={tProfile("endDate")}
               />
             )}
           </span>
@@ -227,9 +232,9 @@ const EmploymentEntryEditor = React.memo(function EmploymentEntryEditor({
               end_date: checked ? null : entry.end_date,
             })
           }
-          aria-label="I currently work here"
+          aria-label={tProfile("isCurrent")}
         />
-        <span>I currently work here</span>
+        <span>{tProfile("isCurrent")}</span>
       </label>
 
       {/* Row 2 — company · location */}
@@ -237,8 +242,8 @@ const EmploymentEntryEditor = React.memo(function EmploymentEntryEditor({
         <InlineTextField
           value={entry.company}
           onChange={(company) => onChange({ company })}
-          placeholder="Company"
-          aria-label="Company"
+          placeholder={tProfile("company")}
+          aria-label={tProfile("company")}
           inputClassName="font-medium"
         />
         <span aria-hidden className="text-muted-foreground/60">
@@ -247,8 +252,8 @@ const EmploymentEntryEditor = React.memo(function EmploymentEntryEditor({
         <InlineTextField
           value={entry.location ?? ""}
           onChange={(location) => onChange({ location: location || null })}
-          placeholder="Location"
-          aria-label="Location"
+          placeholder={tProfile("location")}
+          aria-label={tProfile("location")}
         />
       </p>
 
@@ -261,8 +266,8 @@ const EmploymentEntryEditor = React.memo(function EmploymentEntryEditor({
             onChange({ details: htmlToBulletList(html) });
           }}
           enableBulletList
-          placeholder="• Add a bullet describing what you did"
-          ariaLabel="Bullets"
+          placeholder={tEditor("bulletPlaceholder")}
+          ariaLabel={tProfile("details")}
           keywords={keywords}
         />
       </div>

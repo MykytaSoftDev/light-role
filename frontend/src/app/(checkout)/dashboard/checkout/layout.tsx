@@ -4,6 +4,7 @@ import { ChevronLeft } from "lucide-react";
 import { cookies } from "next/headers";
 import Image from "next/image";
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 
 export default async function CheckoutLayout({ children }: { children: React.ReactNode }) {
   const cookieStore = await cookies();
@@ -11,6 +12,9 @@ export default async function CheckoutLayout({ children }: { children: React.Rea
   if (!token) {
     redirect("/auth/login");
   }
+
+  const tBranding = await getTranslations("Auth.branding");
+  const tCheckout = await getTranslations("Checkout");
 
   return (
     <div className="bg-background min-h-screen">
@@ -21,14 +25,14 @@ export default async function CheckoutLayout({ children }: { children: React.Rea
             className="text-muted-foreground hover:text-foreground flex items-center gap-2 text-sm transition-colors"
           >
             <ChevronLeft className="h-4 w-4" />
-            Back to Dashboard
+            {tCheckout("backToDashboard")}
           </a>
           <div className="flex flex-1 justify-center">
             <Image
               src="/assets/logo/lightrole-text.svg"
               width={200}
               height={200}
-              alt="LightRole Logo"
+              alt={tBranding("logoAlt")}
             />
           </div>
           {/* Spacer mirrors the back link width so the logo stays centered */}

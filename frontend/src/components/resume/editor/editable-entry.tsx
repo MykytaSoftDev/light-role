@@ -17,6 +17,7 @@ import * as React from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { GripVertical, Trash2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { cn } from "@/lib/utils";
 
@@ -30,10 +31,12 @@ interface EditableEntryProps {
 
 export function EditableEntry({
   id,
-  label = "Entry",
+  label,
   onRemove,
   children,
 }: EditableEntryProps) {
+  const tEditor = useTranslations("Resumes.editor.section");
+  const resolvedLabel = label ?? tEditor("employmentEntryLabel");
   const {
     attributes,
     listeners,
@@ -64,7 +67,7 @@ export function EditableEntry({
       {/* Left-gutter drag handle (visible on hover) */}
       <button
         type="button"
-        aria-label={`Drag ${label} to reorder`}
+        aria-label={tEditor("dragEntryAria", { label: resolvedLabel })}
         className={cn(
           "absolute -left-6 top-1 cursor-grab touch-none rounded p-0.5",
           "text-muted-foreground/60 hover:text-muted-foreground active:cursor-grabbing",
@@ -81,7 +84,7 @@ export function EditableEntry({
       <button
         type="button"
         onClick={onRemove}
-        aria-label={`Remove ${label}`}
+        aria-label={tEditor("removeEntryAria", { label: resolvedLabel })}
         className={cn(
           "absolute -right-6 top-1 rounded p-0.5",
           "text-muted-foreground hover:text-destructive",

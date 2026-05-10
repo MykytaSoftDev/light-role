@@ -1,6 +1,7 @@
 "use client";
 
 import { Briefcase, FileText, LayoutDashboard, PenLine, TrendingUp, UserCircle } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 
 import {
@@ -15,55 +16,59 @@ import { DASHBOARD_PAGES } from "@/constants/nav.constants";
 
 const items = [
   {
-    title: "Dashboard",
+    key: "dashboard",
     url: DASHBOARD_PAGES.HOME,
     icon: LayoutDashboard,
   },
   {
-    title: "Profile",
+    key: "profile",
     url: DASHBOARD_PAGES.PROFILE,
     icon: UserCircle,
   },
   {
-    title: "Job Tracking",
+    key: "jobs",
     url: DASHBOARD_PAGES.JOBS,
     icon: Briefcase,
   },
   {
-    title: "Tailor Resume",
+    key: "tailorResume",
     url: DASHBOARD_PAGES.TAILOR_RESUME,
     icon: FileText,
   },
   {
-    title: "Generate Cover Letter",
+    key: "generateCoverLetter",
     url: DASHBOARD_PAGES.GENERATE_COVER_LETTERS,
     icon: PenLine,
   },
   {
-    title: "Analytics",
+    key: "analytics",
     url: DASHBOARD_PAGES.ANALYTICS,
     icon: TrendingUp,
   },
-];
+] as const;
 
 export function SidebarMain() {
   const { push } = useRouter();
+  const t = useTranslations("Sidebar.main");
 
   return (
     <SidebarGroup>
       <SidebarGroupContent className="flex flex-col gap-2">
         <SidebarMenu>
-          {items.map((item) => (
-            <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton
-                tooltip={item.title}
-                onClick={() => push(item.url)}
-              >
-                {item.icon && <item.icon />}
-                <span>{item.title}</span>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          ))}
+          {items.map((item) => {
+            const title = t(item.key);
+            return (
+              <SidebarMenuItem key={item.key}>
+                <SidebarMenuButton
+                  tooltip={title}
+                  onClick={() => push(item.url)}
+                >
+                  {item.icon && <item.icon />}
+                  <span>{title}</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            );
+          })}
         </SidebarMenu>
       </SidebarGroupContent>
     </SidebarGroup>

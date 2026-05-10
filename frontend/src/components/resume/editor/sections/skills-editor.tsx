@@ -10,6 +10,7 @@
  * use and not editable here).
  */
 import * as React from "react";
+import { useTranslations } from "next-intl";
 
 import type { SkillEntry } from "@/lib/profile-api";
 
@@ -25,6 +26,9 @@ export const SkillsEditor = React.memo(function SkillsEditor({
   value,
   onChange,
 }: SkillsEditorProps) {
+  const tSection = useTranslations("Resumes.sectionTitles");
+  const tProfile = useTranslations("profile.skills");
+  const tEditor = useTranslations("Resumes.editor.section");
   // Map the chip input's stable-id model onto SkillEntry. We require an id on
   // every entry — stamp UUIDs defensively so a malformed input doesn't break
   // dnd reorder.
@@ -51,14 +55,14 @@ export const SkillsEditor = React.memo(function SkillsEditor({
   }
 
   return (
-    <EditableSection title="Skills">
+    <EditableSection title={tSection("skills")}>
       <ChipInputField
         values={chips}
         onAdd={handleAdd}
         onRemove={handleRemove}
         onReorder={handleReorder}
-        placeholder="Type a skill and press Enter to add"
-        ariaLabel="Add a skill"
+        placeholder={tEditor("addSkillPlaceholder")}
+        ariaLabel={tProfile("addSkill")}
       />
     </EditableSection>
   );

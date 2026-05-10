@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 
 import { Skeleton } from "@/components/ui/skeleton";
@@ -9,6 +10,7 @@ import { cn } from "@/lib/utils";
 
 export function SidebarPlanBadge() {
   const { plan, isUnlimitedPlan, isLoading } = usePlan();
+  const t = useTranslations("Sidebar.planBadge");
 
   if (isLoading) {
     return (
@@ -16,7 +18,15 @@ export function SidebarPlanBadge() {
     );
   }
 
-  const label = plan === "pro" ? "Pro" : plan === "unlimited" ? "Unlimited" : "Free";
+  // Plan badge labels are short ("Free" / "Pro" / "Unlimited"). Reusing the
+  // longer `Sidebar.planBadge.*Plan` keys would change the visual density, so
+  // we use the dedicated short variants here.
+  const label =
+    plan === "pro"
+      ? t("shortPro")
+      : plan === "unlimited"
+        ? t("shortUnlimited")
+        : t("shortFree");
 
   const classes = cn(
     "rounded-md border px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide",
@@ -35,7 +45,7 @@ export function SidebarPlanBadge() {
     <Link
       href={DASHBOARD_PAGES.UPGRADE}
       className={classes}
-      aria-label={`Plan: ${label}. Click to upgrade.`}
+      aria-label={t("aria", { label })}
     >
       {label}
     </Link>

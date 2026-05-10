@@ -3,6 +3,1180 @@
     "name": "Light Role",
     "tagline": "AI-powered job search management platform"
   },
+  "Common": {
+    "actions": {
+      "save": "Save",
+      "saving": "Saving…",
+      "saveChanges": "Save Changes",
+      "cancel": "Cancel",
+      "close": "Close",
+      "delete": "Delete",
+      "deleting": "Deleting…",
+      "edit": "Edit",
+      "remove": "Remove",
+      "add": "Add",
+      "back": "Back",
+      "next": "Next",
+      "continue": "Continue",
+      "submit": "Submit",
+      "confirm": "Confirm",
+      "tryAgain": "Try again",
+      "retry": "Retry",
+      "refresh": "Refresh",
+      "reset": "Reset",
+      "create": "Create",
+      "view": "View",
+      "viewAll": "View all",
+      "more": "More",
+      "open": "Open",
+      "copy": "Copy",
+      "copied": "Copied",
+      "search": "Search",
+      "clear": "Clear",
+      "download": "Download",
+      "upload": "Upload",
+      "send": "Send",
+      "ok": "OK",
+      "yes": "Yes",
+      "no": "No",
+      "discard": "Discard",
+      "undo": "Undo",
+      "selectAll": "Select all",
+      "loadMore": "Load more"
+    },
+    "states": {
+      "loading": "Loading…",
+      "saving": "Saving…",
+      "deleting": "Deleting…",
+      "uploading": "Uploading…",
+      "submitting": "Submitting…",
+      "processing": "Processing…",
+      "empty": "Nothing here yet.",
+      "noResults": "No results.",
+      "comingSoon": "Coming soon"
+    },
+    "validation": {
+      "required": "This field is required.",
+      "invalidEmail": "Please enter a valid email address.",
+      "invalidUrl": "Please enter a valid URL.",
+      "tooShort": "Must be at least {min} characters.",
+      "tooLong": "Must be at most {max} characters.",
+      "passwordTooShort": "Password must be at least {min} characters."
+    },
+    "toast": {
+      "saved": "Changes saved.",
+      "saveError": "Couldn't save your changes. Please try again.",
+      "saveFailed": "Couldn't save. Please try again.",
+      "loadError": "Couldn't load this page. Please refresh and try again.",
+      "networkError": "Network error. Please check your connection.",
+      "genericError": "Something went wrong. Please try again."
+    },
+    "upgradeCta": {
+      "defaultMessage": "Upgrade to Pro for more AI operations and unlimited jobs."
+    },
+    "pagination": {
+      "previous": "Previous",
+      "next": "Next",
+      "page": "Page {page} of {total}",
+      "rowsPerPage": "Rows per page",
+      "ofTotal": "{from}–{to} of {total}"
+    },
+    "table": {
+      "noData": "No data available.",
+      "selectRow": "Select row",
+      "selectAll": "Select all rows"
+    }
+  },
+  "Errors": {
+    "boundary": {
+      "title": "Something went wrong",
+      "description": "An unexpected error occurred. We've been notified and will fix it.",
+      "tryAgain": "Try again",
+      "goHome": "Go to homepage"
+    },
+    "global": {
+      "title": "Application error",
+      "description": "Something went wrong loading the page.",
+      "tryAgain": "Try again"
+    },
+    "notFound": {
+      "title": "Page not found",
+      "description": "We couldn't find the page you were looking for.",
+      "goHome": "Back to dashboard",
+      "goLanding": "Back to homepage"
+    },
+    "dashboard": {
+      "title": "Couldn't load this page",
+      "description": "Something went wrong loading this page. Try again, or refresh.",
+      "tryAgain": "Try again"
+    },
+    "rateLimit": {
+      "title": "You've reached your AI operation limit",
+      "description": "Upgrade to Pro for 150 monthly operations and unlimited active jobs.",
+      "upgrade": "Upgrade to Pro",
+      "later": "Maybe later"
+    },
+    "rateLimitModal": {
+      "title": "Slow down — please try again later",
+      "body1": "You've sent a lot of requests in a short period.",
+      "body2WithTime": "Please try again in {seconds} seconds.",
+      "supportLine": "If this keeps happening, contact support@lightrole.com.",
+      "gotIt": "Got it"
+    },
+    "upgradeModal": {
+      "title": "Unlock with Pro",
+      "description": "Upgrade your plan to use this feature.",
+      "upgrade": "Upgrade to Pro",
+      "later": "Maybe later",
+      "seePlans": "See plans",
+      "resumeCreditsTitle": "You've used all your resume credits this month",
+      "resumeCreditsBody": "Upgrade to Pro to tailor more resumes — Pro includes unlimited tailorings.",
+      "clCreditsTitle": "You've used all your cover letter credits this month",
+      "clCreditsBody": "Upgrade to Pro for unlimited AI-generated cover letters.",
+      "activeJobsTitle": "You've reached the active jobs limit",
+      "activeJobsBody": "Free is limited to a few active jobs. Pro removes the cap so you can track every opportunity.",
+      "analyticsTitle": "Analytics is a Pro feature",
+      "analyticsBody": "Upgrade to unlock the full analytics dashboard — funnel, response times, and resume performance."
+    },
+    "offline": {
+      "title": "You're offline",
+      "description": "Check your internet connection and try again.",
+      "bannerOffline": "You're offline. Some features are disabled.",
+      "backOnline": "You're back online."
+    }
+  },
+  "Notifications": {
+    "bell": {
+      "ariaLabel": "Notifications",
+      "title": "Notifications",
+      "empty": "No notifications yet.",
+      "markAllRead": "Mark all as read",
+      "viewAll": "View all",
+      "unreadCountAria": "{count, plural, =0 {No unread notifications} =1 {1 unread notification} other {# unread notifications}}"
+    },
+    "timeAgo": {
+      "justNow": "Just now",
+      "minutes": "{count, plural, =1 {1 minute ago} other {# minutes ago}}",
+      "hours": "{count, plural, =1 {1 hour ago} other {# hours ago}}",
+      "days": "{count, plural, =1 {1 day ago} other {# days ago}}"
+    }
+  },
+  "Auth": {
+    "branding": {
+      "headline": "Manage your job search with AI.",
+      "tagline": "Optimize your resume for every role, generate tailored cover letters, and track every application — all in one place.",
+      "logoAlt": "LightRole Logo",
+      "testimonialQuote": "Light Role helped me tailor my resume for every application. I went from zero callbacks to three offers in six weeks.",
+      "testimonialName": "Marcus K.",
+      "testimonialTitle": "Software Engineer",
+      "logoFallback": "Light Role"
+    },
+    "common": {
+      "emailLabel": "Email",
+      "emailPlaceholder": "you@example.com",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "••••••••",
+      "or": "or",
+      "continueWithGoogle": "Continue with Google",
+      "googleNotConfigured": "Google OAuth is not configured.",
+      "networkError": "Unable to connect. Check your internet connection.",
+      "genericError": "Something went wrong. Please try again."
+    },
+    "login": {
+      "metaTitle": "Sign in",
+      "title": "Sign in to Light Role",
+      "subtitle": "Welcome back. Enter your details below.",
+      "forgotPassword": "Forgot password?",
+      "submit": "Sign in",
+      "submitting": "Signing in…",
+      "invalidCredentials": "Invalid email or password.",
+      "noAccount": "Don't have an account?",
+      "createOne": "Create one"
+    },
+    "register": {
+      "metaTitle": "Create account",
+      "title": "Create your account",
+      "subtitle": "Start managing your job search with AI.",
+      "passwordPlaceholder": "At least 8 characters",
+      "submit": "Create account",
+      "submitting": "Creating account…",
+      "alreadyRegistered": "Email already registered. Try signing in instead.",
+      "haveAccount": "Already have an account?",
+      "signIn": "Sign in",
+      "checkEmail": {
+        "title": "Check your email",
+        "description": "We sent a verification link to your inbox. Click it to activate your account.",
+        "alreadyVerified": "Already verified?",
+        "signIn": "Sign in"
+      }
+    },
+    "forgotPassword": {
+      "metaTitle": "Forgot password",
+      "title": "Forgot your password?",
+      "subtitle": "Enter your email and we'll send you a link to reset it.",
+      "submit": "Send reset link",
+      "submitting": "Sending…",
+      "backToLogin": "Back to sign in",
+      "successTitle": "Check your email",
+      "successDescription": "If an account exists for {email}, you'll receive a reset link shortly."
+    },
+    "resetPassword": {
+      "metaTitle": "Reset password",
+      "title": "Reset your password",
+      "subtitle": "Choose a new password for your account.",
+      "newPasswordLabel": "New password",
+      "confirmPasswordLabel": "Confirm password",
+      "passwordPlaceholder": "At least 8 characters",
+      "submit": "Reset password",
+      "submitting": "Resetting…",
+      "passwordsDoNotMatch": "Passwords don't match.",
+      "tokenInvalid": "This reset link is invalid or has expired.",
+      "invalidLinkTitle": "Invalid reset link",
+      "noTokenBody": "This reset link is missing or invalid. Request a new one.",
+      "requestResetLink": "Request a new reset link",
+      "showPassword": "Show password",
+      "hidePassword": "Hide password",
+      "backToLogin": "Back to sign in",
+      "successTitle": "Password reset",
+      "successDescription": "Your password has been updated. You can now sign in.",
+      "goToLogin": "Sign in"
+    },
+    "verifyEmail": {
+      "metaTitle": "Verify email",
+      "verifyingTitle": "Verifying your email…",
+      "verifyingDescription": "Hang tight, this only takes a moment.",
+      "successTitle": "Email verified",
+      "successDescription": "Your email has been verified. You can now sign in.",
+      "goToLogin": "Sign in",
+      "errorTitle": "Verification failed",
+      "errorDescription": "This verification link is invalid or has expired.",
+      "tryAgain": "Try again",
+      "noTokenTitle": "Verification link missing",
+      "noTokenDescription": "This page needs a verification token. Open the link from your email.",
+      "backToRegister": "Back to sign up",
+      "fallbackLoading": "Loading…"
+    },
+    "googleCallback": {
+      "loadingTitle": "Signing you in…",
+      "errorTitle": "Sign-in failed",
+      "errorDescription": "We couldn't sign you in with Google. Please try again.",
+      "backToLogin": "Back to sign in",
+      "noCode": "Sign-in with Google was canceled. Please try again.",
+      "fallbackLoading": "Loading…"
+    },
+    "validation": {
+      "invalidEmail": "Please enter a valid email address.",
+      "passwordRequired": "Password is required.",
+      "passwordMin": "Password must be at least 8 characters.",
+      "confirmPasswordRequired": "Please confirm your password.",
+      "tokenRequired": "Reset token is missing."
+    }
+  },
+  "Marketing": {
+    "metaTitle": "Light Role — AI-powered job search management",
+    "metaDescription": "Tailor every resume, generate every cover letter, and track every application — all in one place.",
+    "landing": {
+      "title": "Light Role",
+      "tagline": "AI-powered job search management platform",
+      "ctaPrimary": "Get Started",
+      "ctaSecondary": "Sign In"
+    }
+  },
+  "Pricing": {
+    "metaTitle": "Pricing — Light Role",
+    "metaDescription": "Simple, transparent pricing. Free to start, upgrade when you need more.",
+    "heading": "Simple, transparent pricing",
+    "subheading": "Start free. Upgrade when you need more. Cancel anytime.",
+    "mostPopular": "Most popular",
+    "billedAnnually": "Billed annually",
+    "priceFootnote": "Prices in your local currency where available. Taxes calculated at checkout.",
+    "loadingCta": "Loading…",
+    "copy": {
+      "free": "For trying out Light Role.",
+      "pro": "For active job seekers.",
+      "unlimited": "For power users who want it all."
+    },
+    "features": {
+      "jobsUnlimited": "Unlimited active jobs",
+      "jobsLimited": "Up to {count} active jobs",
+      "resumeTailoringsUnlimited": "Unlimited resume tailorings",
+      "resumeTailoringsLimited": "{count} resume tailorings / month",
+      "coverLettersUnlimited": "Unlimited cover letters",
+      "coverLettersLimited": "{count} cover letters / month",
+      "aiOperationsUnlimited": "Unlimited AI operations",
+      "aiOperationsLimited": "{count} AI operations / month",
+      "templates": "All resume templates",
+      "analytics": "Analytics dashboard",
+      "priorityAi": "Priority AI processing",
+      "exportPdf": "Export to PDF & DOCX",
+      "support": "Priority support"
+    },
+    "cta": {
+      "getStartedFree": "Get started — it's free",
+      "startWithPlan": "Start with {plan}",
+      "yourCurrentPlan": "Your current plan",
+      "downgrade": "Downgrade",
+      "upgradeTo": "Upgrade to {plan}"
+    }
+  },
+  "Sidebar": {
+    "main": {
+      "dashboard": "Dashboard",
+      "profile": "Profile",
+      "jobs": "Job Tracking",
+      "tailorResume": "Tailor Resume",
+      "generateCoverLetter": "Generate Cover Letter",
+      "analytics": "Analytics",
+      "documents": "Documents",
+      "resumes": "Resumes",
+      "coverLetters": "Cover Letters"
+    },
+    "user": {
+      "settings": "Settings",
+      "billing": "Billing",
+      "payments": "Payments",
+      "upgradePlan": "Upgrade plan",
+      "upgradeYourPlan": "Upgrade your plan",
+      "logout": "Log out",
+      "loggingOut": "Logging out…",
+      "fallbackName": "Account"
+    },
+    "planBadge": {
+      "free": "Free plan",
+      "pro": "Pro plan",
+      "unlimited": "Unlimited",
+      "upgrade": "Upgrade",
+      "shortFree": "Free",
+      "shortPro": "Pro",
+      "shortUnlimited": "Unlimited",
+      "freePlan": "Free plan",
+      "proPlan": "Pro plan",
+      "unlimitedPlan": "Unlimited plan",
+      "aria": "Current plan: {label}"
+    },
+    "dashboardHomeAria": "Light Role — Dashboard",
+    "documents": {
+      "title": "Documents",
+      "viewAll": "View all"
+    }
+  },
+  "DashboardShell": {
+    "breadcrumb": {
+      "dashboard": "Dashboard",
+      "resumes": "Resumes",
+      "tailorResume": "Tailor Resume",
+      "jobs": "Jobs",
+      "settings": "Settings",
+      "applications": "Applications",
+      "profile": "Profile",
+      "notifications": "Notifications",
+      "subscriptions": "My Subscription",
+      "editResume": "Edit Resume",
+      "jobDetails": "Job Details",
+      "details": "Details",
+      "ariaLabel": "Breadcrumb"
+    },
+    "themeSwitcher": {
+      "ariaLabel": "Toggle theme",
+      "light": "Light",
+      "dark": "Dark",
+      "system": "System"
+    },
+    "header": {
+      "openMenu": "Open menu",
+      "closeMenu": "Close menu"
+    }
+  },
+  "DashboardHome": {
+    "metaTitle": "Dashboard — Light Role",
+    "greeting": "Hello, {name}!",
+    "greetingFallback": "Welcome back!",
+    "summaryLine": "{activeCount, plural, =1 {1 active job} other {# active jobs}}, {appCount, plural, =1 {1 application} other {# applications}} this month",
+    "quickActions": {
+      "heading": "Quick Actions",
+      "createJob": {
+        "title": "Create a Job",
+        "description": "Track a new application by adding a job listing."
+      },
+      "tailorResume": {
+        "title": "Tailor Resume",
+        "description": "Optimize your resume for a specific job using AI."
+      },
+      "generateCoverLetter": {
+        "title": "Generate Cover Letter",
+        "description": "Create a personalized cover letter with AI assistance."
+      },
+      "getStarted": "Get started",
+      "lockedToast": "Add a job first before {action}.",
+      "lockedActions": {
+        "tailoring": "tailoring your resume",
+        "generating": "generating a cover letter"
+      },
+      "dismiss": "Dismiss"
+    },
+    "stats": {
+      "heading": "Your Stats",
+      "remainingThisCycle": "{resumes, plural, =1 {1 resume} other {# resumes}}, {coverLetters, plural, =1 {1 cover letter} other {# cover letters}} remaining this cycle",
+      "upgrade": "Upgrade"
+    },
+    "recentActivity": {
+      "heading": "Recent Activity",
+      "viewAll": "View all",
+      "emptyTitle": "No jobs yet",
+      "emptyDescription": "Start tracking your job search by adding your first listing.",
+      "addFirst": "Add your first job",
+      "addedJob": "Added {company} — {title}"
+    },
+    "completeSteps": {
+      "heading": "Complete your setup",
+      "subheading": "A few quick steps to make the most of Light Role.",
+      "dismiss": "Dismiss",
+      "progress": "{completed} of {total} complete",
+      "stepCreateJob": "Create your first job",
+      "stepTailorResume": "Tailor your resume",
+      "stepGenerateCl": "Generate a cover letter",
+      "stepCompleteProfile": "Complete your profile",
+      "uploadLabel": "Upload your resume",
+      "uploadCompletedHint": "Profile imported.",
+      "uploadPendingHint": "We'll auto-fill your profile.",
+      "createLabel": "Create your first job",
+      "createCompletedHint": "Job tracked.",
+      "createPendingHint": "Add a posting to get started.",
+      "tailorLabel": "Tailor a resume",
+      "tailorCompletedHint": "Resume tailored.",
+      "tailorPendingHint": "Optimize a resume for one of your jobs.",
+      "generateLabel": "Generate a cover letter",
+      "generateCompletedHint": "Cover letter generated.",
+      "generatePendingHint": "Draft a cover letter in 15 seconds.",
+      "dismissedToast": "Setup hidden. You can find it again in the help menu.",
+      "dismissErrorToast": "Couldn't hide setup. Please try again.",
+      "confirmDialog": {
+        "title": "Hide setup checklist?",
+        "description": "You can re-enable this later from settings.",
+        "keep": "Keep visible",
+        "hide": "Hide"
+      }
+    },
+    "statCards": {
+      "aiOperations": "AI Operations",
+      "activeJobs": "Active Jobs",
+      "applicationsThisMonth": "Applications This Month",
+      "resumeCredits": "Resume Credits",
+      "clCredits": "Cover Letter Credits",
+      "unlimited": "Unlimited",
+      "ofLimit": "of {limit}",
+      "resetsOn": "Resets {date}",
+      "daysUntilReset": "{count, plural, =0 {Resets today} =1 {Resets in 1 day} other {Resets in # days}}",
+      "daysSuffix": "days",
+      "todayLabel": "Today",
+      "activeJobsTooltip": "Active jobs in your tracker.",
+      "resumeCreditsTooltip": "Resume tailorings remaining this billing cycle.",
+      "clCreditsTooltip": "Cover letter generations remaining this billing cycle.",
+      "daysUntilResetTooltip": "Time until your monthly limits reset."
+    },
+    "relativeDate": {
+      "today": "Today",
+      "yesterday": "Yesterday",
+      "daysAgo": "{count, plural, =1 {1 day ago} other {# days ago}}",
+      "weeksAgo": "{count, plural, =1 {1 week ago} other {# weeks ago}}",
+      "monthsAgo": "{count, plural, =1 {1 month ago} other {# months ago}}"
+    }
+  },
+  "Resumes": {
+    "list": {
+      "metaTitle": "Resumes — Light Role",
+      "title": "Resumes",
+      "subtitle": "Your tailored resumes — one click to download or edit.",
+      "ctaTailor": "Tailor New Resume",
+      "searchPlaceholder": "Search by filename, job, or company…",
+      "sortLabel": "Sort resumes",
+      "sort": {
+        "newest": "Newest",
+        "oldest": "Oldest",
+        "recentlyUpdated": "Recently updated",
+        "highestScore": "Highest match",
+        "newestFirst": "Newest first",
+        "oldestFirst": "Oldest first",
+        "nameAsc": "Name A–Z",
+        "nameDesc": "Name Z–A"
+      },
+      "countOne": "1 resume",
+      "countOther": "{count} resumes",
+      "countNone": "No resumes.",
+      "noMatches": "No resumes match your filters.",
+      "clear": "Clear filters",
+      "empty": {
+        "title": "No tailored resumes yet.",
+        "description": "Tailor your first resume to a specific job in about 30 seconds.",
+        "cta": "Tailor your first resume"
+      },
+      "errorState": {
+        "title": "Couldn't load resumes",
+        "description": "We hit an error fetching your resumes. Try again, or refresh the page.",
+        "tryAgain": "Try again"
+      },
+      "card": {
+        "openAria": "Open resume: {name}",
+        "deleteAria": "Delete resume",
+        "matchScore": "{score}% match",
+        "noJob": "No job linked",
+        "lastUpdated": "Updated {date}",
+        "createdJustNow": "Created just now",
+        "createdMinutesAgo": "{count, plural, =1 {Created 1 minute ago} other {Created # minutes ago}}",
+        "createdHoursAgo": "{count, plural, =1 {Created 1 hour ago} other {Created # hours ago}}",
+        "createdDaysAgo": "{count, plural, =1 {Created 1 day ago} other {Created # days ago}}",
+        "createdAt": "Created {date}",
+        "tailoredFor": "Tailored for {title} at {company}",
+        "tailoredForCompanyOnly": "Tailored for a role at {company}",
+        "tailoredForTitleOnly": "Tailored for {title}",
+        "tailoredFromProfile": "Tailored from your profile"
+      },
+      "delete": {
+        "title": "Delete this resume?",
+        "body": "“{name}” will be permanently deleted. This cannot be undone.",
+        "bodyHasRating": " Your star rating will also be removed.",
+        "cancel": "Cancel",
+        "confirm": "Delete",
+        "successToast": "Resume deleted.",
+        "errorToast": "Failed to delete resume. Please try again."
+      },
+      "untitledJob": "Untitled job",
+      "filter": {
+        "jobButton": "Filter by job",
+        "noJobs": "No jobs to filter by yet.",
+        "clearSelection": "Clear selection"
+      }
+    },
+    "tailor": {
+      "metaTitle": "Tailor Resume",
+      "title": "Tailor Resume",
+      "subtitle": "AI optimizes your resume for a specific job in about 30 seconds.",
+      "backToList": "Back to Resumes",
+      "step1": "Job",
+      "step2": "Settings",
+      "jobLabel": "Job *",
+      "jobPlaceholder": "Select a job…",
+      "jobsError": "Couldn't load your jobs. Refresh the page or try again.",
+      "submit": "Tailor Resume",
+      "submitting": "Tailoring…",
+      "aiLimitTooltip": "You've reached your AI operation limit. Upgrade to continue.",
+      "selectJob": "Select a job",
+      "jobHelp": "Pick the job you want to tailor a resume for.",
+      "noJobs": {
+        "title": "No jobs yet",
+        "body": "Add a job before you can tailor a resume.",
+        "cta": "Add a job"
+      },
+      "missingProfile": {
+        "title": "Missing profile information",
+        "body": "A tailored resume needs at least one piece of experience to work from. Add at least one employment entry or one project to your profile.",
+        "completeCta": "Complete profile",
+        "cancel": "Cancel"
+      },
+      "loading": {
+        "phase1": "Analyzing the role",
+        "phase1Sub": "Pulling out the role's must-haves…",
+        "phase2": "Reviewing your background",
+        "phase2Sub": "Matching your experience to the role…",
+        "phase3": "Tailoring your resume",
+        "phase3Sub": "Reordering and rewriting bullet points…",
+        "tipHeading": "Did you know?",
+        "tips": [
+          "A tailored resume gets noticed 3x more than a generic one.",
+          "Light Role rewrites your bullets to mirror the job's keywords.",
+          "Even small role changes can dramatically improve your match score.",
+          "Keep your profile up to date for the best tailoring."
+        ],
+        "creditHint": "Hang tight — we're using one of your credits to tailor this.",
+        "failed": "Something went wrong.",
+        "retry": "Try again",
+        "progressAria": "Tailoring progress",
+        "phaseAria": "Phase {step} of {total}: {label}",
+        "phaseState": {
+          "active": "Active",
+          "completed": "Completed",
+          "failed": "Failed",
+          "pending": "Pending"
+        }
+      },
+      "toast": {
+        "success": "Resume tailored.",
+        "aiFail": "AI couldn't tailor right now — please try again. No credits charged.",
+        "networkFail": "Something went wrong. Please try again.",
+        "profileNotReady": "Your profile isn't complete enough to tailor a resume.",
+        "jobNotFound": "Job not found.",
+        "alreadyExists": "A tailored resume already exists for this job."
+      }
+    },
+    "editor": {
+      "metaTitle": "Edit Resume",
+      "backToList": "Back to Resumes",
+      "edit": "Edit",
+      "exitEdit": "Exit edit",
+      "preview": "Preview",
+      "download": "Download PDF",
+      "downloading": "Preparing PDF…",
+      "downloadError": "Couldn't generate the PDF. Please try again.",
+      "downloadSuccess": "Resume downloaded.",
+      "saveBeforeDownload": "Save your changes before downloading.",
+      "filenameLabel": "Filename",
+      "filenamePlaceholder": "Untitled resume",
+      "renameSuccessToast": "Filename updated.",
+      "renameErrorToast": "Couldn't update the filename. Please try again.",
+      "renameNotImplemented": "Rename isn't ready yet.",
+      "saveNameAria": "Save filename",
+      "cancelRenameAria": "Cancel rename",
+      "renameAria": "Rename file",
+      "fontLabel": "Font",
+      "saveButton": "Save",
+      "savedAt": "Saved {time}",
+      "unsavedChanges": "Unsaved changes",
+      "saving": "Saving…",
+      "toolbarAria": "Resume edit toolbar",
+      "invalidFieldsTooltip": "Fix the highlighted fields before saving.",
+      "noChangesTooltip": "No changes to save.",
+      "insightsAside": "Insights & match details",
+      "tailoredFromProfileSubtitle": "Tailored from your profile",
+      "notFoundTitle": "Resume not found",
+      "notFoundDescription": "We couldn't find this resume. It may have been deleted.",
+      "discardDialog": {
+        "title": "Discard changes?",
+        "body": "You have unsaved changes. Discard them?",
+        "cancel": "Cancel",
+        "stay": "Stay",
+        "discard": "Discard"
+      },
+      "reorderDialog": {
+        "title": "Reorder sections",
+        "body": "Drag sections to change the order they appear on the resume.",
+        "save": "Save order",
+        "cancel": "Cancel",
+        "dragHandleAria": "Drag to reorder section",
+        "entryCountFilledLabel": "{count, plural, =0 {empty} =1 {1 entry} other {# entries}}",
+        "entryCountOneEntry": "1 entry",
+        "entryCountOtherEntries": "{count} entries"
+      },
+      "appliedChanges": {
+        "title": "Applied changes",
+        "description": "What the AI changed when tailoring this resume.",
+        "empty": "No changes recorded for this resume.",
+        "categoryReorder": "Reordering",
+        "categoryRewrite": "Rewriting",
+        "categoryAddition": "Additions",
+        "categoryRemoval": "Removals"
+      },
+      "insightsPanel": {
+        "title": "Resume insights",
+        "shortTitle": "Insights",
+        "matchScore": "Match score",
+        "matchScoreDescription": "How well this resume matches the job description.",
+        "matchedKeywords": "Matched keywords",
+        "missingKeywords": "Missing keywords",
+        "noKeywords": "No keyword data available.",
+        "noKeywordsMatched": "No keywords matched yet.",
+        "noOccurrences": "No occurrences in the resume yet.",
+        "scrollToOccurrence": "Scroll to occurrence of “{keyword}”",
+        "readOnlyEditTooltip": "Switch to edit mode to use this."
+      },
+      "rating": {
+        "label": "Match score",
+        "starsAria": "{score} out of 5 stars",
+        "scoreOutOf": "{score}/100",
+        "cardTitle": "How was this tailoring?",
+        "cardDescription": "Your rating helps us improve.",
+        "dismissAria": "Dismiss rating card",
+        "thanksToast": "Thanks for your feedback!",
+        "submitError": "Couldn't submit your rating. Please try again.",
+        "commentLabel": "Comment (optional)",
+        "commentPlaceholder": "What worked well? What could be better?",
+        "submitting": "Submitting…",
+        "submit": "Submit",
+        "groupAria": "Rate this tailoring"
+      },
+      "preview": {
+        "loading": "Loading preview…",
+        "error": "Couldn't render preview.",
+        "retry": "Try again"
+      },
+      "section": {
+        "addEntry": "Add entry",
+        "removeEntry": "Remove entry",
+        "moveUp": "Move up",
+        "moveDown": "Move down",
+        "delete": "Delete",
+        "edit": "Edit",
+        "saveEntry": "Save",
+        "cancelEntry": "Cancel",
+        "emptyDefault": "No entries yet.",
+        "dragEntryAria": "Drag {label} to reorder",
+        "removeEntryAria": "Remove {label}",
+        "employmentEntryLabel": "Position",
+        "educationEntryLabel": "Education",
+        "projectEntryLabel": "Project",
+        "achievementEntryLabel": "Achievement",
+        "certificateEntryLabel": "Certificate",
+        "volunteerEntryLabel": "Volunteer role",
+        "bulletPlaceholder": "Add a bullet point about this role…",
+        "projectBulletPlaceholder": "Add a bullet point about this project…",
+        "describeProjectPlaceholder": "Describe the project briefly…",
+        "summaryPlaceholder": "A short paragraph that introduces you.",
+        "addSkillPlaceholder": "Add a skill",
+        "addLanguagePlaceholder": "Add a language",
+        "addTechnologyPlaceholder": "Add a technology",
+        "liveUrlPlaceholder": "https://…",
+        "repositoryPlaceholder": "https://github.com/…",
+        "credentialUrlPlaceholder": "https://…",
+        "expiresPrefix": "Expires",
+        "educationDetailsPlaceholder": "Honors, coursework, GPA…",
+        "emailExamplePlaceholder": "you@example.com",
+        "platformExamplePlaceholder": "LinkedIn, GitHub, Portfolio…",
+        "dragLink": "Drag link",
+        "removeLink": "Remove link",
+        "startShort": "Start",
+        "endShort": "End"
+      },
+      "fields": {
+        "monthPlaceholder": "MM/YYYY",
+        "addChip": "Add",
+        "removeChip": "Remove",
+        "richtextPlaceholder": "Start typing…",
+        "chipPlaceholder": "Type and press Enter",
+        "dragChipAria": "Drag {label}",
+        "removeChipAria": "Remove {label}",
+        "monthSelectPlaceholder": "Select date",
+        "pickMonthYearAria": "Pick month and year",
+        "yearLabel": "Year",
+        "monthLabel": "Month",
+        "doneButton": "Done",
+        "formatToolbarAria": "Formatting toolbar",
+        "formatBold": "Bold",
+        "formatItalic": "Italic",
+        "formatBulletList": "Bullet list",
+        "formatClear": "Clear formatting"
+      }
+    },
+    "sectionTitles": {
+      "personalInfo": "Personal Info",
+      "summary": "Summary",
+      "skills": "Skills",
+      "employment": "Experience",
+      "education": "Education",
+      "languages": "Languages",
+      "certificates": "Certificates",
+      "projects": "Projects",
+      "achievements": "Achievements",
+      "volunteer": "Volunteer"
+    }
+  },
+  "Jobs": {
+    "list": {
+      "metaTitle": "Jobs — Light Role",
+      "title": "Jobs",
+      "heading": "Job Tracking",
+      "addJob": "Add Job",
+      "searchPlaceholder": "Search by company…",
+      "clearSearchAria": "Clear search",
+      "clearFilters": "Clear filters",
+      "clearSelection": "Clear selection",
+      "statusFilterLabel": "Status",
+      "resultCount": "{count, plural, =1 {# job} other {# jobs}}",
+      "dismiss": "Dismiss",
+      "dropJobsHere": "Drop jobs here",
+      "dropHere": "Drop here",
+      "openJobMenuAria": "Open job menu",
+      "expandSectionAria": "Expand {label} section",
+      "collapseSectionAria": "Collapse {label} section",
+      "kanbanViewAria": "Kanban view",
+      "tableViewAria": "Table view",
+      "hideEmpty": "Hide empty",
+      "showEmpty": "Show empty",
+      "hideEmptySectionsAria": "Hide empty sections",
+      "showEmptySectionsAria": "Show empty sections",
+      "statusUpdateFailed": "Failed to update job status. Please try again.",
+      "emptyFiltered": "No jobs match your filters.",
+      "emptyTableRow": "No jobs yet. Add your first job to get started.",
+      "empty": {
+        "title": "No jobs yet",
+        "description": "Track your first job — paste a posting and we'll handle the parsing.",
+        "cta": "Add your first job"
+      },
+      "columns": {
+        "title": "Title",
+        "company": "Company",
+        "location": "Location",
+        "salary": "Salary",
+        "status": "Status",
+        "dateSaved": "Date saved",
+        "dateApplied": "Date applied",
+        "deadline": "Deadline",
+        "followUp": "Follow-up",
+        "excitement": "Excitement",
+        "actions": "Actions"
+      },
+      "dnd": {
+        "pickedUp": "Picked up job {id}.",
+        "overTarget": "Job {id} is over droppable area {overId}.",
+        "leftDroppable": "Job {id} is no longer over a droppable area.",
+        "droppedOver": "Job {id} was dropped over droppable area {overId}.",
+        "dropped": "Job {id} was dropped.",
+        "cancelled": "Drag for job {id} was cancelled."
+      }
+    },
+    "new": {
+      "metaTitle": "New job",
+      "title": "Add a job",
+      "subtitle": "Paste a job posting and we'll parse the key details for you.",
+      "backToJobs": "Back to Jobs",
+      "pasteLabel": "Paste job description",
+      "pastePlaceholder": "Paste the full job description here…",
+      "parseButton": "Parse with AI",
+      "parsing": "Parsing…",
+      "manualButton": "Enter manually",
+      "titleLabel": "Title",
+      "titlePlaceholder": "Senior Software Engineer",
+      "companyLabel": "Company",
+      "companyPlaceholder": "Acme Inc.",
+      "locationLabel": "Location",
+      "locationPlaceholder": "Remote · Berlin · Hybrid",
+      "urlLabel": "Job URL",
+      "descriptionLabel": "Description",
+      "descriptionPlaceholder": "Paste or write the full job description…",
+      "salaryLabel": "Salary range",
+      "salaryPlaceholder": "$120k–$150k",
+      "requirementsLabel": "Requirements",
+      "requirementsHint": "One per line. Used by AI when tailoring resumes.",
+      "requirementsPlaceholder": "5+ years of Python\nExperience with distributed systems",
+      "saveButton": "Save Job",
+      "saving": "Saving…",
+      "successToast": "Job created.",
+      "errorToast": "Couldn't create the job. Please try again.",
+      "parseErrorToast": "AI couldn't parse this job — please fill in the fields manually.",
+      "aiLimitTooltip": "You've reached your AI operation limit. Upgrade to continue.",
+      "modeAi": "Use AI",
+      "modeManual": "Manual entry",
+      "reviewHint": "Review the parsed details before saving.",
+      "startOver": "Start over",
+      "confirmAndSave": "Confirm and save",
+      "invalidFieldsError": "Please fill in the required fields.",
+      "parsingMessages": [
+        "Reading the posting…",
+        "Extracting the role and company…",
+        "Pulling out requirements…",
+        "Almost there…"
+      ]
+    },
+    "details": {
+      "metaTitle": "Job details",
+      "backToJobs": "Back to Jobs",
+      "notFound": "Job not found",
+      "notFoundDescription": "We couldn't find this job. It may have been deleted.",
+      "loadError": "Couldn't load this job. Please try again.",
+      "titlePlaceholder": "Untitled role",
+      "tabs": {
+        "overview": "Overview",
+        "application": "Application",
+        "documents": "Documents"
+      },
+      "overview": {
+        "jobDetails": "Job details",
+        "company": "Company",
+        "location": "Location",
+        "locationPlaceholder": "Add a location",
+        "url": "Job URL",
+        "salary": "Salary",
+        "salaryPlaceholder": "Add a salary range",
+        "description": "Description",
+        "descriptionPlaceholder": "Add a description",
+        "requirements": "Requirements",
+        "createdAt": "Added {date}"
+      },
+      "application": {
+        "heading": "Application",
+        "status": "Status",
+        "dateApplied": "Date applied",
+        "followUpDate": "Follow-up",
+        "deadline": "Deadline",
+        "excitement": "Excitement",
+        "notes": "Notes",
+        "notesPlaceholder": "Anything you'd like to remember about this role…",
+        "saveButton": "Save",
+        "saving": "Saving…",
+        "savedToast": "Application updated.",
+        "saveError": "Couldn't update the application. Please try again."
+      },
+      "documents": {
+        "resumeTitle": "Tailored resume",
+        "resumeShort": "Resume",
+        "coverLetterTitle": "Cover letter",
+        "coverLetterShort": "Cover letter",
+        "noResume": "No tailored resume yet.",
+        "tailorCta": "Tailor resume",
+        "noCoverLetter": "No cover letter yet.",
+        "generateCta": "Generate cover letter"
+      },
+      "delete": {
+        "title": "Delete this job?",
+        "body": "“{title}” will be permanently deleted along with its application data. Linked resumes and cover letters stay in your library.",
+        "cancel": "Cancel",
+        "confirm": "Delete",
+        "successToast": "Job deleted.",
+        "errorToast": "Couldn't delete job. Please try again."
+      }
+    },
+    "contextMenu": {
+      "view": "View job",
+      "edit": "Edit",
+      "tailorResume": "Tailor resume",
+      "generateCoverLetter": "Generate cover letter",
+      "viewResume": "View tailored resume",
+      "viewCoverLetter": "View cover letter",
+      "delete": "Delete"
+    },
+    "status": {
+      "saved": "Saved",
+      "applied": "Applied",
+      "screening": "Screening",
+      "interview": "Interview",
+      "offer": "Offer",
+      "rejected": "Rejected",
+      "accepted": "Accepted",
+      "withdrawn": "Withdrawn"
+    }
+  },
+  "CoverLetters": {
+    "details": {
+      "metaTitle": "Cover letter",
+      "backToList": "Back to Cover Letters",
+      "edit": "Edit",
+      "save": "Save",
+      "saving": "Saving…",
+      "savedToast": "Cover letter saved.",
+      "saveError": "Couldn't save your changes. Please try again.",
+      "downloadPdf": "Download PDF",
+      "downloadDocx": "Download DOCX",
+      "downloadError": "Couldn't generate the file. Please try again.",
+      "regenerate": "Regenerate",
+      "regenerateConfirmTitle": "Regenerate this cover letter?",
+      "regenerateConfirmBody": "This will replace the current text. One AI credit will be used.",
+      "regenerateCancel": "Cancel",
+      "regenerateConfirm": "Regenerate",
+      "linkedJob": "Linked job",
+      "noLinkedJob": "Standalone cover letter",
+      "viewJob": "View job",
+      "untitled": "Untitled cover letter",
+      "nameLabel": "Name",
+      "namePlaceholder": "Cover letter for…",
+      "contentLabel": "Content",
+      "contentPlaceholder": "Write or paste your cover letter…",
+      "contentPreviewPlaceholder": "Your cover letter will appear here.",
+      "settingsAriaLabel": "Cover letter settings",
+      "styleLabel": "Style",
+      "toneLabel": "Tone",
+      "lengthLabel": "Length",
+      "previewTab": "Preview",
+      "previewLabel": "Preview",
+      "livePreviewLabel": "Live preview",
+      "autosaveHint": "Saves automatically.",
+      "notFoundTitle": "Cover letter not found",
+      "notFoundBody": "We couldn't find this cover letter. It may have been deleted.",
+      "loadErrorTitle": "Couldn't load this cover letter",
+      "loadErrorBody": "Try again, or refresh the page."
+    },
+    "generatePage": {
+      "metaTitle": "Generate Cover Letter"
+    }
+  },
+  "Subscriptions": {
+    "page": {
+      "metaTitle": "My subscription",
+      "title": "My subscription",
+      "subtitle": "Manage your plan, billing, and payment method.",
+      "backToDashboard": "Back to dashboard"
+    },
+    "header": {
+      "currentPlan": "Current plan",
+      "free": "Free",
+      "pro": "Pro",
+      "monthly": "Monthly",
+      "annual": "Annual",
+      "upgrade": "Upgrade",
+      "manage": "Manage subscription",
+      "cancel": "Cancel subscription",
+      "renew": "Renew subscription",
+      "resume": "Resume subscription",
+      "startedOn": "Started {date}",
+      "planSuffix": "{name} Plan",
+      "planImageAlt": "{name} plan",
+      "changePlan": "Change plan",
+      "cancelScheduledToast": "Cancellation scheduled.",
+      "cancelConfirmTitle": "Cancel your subscription?",
+      "cancelConfirmBody": "Your Pro access continues until the end of the current billing period. After that, you'll be moved to the Free plan."
+    },
+    "details": {
+      "status": "Status",
+      "active": "Active",
+      "trialing": "Trialing",
+      "pastDue": "Past due",
+      "canceled": "Canceled",
+      "paused": "Paused",
+      "nextBilling": "Next billing date",
+      "renewsOn": "Renews on {date}",
+      "endsOn": "Ends on {date}",
+      "currentPeriod": "Current period",
+      "billingCycle": "Billing cycle"
+    },
+    "alerts": {
+      "pastDueTitle": "Your last payment failed",
+      "pastDueBody": "Update your payment method to keep your Pro access.",
+      "canceledTitle": "Subscription canceled",
+      "canceledBody": "Your Pro access ends on {date}. Renew to keep your benefits.",
+      "canceledOnAt": "Canceled on {date}",
+      "pausedTitle": "Subscription paused",
+      "pausedBody": "Resume your subscription to regain Pro features."
+    },
+    "paymentMethod": {
+      "title": "Payment method",
+      "cardEndsIn": "Card ending in {last4}",
+      "expires": "Expires {month}/{year}",
+      "update": "Update",
+      "noMethod": "No payment method on file."
+    },
+    "lineItems": {
+      "title": "Plan details",
+      "billed": "Billed",
+      "amount": "Amount",
+      "tax": "Tax",
+      "total": "Total",
+      "totalIncTax": "Total (incl. tax)",
+      "freePlanDetails": "Free plan",
+      "freePlanLabel": "Free",
+      "freePlanTagline": "Forever free",
+      "noRecurringCharges": "No recurring charges.",
+      "recurringProductsTitle": "Recurring items",
+      "qty": "Qty {count}",
+      "excludingTaxNote": "Prices shown excluding tax."
+    },
+    "nextPayment": {
+      "title": "Next payment",
+      "amount": "Amount",
+      "date": "Date",
+      "noPending": "No upcoming payment scheduled.",
+      "dueLabel": "Due {date}"
+    },
+    "pastPayments": {
+      "title": "Past payments",
+      "cardTitle": "Payments",
+      "empty": "No payments yet.",
+      "viewInvoice": "View invoice",
+      "downloadInvoice": "Download invoice",
+      "amount": "Amount",
+      "date": "Date",
+      "status": "Status",
+      "noPaymentsTitle": "No payments yet",
+      "noPaymentsBody": "Your invoices will appear here once you upgrade.",
+      "noHistoryBody": "No payment history available."
+    },
+    "errorBoundary": {
+      "title": "Couldn't load your subscription",
+      "description": "We hit an error fetching your subscription. Try again, or refresh the page.",
+      "tryAgain": "Try again"
+    }
+  },
+  "Checkout": {
+    "metaTitle": "Checkout",
+    "title": "Checkout",
+    "subtitle": "Complete your subscription.",
+    "backToUpgrade": "Back to upgrade",
+    "backToDashboard": "Back to Dashboard",
+    "orderSummary": "Order summary",
+    "paymentDetails": "Payment details",
+    "thenRecurring": "Then {price} {cycle}",
+    "loading": "Preparing checkout…",
+    "error": {
+      "title": "Couldn't load checkout",
+      "description": "We hit an error preparing your checkout. Please try again.",
+      "tryAgain": "Try again",
+      "back": "Back to plans"
+    },
+    "billingToggle": {
+      "monthly": "Monthly",
+      "annual": "Annual",
+      "save": "Save {percent}%"
+    },
+    "lineItems": {
+      "subtotal": "Subtotal",
+      "tax": "Tax",
+      "discount": "Discount",
+      "total": "Total",
+      "dueToday": "Due today",
+      "includingTax": "Including tax"
+    },
+    "priceSection": {
+      "billedAs": "Billed {cycle}",
+      "perMonth": "per month",
+      "perYear": "per year",
+      "monthlyEquivalent": "≈ {price} / month"
+    },
+    "success": {
+      "title": "Welcome to Pro!",
+      "description": "Your subscription is active. Let's put it to work.",
+      "goToDashboard": "Go to dashboard",
+      "manageSubscription": "Manage subscription",
+      "processing": "Confirming your payment…",
+      "timeoutTitle": "Still confirming…",
+      "timeoutDescription": "It's taking longer than expected. Your payment is being processed — refresh in a moment.",
+      "transactionId": "Transaction ID",
+      "planLabel": "Plan",
+      "nextBilling": "Next billing date",
+      "confirmationEmailHint": "A confirmation email is on its way."
+    },
+    "failure": {
+      "title": "Payment failed",
+      "description": "We couldn't process your payment. No charge was made.",
+      "tryAgain": "Try again",
+      "backToPlans": "Back to plans",
+      "commonReasonsHeading": "Common reasons",
+      "commonReasons": [
+        "The card was declined by your bank.",
+        "Insufficient funds on the card.",
+        "Wrong card details or expired card.",
+        "Network error during payment."
+      ],
+      "contactSupport": "If this keeps happening, contact support@lightrole.com."
+    }
+  },
+  "Payments": {
+    "metaTitle": "Payments — Light Role",
+    "title": "Payments",
+    "subtitle": "Your billing history and invoices.",
+    "table": {
+      "date": "Date",
+      "description": "Description",
+      "amount": "Amount",
+      "status": "Status",
+      "invoice": "Invoice",
+      "actions": "Actions"
+    },
+    "status": {
+      "paid": "Paid",
+      "pending": "Pending",
+      "failed": "Failed",
+      "refunded": "Refunded"
+    },
+    "actions": {
+      "download": "Download",
+      "view": "View"
+    },
+    "empty": {
+      "title": "No payments yet",
+      "description": "Once you upgrade, your invoices will show up here."
+    },
+    "filter": {
+      "search": "Search payments…",
+      "all": "All statuses",
+      "noResults": "No payments match your filters."
+    }
+  },
   "upgrade": {
     "hero": {
       "eyebrow": "Upgrade to Pro",
@@ -37,6 +1211,15 @@
         "savingsBadge": "Save {percent}%",
         "monthlyEquivalent": " {price} / month"
       },
+      "unlimited": {
+        "title": "Unlimited",
+        "description": "Power users — everything, without limits.",
+        "billedAs": "Billed monthly",
+        "cta": "Get Started"
+      },
+      "downgradeToFree": "Downgrade to Free",
+      "downgradeTo": "Downgrade to {title}",
+      "upgradeTo": "Upgrade to {title}",
       "features": {
         "title": "Everything in Pro:",
         "list": [
@@ -51,6 +1234,18 @@
           "Cancel anytime — no questions asked"
         ]
       }
+    },
+    "features": {
+      "unlimitedJobs": "Unlimited active jobs",
+      "jobsLimited": "Up to {count} active jobs",
+      "unlimitedResumes": "Unlimited tailored resumes",
+      "resumesLimited": "{count} tailored resumes / month",
+      "unlimitedCoverLetters": "Unlimited cover letters",
+      "coverLettersLimited": "{count} cover letters / month",
+      "templates": "All resume templates",
+      "analytics": "Analytics dashboard",
+      "priorityAi": "Priority AI processing",
+      "support": "Priority support"
     },
     "comparison": {
       "title": "Free vs Pro at a glance",
@@ -152,7 +1347,12 @@
     },
     "account": {
       "heading": "Account",
-      "description": "Update your personal information and email address."
+      "description": "Update your personal information and email address.",
+      "placeholders": {
+        "firstName": "Jane",
+        "lastName": "Smith",
+        "email": "you@example.com"
+      }
     },
     "security": {
       "heading": "Security",
@@ -370,7 +1570,8 @@
       "details": "Details",
       "detailsPlaceholder": "Built X using Y...\nShipped to Z users...",
       "detailsHint": "One bullet per line.",
-      "empty": "No projects yet. Click \"Add Project\" to get started."
+      "empty": "No projects yet. Click \"Add Project\" to get started.",
+      "present": "Present"
     },
     "achievements": {
       "heading": "Achievements",
@@ -509,7 +1710,8 @@
       "indicator": {
         "step1": "Select Job & Source",
         "step2": "Settings",
-        "step3": "Review"
+        "step3": "Review",
+        "progressAria": "Wizard progress"
       },
       "step1": {
         "title": "Select Job & Source",
@@ -633,7 +1835,8 @@
         "networkFailToast": "Something went wrong. Please try again.",
         "profileNotReadyToast": "Your profile isn't complete enough to draft a cover letter.",
         "jobNotFoundToast": "Job not found.",
-        "alreadyExistsToast": "A cover letter already exists for this job."
+        "alreadyExistsToast": "A cover letter already exists for this job.",
+        "progressAria": "Cover letter generation progress"
       },
       "step3": {
         "title": "Review Variants",
@@ -662,6 +1865,8 @@
       "breadcrumbCurrent": "Cover Letters",
       "ctaGenerate": "Generate New Cover Letter",
       "searchPlaceholder": "Search by name, company, or job…",
+      "searchAriaLabel": "Search cover letters",
+      "clearSearchAria": "Clear search",
       "sortLabel": "Sort cover letters",
       "sort": {
         "newest": "Newest",

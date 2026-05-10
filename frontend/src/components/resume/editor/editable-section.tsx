@@ -16,6 +16,7 @@
  */
 import * as React from "react";
 import { Plus } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -39,17 +40,19 @@ export function EditableSection({
   addLabel,
   onAdd,
   isEmpty = false,
-  emptyMessage = "No entries yet — click + to add.",
+  emptyMessage,
   className,
   children,
 }: EditableSectionProps) {
+  const tEditor = useTranslations("Resumes.editor.section");
+  const resolvedEmptyMessage = emptyMessage ?? tEditor("emptyDefault");
   return (
     <section className={cn("resume-section group/section", className)}>
       <h2 className="resume-section-header">{title}</h2>
       <div className="resume-section-body">
         {isEmpty ? (
           <div className="rounded-md border border-dashed py-6 text-center text-xs text-muted-foreground">
-            {emptyMessage}
+            {resolvedEmptyMessage}
           </div>
         ) : (
           children

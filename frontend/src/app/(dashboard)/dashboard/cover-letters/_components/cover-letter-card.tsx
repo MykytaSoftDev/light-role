@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Mail, Trash2, Sparkles, User } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import type { CoverLetterListItem, CLStyle, CLTone, CLLength } from "@/types/cover-letter";
@@ -80,14 +81,16 @@ function formatRelativeOrAbsolute(iso: string): string {
  * the first 100 are fetched for the lookup). In that case we fall back to a
  * generic "linked job" label rather than render an empty subtitle.
  */
-function buildSubtitle(
-  jobId: string | null,
-  job: { title: string; company: string | null } | undefined
-): string {
-  if (!jobId) return "Standalone cover letter";
-  if (!job) return "Linked to a job";
-  if (job.company && job.title) return `${job.company} — ${job.title}`;
-  return job.title || job.company || "Linked to a job";
+function makeBuildSubtitle(t: (key: string) => string) {
+  return (
+    jobId: string | null,
+    job: { title: string; company: string | null } | undefined
+  ): string => {
+    if (!jobId) return t("subtitleStandalone");
+    if (!job) return t("subtitleLinkedFallback");
+    if (job.company && job.title) return `${job.company} — ${job.title}`;
+    return job.title || job.company || t("subtitleLinkedFallback");
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -114,16 +117,18 @@ export function CoverLetterCard({
   onDelete,
 }: CoverLetterCardProps) {
   const router = useRouter();
+  const tCard = useTranslations("coverLetters.list.card");
   const [confirmDelete, setConfirmDelete] = useState(false);
 
+  const buildSubtitle = makeBuildSubtitle(tCard);
   const job = coverLetter.job_id ? jobLookup.get(coverLetter.job_id) : undefined;
   const subtitle = buildSubtitle(coverLetter.job_id, job);
 
   // Source-type indicator (PRD §3.6: "From Tailored Resume" / "From Profile").
   const sourceLabel =
     coverLetter.source_type === "tailored_resume"
-      ? "From Tailored Resume"
-      : "From Profile";
+      ? tCard("sourceFromTailoredResume")
+      : tCard("sourceFromProfile");
   const SourceIcon = coverLetter.source_type === "tailored_resume" ? Sparkles : User;
 
   return (
@@ -136,7 +141,7 @@ export function CoverLetterCard({
           "transition-shadow hover:shadow-sm hover:border-border/60",
           "focus:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
         )}
-        aria-label={`Open cover letter: ${coverLetter.name}`}
+        aria-label={tCard("openAria", { name: coverLetter.name })}
       >
         {/* Top: icon + name + trash */}
         <div className="flex items-start gap-3">
@@ -160,7 +165,7 @@ export function CoverLetterCard({
           <span
             role="button"
             tabIndex={0}
-            aria-label="Delete cover letter"
+            aria-label={tCard("deleteAria")}
             onClick={(e) => {
               e.stopPropagation();
               setConfirmDelete(true);

@@ -8,6 +8,7 @@
  * Identical to Employment with field renames: `company` → `organization`.
  */
 import * as React from "react";
+import { useTranslations } from "next-intl";
 import {
   DndContext,
   KeyboardSensor,
@@ -54,6 +55,8 @@ export function VolunteerEditor({
   onFocusApplied,
   keywords,
 }: VolunteerEditorProps) {
+  const tSection = useTranslations("Resumes.sectionTitles");
+  const tProfile = useTranslations("profile.volunteer");
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
     useSensor(KeyboardSensor, {
@@ -97,11 +100,11 @@ export function VolunteerEditor({
 
   return (
     <EditableSection
-      title="Volunteer"
-      addLabel="Add volunteer experience"
+      title={tSection("volunteer")}
+      addLabel={tProfile("addButton")}
       onAdd={handleAdd}
       isEmpty={value.length === 0}
-      emptyMessage="No volunteer experience yet — click + to add."
+      emptyMessage={tProfile("empty")}
     >
       <DndContext
         sensors={sensors}
@@ -143,6 +146,8 @@ const VolunteerEntryEditor = React.memo(function VolunteerEntryEditor({
   onRemove,
   keywords,
 }: VolunteerEntryEditorProps) {
+  const tProfile = useTranslations("profile.volunteer");
+  const tEditor = useTranslations("Resumes.editor.section");
   const roleRef = React.useRef<HTMLInputElement>(null);
   React.useEffect(() => {
     if (autoFocus) {
@@ -160,7 +165,7 @@ const VolunteerEntryEditor = React.memo(function VolunteerEntryEditor({
   return (
     <EditableEntry
       id={entry.id ?? "__missing"}
-      label="Volunteer entry"
+      label={tEditor("volunteerEntryLabel")}
       onRemove={onRemove}
     >
       <div className="resume-entry-row flex items-baseline justify-between gap-4">
@@ -170,8 +175,8 @@ const VolunteerEntryEditor = React.memo(function VolunteerEntryEditor({
               ref={roleRef}
               value={entry.role}
               onChange={(role) => onChange({ role })}
-              placeholder="Role"
-              aria-label="Role"
+              placeholder={tProfile("role")}
+              aria-label={tProfile("role")}
             />
           </span>
         </div>
@@ -180,19 +185,19 @@ const VolunteerEntryEditor = React.memo(function VolunteerEntryEditor({
             <MonthInput
               value={entry.start_date || null}
               onChange={(d) => onChange({ start_date: d ?? "" })}
-              placeholder="Start"
-              ariaLabel="Start date"
+              placeholder={tEditor("startShort")}
+              ariaLabel={tProfile("startDate")}
             />
             <span className="text-muted-foreground/70">–</span>
             {entry.is_current ? (
-              <span className="px-1 text-sm">Present</span>
+              <span className="px-1 text-sm">{tProfile("present")}</span>
             ) : (
               <MonthInput
                 value={entry.end_date ?? null}
                 onChange={(d) => onChange({ end_date: d })}
-                placeholder="End"
+                placeholder={tEditor("endShort")}
                 clearable
-                ariaLabel="End date"
+                ariaLabel={tProfile("endDate")}
               />
             )}
           </span>
@@ -208,17 +213,17 @@ const VolunteerEntryEditor = React.memo(function VolunteerEntryEditor({
               end_date: checked ? null : entry.end_date,
             })
           }
-          aria-label="I currently volunteer here"
+          aria-label={tProfile("isCurrent")}
         />
-        <span>I currently volunteer here</span>
+        <span>{tProfile("isCurrent")}</span>
       </label>
 
       <p className="resume-entry-subtitle flex flex-wrap items-baseline gap-x-2 gap-y-0">
         <InlineTextField
           value={entry.organization}
           onChange={(organization) => onChange({ organization })}
-          placeholder="Organization"
-          aria-label="Organization"
+          placeholder={tProfile("organization")}
+          aria-label={tProfile("organization")}
           inputClassName="font-medium"
         />
         <span aria-hidden className="text-muted-foreground/60">
@@ -227,8 +232,8 @@ const VolunteerEntryEditor = React.memo(function VolunteerEntryEditor({
         <InlineTextField
           value={entry.location ?? ""}
           onChange={(location) => onChange({ location: location || null })}
-          placeholder="Location"
-          aria-label="Location"
+          placeholder={tProfile("location")}
+          aria-label={tProfile("location")}
         />
       </p>
 
@@ -237,8 +242,8 @@ const VolunteerEntryEditor = React.memo(function VolunteerEntryEditor({
           value={initialBullets}
           onChange={(html) => onChange({ details: htmlToBulletList(html) })}
           enableBulletList
-          placeholder="• Add a bullet describing what you did"
-          ariaLabel="Bullets"
+          placeholder={tEditor("bulletPlaceholder")}
+          ariaLabel={tProfile("details")}
           keywords={keywords}
         />
       </div>

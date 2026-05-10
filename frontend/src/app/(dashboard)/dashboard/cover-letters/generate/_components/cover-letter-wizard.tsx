@@ -123,7 +123,7 @@ function StepIndicator({ current }: { current: 1 | 2 | 3 }) {
   const t = useTranslations("coverLetters.wizard.indicator");
   const labels = [t("step1"), t("step2"), t("step3")];
   return (
-    <div className="flex items-center justify-center" aria-label="Wizard progress">
+    <div className="flex items-center justify-center" aria-label={t("progressAria")}>
       {[1, 2, 3].map((stepNum, i) => {
         const completed = stepNum < current;
         const active = stepNum === current;

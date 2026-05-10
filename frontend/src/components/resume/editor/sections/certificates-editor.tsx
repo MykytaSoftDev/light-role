@@ -11,6 +11,7 @@
  *   Row 3: credential_url (full row)
  */
 import * as React from "react";
+import { useTranslations } from "next-intl";
 import {
   DndContext,
   KeyboardSensor,
@@ -47,6 +48,8 @@ export function CertificatesEditor({
   focusEntryId,
   onFocusApplied,
 }: CertificatesEditorProps) {
+  const tSection = useTranslations("Resumes.sectionTitles");
+  const tProfile = useTranslations("profile.certificates");
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
     useSensor(KeyboardSensor, {
@@ -88,11 +91,11 @@ export function CertificatesEditor({
 
   return (
     <EditableSection
-      title="Certificates"
-      addLabel="Add certificate"
+      title={tSection("certificates")}
+      addLabel={tProfile("addButton")}
       onAdd={handleAdd}
       isEmpty={value.length === 0}
-      emptyMessage="No certificates yet — click + to add."
+      emptyMessage={tProfile("empty")}
     >
       <DndContext
         sensors={sensors}
@@ -131,6 +134,8 @@ const CertificateEntryEditor = React.memo(function CertificateEntryEditor({
   onChange,
   onRemove,
 }: CertificateEntryEditorProps) {
+  const tProfile = useTranslations("profile.certificates");
+  const tEditor = useTranslations("Resumes.editor.section");
   const nameRef = React.useRef<HTMLInputElement>(null);
   React.useEffect(() => {
     if (autoFocus) {
@@ -142,7 +147,7 @@ const CertificateEntryEditor = React.memo(function CertificateEntryEditor({
   return (
     <EditableEntry
       id={entry.id ?? "__missing"}
-      label="Certificate entry"
+      label={tEditor("certificateEntryLabel")}
       onRemove={onRemove}
     >
       <div className="resume-entry-row flex items-baseline justify-between gap-4">
@@ -152,8 +157,8 @@ const CertificateEntryEditor = React.memo(function CertificateEntryEditor({
               ref={nameRef}
               value={entry.name}
               onChange={(name) => onChange({ name })}
-              placeholder="Certificate name"
-              aria-label="Certificate name"
+              placeholder={tProfile("name")}
+              aria-label={tProfile("name")}
             />
           </span>
         </div>
@@ -162,9 +167,9 @@ const CertificateEntryEditor = React.memo(function CertificateEntryEditor({
             <MonthInput
               value={entry.issue_date ?? null}
               onChange={(d) => onChange({ issue_date: d })}
-              placeholder="Issued"
+              placeholder={tProfile("issuedLabel")}
               clearable
-              ariaLabel="Issue date"
+              ariaLabel={tProfile("issueDate")}
             />
           </span>
         </div>
@@ -174,18 +179,18 @@ const CertificateEntryEditor = React.memo(function CertificateEntryEditor({
         <InlineTextField
           value={entry.issuer ?? ""}
           onChange={(v) => onChange({ issuer: v || null })}
-          placeholder="Issuer"
-          aria-label="Issuer"
+          placeholder={tProfile("issuer")}
+          aria-label={tProfile("issuer")}
           inputClassName="font-medium"
         />
         <span className="resume-entry-meta inline-flex items-center gap-1 text-xs text-muted-foreground">
-          <span>Expires:</span>
+          <span>{tEditor("expiresPrefix")}</span>
           <MonthInput
             value={entry.expiry_date ?? null}
             onChange={(d) => onChange({ expiry_date: d })}
             placeholder="—"
             clearable
-            ariaLabel="Expiry date"
+            ariaLabel={tProfile("expiryDate")}
           />
         </span>
       </p>
@@ -194,8 +199,8 @@ const CertificateEntryEditor = React.memo(function CertificateEntryEditor({
         <InlineTextField
           value={entry.credential_url ?? ""}
           onChange={(v) => onChange({ credential_url: v || null })}
-          placeholder="https://… (credential URL)"
-          aria-label="Credential URL"
+          placeholder={tEditor("credentialUrlPlaceholder")}
+          aria-label={tProfile("credentialUrl")}
         />
       </p>
     </EditableEntry>

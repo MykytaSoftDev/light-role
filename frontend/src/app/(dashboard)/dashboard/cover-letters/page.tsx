@@ -23,6 +23,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AlertCircle, Plus } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Breadcrumb } from "@/components/ui/breadcrumb";
@@ -114,6 +115,8 @@ function CoverLettersListInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const queryClient = useQueryClient();
+  const t = useTranslations("coverLetters.list");
+  const tDashboardCrumb = useTranslations("DashboardShell.breadcrumb");
 
   // ------- URL-derived state -------
   const search = searchParams?.get("q") ?? "";
@@ -226,10 +229,10 @@ function CoverLettersListInner() {
           ctx.snapshot
         );
       }
-      toast.error("Failed to delete cover letter. Please try again.");
+      toast.error(t("delete.errorToast"));
     },
     onSuccess: () => {
-      toast.success("Cover letter deleted.");
+      toast.success(t("delete.successToast"));
     },
     onSettled: () => {
       // Reconcile with server. Also invalidates job-detail caches that
@@ -262,23 +265,23 @@ function CoverLettersListInner() {
       {/* Breadcrumb */}
       <Breadcrumb
         items={[
-          { label: "Dashboard", href: "/dashboard" },
-          { label: "Cover Letters" },
+          { label: tDashboardCrumb("dashboard"), href: "/dashboard" },
+          { label: t("breadcrumbCurrent") },
         ]}
       />
 
       {/* Header */}
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Cover Letters</h1>
+          <h1 className="text-2xl font-bold tracking-tight">{t("title")}</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            AI-generated cover letters tailored to your jobs.
+            {t("subtitle")}
           </p>
         </div>
         <Button asChild className="gap-1.5">
           <Link href="/dashboard/cover-letters/generate">
             <Plus className="h-4 w-4" />
-            Generate New Cover Letter
+            {t("ctaGenerate")}
           </Link>
         </Button>
       </div>
@@ -304,9 +307,9 @@ function CoverLettersListInner() {
         <div className="flex flex-1 items-center justify-center rounded-xl border border-border bg-muted/30 py-16">
           <EmptyState
             icon={<AlertCircle className="h-8 w-8 text-destructive" />}
-            title="Couldn't load cover letters"
-            description="We hit an error fetching your cover letters. Try again, or refresh the page."
-            action={{ label: "Try again", onClick: () => refetchCovers() }}
+            title={t("errorState.title")}
+            description={t("errorState.description")}
+            action={{ label: t("errorState.tryAgain"), onClick: () => refetchCovers() }}
           />
         </div>
       ) : totalCovers === 0 ? (

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { Check, Filter, Search, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
@@ -28,12 +29,16 @@ export type SortValue = "newest" | "oldest" | "name_asc" | "name_desc";
 
 export const DEFAULT_SORT: SortValue = "newest";
 
-const SORT_LABELS: Record<SortValue, string> = {
-  newest: "Newest first",
-  oldest: "Oldest first",
-  name_asc: "Name A→Z",
-  name_desc: "Name Z→A",
-};
+function makeSortLabels(
+  t: (key: string) => string
+): Record<SortValue, string> {
+  return {
+    newest: t("newestFirst"),
+    oldest: t("oldestFirst"),
+    name_asc: t("nameAsc"),
+    name_desc: t("nameDesc"),
+  };
+}
 
 /**
  * Job options derived from the loaded resumes (no separate /jobs fetch).
@@ -79,6 +84,11 @@ export function ResumesFilterBar({
   count,
   onClearAll,
 }: ResumesFilterBarProps) {
+  const t = useTranslations("Resumes.list");
+  const tSort = useTranslations("Resumes.list.sort");
+  const tFilter = useTranslations("Resumes.list.filter");
+  const tCommon = useTranslations("Common.actions");
+  const SORT_LABELS = makeSortLabels(tSort);
   // Local immediate-update value for the input; debounced upward 200ms per
   // spec §1.3 so URL writes don't fire on every keystroke.
   const [localSearch, setLocalSearch] = useState(search);
@@ -118,17 +128,17 @@ export function ResumesFilterBar({
         <Search className="pointer-events-none absolute left-2.5 h-3.5 w-3.5 text-muted-foreground" />
         <Input
           type="text"
-          placeholder="Search by name..."
+          placeholder={t("searchPlaceholder")}
           value={localSearch}
           onChange={(e) => setLocalSearch(e.target.value)}
-          aria-label="Search resumes by name"
+          aria-label={t("searchPlaceholder")}
           className="h-9 pl-8 pr-8"
         />
         {localSearch && (
           <button
             type="button"
             onClick={() => setLocalSearch("")}
-            aria-label="Clear search"
+            aria-label={tCommon("clear")}
             className="absolute right-2 text-muted-foreground hover:text-foreground"
           >
             <X className="h-3.5 w-3.5" />
@@ -149,7 +159,7 @@ export function ResumesFilterBar({
             disabled={jobOptions.length === 0}
           >
             <Filter className="h-3.5 w-3.5" />
-            Job
+            {tFilter("jobButton")}
             {selectedCount > 0 && (
               <span className="flex h-4 min-w-[16px] items-center justify-center rounded-full bg-primary px-1 text-[10px] font-semibold text-primary-foreground">
                 {selectedCount}
@@ -163,7 +173,7 @@ export function ResumesFilterBar({
         >
           {jobOptions.length === 0 ? (
             <div className="px-2 py-3 text-xs text-muted-foreground">
-              No jobs to filter by.
+              {tFilter("noJobs")}
             </div>
           ) : (
             <>
@@ -202,7 +212,7 @@ export function ResumesFilterBar({
                     }}
                     className="cursor-pointer text-muted-foreground"
                   >
-                    Clear selection
+                    {tFilter("clearSelection")}
                   </DropdownMenuItem>
                 </>
               )}
@@ -217,10 +227,10 @@ export function ResumesFilterBar({
         onValueChange={(v) => onSortChange(v as SortValue)}
       >
         <SelectTrigger
-          aria-label="Sort resumes"
+          aria-label={t("sortLabel")}
           className="h-9 w-[170px]"
         >
-          <SelectValue placeholder="Newest first" />
+          <SelectValue placeholder={SORT_LABELS.newest} />
         </SelectTrigger>
         <SelectContent>
           {(Object.keys(SORT_LABELS) as SortValue[]).map((opt) => (
@@ -240,7 +250,7 @@ export function ResumesFilterBar({
           className="h-9 gap-1.5"
         >
           <X className="h-3.5 w-3.5" />
-          Clear
+          {tCommon("clear")}
         </Button>
       )}
 
@@ -248,9 +258,11 @@ export function ResumesFilterBar({
       <span className="ml-auto text-xs text-muted-foreground">
         {count === 0
           ? hasFilters
-            ? "No resumes match your filters."
-            : "No resumes."
-          : `${count} resume${count !== 1 ? "s" : ""}`}
+            ? t("noMatches")
+            : t("countNone")
+          : count === 1
+            ? t("countOne")
+            : t("countOther", { count })}
       </span>
     </div>
   );

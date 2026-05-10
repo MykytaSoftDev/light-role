@@ -4,6 +4,7 @@ import { ChevronDown, CreditCard, X } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 import { Confirmation } from "@/components/shared/confirmation";
 import { Button } from "@/components/ui/button";
@@ -23,16 +24,18 @@ interface Props {
 export function SubscriptionHeaderActionButton({ subscriptionId }: Props) {
   const [loading, setLoading] = useState(false);
   const [isModalOpen, setModalOpen] = useState(false);
+  const tHeader = useTranslations("Subscriptions.header");
+  const tCommon = useTranslations("Common");
 
   function handleCancelSubscription() {
     setModalOpen(false);
     setLoading(true);
     cancelSubscription(subscriptionId)
       .then(() => {
-        toast("Subscription scheduled to cancel at the end of the billing period.");
+        toast(tHeader("cancelScheduledToast"));
       })
       .catch(() => {
-        toast("Something went wrong, please try again later");
+        toast(tCommon("toast.genericError"));
       })
       .finally(() => setLoading(false));
   }
@@ -47,7 +50,7 @@ export function SubscriptionHeaderActionButton({ subscriptionId }: Props) {
             variant={"outline"}
             className={"flex items-center gap-2"}
           >
-            Manage Subscription
+            {tHeader("manage")}
             <ChevronDown className="h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>
@@ -55,7 +58,7 @@ export function SubscriptionHeaderActionButton({ subscriptionId }: Props) {
           <DropdownMenuItem asChild>
             <Link href="/dashboard/pricing" className="flex items-center gap-2">
               <CreditCard className="h-4 w-4" />
-              Change Plan
+              {tHeader("changePlan")}
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem
@@ -63,19 +66,17 @@ export function SubscriptionHeaderActionButton({ subscriptionId }: Props) {
             className="text-destructive focus:text-destructive flex items-center gap-2"
           >
             <X className="h-4 w-4" />
-            Cancel Subscription
+            {tHeader("cancel")}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
       <Confirmation
-        description={
-          "This subscription will be scheduled to cancel at the end of the billing period."
-        }
-        title={"Cancel subscription?"}
+        description={tHeader("cancelConfirmBody")}
+        title={tHeader("cancelConfirmTitle")}
         onClose={() => setModalOpen(false)}
         isOpen={isModalOpen}
         onConfirm={handleCancelSubscription}
-        confirmLabel="Cancel subscription"
+        confirmLabel={tHeader("cancel")}
       />
     </>
   );

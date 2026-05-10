@@ -33,6 +33,7 @@ import {
   List,
   RemoveFormatting,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useEditor, EditorContent, type Editor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import BulletList from "@tiptap/extension-bullet-list";
@@ -345,6 +346,7 @@ interface TiptapToolbarProps {
 }
 
 function TiptapToolbar({ editor, top, left }: TiptapToolbarProps) {
+  const tFields = useTranslations("Resumes.editor.fields");
   const isBold = editor.isActive("bold");
   const isItalic = editor.isActive("italic");
   const isBullet = editor.isActive("bulletList");
@@ -352,7 +354,7 @@ function TiptapToolbar({ editor, top, left }: TiptapToolbarProps) {
   return (
     <div
       role="toolbar"
-      aria-label="Format"
+      aria-label={tFields("formatToolbarAria")}
       className={cn(
         "absolute z-10 flex items-center gap-0.5 rounded-md border border-border bg-popover p-1 shadow-sm",
         "transition-opacity duration-150"
@@ -368,7 +370,7 @@ function TiptapToolbar({ editor, top, left }: TiptapToolbarProps) {
         variant="ghost"
         size="icon"
         aria-pressed={isBold}
-        aria-label="Bold"
+        aria-label={tFields("formatBold")}
         className={cn("h-7 w-7", isBold && "bg-accent")}
         onClick={() => editor.chain().focus().toggleBold().run()}
       >
@@ -379,7 +381,7 @@ function TiptapToolbar({ editor, top, left }: TiptapToolbarProps) {
         variant="ghost"
         size="icon"
         aria-pressed={isItalic}
-        aria-label="Italic"
+        aria-label={tFields("formatItalic")}
         className={cn("h-7 w-7", isItalic && "bg-accent")}
         onClick={() => editor.chain().focus().toggleItalic().run()}
       >
@@ -390,7 +392,7 @@ function TiptapToolbar({ editor, top, left }: TiptapToolbarProps) {
         variant="ghost"
         size="icon"
         aria-pressed={isBullet}
-        aria-label="Bullet list"
+        aria-label={tFields("formatBulletList")}
         className={cn("h-7 w-7", isBullet && "bg-accent")}
         onClick={() => editor.chain().focus().toggleBulletList().run()}
       >
@@ -400,7 +402,7 @@ function TiptapToolbar({ editor, top, left }: TiptapToolbarProps) {
         type="button"
         variant="ghost"
         size="icon"
-        aria-label="Clear formatting"
+        aria-label={tFields("formatClear")}
         className="h-7 w-7"
         onClick={() => editor.chain().focus().unsetAllMarks().run()}
       >

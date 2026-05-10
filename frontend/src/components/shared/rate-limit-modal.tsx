@@ -1,6 +1,7 @@
 "use client";
 
 import { Clock } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -18,34 +19,29 @@ import {
 // Triggered by HTTP 429 with `error_code: "AI_RATE_LIMIT"`. Distinct from
 // `UpgradeModal` because upgrading does NOT lift this limit — it is a
 // short-lived (typically 1h) anti-abuse cap. Single "Got it" CTA, no upgrade
-// button. Visual conventions match `UpgradeModal` (icon-circle, sm:max-w-md)
-// but the icon-circle uses orange to differentiate the situation from
-// upgrade prompts.
+// button.
 // ---------------------------------------------------------------------------
 
 export interface RateLimitModalProps {
   open: boolean;
   onClose: () => void;
-  /** ISO timestamp from the 429 envelope; rendered as HH:MM in 24h format. */
+  /** ISO timestamp from the 429 envelope. */
   retryAt?: string;
 }
 
-function formatTime(iso: string): string | null {
+function secondsUntil(iso: string): number | null {
   try {
     const d = new Date(iso);
     if (Number.isNaN(d.getTime())) return null;
-    return d.toLocaleTimeString("en-US", {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: false,
-    });
+    return Math.max(0, Math.round((d.getTime() - Date.now()) / 1000));
   } catch {
     return null;
   }
 }
 
 export function RateLimitModal({ open, onClose, retryAt }: RateLimitModalProps) {
-  const time = retryAt ? formatTime(retryAt) : null;
+  const seconds = retryAt ? secondsUntil(retryAt) : null;
+  const tModal = useTranslations("Errors.rateLimitModal");
 
   return (
     <Dialog
@@ -59,37 +55,21 @@ export function RateLimitModal({ open, onClose, retryAt }: RateLimitModalProps) 
           <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-orange-100 dark:bg-orange-900/30">
             <Clock className="h-5 w-5 text-orange-600 dark:text-orange-400" />
           </div>
-          <DialogTitle>Generation temporarily limited</DialogTitle>
+          <DialogTitle>{tModal("title")}</DialogTitle>
           <DialogDescription asChild>
             <div className="space-y-2 pt-1">
-              <p>
-                We&apos;ve detected unusually high activity on your account. To
-                ensure fair use for all users, AI generations are paused for
-                the next hour.
-              </p>
-              {time && (
-                <p>
-                  You can resume generating at{" "}
-                  <span className="font-medium text-foreground">{time}</span>.
-                </p>
+              <p>{tModal("body1")}</p>
+              {seconds != null && (
+                <p>{tModal("body2WithTime", { seconds })}</p>
               )}
-              <p>
-                If this seems wrong, contact{" "}
-                <a
-                  href="mailto:support@lightrole.com"
-                  className="text-primary underline-offset-4 hover:underline"
-                >
-                  support@lightrole.com
-                </a>
-                .
-              </p>
+              <p>{tModal("supportLine")}</p>
             </div>
           </DialogDescription>
         </DialogHeader>
 
         <DialogFooter>
           <Button onClick={onClose} className="w-full sm:w-auto">
-            Got it
+            {tModal("gotIt")}
           </Button>
         </DialogFooter>
       </DialogContent>

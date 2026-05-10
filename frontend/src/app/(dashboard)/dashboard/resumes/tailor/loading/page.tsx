@@ -15,6 +15,7 @@
  * spec's URL choice (`/dashboard/resumes/tailor/loading`).
  */
 import * as React from "react";
+import { useTranslations } from "next-intl";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Check, Circle, Lightbulb, Loader2, X } from "lucide-react";
 import { toast } from "sonner";
@@ -35,28 +36,8 @@ const PHASE_1_DURATION_MS = 5_000;
 const PHASE_2_DURATION_MS = 10_000;
 const TIP_ROTATE_MS = 6_000;
 
-const PHASES = [
-  {
-    label: "Extracting job offer details",
-    activeSubtitle: "Reading the job description…",
-  },
-  {
-    label: "Extracting keywords",
-    activeSubtitle: "Identifying skills and tools…",
-  },
-  {
-    label: "Tailoring resume",
-    activeSubtitle: "Personalizing your resume…",
-  },
-];
-
-const TIPS = [
-  "Tailored resumes get up to 30% more responses than generic ones.",
-  "Recruiters spend 7 seconds on a resume on average — keywords matter.",
-  "Light Role keeps your profile as the source of truth — nothing is invented.",
-  "You can re-tailor by editing your resume in the next step.",
-];
-
+// Phases / tips are loaded inside the component via next-intl `t()` and
+// `t.raw()` (for the `tips` array — see Resumes.tailor.loading.tips in en.json).
 type PhaseState = "pending" | "active" | "completed" | "failed";
 
 // ---------------------------------------------------------------------------
@@ -85,9 +66,28 @@ function LoadingFallback() {
 }
 
 function TailorLoadingContent() {
+  const t = useTranslations("Resumes.tailor.loading");
+  const tToast = useTranslations("Resumes.tailor.toast");
+  const tApp = useTranslations("app");
   const router = useRouter();
   const searchParams = useSearchParams();
   const jobId = searchParams?.get("job_id") ?? null;
+
+  // Phase definitions sourced from Resumes.tailor.loading.* keys.
+  const PHASES = React.useMemo(
+    () => [
+      { label: t("phase1"), activeSubtitle: t("phase1Sub") },
+      { label: t("phase2"), activeSubtitle: t("phase2Sub") },
+      { label: t("phase3"), activeSubtitle: t("phase3Sub") },
+    ],
+    [t]
+  );
+
+  // `tips` is an array in the dictionary — `t.raw` returns it untyped.
+  const TIPS = React.useMemo<string[]>(
+    () => (t.raw("tips") as string[]) ?? [],
+    [t]
+  );
 
   // MONETIZE-14/15 — render UpgradeModal / RateLimitModal on this overlay
   // when the tailor POST returns 402 / 429. Closing the modal navigates
@@ -143,7 +143,7 @@ function TailorLoadingContent() {
                 "UNKNOWN",
                 err instanceof Error
                   ? err.message
-                  : "Something went wrong. Please try again."
+                  : tToast("networkFail")
               );
 
         // MONETIZE-14 / MONETIZE-15 — credit + rate-limit errors stay on the
@@ -167,7 +167,7 @@ function TailorLoadingContent() {
         setPhase3Failed(true);
         setTimeout(() => {
           if (cancelled) return;
-          handleErrorRedirect(error, jobId, routerRef.current);
+          handleErrorRedirect(error, jobId, routerRef.current, tToast);
         }, 600);
       }
     })();
@@ -175,6 +175,7 @@ function TailorLoadingContent() {
     return () => {
       cancelled = true;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [jobId]);
 
   // 2. Visual phase timeline. Pure cosmetics — these timers just advance the
@@ -206,7 +207,7 @@ function TailorLoadingContent() {
       setTipIndex((i) => (i + 1) % TIPS.length);
     }, TIP_ROTATE_MS);
     return () => clearInterval(id);
-  }, []);
+  }, [TIPS.length]);
 
   // ---- Render -----------------------------------------------------------
 
@@ -236,7 +237,7 @@ function TailorLoadingContent() {
 
       <div className="relative z-10 flex min-h-svh flex-col items-center justify-center gap-6 px-6">
         <div className="text-base font-semibold text-muted-foreground">
-          Light Role
+          {tApp("name")}
         </div>
 
         {/*
@@ -254,7 +255,7 @@ function TailorLoadingContent() {
         >
           <ul
             className="divide-y divide-border/60 p-2"
-            aria-label="Tailoring progress"
+            aria-label={t("progressAria")}
           >
             {PHASES.map((p, idx) => {
               const state = getPhaseState(idx);
@@ -268,12 +269,10 @@ function TailorLoadingContent() {
           className="text-sm text-muted-foreground text-center"
           aria-live="polite"
         >
-          {phase3Failed
-            ? "Something went wrong."
-            : PHASES[activePhase]?.activeSubtitle}
+          {phase3Failed ? t("failed") : PHASES[activePhase]?.activeSubtitle}
         </p>
 
-        <TipCard tip={TIPS[tipIndex]} />
+        <TipCard tip={TIPS[tipIndex]} heading={t("tipHeading")} />
       </div>
 
       {/*
@@ -326,6 +325,7 @@ interface PhaseRowProps {
 }
 
 function PhaseRow({ index, phase, state }: PhaseRowProps) {
+  const t = useTranslations("Resumes.tailor.loading");
   const Icon =
     state === "completed"
       ? Check
@@ -350,12 +350,12 @@ function PhaseRow({ index, phase, state }: PhaseRowProps) {
 
   const stateAria =
     state === "active"
-      ? "in progress"
+      ? t("phaseState.active")
       : state === "completed"
-      ? "complete"
+      ? t("phaseState.completed")
       : state === "failed"
-      ? "failed"
-      : "pending";
+      ? t("phaseState.failed")
+      : t("phaseState.pending");
 
   return (
     <li
@@ -367,7 +367,7 @@ function PhaseRow({ index, phase, state }: PhaseRowProps) {
       <Icon className={iconClass} aria-hidden="true" />
       <span className={labelClass}>{phase.label}</span>
       <span className="sr-only">
-        Phase {index + 1} of {3}, {stateAria}
+        {t("phaseAria", { step: index + 1, total: 3, label: stateAria })}
       </span>
     </li>
   );
@@ -377,7 +377,7 @@ function PhaseRow({ index, phase, state }: PhaseRowProps) {
 // Tip card
 // ---------------------------------------------------------------------------
 
-function TipCard({ tip }: { tip: string }) {
+function TipCard({ tip, heading }: { tip: string; heading: string }) {
   return (
     <div className="hidden min-[640px]:block w-full max-w-md">
       <div
@@ -390,7 +390,7 @@ function TipCard({ tip }: { tip: string }) {
       >
         <div className="mb-1 flex items-center gap-2 font-semibold">
           <Lightbulb className="h-4 w-4 text-primary" aria-hidden="true" />
-          Did you know?
+          {heading}
         </div>
         <p
           key={tip}
@@ -410,42 +410,43 @@ function TipCard({ tip }: { tip: string }) {
 function handleErrorRedirect(
   error: TailorError,
   jobId: string,
-  router: ReturnType<typeof useRouter>
+  router: ReturnType<typeof useRouter>,
+  // The translator from useTranslations("Resumes.tailor.toast"). Typed loosely
+  // because TFunctions are namespace-specific and awkward to import as a type.
+  tToast: ReturnType<typeof useTranslations>
 ) {
   switch (error.code) {
     case "PROFILE_NOT_READY":
-      toast.error("Your profile isn't complete enough to tailor a resume.");
+      toast.error(tToast("profileNotReady"));
       router.replace(`/dashboard/resumes/tailor?job_id=${jobId}`);
       return;
 
     case "JOB_NOT_FOUND":
-      toast.error("Job not found.");
+      toast.error(tToast("jobNotFound"));
       router.replace("/dashboard/resumes/tailor");
       return;
 
     case "RESUME_ALREADY_EXISTS": {
       const existingId = error.existingResumeId;
       if (existingId) {
-        toast.message("A resume already exists for this job. Redirecting…");
+        toast.message(tToast("alreadyExists"));
         router.replace(`/dashboard/resumes/${existingId}`);
       } else {
         // Backend doesn't currently return `existing_resume_id` on 409 (see
         // tailored-resume-api.ts TODO). Fall back to the resumes list.
-        toast.message(
-          "A resume already exists for this job. Redirecting to your resumes."
-        );
+        toast.message(tToast("alreadyExists"));
         router.replace("/dashboard/resumes");
       }
       return;
     }
 
     case "AI_UNAVAILABLE":
-      toast.error("AI service is temporarily unavailable. Please try again.");
+      toast.error(tToast("aiFail"));
       router.replace(`/dashboard/resumes/tailor?job_id=${jobId}`);
       return;
 
     default:
-      toast.error(error.message || "Something went wrong. Please try again.");
+      toast.error(error.message || tToast("networkFail"));
       router.replace(`/dashboard/resumes/tailor?job_id=${jobId}`);
   }
 }

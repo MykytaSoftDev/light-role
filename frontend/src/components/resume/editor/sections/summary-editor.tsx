@@ -10,6 +10,7 @@
  * and paragraph spacing.
  */
 import * as React from "react";
+import { useTranslations } from "next-intl";
 
 import type { MatchedKeyword } from "@/lib/tailored-resume-api";
 
@@ -28,15 +29,18 @@ export const SummaryEditor = React.memo(function SummaryEditor({
   onChange,
   keywords,
 }: SummaryEditorProps) {
+  const tSection = useTranslations("Resumes.sectionTitles");
+  const tProfile = useTranslations("profile.profileSummary");
+  const tEditor = useTranslations("Resumes.editor.section");
   return (
-    <EditableSection title="Summary">
+    <EditableSection title={tSection("summary")}>
       <TiptapField
         value={value}
         onChange={onChange}
         enableBulletList={false}
-        placeholder="Add a short summary of your experience and goals."
+        placeholder={tEditor("summaryPlaceholder")}
         proseClassName="resume-summary"
-        ariaLabel="Summary"
+        ariaLabel={tProfile("label")}
         keywords={keywords}
       />
     </EditableSection>

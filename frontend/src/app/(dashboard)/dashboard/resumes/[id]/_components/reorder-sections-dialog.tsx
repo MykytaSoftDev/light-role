@@ -19,6 +19,7 @@
  * `applied-changes-accordion.tsx`) keeps importing from this file.
  */
 import * as React from "react";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -61,12 +62,16 @@ function entryCountFor(
   return Array.isArray(list) ? list.length : 0;
 }
 
-function formatCount(count: number | "filled" | "empty"): string {
-  if (count === "filled") return "Filled";
-  if (count === "empty") return "—";
-  if (count === 0) return "—";
-  if (count === 1) return "1 entry";
-  return `${count} entries`;
+function makeFormatCount(
+  t: (key: string, values?: Record<string, string | number>) => string
+) {
+  return (count: number | "filled" | "empty"): string => {
+    if (count === "filled") return t("entryCountFilledLabel", { count: 1 });
+    if (count === "empty") return "—";
+    if (count === 0) return "—";
+    if (count === 1) return t("entryCountOneEntry");
+    return t("entryCountOtherEntries", { count });
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -91,6 +96,24 @@ export function ReorderSectionsDialog({
   data,
   onSave,
 }: ReorderSectionsDialogProps) {
+  const t = useTranslations("Resumes.editor.reorderDialog");
+  const tSection = useTranslations("Resumes.sectionTitles");
+  const formatCount = React.useMemo(() => makeFormatCount(t), [t]);
+  // Build a translated section label map for the sortable list.
+  const translatedLabels: Record<ReorderableSectionKey, string> = React.useMemo(
+    () => ({
+      summary: tSection("summary"),
+      employment: tSection("employment"),
+      education: tSection("education"),
+      skills: tSection("skills"),
+      languages: tSection("languages"),
+      certificates: tSection("certificates"),
+      projects: tSection("projects"),
+      achievements: tSection("achievements"),
+      volunteer: tSection("volunteer"),
+    }),
+    [tSection]
+  );
   // Local-local working order. Re-initializes every time the dialog opens.
   const [workingOrder, setWorkingOrder] = React.useState<ReorderableSectionKey[]>(
     () => normalizeOrder(currentOrder)
@@ -111,15 +134,14 @@ export function ReorderSectionsDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md max-w-[calc(100%-2rem)]">
         <DialogHeader>
-          <DialogTitle>Reorder sections</DialogTitle>
-          <DialogDescription>
-            Drag sections to change the order they appear in your resume.
-          </DialogDescription>
+          <DialogTitle>{t("title")}</DialogTitle>
+          <DialogDescription>{t("body")}</DialogDescription>
         </DialogHeader>
 
         <SortableSectionList
           value={workingOrder}
           onChange={setWorkingOrder}
+          sectionLabels={translatedLabels}
           rightSlot={(key) => formatCount(entryCountFor(key, data))}
           className="space-y-2 py-2"
         />
@@ -130,10 +152,10 @@ export function ReorderSectionsDialog({
             variant="ghost"
             onClick={() => onOpenChange(false)}
           >
-            Cancel
+            {t("cancel")}
           </Button>
           <Button type="button" onClick={handleSave}>
-            Save order
+            {t("save")}
           </Button>
         </DialogFooter>
       </DialogContent>

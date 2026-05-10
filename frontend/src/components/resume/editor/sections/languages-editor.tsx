@@ -11,6 +11,7 @@
  * either way — only the rendering surface differs.
  */
 import * as React from "react";
+import { useTranslations } from "next-intl";
 
 import type { LanguageEntry } from "@/lib/profile-api";
 
@@ -26,6 +27,9 @@ export const LanguagesEditor = React.memo(function LanguagesEditor({
   value,
   onChange,
 }: LanguagesEditorProps) {
+  const tSection = useTranslations("Resumes.sectionTitles");
+  const tProfile = useTranslations("profile.languages");
+  const tEditor = useTranslations("Resumes.editor.section");
   const chips = React.useMemo(
     () =>
       value.map((l) => ({
@@ -51,14 +55,14 @@ export const LanguagesEditor = React.memo(function LanguagesEditor({
   }
 
   return (
-    <EditableSection title="Languages">
+    <EditableSection title={tSection("languages")}>
       <ChipInputField
         values={chips}
         onAdd={handleAdd}
         onRemove={handleRemove}
         onReorder={handleReorder}
-        placeholder="Add a language and press Enter"
-        ariaLabel="Add a language"
+        placeholder={tEditor("addLanguagePlaceholder")}
+        ariaLabel={tProfile("addLanguage")}
       />
     </EditableSection>
   );

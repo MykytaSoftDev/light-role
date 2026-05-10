@@ -24,6 +24,7 @@ import {
   Infinity as InfinityIcon,
   Mail,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import {
   Tooltip,
   TooltipContent,
@@ -70,10 +71,13 @@ function formatResetDate(resetDateStr: string): string {
   });
 }
 
-function planSubLine(plan: PlanTier): string {
-  if (plan === "pro") return "Pro plan";
-  if (plan === "unlimited") return "Unlimited plan";
-  return "Free plan";
+function usePlanSubLine() {
+  const tBadge = useTranslations("Sidebar.planBadge");
+  return (plan: PlanTier): string => {
+    if (plan === "pro") return tBadge("proPlan");
+    if (plan === "unlimited") return tBadge("unlimitedPlan");
+    return tBadge("freePlan");
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -81,6 +85,8 @@ function planSubLine(plan: PlanTier): string {
 // ---------------------------------------------------------------------------
 
 export function StatCardGrid({ usage, plan }: StatCardGridProps) {
+  const t = useTranslations("DashboardHome.statCards");
+  const planSubLine = usePlanSubLine();
   const sub = planSubLine(plan);
   const days = daysUntilReset(usage.reset_date);
 
@@ -120,33 +126,37 @@ export function StatCardGrid({ usage, plan }: StatCardGridProps) {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           icon={<Briefcase size={14} />}
-          label="Active Jobs"
+          label={t("activeJobs")}
           value={activeJobsValue}
           sub={sub}
-          tooltip="Jobs you're currently tracking (Saved, Applied, Interviewing)."
+          tooltip={t("activeJobsTooltip")}
         />
         <StatCard
           icon={<FileText size={14} />}
-          label="Resume Credits"
+          label={t("resumeCredits")}
           value={resumeCreditsValue}
           sub={sub}
-          tooltip="Each AI resume tailoring uses one credit."
+          tooltip={t("resumeCreditsTooltip")}
         />
         <StatCard
           icon={<Mail size={14} />}
-          label="CL Credits"
+          label={t("clCredits")}
           value={clCreditsValue}
           sub={sub}
-          tooltip="Each cover letter generation uses one credit."
+          tooltip={t("clCreditsTooltip")}
         />
         <StatCard
           icon={<Calendar size={14} />}
-          label="Days Until Reset"
+          label={t("daysUntilReset", { count: days > 0 ? days : 0 })}
           value={
-            <PlainValue used={days > 0 ? days : 0} suffix={days > 0 ? "days" : null} todayLabel={days > 0 ? null : "Today"} />
+            <PlainValue
+              used={days > 0 ? days : 0}
+              suffix={days > 0 ? t("daysSuffix") : null}
+              todayLabel={days > 0 ? null : t("todayLabel")}
+            />
           }
-          sub={`Resets ${formatResetDate(usage.reset_date)}`}
-          tooltip="Your credits refresh on this date each month."
+          sub={t("resetsOn", { date: formatResetDate(usage.reset_date) })}
+          tooltip={t("daysUntilResetTooltip")}
         />
       </div>
     </TooltipProvider>
@@ -224,13 +234,14 @@ function RatioValue({ used, limit }: { used: number; limit: number }) {
 }
 
 function UnlimitedValue({ used }: { used: number }) {
+  const t = useTranslations("DashboardHome.statCards");
   return (
     <span className="inline-flex items-baseline gap-2">
       {used}
       <InfinityIcon
         size={20}
         className="text-muted-foreground/70"
-        aria-label="unlimited"
+        aria-label={t("unlimited")}
       />
     </span>
   );

@@ -6,21 +6,30 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import Link from 'next/link';
 import { CircleAlert, Loader2, MailCheck } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
 import { api } from '@/lib/api';
 
-const forgotPasswordSchema = z.object({
-  email: z.string().email('Please enter a valid email address'),
-});
+function makeForgotPasswordSchema(t: (key: string) => string) {
+  return z.object({
+    email: z.string().email(t('invalidEmail')),
+  });
+}
 
-type ForgotPasswordFormValues = z.infer<typeof forgotPasswordSchema>;
+type ForgotPasswordFormValues = z.infer<ReturnType<typeof makeForgotPasswordSchema>>;
 
 export default function ForgotPasswordPage() {
+  const t = useTranslations('Auth.forgotPassword');
+  const tCommon = useTranslations('Auth.common');
+  const tValidation = useTranslations('Auth.validation');
   const [serverError, setServerError] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
+  const [submittedEmail, setSubmittedEmail] = useState<string>('');
+
+  const forgotPasswordSchema = makeForgotPasswordSchema(tValidation);
 
   const {
     register,
@@ -35,12 +44,13 @@ export default function ForgotPasswordPage() {
     try {
       const res = await api.post('/api/v1/auth/forgot-password', values);
       if (res.ok || res.status === 200) {
+        setSubmittedEmail(values.email);
         setSubmitted(true);
       } else {
-        setServerError('Something went wrong. Please try again.');
+        setServerError(tCommon('genericError'));
       }
     } catch {
-      setServerError('Unable to connect. Check your internet connection.');
+      setServerError(tCommon('networkError'));
     }
   }
 
@@ -50,20 +60,18 @@ export default function ForgotPasswordPage() {
         {!submitted ? (
           <div className="rounded-xl border bg-card p-8 shadow-sm">
             <div className="mb-6 space-y-1">
-              <h1 className="text-2xl font-semibold tracking-tight">Reset your password</h1>
-              <p className="text-sm text-muted-foreground">
-                Enter your email and we&apos;ll send you a reset link.
-              </p>
+              <h1 className="text-2xl font-semibold tracking-tight">{t('title')}</h1>
+              <p className="text-sm text-muted-foreground">{t('subtitle')}</p>
             </div>
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
               <div className="space-y-1.5">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email">{tCommon('emailLabel')}</Label>
                 <Input
                   id="email"
                   type="email"
                   autoComplete="email"
-                  placeholder="you@example.com"
+                  placeholder={tCommon('emailPlaceholder')}
                   {...register('email')}
                   className={cn(errors.email && 'border-destructive focus-visible:ring-destructive')}
                 />
@@ -83,21 +91,20 @@ export default function ForgotPasswordPage() {
                 {isSubmitting ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin" />
-                    Sending...
+                    {t('submitting')}
                   </>
                 ) : (
-                  'Send reset link'
+                  t('submit')
                 )}
               </Button>
             </form>
 
             <p className="mt-6 text-center text-sm text-muted-foreground">
-              Remember your password?{' '}
               <Link
                 href="/auth/login"
                 className="text-primary hover:text-primary/80 font-medium underline-offset-4 hover:underline"
               >
-                Back to sign in
+                {t('backToLogin')}
               </Link>
             </p>
           </div>
@@ -106,15 +113,15 @@ export default function ForgotPasswordPage() {
             <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-emerald-500/10">
               <MailCheck className="h-6 w-6 text-emerald-500" />
             </div>
-            <h1 className="text-2xl font-semibold">Check your inbox</h1>
+            <h1 className="text-2xl font-semibold">{t('successTitle')}</h1>
             <p className="mt-2 text-sm text-muted-foreground">
-              If that email is registered, you&apos;ll receive a link shortly. Check your spam folder if you don&apos;t see it.
+              {t('successDescription', { email: submittedEmail })}
             </p>
             <Link
               href="/auth/login"
               className="text-primary hover:text-primary/80 mt-6 inline-block text-sm font-medium underline-offset-4 hover:underline"
             >
-              Back to sign in
+              {t('backToLogin')}
             </Link>
           </div>
         )}

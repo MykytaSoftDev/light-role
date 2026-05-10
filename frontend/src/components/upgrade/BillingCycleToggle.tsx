@@ -1,5 +1,7 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+
 import { cn } from "@/lib/utils";
 
 export interface BillingCycleToggleProps {
@@ -17,10 +19,11 @@ export function BillingCycleToggle({
   annualLabel,
   savingsBadgeLabel,
 }: BillingCycleToggleProps) {
+  const tSub = useTranslations("Subscriptions.details");
   return (
     <div
       role="group"
-      aria-label="Billing cycle"
+      aria-label={tSub("billingCycle")}
       className="border-border bg-muted inline-flex items-center rounded-lg border p-1"
     >
       <button

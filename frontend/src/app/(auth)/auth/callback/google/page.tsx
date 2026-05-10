@@ -3,18 +3,20 @@
 import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://dev-api.lightrole.com";
 
 function GoogleCallbackContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const t = useTranslations("Auth.googleCallback");
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const code = searchParams?.get("code") ?? null;
     if (!code) {
-      setError("No authorization code received from Google.");
+      setError(t("noCode"));
       return;
     }
 
@@ -29,7 +31,8 @@ function GoogleCallbackContent() {
       .then((res) => {
         if (!res.ok) {
           return res.json().then((d) => {
-            throw new Error(d.detail || "Sign in with Google failed.");
+            // detail is a backend message; fall back to translated description
+            throw new Error(d.detail || t("errorDescription"));
           });
         }
         router.push("/dashboard");
@@ -46,20 +49,25 @@ function GoogleCallbackContent() {
           href="/auth/login"
           className="text-primary text-sm font-medium underline-offset-4 hover:underline"
         >
-          Back to login
+          {t("backToLogin")}
         </Link>
       </div>
     );
   }
 
-  return <p className="text-muted-foreground text-center text-sm">Completing sign in&hellip;</p>;
+  return (
+    <p className="text-muted-foreground text-center text-sm">{t("loadingTitle")}</p>
+  );
+}
+
+function GoogleCallbackFallback() {
+  const t = useTranslations("Auth.googleCallback");
+  return <p className="text-muted-foreground text-center text-sm">{t("fallbackLoading")}</p>;
 }
 
 export default function GoogleCallbackPage() {
   return (
-    <Suspense
-      fallback={<p className="text-muted-foreground text-center text-sm">Loading&hellip;</p>}
-    >
+    <Suspense fallback={<GoogleCallbackFallback />}>
       <GoogleCallbackContent />
     </Suspense>
   );

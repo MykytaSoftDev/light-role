@@ -16,6 +16,7 @@
  * the tablet tier. We achieve this with flex-wrap + responsive utility classes.
  */
 import * as React from "react";
+import { useTranslations } from "next-intl";
 import { LayoutList, Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -47,16 +48,15 @@ export function EditModeToolbar({
   isSaving,
   isValid = true,
 }: EditModeToolbarProps) {
+  const t = useTranslations("Resumes.editor");
+  const tReorder = useTranslations("Resumes.editor.reorderDialog");
+  const tCommon = useTranslations("Common.actions");
   const saveDisabled = !isDirty || isSaving || !isValid;
 
   return (
     <div
       role="toolbar"
-      aria-label="Edit resume"
-      // Lives inside the canvas (above the document) via the `topSlot` of
-      // EditablePreview. Fills the slot horizontally and uses bg-card for
-      // contrast against the canvas background. `flex-wrap` enables the
-      // mobile two-row layout.
+      aria-label={t("toolbarAria")}
       className="
         flex flex-wrap items-center gap-2 w-full
         py-2 px-3
@@ -76,10 +76,10 @@ export function EditModeToolbar({
         className="h-8"
         onClick={onOpenReorder}
         disabled={isSaving}
-        aria-label="Reorder sections"
+        aria-label={tReorder("title")}
       >
         <LayoutList className="h-4 w-4" />
-        <span className="hidden md:inline">Reorder sections</span>
+        <span className="hidden md:inline">{tReorder("title")}</span>
       </Button>
 
       <div className="flex-grow" />
@@ -92,7 +92,7 @@ export function EditModeToolbar({
         onClick={onCancel}
         disabled={isSaving}
       >
-        Cancel
+        {tCommon("cancel")}
       </Button>
 
       <Button
@@ -103,19 +103,19 @@ export function EditModeToolbar({
         disabled={saveDisabled}
         title={
           !isValid
-            ? "Fix the highlighted fields before saving"
+            ? t("invalidFieldsTooltip")
             : !isDirty
-              ? "No changes to save"
+              ? t("noChangesTooltip")
               : undefined
         }
       >
         {isSaving ? (
           <>
             <Loader2 className="h-4 w-4 animate-spin" />
-            Saving…
+            {t("saving")}
           </>
         ) : (
-          "Save"
+          t("saveButton")
         )}
       </Button>
     </div>

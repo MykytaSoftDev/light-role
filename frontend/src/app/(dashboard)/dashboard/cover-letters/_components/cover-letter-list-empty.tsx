@@ -1,6 +1,7 @@
 "use client";
 
 import { Mail } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/shared/empty-state";
 
@@ -25,16 +26,17 @@ export function CoverLettersEmptyState({
   variant,
   onClearFilters,
 }: CoverLettersEmptyStateProps) {
+  const t = useTranslations("coverLetters.list");
   if (variant === "no-matches") {
     return (
       <div className="rounded-xl border border-dashed border-border bg-muted/20 p-12 text-center">
         <p className="text-sm text-muted-foreground">
-          No cover letters match your search.
+          {t("noMatches.message")}
         </p>
         {onClearFilters && (
           <div className="mt-4">
             <Button variant="outline" onClick={onClearFilters}>
-              Clear filters
+              {t("noMatches.cta")}
             </Button>
           </div>
         )}
@@ -46,10 +48,10 @@ export function CoverLettersEmptyState({
     <div className="flex flex-1 items-center justify-center rounded-xl border border-border bg-muted/30 py-16">
       <EmptyState
         icon={<Mail className="h-8 w-8" />}
-        title="No cover letters yet."
-        description="Generate a tailored cover letter from one of your jobs in about 15 seconds."
+        title={t("empty.title")}
+        description={t("empty.description")}
         action={{
-          label: "Generate Your First Cover Letter",
+          label: t("empty.cta"),
           href: "/dashboard/cover-letters/generate",
         }}
       />

@@ -7,6 +7,7 @@ import { SubscriptionNextPaymentCard } from "@/components/subscriptions/subscrip
 import { SubscriptionPastPaymentsCard } from "@/components/subscriptions/subscription-past-payments-card";
 import { SubscriptionSkeleton } from "@/components/subscriptions/subscription-skeleton";
 import { Button } from "@/components/ui/button";
+import { useTranslations } from "next-intl";
 
 import { useSubscription } from "@/hooks/paddle/use-subscription";
 
@@ -16,6 +17,8 @@ interface Props {
 
 export function SubscriptionDetail({ subscriptionId }: Props) {
   const { subscription, transactions, loading, error, refetch } = useSubscription(subscriptionId);
+  const tErr = useTranslations("Subscriptions.errorBoundary");
+  const tCommon = useTranslations("Common");
 
   // Show loading skeleton while fetching data
   if (loading) {
@@ -29,11 +32,11 @@ export function SubscriptionDetail({ subscriptionId }: Props) {
         <div className="flex min-h-[300px] flex-col items-center justify-center space-y-4">
           <div className="text-center">
             <h3 className="text-foreground mb-2 text-lg font-semibold">
-              Unable to load subscription
+              {tErr("title")}
             </h3>
             <p className="text-muted-foreground mb-4">{error}</p>
             <Button onClick={refetch} variant="default">
-              Try Again
+              {tCommon("actions.tryAgain")}
             </Button>
           </div>
         </div>

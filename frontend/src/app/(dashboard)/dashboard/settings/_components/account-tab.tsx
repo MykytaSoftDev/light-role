@@ -153,7 +153,7 @@ export function AccountTab() {
                 id="first_name"
                 type="text"
                 autoComplete="given-name"
-                placeholder="Jane"
+                placeholder={t("account.placeholders.firstName")}
                 {...register("first_name")}
               />
             </div>
@@ -163,7 +163,7 @@ export function AccountTab() {
                 id="last_name"
                 type="text"
                 autoComplete="family-name"
-                placeholder="Smith"
+                placeholder={t("account.placeholders.lastName")}
                 {...register("last_name")}
               />
             </div>
@@ -204,7 +204,7 @@ export function AccountTab() {
                   id="email"
                   type="email"
                   autoComplete="email"
-                  placeholder="you@example.com"
+                  placeholder={t("account.placeholders.email")}
                   {...register("email")}
                   className={cn(
                     errors.email && "border-destructive focus-visible:ring-destructive"

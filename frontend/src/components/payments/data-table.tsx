@@ -18,6 +18,7 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import { Transaction } from "@paddle/paddle-node-sdk";
+import { useTranslations } from "next-intl";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -38,6 +39,8 @@ export function DataTable<TData, TValue>({
   goToPrevPage,
   hasPrev,
 }: DataTableProps<TData, TValue>) {
+  const tCommon = useTranslations("Common");
+  const tTable = useTranslations("Common.table");
   const table = useReactTable({
     data,
     columns,
@@ -92,7 +95,7 @@ export function DataTable<TData, TValue>({
           ) : (
             <TableRow>
               <TableCell colSpan={columns.length} className="h-24 text-center">
-                No results.
+                {tTable("noData")}
               </TableCell>
             </TableRow>
           )}
@@ -106,7 +109,7 @@ export function DataTable<TData, TValue>({
           onClick={() => goToPrevPage()}
           disabled={!hasPrev}
         >
-          Previous
+          {tCommon("pagination.previous")}
         </Button>
         <Button
           size={"sm"}
@@ -115,7 +118,7 @@ export function DataTable<TData, TValue>({
           onClick={() => goToNextPage((data[data.length - 1] as Transaction).id)}
           disabled={!hasMore}
         >
-          Next
+          {tCommon("pagination.next")}
         </Button>
       </div>
     </div>

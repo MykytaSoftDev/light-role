@@ -11,6 +11,7 @@
  *   Row 3: description (Tiptap, bold/italic + bullet list)
  */
 import * as React from "react";
+import { useTranslations } from "next-intl";
 import {
   DndContext,
   KeyboardSensor,
@@ -53,6 +54,8 @@ export function EducationEditor({
   onFocusApplied,
   keywords,
 }: EducationEditorProps) {
+  const tSection = useTranslations("Resumes.sectionTitles");
+  const tProfile = useTranslations("profile.education");
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
     useSensor(KeyboardSensor, {
@@ -97,11 +100,11 @@ export function EducationEditor({
 
   return (
     <EditableSection
-      title="Education"
-      addLabel="Add education"
+      title={tSection("education")}
+      addLabel={tProfile("addButton")}
       onAdd={handleAdd}
       isEmpty={value.length === 0}
-      emptyMessage="No education yet — click + to add."
+      emptyMessage={tProfile("empty")}
     >
       <DndContext
         sensors={sensors}
@@ -143,6 +146,8 @@ const EducationEntryEditor = React.memo(function EducationEntryEditor({
   onRemove,
   keywords,
 }: EducationEntryEditorProps) {
+  const tProfile = useTranslations("profile.education");
+  const tEditor = useTranslations("Resumes.editor.section");
   const degreeRef = React.useRef<HTMLInputElement>(null);
   React.useEffect(() => {
     if (autoFocus) {
@@ -154,7 +159,7 @@ const EducationEntryEditor = React.memo(function EducationEntryEditor({
   return (
     <EditableEntry
       id={entry.id ?? "__missing"}
-      label="Education entry"
+      label={tEditor("educationEntryLabel")}
       onRemove={onRemove}
     >
       <div className="resume-entry-row flex items-baseline justify-between gap-4">
@@ -164,8 +169,8 @@ const EducationEntryEditor = React.memo(function EducationEntryEditor({
               ref={degreeRef}
               value={entry.degree}
               onChange={(degree) => onChange({ degree })}
-              placeholder="Degree"
-              aria-label="Degree"
+              placeholder={tProfile("degree")}
+              aria-label={tProfile("degree")}
             />
           </span>
         </div>
@@ -174,19 +179,19 @@ const EducationEntryEditor = React.memo(function EducationEntryEditor({
             <MonthInput
               value={entry.start_date || null}
               onChange={(d) => onChange({ start_date: d ?? "" })}
-              placeholder="Start"
-              ariaLabel="Start date"
+              placeholder={tEditor("startShort")}
+              ariaLabel={tProfile("startDate")}
             />
             <span className="text-muted-foreground/70">–</span>
             {entry.is_current ? (
-              <span className="px-1 text-sm">Present</span>
+              <span className="px-1 text-sm">{tProfile("present")}</span>
             ) : (
               <MonthInput
                 value={entry.end_date ?? null}
                 onChange={(d) => onChange({ end_date: d })}
-                placeholder="End"
+                placeholder={tEditor("endShort")}
                 clearable
-                ariaLabel="End date"
+                ariaLabel={tProfile("endDate")}
               />
             )}
           </span>
@@ -202,17 +207,17 @@ const EducationEntryEditor = React.memo(function EducationEntryEditor({
               end_date: checked ? null : entry.end_date,
             })
           }
-          aria-label="I'm currently enrolled"
+          aria-label={tProfile("isCurrent")}
         />
-        <span>I&apos;m currently enrolled</span>
+        <span>{tProfile("isCurrent")}</span>
       </label>
 
       <p className="resume-entry-subtitle flex flex-wrap items-baseline gap-x-2 gap-y-0">
         <InlineTextField
           value={entry.institution}
           onChange={(institution) => onChange({ institution })}
-          placeholder="Institution"
-          aria-label="Institution"
+          placeholder={tProfile("institution")}
+          aria-label={tProfile("institution")}
           inputClassName="font-medium"
         />
         <span aria-hidden className="text-muted-foreground/60">
@@ -221,8 +226,8 @@ const EducationEntryEditor = React.memo(function EducationEntryEditor({
         <InlineTextField
           value={entry.field_of_study ?? ""}
           onChange={(v) => onChange({ field_of_study: v || null })}
-          placeholder="Field of study"
-          aria-label="Field of study"
+          placeholder={tProfile("fieldOfStudy")}
+          aria-label={tProfile("fieldOfStudy")}
           inputClassName="italic"
         />
         <span aria-hidden className="text-muted-foreground/60">
@@ -231,8 +236,8 @@ const EducationEntryEditor = React.memo(function EducationEntryEditor({
         <InlineTextField
           value={entry.location ?? ""}
           onChange={(v) => onChange({ location: v || null })}
-          placeholder="Location"
-          aria-label="Location"
+          placeholder={tProfile("location")}
+          aria-label={tProfile("location")}
         />
       </p>
 
@@ -241,8 +246,8 @@ const EducationEntryEditor = React.memo(function EducationEntryEditor({
           value={entry.description ?? ""}
           onChange={(html) => onChange({ description: html })}
           enableBulletList
-          placeholder="Add details about your studies, honors, projects…"
-          ariaLabel="Description"
+          placeholder={tEditor("educationDetailsPlaceholder")}
+          ariaLabel={tProfile("description")}
           keywords={keywords}
         />
       </div>

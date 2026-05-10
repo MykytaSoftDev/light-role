@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/shared/empty-state";
@@ -25,16 +26,15 @@ export function ResumesEmptyState({
   variant,
   onClearFilters,
 }: ResumesEmptyStateProps) {
+  const t = useTranslations("Resumes.list");
   if (variant === "no-matches") {
     return (
       <div className="rounded-xl border border-dashed border-border bg-muted/20 p-12 text-center">
-        <p className="text-sm text-muted-foreground">
-          No resumes match your filters.
-        </p>
+        <p className="text-sm text-muted-foreground">{t("noMatches")}</p>
         {onClearFilters && (
           <div className="mt-4">
             <Button variant="outline" onClick={onClearFilters}>
-              Clear filters
+              {t("clear")}
             </Button>
           </div>
         )}
@@ -46,10 +46,10 @@ export function ResumesEmptyState({
     <div className="flex flex-1 items-center justify-center rounded-xl border border-border bg-muted/30 py-16">
       <EmptyState
         icon={<FileText className="h-8 w-8" />}
-        title="No resumes yet."
-        description="Tailor your profile into a resume targeted at a specific job. Takes about 30 seconds."
+        title={t("empty.title")}
+        description={t("empty.description")}
         action={{
-          label: "Tailor your first resume",
+          label: t("empty.cta"),
           href: "/dashboard/resumes/tailor",
         }}
       />

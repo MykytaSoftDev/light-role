@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -30,20 +31,19 @@ export function DeleteCoverLetterDialog({
   coverLetterName,
   onConfirm,
 }: DeleteCoverLetterDialogProps) {
+  const t = useTranslations("coverLetters.list.delete");
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Delete this cover letter?</DialogTitle>
+          <DialogTitle>{t("title")}</DialogTitle>
           <DialogDescription>
-            &ldquo;{coverLetterName}&rdquo; will be permanently deleted. The
-            linked Job stays untouched, and you can generate a new cover
-            letter for it any time.
+            {t("body", { name: coverLetterName })}
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
+            {t("cancel")}
           </Button>
           <Button
             variant="destructive"
@@ -52,7 +52,7 @@ export function DeleteCoverLetterDialog({
               onConfirm();
             }}
           >
-            Delete
+            {t("confirm")}
           </Button>
         </DialogFooter>
       </DialogContent>

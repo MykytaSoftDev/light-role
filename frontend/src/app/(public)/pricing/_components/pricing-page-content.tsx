@@ -6,6 +6,7 @@ import { useUser } from "@/hooks/api/useUser";
 import { type Plan, usePlans } from "@/hooks/api/usePlans";
 import { usePlan } from "@/hooks/use-plan";
 import { CheckCircle } from "lucide-react";
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -28,39 +29,40 @@ function savingsPercent(plan: Plan): number {
 // Build features dynamically from the v2.1 plan API shape. Mirrors the helper
 // used by `UpgradePage` (MONETIZE-10) so the public pricing page and the
 // in-dashboard upgrade page stay consistent.
-function buildFeatures(plan: Plan): string[] {
-  const jobsLabel =
-    plan.max_active_jobs === null
-      ? "Unlimited active jobs"
-      : `Up to ${plan.max_active_jobs} active jobs`;
+function makeBuildFeatures(
+  tFeatures: (key: string, values?: Record<string, string | number>) => string
+) {
+  return (plan: Plan): string[] => {
+    const jobsLabel =
+      plan.max_active_jobs === null
+        ? tFeatures("jobsUnlimited")
+        : tFeatures("jobsLimited", { count: plan.max_active_jobs });
 
-  const resumeLabel =
-    plan.resume_credits_per_cycle === null
-      ? "Unlimited resume tailorings"
-      : `${plan.resume_credits_per_cycle} resume tailorings / cycle`;
+    const resumeLabel =
+      plan.resume_credits_per_cycle === null
+        ? tFeatures("resumeTailoringsUnlimited")
+        : tFeatures("resumeTailoringsLimited", { count: plan.resume_credits_per_cycle });
 
-  const clLabel =
-    plan.cl_credits_per_cycle === null
-      ? "Unlimited cover letters"
-      : `${plan.cl_credits_per_cycle} cover letters / cycle`;
+    const clLabel =
+      plan.cl_credits_per_cycle === null
+        ? tFeatures("coverLettersUnlimited")
+        : tFeatures("coverLettersLimited", { count: plan.cl_credits_per_cycle });
 
-  const features = [
-    jobsLabel,
-    resumeLabel,
-    clLabel,
-    "Smart job description parsing",
-  ];
+    const features = [jobsLabel, resumeLabel, clLabel, tFeatures("priorityAi")];
 
-  if (plan.analytics_enabled) features.push("Analytics dashboard");
-  if (plan.code !== "free") features.push("Cancel anytime");
+    if (plan.analytics_enabled) features.push(tFeatures("analytics"));
+    if (plan.code !== "free") features.push(tFeatures("support"));
 
-  return features;
+    return features;
+  };
 }
 
-function planCopy(plan: Plan): string {
-  if (plan.code === "free") return "Everything you need to start your job search.";
-  if (plan.code === "pro") return "For serious job seekers who want the full AI-powered toolkit.";
-  return "Maximum power. No limits, ever.";
+function makePlanCopy(tCopy: (key: string) => string) {
+  return (plan: Plan): string => {
+    if (plan.code === "free") return tCopy("free");
+    if (plan.code === "pro") return tCopy("pro");
+    return tCopy("unlimited");
+  };
 }
 
 // ── Plan card ──────────────────────────────────────────────────────────────
@@ -161,6 +163,13 @@ function PlanCard({
 export function PricingPageContent() {
   const [cycle, setCycle] = useState<"monthly" | "annual">("monthly");
   const { data: plans, isLoading } = usePlans();
+  const tPricing = useTranslations("Pricing");
+  const tFeatures = useTranslations("Pricing.features");
+  const tCopy = useTranslations("Pricing.copy");
+  const tCta = useTranslations("Pricing.cta");
+  const tStates = useTranslations("Common.states");
+  const buildFeatures = makeBuildFeatures(tFeatures);
+  const planCopy = makePlanCopy(tCopy);
 
   // Auth detection: `useUser()` queries `/api/v1/users/me`. On a public
   // visit it 401s and surfaces as `isError`. When logged-in, `data` is
@@ -191,7 +200,7 @@ export function PricingPageContent() {
 
   function annualNoteFor(plan: Plan): string | undefined {
     if (plan.code === "free" || cycle !== "annual") return undefined;
-    return `Billed ${formatCents(plan.price_annual_cents)} annually`;
+    return tPricing("billedAnnually");
   }
 
   // CTA logic — see brief section 2.
@@ -199,35 +208,37 @@ export function PricingPageContent() {
     if (!isLoggedIn) {
       // Anonymous → register, prefilled with the chosen plan.
       if (plan.code === "free") {
-        return { label: "Get Started Free", href: "/auth/register?plan=free" };
+        return { label: tCta("getStartedFree"), href: "/auth/register?plan=free" };
       }
-      const proper = plan.name; // "Pro" / "Unlimited"
-      return { label: `Start with ${proper}`, href: `/auth/register?plan=${plan.code}` };
+      return {
+        label: tCta("startWithPlan", { plan: plan.name }),
+        href: `/auth/register?plan=${plan.code}`,
+      };
     }
 
     // Logged-in branch.
     const isCurrent = currentPlanCode === plan.code;
     if (isCurrent) {
-      return { label: "Your current plan", disabled: true };
+      return { label: tCta("yourCurrentPlan"), disabled: true };
     }
 
     if (plan.code === "free") {
       // User is on a paid plan looking at Free → downgrade flow.
-      return { label: "Downgrade", href: "/dashboard/subscription" };
+      return { label: tCta("downgrade"), href: "/dashboard/subscription" };
     }
 
     // Paid target.
-    return { label: `Upgrade to ${plan.name}`, href: "/dashboard/upgrade" };
+    return { label: tCta("upgradeTo", { plan: plan.name }), href: "/dashboard/upgrade" };
   }
 
   return (
     <main className="mx-auto max-w-6xl px-4 py-16 sm:py-24">
       <div className="text-center space-y-4">
         <h1 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-          Simple, Transparent Pricing
+          {tPricing("heading")}
         </h1>
         <p className="mx-auto max-w-xl text-base text-muted-foreground">
-          Start free and upgrade when you need more. No hidden fees, no surprises.
+          {tPricing("subheading")}
         </p>
 
         <div className="flex justify-center pt-2">
@@ -249,14 +260,14 @@ export function PricingPageContent() {
                 pricePeriod="/mo"
                 description=""
                 features={[]}
-                ctaLabel="Loading…"
+                ctaLabel={tStates("loading")}
                 ctaDisabled
               />
             ))
           : sortedPlans.map((plan) => {
               const cta = ctaFor(plan);
               const highlighted = plan.code === "pro";
-              const badge = plan.code === "pro" ? "Most Popular" : undefined;
+              const badge = plan.code === "pro" ? tPricing("mostPopular") : undefined;
 
               return (
                 <PlanCard
@@ -278,17 +289,7 @@ export function PricingPageContent() {
       </div>
 
       <p className="mt-10 text-center text-xs text-muted-foreground">
-        All prices in USD. Taxes may apply based on your location. Payments
-        processed securely by{" "}
-        <a
-          href="https://paddle.com"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="underline underline-offset-2 hover:text-foreground"
-        >
-          Paddle
-        </a>
-        .
+        {tPricing("priceFootnote")}
       </p>
     </main>
   );

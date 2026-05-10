@@ -15,6 +15,7 @@
  *   - Drag-to-reorder via dnd-kit horizontal sortable.
  */
 import * as React from "react";
+import { useTranslations } from "next-intl";
 import {
   DndContext,
   KeyboardSensor,
@@ -62,12 +63,14 @@ export function ChipInputField({
   onAdd,
   onRemove,
   onReorder,
-  placeholder = "Type and press Enter",
+  placeholder,
   size = "sm",
   ariaLabel,
   className,
   disabled = false,
 }: ChipInputFieldProps) {
+  const t = useTranslations("Resumes.editor.fields");
+  const resolvedPlaceholder = placeholder ?? t("chipPlaceholder");
   const [input, setInput] = React.useState("");
   const inputRef = React.useRef<HTMLInputElement>(null);
 
@@ -153,8 +156,8 @@ export function ChipInputField({
           // typed when clicking elsewhere.
           if (input.trim()) commit(input);
         }}
-        placeholder={values.length === 0 ? placeholder : ""}
-        aria-label={ariaLabel ?? "Add"}
+        placeholder={values.length === 0 ? resolvedPlaceholder : ""}
+        aria-label={ariaLabel ?? t("addChip")}
         className={cn(
           "flex-1 min-w-[6rem] bg-transparent outline-none",
           size === "xs" ? "text-xs" : "text-sm"
@@ -177,6 +180,7 @@ interface ChipProps {
 }
 
 function Chip({ id, label, size, onRemove }: ChipProps) {
+  const t = useTranslations("Resumes.editor.fields");
   const {
     attributes,
     listeners,
@@ -203,7 +207,7 @@ function Chip({ id, label, size, onRemove }: ChipProps) {
     >
       <button
         type="button"
-        aria-label={`Drag ${label}`}
+        aria-label={t("dragChipAria", { label })}
         className="cursor-grab touch-none text-muted-foreground/70 hover:text-foreground active:cursor-grabbing"
         {...attributes}
         {...listeners}
@@ -214,7 +218,7 @@ function Chip({ id, label, size, onRemove }: ChipProps) {
       <button
         type="button"
         onClick={onRemove}
-        aria-label={`Remove ${label}`}
+        aria-label={t("removeChipAria", { label })}
         className="rounded text-muted-foreground/70 hover:text-destructive"
       >
         <XIcon className={size === "xs" ? "h-3 w-3" : "h-3.5 w-3.5"} />

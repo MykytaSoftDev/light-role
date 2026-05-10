@@ -18,6 +18,7 @@
  * and doesn't support optional/clearable values.
  */
 import * as React from "react";
+import { useTranslations } from "next-intl";
 import { CalendarDays, X as XIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -59,12 +60,15 @@ export interface MonthInputProps {
 export function MonthInput({
   value,
   onChange,
-  placeholder = "Select date",
+  placeholder,
   clearable = false,
   disabled = false,
   className,
   ariaLabel,
 }: MonthInputProps) {
+  const t = useTranslations("Resumes.editor.fields");
+  const tCommon = useTranslations("Common.actions");
+  const resolvedPlaceholder = placeholder ?? t("monthSelectPlaceholder");
   const [open, setOpen] = React.useState(false);
 
   // Parse current value into year + month indexes (0-11). When value is
@@ -118,7 +122,7 @@ export function MonthInput({
         <button
           type="button"
           disabled={disabled}
-          aria-label={ariaLabel ?? "Pick month and year"}
+          aria-label={ariaLabel ?? t("pickMonthYearAria")}
           className={cn(
             "inline-flex items-center gap-1 rounded-md border border-transparent",
             "hover:border-border focus:border-primary focus:outline-none",
@@ -129,14 +133,14 @@ export function MonthInput({
           )}
         >
           <CalendarDays className="h-3.5 w-3.5 opacity-60" />
-          <span className="truncate">{display || placeholder}</span>
+          <span className="truncate">{display || resolvedPlaceholder}</span>
         </button>
       </PopoverTrigger>
       <PopoverContent className="w-64 p-3" align="start">
         <div className="grid grid-cols-2 gap-2">
           <label className="space-y-1">
             <span className="text-xs font-medium text-muted-foreground">
-              Year
+              {t("yearLabel")}
             </span>
             <select
               value={yearDraft}
@@ -156,7 +160,7 @@ export function MonthInput({
           </label>
           <label className="space-y-1">
             <span className="text-xs font-medium text-muted-foreground">
-              Month
+              {t("monthLabel")}
             </span>
             <select
               value={monthDraft}
@@ -188,7 +192,7 @@ export function MonthInput({
               }}
             >
               <XIcon className="h-3.5 w-3.5" />
-              Clear
+              {tCommon("clear")}
             </Button>
           ) : (
             <span />
@@ -199,7 +203,7 @@ export function MonthInput({
             className="h-8"
             onClick={() => setOpen(false)}
           >
-            Done
+            {t("doneButton")}
           </Button>
         </div>
       </PopoverContent>

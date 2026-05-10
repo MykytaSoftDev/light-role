@@ -12,6 +12,7 @@
  * no Tiptap editors to scroll to).
  */
 import * as React from "react";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
@@ -29,6 +30,7 @@ interface MatchedKeywordsProps {
 }
 
 export function MatchedKeywords({ keywords, isEditMode }: MatchedKeywordsProps) {
+  const t = useTranslations("Resumes.editor.insightsPanel");
   const scroll = useKeywordScroll();
 
   const handleChipClick = React.useCallback(
@@ -36,7 +38,7 @@ export function MatchedKeywords({ keywords, isEditMode }: MatchedKeywordsProps) 
       if (!scroll) return;
       const hit = scroll.findFirstOccurrence(term);
       if (!hit) {
-        toast.info("No occurrences in the current draft.");
+        toast.info(t("noOccurrences"));
         return;
       }
       const { editor, from } = hit;
@@ -64,11 +66,9 @@ export function MatchedKeywords({ keywords, isEditMode }: MatchedKeywordsProps) 
     return (
       <div>
         <h3 className="text-sm font-semibold tracking-tight mb-2">
-          Matched keywords
+          {t("matchedKeywords")}
         </h3>
-        <p className="text-sm text-muted-foreground">
-          No keywords matched yet.
-        </p>
+        <p className="text-sm text-muted-foreground">{t("noKeywordsMatched")}</p>
       </div>
     );
   }
@@ -77,7 +77,7 @@ export function MatchedKeywords({ keywords, isEditMode }: MatchedKeywordsProps) 
     <div>
       <div className="flex items-center justify-between mb-2">
         <h3 className="text-sm font-semibold tracking-tight">
-          Matched keywords
+          {t("matchedKeywords")}
         </h3>
         <Badge variant="secondary">{keywords.length}</Badge>
       </div>
@@ -96,7 +96,7 @@ export function MatchedKeywords({ keywords, isEditMode }: MatchedKeywordsProps) 
               title={kw.term}
               aria-label={
                 isEditMode
-                  ? `Scroll to first occurrence of ${kw.term}`
+                  ? t("scrollToOccurrence", { keyword: kw.term })
                   : kw.term
               }
             >

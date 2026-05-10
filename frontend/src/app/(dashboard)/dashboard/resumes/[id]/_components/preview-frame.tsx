@@ -15,6 +15,7 @@
  *       docs/v2/specs/editor-edit-mode-spec.md §4.
  */
 import * as React from "react";
+import { useTranslations } from "next-intl";
 
 import { cn } from "@/lib/utils";
 
@@ -35,10 +36,11 @@ interface PreviewFrameProps {
 }
 
 export function PreviewFrame({ mode = "preview", children }: PreviewFrameProps) {
+  const t = useTranslations("Resumes.editor");
   return (
     <div
       role="region"
-      aria-label="Resume preview"
+      aria-label={t("preview")}
       className={cn(
         "rounded-md bg-card overflow-hidden transition-all duration-200",
         mode === "edit"

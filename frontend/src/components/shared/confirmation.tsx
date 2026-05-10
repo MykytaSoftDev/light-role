@@ -1,3 +1,5 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import {
     Dialog,
@@ -6,6 +8,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog";
+import { useTranslations } from "next-intl";
 import { ReactNode } from "react";
 
 export interface Props {
@@ -17,7 +20,8 @@ export interface Props {
   confirmLabel?: string;
 }
 
-export function Confirmation({ isOpen, onClose, title, description, onConfirm, confirmLabel = "Confirm" }: Props) {
+export function Confirmation({ isOpen, onClose, title, description, onConfirm, confirmLabel }: Props) {
+  const t = useTranslations("Common.actions");
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent>
@@ -28,10 +32,10 @@ export function Confirmation({ isOpen, onClose, title, description, onConfirm, c
           <DialogDescription>{description}</DialogDescription>
           <div className={"flex w-full items-center justify-end gap-4"}>
             <Button onClick={() => onClose(false)} variant={"outline"}>
-              Close
+              {t("close")}
             </Button>
             <Button onClick={() => onConfirm()} variant={"destructive"}>
-              {confirmLabel}
+              {confirmLabel ?? t("confirm")}
             </Button>
           </div>
         </div>

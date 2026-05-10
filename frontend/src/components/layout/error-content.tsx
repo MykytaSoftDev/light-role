@@ -1,3 +1,8 @@
+"use client";
+
+import { useTranslations } from "next-intl";
+
 export function ErrorContent() {
-  return <div className={"text-center"}>Something went wrong, please try again later.</div>;
+  const t = useTranslations("Common.toast");
+  return <div className={"text-center"}>{t("genericError")}</div>;
 }

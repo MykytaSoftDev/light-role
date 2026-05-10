@@ -29,6 +29,7 @@ export function SortableEntryCard({
   id,
   onEdit,
   onDelete,
+  // English defaults intended as fallback; callers should pass translated labels.
   editLabel = "Edit entry",
   deleteLabel = "Delete entry",
   dragLabel = "Drag to reorder",

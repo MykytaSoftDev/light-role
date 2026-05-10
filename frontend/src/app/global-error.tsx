@@ -3,6 +3,15 @@
 import * as Sentry from "@sentry/nextjs";
 import { useEffect } from "react";
 
+// NOTE: This file replaces the entire app shell when the root segment errors,
+// so it renders its own <html>/<body>. It runs OUTSIDE NextIntlClientProvider,
+// so `useTranslations` is not usable here. Keys mirror Errors.global.* in
+// en.json and must be kept in sync manually if labels change.
+//
+// TODO i18n: localize global-error strings via a different mechanism (e.g.
+// inline import of messages JSON keyed by request locale cookie). For MVP
+// this file ships English-only.
+
 export default function GlobalError({
   error,
   reset,
@@ -30,10 +39,10 @@ export default function GlobalError({
           }}
         >
           <h1 style={{ fontSize: "2rem", fontWeight: "bold" }}>
-            Something went wrong
+            Application error
           </h1>
           <p style={{ color: "#666", marginTop: "1rem" }}>
-            An unexpected error occurred. Please try again.
+            Something went wrong loading the page.
           </p>
           <button
             onClick={reset}

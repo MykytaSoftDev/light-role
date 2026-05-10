@@ -20,21 +20,24 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { useTranslations } from "next-intl";
 
 // ---------------------------------------------------------------------------
 // Schema & types
 // ---------------------------------------------------------------------------
 
-const jobSchema = z.object({
-  title: z.string().min(1, "Job title is required"),
-  company: z.string().min(1, "Company is required"),
-  location: z.string().optional(),
-  salary: z.string().optional(),
-  description_raw: z.string().optional(),
-  requirements: z.array(z.string()).optional(),
-});
+function makeJobSchema(t: (key: string) => string) {
+  return z.object({
+    title: z.string().min(1, t("titleLabel") + " — " + t("invalidFieldsError")),
+    company: z.string().min(1, t("companyLabel") + " — " + t("invalidFieldsError")),
+    location: z.string().optional(),
+    salary: z.string().optional(),
+    description_raw: z.string().optional(),
+    requirements: z.array(z.string()).optional(),
+  });
+}
 
-type JobFormValues = z.infer<typeof jobSchema>;
+type JobFormValues = z.infer<ReturnType<typeof makeJobSchema>>;
 
 interface ParsedJob {
   job_title: string;
@@ -43,16 +46,6 @@ interface ParsedJob {
   location: string;
   salary: string;
 }
-
-// ---------------------------------------------------------------------------
-// Loading messages for AI parse
-// ---------------------------------------------------------------------------
-
-const LOADING_MESSAGES = [
-  "Reading job description...",
-  "Extracting details...",
-  "Almost done...",
-];
 
 // ---------------------------------------------------------------------------
 // Requirements tag input
@@ -65,6 +58,8 @@ interface RequirementsInputProps {
 }
 
 function RequirementsInput({ tags, onAdd, onRemove }: RequirementsInputProps) {
+  const tCommon = useTranslations("Common");
+  const tJob = useTranslations("Jobs.new");
   const [inputValue, setInputValue] = useState("");
 
   function commitTag(raw: string) {
@@ -114,7 +109,7 @@ function RequirementsInput({ tags, onAdd, onRemove }: RequirementsInputProps) {
             type="button"
             onClick={() => onRemove(i)}
             className="flex items-center text-muted-foreground hover:text-foreground transition-colors"
-            aria-label={`Remove ${tag}`}
+            aria-label={`${tCommon("actions.remove")} ${tag}`}
           >
             <X className="h-3 w-3" />
           </button>
@@ -125,7 +120,7 @@ function RequirementsInput({ tags, onAdd, onRemove }: RequirementsInputProps) {
         value={inputValue}
         onChange={handleChange}
         onKeyDown={handleKeyDown}
-        placeholder={tags.length === 0 ? "Type a skill and press Enter or comma..." : ""}
+        placeholder={tags.length === 0 ? tJob("requirementsPlaceholder") : ""}
         className="min-w-[120px] flex-1 bg-transparent placeholder:text-muted-foreground outline-none text-sm"
       />
     </div>
@@ -138,6 +133,14 @@ function RequirementsInput({ tags, onAdd, onRemove }: RequirementsInputProps) {
 
 export default function NewJobPage() {
   const router = useRouter();
+  const t = useTranslations("Jobs.new");
+  const tCommon = useTranslations("Common");
+  const tAuth = useTranslations("Auth.common");
+
+  // Module-level constants would resolve before useTranslations, so we keep
+  // these inside the component.
+  const LOADING_MESSAGES = (t.raw("parsingMessages") as string[]) ?? [];
+  const jobSchema = makeJobSchema(t);
 
   // Mode: 'ai' or 'manual'
   const [mode, setMode] = useState<"ai" | "manual">("ai");
@@ -145,7 +148,7 @@ export default function NewJobPage() {
   // AI parse state
   const [rawText, setRawText] = useState("");
   const [isParsing, setIsParsing] = useState(false);
-  const [loadingMessage, setLoadingMessage] = useState(LOADING_MESSAGES[0]);
+  const [loadingMessage, setLoadingMessage] = useState(LOADING_MESSAGES[0] ?? "");
   const loadingIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Whether the review form is visible
@@ -215,6 +218,7 @@ export default function NewJobPage() {
   // ------------------------------------------------------------------
 
   function startLoadingMessages() {
+    if (LOADING_MESSAGES.length === 0) return;
     let idx = 0;
     setLoadingMessage(LOADING_MESSAGES[0]);
     loadingIntervalRef.current = setInterval(() => {
@@ -259,10 +263,10 @@ export default function NewJobPage() {
         // MONETIZE-14: /jobs/parse no longer enforces AI quota (Phase 5.1
         // removed `require_ai_quota`), so a credit-error envelope is not
         // expected here — surface a generic message and offer Manual mode.
-        setServerError("Failed to parse the job description. Please try again or use Manual mode.");
+        setServerError(t("parseErrorToast"));
       }
     } catch {
-      setServerError("Unable to connect. Check your internet connection.");
+      setServerError(tAuth("networkError"));
     } finally {
       stopLoadingMessages();
       setIsParsing(false);
@@ -302,12 +306,12 @@ export default function NewJobPage() {
       }
 
       if (res.status === 422) {
-        setServerError("Some fields are invalid. Please review and try again.");
+        setServerError(t("invalidFieldsError"));
       } else {
-        setServerError("Something went wrong. Please try again.");
+        setServerError(tCommon("toast.genericError"));
       }
     } catch {
-      setServerError("Unable to connect. Check your internet connection.");
+      setServerError(tAuth("networkError"));
     }
   }
 
@@ -343,9 +347,9 @@ export default function NewJobPage() {
       )}
       {/* Page header */}
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight text-foreground">Add New Job</h1>
+        <h1 className="text-2xl font-semibold tracking-tight text-foreground">{t("title")}</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Paste a job description and let AI extract the details, or fill in the form manually.
+          {t("subtitle")}
         </p>
       </div>
 
@@ -361,7 +365,7 @@ export default function NewJobPage() {
               : "text-muted-foreground hover:text-foreground"
           )}
         >
-          AI Parse
+          {t("modeAi")}
         </button>
         <button
           type="button"
@@ -373,7 +377,7 @@ export default function NewJobPage() {
               : "text-muted-foreground hover:text-foreground"
           )}
         >
-          Manual
+          {t("modeManual")}
         </button>
       </div>
 
@@ -384,13 +388,13 @@ export default function NewJobPage() {
         {mode === "ai" && !showForm && (
           <div className="space-y-4">
             <div className="space-y-1.5">
-              <Label htmlFor="paste-area">Paste job description</Label>
+              <Label htmlFor="paste-area">{t("pasteLabel")}</Label>
               <textarea
                 id="paste-area"
                 rows={10}
                 value={rawText}
                 onChange={(e) => setRawText(e.target.value)}
-                placeholder="Paste the full job description here..."
+                placeholder={t("pastePlaceholder")}
                 disabled={isParsing}
                 className={cn(
                   "flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background",
@@ -425,7 +429,7 @@ export default function NewJobPage() {
               ) : (
                 <>
                   <Sparkles className="h-4 w-4" />
-                  Parse with AI
+                  {t("parseButton")}
                 </>
               )}
             </Button>
@@ -438,9 +442,7 @@ export default function NewJobPage() {
             {/* Context strip when coming from AI parse */}
             {mode === "ai" && (
               <div className="flex items-center justify-between rounded-md border border-border bg-muted/40 px-3 py-2">
-                <span className="text-xs text-muted-foreground">
-                  Review and edit the parsed details below before saving.
-                </span>
+                <span className="text-xs text-muted-foreground">{t("reviewHint")}</span>
                 <button
                   type="button"
                   onClick={() => {
@@ -449,7 +451,7 @@ export default function NewJobPage() {
                   }}
                   className="text-xs text-muted-foreground hover:text-foreground underline-offset-2 hover:underline transition-colors"
                 >
-                  Start over
+                  {t("startOver")}
                 </button>
               </div>
             )}
@@ -467,11 +469,11 @@ export default function NewJobPage() {
               {/* Job Title */}
               <div className="space-y-1.5">
                 <Label htmlFor="title">
-                  Job Title <span className="text-destructive">*</span>
+                  {t("titleLabel")} <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="title"
-                  placeholder="e.g. Senior Frontend Engineer"
+                  placeholder={t("titlePlaceholder")}
                   {...register("title")}
                   className={cn(
                     errors.title && "border-destructive focus-visible:ring-destructive"
@@ -485,11 +487,11 @@ export default function NewJobPage() {
               {/* Company */}
               <div className="space-y-1.5">
                 <Label htmlFor="company">
-                  Company <span className="text-destructive">*</span>
+                  {t("companyLabel")} <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="company"
-                  placeholder="e.g. Acme Corp"
+                  placeholder={t("companyPlaceholder")}
                   {...register("company")}
                   className={cn(
                     errors.company && "border-destructive focus-visible:ring-destructive"
@@ -505,20 +507,20 @@ export default function NewJobPage() {
             <div className="grid gap-4 sm:grid-cols-2">
               {/* Location */}
               <div className="space-y-1.5">
-                <Label htmlFor="location">Location</Label>
+                <Label htmlFor="location">{t("locationLabel")}</Label>
                 <Input
                   id="location"
-                  placeholder="e.g. Remote, New York, NY"
+                  placeholder={t("locationPlaceholder")}
                   {...register("location")}
                 />
               </div>
 
               {/* Salary */}
               <div className="space-y-1.5">
-                <Label htmlFor="salary">Salary Range</Label>
+                <Label htmlFor="salary">{t("salaryLabel")}</Label>
                 <Input
                   id="salary"
-                  placeholder="e.g. $120k – $160k"
+                  placeholder={t("salaryPlaceholder")}
                   {...register("salary")}
                 />
               </div>
@@ -526,11 +528,11 @@ export default function NewJobPage() {
 
             {/* Job Description */}
             <div className="space-y-1.5">
-              <Label htmlFor="description_raw">Job Description</Label>
+              <Label htmlFor="description_raw">{t("descriptionLabel")}</Label>
               <textarea
                 id="description_raw"
                 rows={4}
-                placeholder="Paste or type the full job description..."
+                placeholder={t("descriptionPlaceholder")}
                 {...register("description_raw")}
                 className={cn(
                   "flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background",
@@ -544,11 +546,9 @@ export default function NewJobPage() {
 
             {/* Requirements */}
             <div className="space-y-1.5">
-              <Label htmlFor="requirements-input">Requirements / Skills</Label>
+              <Label htmlFor="requirements-input">{t("requirementsLabel")}</Label>
               <RequirementsInput tags={tags} onAdd={addTag} onRemove={removeTag} />
-              <p className="text-xs text-muted-foreground">
-                Type a skill and press Enter or comma to add it as a tag.
-              </p>
+              <p className="text-xs text-muted-foreground">{t("requirementsHint")}</p>
             </div>
 
             {/* Divider */}
@@ -558,7 +558,7 @@ export default function NewJobPage() {
             <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
               <Link href="/dashboard/jobs">
                 <Button type="button" variant="outline" className="w-full sm:w-auto">
-                  Cancel
+                  {tCommon("actions.cancel")}
                 </Button>
               </Link>
               <Button
@@ -569,10 +569,10 @@ export default function NewJobPage() {
                 {isSubmitting ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin" />
-                    Saving...
+                    {tCommon("states.saving")}
                   </>
                 ) : (
-                  "Confirm & Save"
+                  t("confirmAndSave")
                 )}
               </Button>
             </div>

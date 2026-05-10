@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import { use } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 import {
   ArrowLeft,
   Download,
@@ -29,38 +30,11 @@ import type { CLStyle, CLTone, CLLength } from "@/types/cover-letter";
 // Helpers
 // ---------------------------------------------------------------------------
 
-function formatStyle(style: CLStyle): string {
-  switch (style) {
-    case "job_matched":
-      return "Job Matched";
-    case "formal":
-      return "Formal";
-    case "professional":
-      return "Professional";
-  }
-}
-
-function formatTone(tone: CLTone): string {
-  switch (tone) {
-    case "confident":
-      return "Confident";
-    case "humble":
-      return "Humble";
-    case "enthusiastic":
-      return "Enthusiastic";
-  }
-}
-
-function formatLength(length: CLLength): string {
-  switch (length) {
-    case "short":
-      return "Short";
-    case "medium":
-      return "Medium";
-    case "long":
-      return "Long";
-  }
-}
+// These were module-level helpers; replaced by inline translation lookups
+// inside `EditorPanel` below. Keeping the type signatures documented here:
+//   formatStyle(style: CLStyle) → translated label via coverLetters.wizard.step2.style.*.title
+//   formatTone(tone: CLTone)    → coverLetters.wizard.step2.tone.*.title
+//   formatLength(length: CLLength) → coverLetters.wizard.step2.length.*.title
 
 // ---------------------------------------------------------------------------
 // Auto-resizing textarea hook
@@ -86,6 +60,7 @@ function useAutoResize(value: string) {
 type SaveStatus = "idle" | "saving" | "saved" | "error";
 
 function SaveIndicator({ status }: { status: SaveStatus }) {
+  const tCommon = useTranslations("Common");
   if (status === "idle") return null;
   return (
     <div
@@ -98,9 +73,9 @@ function SaveIndicator({ status }: { status: SaveStatus }) {
       {status === "saved" && <Check className="h-3 w-3" />}
       {status === "error" && <AlertCircle className="h-3 w-3 text-destructive" />}
       <span>
-        {status === "saving" && "Saving..."}
-        {status === "saved" && "Saved"}
-        {status === "error" && "Save failed"}
+        {status === "saving" && tCommon("states.saving")}
+        {status === "saved" && tCommon("toast.saved")}
+        {status === "error" && tCommon("toast.saveFailed")}
       </span>
     </div>
   );
@@ -138,13 +113,34 @@ function EditorPanel({
   isExporting,
 }: EditorPanelProps) {
   const textareaRef = useAutoResize(content);
+  const t = useTranslations("CoverLetters.details");
+  const tStep2 = useTranslations("coverLetters.wizard.step2");
+
+  // Style/tone/length labels resolved from the wizard step2 namespace where
+  // the human-readable strings already live. Note key casing: the dictionary
+  // uses camelCase ("jobMatched"), our type uses snake_case ("job_matched").
+  const styleLabel: Record<CLStyle, string> = {
+    job_matched: tStep2("style.jobMatched.title"),
+    formal: tStep2("style.formal.title"),
+    professional: tStep2("style.professional.title"),
+  };
+  const toneLabel: Record<CLTone, string> = {
+    confident: tStep2("tone.confident.title"),
+    humble: tStep2("tone.humble.title"),
+    enthusiastic: tStep2("tone.enthusiastic.title"),
+  };
+  const lengthLabel: Record<CLLength, string> = {
+    short: tStep2("length.short.title"),
+    medium: tStep2("length.medium.title"),
+    long: tStep2("length.long.title"),
+  };
 
   return (
     <div className="flex flex-col gap-4 h-full">
       {/* Name input */}
       <div className="flex flex-col gap-1">
         <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-          Cover Letter Name
+          {t("nameLabel")}
         </label>
         <input
           type="text"
@@ -154,23 +150,23 @@ function EditorPanel({
             "w-full rounded-md border border-input bg-background px-3 py-2 text-sm font-semibold",
             "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
           )}
-          placeholder="Cover letter name..."
+          placeholder={t("namePlaceholder")}
         />
       </div>
 
       {/* Settings display — read-only per PRD §6.6 (immutable after wizard). */}
       <div
         className="flex flex-wrap gap-2"
-        aria-label="Generation settings (read-only)"
+        aria-label={t("settingsAriaLabel")}
       >
         <Badge variant="secondary" className="font-medium">
-          Style: {formatStyle(style)}
+          {t("styleLabel")}: {styleLabel[style]}
         </Badge>
         <Badge variant="secondary" className="font-medium">
-          Tone: {formatTone(tone)}
+          {t("toneLabel")}: {toneLabel[tone]}
         </Badge>
         <Badge variant="secondary" className="font-medium">
-          Length: {formatLength(length)}
+          {t("lengthLabel")}: {lengthLabel[length]}
         </Badge>
       </div>
 
@@ -178,7 +174,7 @@ function EditorPanel({
       <div className="flex flex-col gap-1 flex-1">
         <div className="flex items-center justify-between">
           <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-            Content
+            {t("contentLabel")}
           </label>
           <SaveIndicator status={saveStatus} />
         </div>
@@ -192,7 +188,7 @@ function EditorPanel({
             "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
             "resize-none overflow-hidden leading-relaxed"
           )}
-          placeholder="Your cover letter content..."
+          placeholder={t("contentPlaceholder")}
         />
       </div>
 
@@ -210,7 +206,7 @@ function EditorPanel({
           ) : (
             <Download className="h-3.5 w-3.5" />
           )}
-          Export PDF
+          {t("downloadPdf")}
         </Button>
         <Button
           variant="outline"
@@ -224,7 +220,7 @@ function EditorPanel({
           ) : (
             <Download className="h-3.5 w-3.5" />
           )}
-          Export DOCX
+          {t("downloadDocx")}
         </Button>
       </div>
     </div>
@@ -236,19 +232,18 @@ function EditorPanel({
 // ---------------------------------------------------------------------------
 
 function PreviewPanel({ name, content }: { name: string; content: string }) {
+  const t = useTranslations("CoverLetters.details");
   return (
     <div className="h-full overflow-y-auto">
       <div className="rounded-xl border border-border bg-white dark:bg-zinc-900 shadow-sm p-8 min-h-[600px]">
         {/* Document header area */}
         <div className="mb-6 pb-4 border-b border-border/50">
-          <h2 className="text-lg font-semibold text-foreground">{name || "Cover Letter"}</h2>
+          <h2 className="text-lg font-semibold text-foreground">{name || t("untitled")}</h2>
         </div>
         {/* Content */}
         <div className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">
           {content || (
-            <span className="text-muted-foreground italic">
-              Start typing your cover letter in the editor...
-            </span>
+            <span className="text-muted-foreground italic">{t("contentPreviewPlaceholder")}</span>
           )}
         </div>
       </div>
@@ -271,6 +266,8 @@ function MobileTabView({
   content: string;
   editorProps: EditorPanelProps;
 }) {
+  const tCommon = useTranslations("Common");
+  const tDetails = useTranslations("CoverLetters.details");
   const [activeTab, setActiveTab] = useState<MobileTab>("edit");
   return (
     <div>
@@ -286,7 +283,7 @@ function MobileTabView({
                 : "text-muted-foreground hover:text-foreground"
             )}
           >
-            {tab === "edit" ? "Edit" : "Preview"}
+            {tab === "edit" ? tCommon("actions.edit") : tDetails("previewTab")}
           </button>
         ))}
       </div>
@@ -312,6 +309,7 @@ export default function CoverLetterEditorPage({
 }) {
   const { id } = use(params);
   const queryClient = useQueryClient();
+  const t = useTranslations("CoverLetters.details");
 
   // Editor state
   const [name, setName] = useState("");
@@ -413,7 +411,7 @@ export default function CoverLetterEditorPage({
       // to consume the URL.
       setTimeout(() => URL.revokeObjectURL(url), 1000);
     } catch {
-      setExportError(`Failed to export as ${format.toUpperCase()}. Please try again.`);
+      setExportError(t("downloadError"));
       setTimeout(() => setExportError(null), 4000);
     } finally {
       setIsExporting(false);
@@ -447,7 +445,7 @@ export default function CoverLetterEditorPage({
           className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors w-fit"
         >
           <ArrowLeft className="h-3.5 w-3.5" />
-          Back to Cover Letters
+          {t("backToList")}
         </Link>
         <div
           className={cn(
@@ -465,9 +463,7 @@ export default function CoverLetterEditorPage({
           />
           <div>
             <p className="font-semibold">
-              {isNotFound
-                ? "Cover letter not found"
-                : "Failed to load cover letter"}
+              {isNotFound ? t("notFoundTitle") : t("loadErrorTitle")}
             </p>
             <p
               className={cn(
@@ -475,9 +471,7 @@ export default function CoverLetterEditorPage({
                 isNotFound ? "text-muted-foreground" : "text-destructive/80"
               )}
             >
-              {isNotFound
-                ? "This cover letter may have been deleted, or the link is incorrect."
-                : "There was an error loading this cover letter. Please go back and try again."}
+              {isNotFound ? t("notFoundBody") : t("loadErrorBody")}
             </p>
           </div>
         </div>
@@ -511,15 +505,13 @@ export default function CoverLetterEditorPage({
           className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
         >
           <ArrowLeft className="h-3.5 w-3.5" />
-          Back to Cover Letters
+          {t("backToList")}
         </Link>
       </div>
 
       <div>
-        <h1 className="text-2xl font-bold tracking-tight truncate">{name || "Cover Letter"}</h1>
-        <p className="mt-0.5 text-sm text-muted-foreground">
-          Changes are saved automatically.
-        </p>
+        <h1 className="text-2xl font-bold tracking-tight truncate">{name || t("untitled")}</h1>
+        <p className="mt-0.5 text-sm text-muted-foreground">{t("autosaveHint")}</p>
       </div>
 
       {/* Export error toast */}
@@ -541,7 +533,7 @@ export default function CoverLetterEditorPage({
         <div>
           <div className="sticky top-6">
             <p className="mb-2 text-xs font-medium text-muted-foreground uppercase tracking-wide">
-              Live Preview
+              {t("livePreviewLabel")}
             </p>
             <PreviewPanel name={name} content={content} />
           </div>

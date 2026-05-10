@@ -34,6 +34,9 @@ export class SubscriptionErrorBoundary extends Component<Props, State> {
 
   render() {
     if (this.state.hasError) {
+      // i18n note: class component can't use the useTranslations hook —
+      // strings here would need to be threaded in via props from a parent.
+      // Accepting the limitation for now; English copy stays inline.
       return (
         <div className="flex min-h-[400px] flex-col items-center justify-center space-y-6 p-8">
           <div className="space-y-4 text-center">

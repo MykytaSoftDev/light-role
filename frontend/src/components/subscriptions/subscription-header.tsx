@@ -1,7 +1,9 @@
+"use client";
+
 import { Subscription } from "@paddle/paddle-node-sdk";
 import dayjs from "dayjs";
 import Image from "next/image";
-
+import { useTranslations } from "next-intl";
 import { Status } from "@/components/shared/status";
 import { SubscriptionAlerts } from "@/components/subscriptions/subscription-alerts";
 import { SubscriptionHeaderActionButton } from "@/components/subscriptions/subscription-header-action-button";
@@ -17,6 +19,7 @@ interface Props {
 export function SubscriptionHeader({ subscription }: Props) {
   const subscriptionItem = subscription.items[0];
   const isFreePlan = subscription.id === "free";
+  const tHeader = useTranslations("Subscriptions.header");
 
   // Handle pricing display for free vs paid plans
   const getPriceDisplay = () => {
@@ -58,7 +61,7 @@ export function SubscriptionHeader({ subscription }: Props) {
               <div className="bg-primary/10 flex h-12 w-12 items-center justify-center rounded-full">
                 <Image
                   src={subscriptionItem.product.imageUrl}
-                  alt={subscriptionItem.price.name || "Plan"}
+                  alt={tHeader("planImageAlt", { name: subscriptionItem.price.name ?? "" })}
                   width={32}
                   height={32}
                   className="object-cover"
@@ -67,9 +70,11 @@ export function SubscriptionHeader({ subscription }: Props) {
             )}
             <div>
               <h2 className="text-foreground text-2xl font-bold">
-                {subscriptionItem.price.name} Plan
+                {tHeader("planSuffix", { name: subscriptionItem.price.name ?? "" })}
               </h2>
-              <p className="text-muted-foreground text-sm">Started {formattedStartedDate}</p>
+              <p className="text-muted-foreground text-sm">
+                {tHeader("startedOn", { date: formattedStartedDate })}
+              </p>
             </div>
           </div>
           <div className="flex items-center gap-3">

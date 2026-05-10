@@ -1,8 +1,11 @@
+"use client";
+
 import { PaymentMethodDetails } from "@/components/subscriptions/payment-method-details";
 import { Button } from "@/components/ui/button";
 import { PaymentType, Transaction } from "@paddle/paddle-node-sdk";
 import { CreditCard, ExternalLink } from "lucide-react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 
 function findPaymentMethodDetails(transactions?: Transaction[]) {
   const transactionWithPaymentDetails = transactions?.find(
@@ -21,6 +24,7 @@ interface Props {
 
 export function PaymentMethodSection({ transactions, updatePaymentMethodUrl }: Props) {
   const { type, card } = findPaymentMethodDetails(transactions);
+  const t = useTranslations("Subscriptions.paymentMethod");
   if (type === "unknown") {
     return null;
   }
@@ -29,7 +33,7 @@ export function PaymentMethodSection({ transactions, updatePaymentMethodUrl }: P
       <div className="flex flex-col gap-4">
         <div className="flex items-center gap-2">
           <CreditCard className="h-4 w-4 text-muted-foreground" />
-          <div className="text-sm font-medium whitespace-nowrap">Payment method</div>
+          <div className="text-sm font-medium whitespace-nowrap">{t("title")}</div>
         </div>
         <div className="bg-muted flex items-center gap-2 rounded-md px-3 py-2">
           <PaymentMethodDetails type={type} card={card} />
@@ -43,7 +47,7 @@ export function PaymentMethodSection({ transactions, updatePaymentMethodUrl }: P
               href={updatePaymentMethodUrl}
               className="flex items-center gap-1"
             >
-              Update
+              {t("update")}
               <ExternalLink className="h-3 w-3" />
             </Link>
           </Button>

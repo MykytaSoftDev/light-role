@@ -2,6 +2,7 @@ import { Subscription } from "@paddle/paddle-node-sdk";
 import { Gift, Package, ShoppingCart } from "lucide-react";
 import Image from "next/image";
 import { Fragment } from "react";
+import { useTranslations } from "next-intl";
 
 import { FreePlan } from "@/lib/paddle/api";
 
@@ -14,6 +15,8 @@ interface Props {
 export function SubscriptionLineItems({ subscription }: Props) {
   const isFreePlan = subscription?.id === "free";
   const hasRecurringDetails = subscription?.recurringTransactionDetails && !isFreePlan;
+  const tLine = useTranslations("Subscriptions.lineItems");
+  const tHeader = useTranslations("Subscriptions.header");
 
   return (
     <div data-slot="card" className="bg-card rounded-xl border p-6">
@@ -21,7 +24,7 @@ export function SubscriptionLineItems({ subscription }: Props) {
         <div className="flex items-center gap-2">
           <Package className="text-muted-foreground h-5 w-5" />
           <span className="text-lg font-bold">
-            {isFreePlan ? "Free Plan Details" : "Recurring products in this subscription"}
+            {isFreePlan ? tLine("freePlanDetails") : tLine("recurringProductsTitle")}
           </span>
         </div>
       </div>
@@ -34,15 +37,13 @@ export function SubscriptionLineItems({ subscription }: Props) {
                 <Gift className="text-muted-foreground h-8 w-8" />
               </div>
               <div className="text-center">
-                <div className="text-foreground mb-2 text-xl font-semibold">Free Plan</div>
-                <div className="text-muted-foreground text-base">
-                  Enjoy basic features at no cost
-                </div>
+                <div className="text-foreground mb-2 text-xl font-semibold">{tLine("freePlanLabel")}</div>
+                <div className="text-muted-foreground text-base">{tLine("freePlanTagline")}</div>
               </div>
             </div>
             <div className="text-center">
               <div className="text-foreground mb-2 text-3xl font-bold">$0.00</div>
-              <div className="text-muted-foreground text-sm">No recurring charges</div>
+              <div className="text-muted-foreground text-sm">{tLine("noRecurringCharges")}</div>
             </div>
           </div>
         ) : (
@@ -50,11 +51,11 @@ export function SubscriptionLineItems({ subscription }: Props) {
           <div className="grid grid-cols-12">
             <div className="col-span-6"></div>
             <div className="col-span-6 flex w-full gap-6">
-              <div className="text-foreground col-span-2 w-full text-sm font-semibold">Qty</div>
-              <div className="text-foreground col-span-2 w-full text-sm font-semibold">Tax</div>
+              <div className="text-foreground col-span-2 w-full text-sm font-semibold">{tLine("qty", { count: "" }).trim()}</div>
+              <div className="text-foreground col-span-2 w-full text-sm font-semibold">{tLine("tax")}</div>
               <div className="text-foreground col-span-2 w-full text-right text-sm font-semibold">
-                <span>Amount</span>
-                <span className="text-muted-foreground ml-1 text-sm font-normal">(exc. tax)</span>
+                <span>{tLine("amount")}</span>
+                <span className="text-muted-foreground ml-1 text-sm font-normal">{tLine("excludingTaxNote")}</span>
               </div>
             </div>
             {hasRecurringDetails &&
@@ -82,7 +83,7 @@ export function SubscriptionLineItems({ subscription }: Props) {
                         </div>
                         <div className="flex flex-col gap-3 px-4">
                           <div className="text-foreground group-hover:text-primary text-sm font-semibold transition-colors">
-                            {subscription.items[0].price.name} Plan
+                            {tHeader("planSuffix", { name: subscription.items[0].price.name ?? "" })}
                           </div>
                           <div className="text-muted-foreground text-sm">
                             {subscription.items[0].price.description}
@@ -109,7 +110,7 @@ export function SubscriptionLineItems({ subscription }: Props) {
                 <div className="col-span-6"></div>
                 <div className="col-span-6 flex w-full flex-col pt-6">
                   <div className="border-border flex justify-between border-b py-4 pt-0">
-                    <div className="text-muted-foreground col-span-3 w-full text-sm">Amount</div>
+                    <div className="text-muted-foreground col-span-3 w-full text-sm">{tLine("amount")}</div>
                     <div className="col-span-3 w-full text-right text-sm">
                       {parseMoney(
                         subscription?.recurringTransactionDetails?.totals.subtotal,
@@ -118,7 +119,7 @@ export function SubscriptionLineItems({ subscription }: Props) {
                     </div>
                   </div>
                   <div className="border-border flex justify-between border-b py-4">
-                    <div className="text-muted-foreground col-span-3 w-full text-sm">Tax</div>
+                    <div className="text-muted-foreground col-span-3 w-full text-sm">{tLine("tax")}</div>
                     <div className="col-span-3 w-full text-right text-sm">
                       {parseMoney(
                         subscription?.recurringTransactionDetails?.totals.tax,
@@ -127,7 +128,7 @@ export function SubscriptionLineItems({ subscription }: Props) {
                     </div>
                   </div>
                   <div className="bg-muted/60 flex justify-between rounded-md px-3 py-4">
-                    <div className="col-span-3 w-full text-sm font-medium">Total (Inc. tax)</div>
+                    <div className="col-span-3 w-full text-sm font-medium">{tLine("totalIncTax")}</div>
                     <div className="text-foreground col-span-3 w-full text-right text-sm font-semibold">
                       {parseMoney(
                         subscription?.recurringTransactionDetails?.totals.total,

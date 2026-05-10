@@ -10,6 +10,7 @@
  * Spec: docs/v2/specs/tailor-flow-spec.md §3.6.
  */
 import * as React from "react";
+import { useTranslations } from "next-intl";
 import { Download, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -28,6 +29,7 @@ interface DownloadButtonProps {
 }
 
 export function DownloadButton({ resumeId, disabledReason }: DownloadButtonProps) {
+  const t = useTranslations("Resumes.editor");
   const [isDownloading, setIsDownloading] = React.useState(false);
 
   async function handleClick() {
@@ -48,7 +50,7 @@ export function DownloadButton({ resumeId, disabledReason }: DownloadButtonProps
       setTimeout(() => URL.revokeObjectURL(url), 1_000);
     } catch (err) {
       console.error("Download failed", err);
-      toast.error("Download failed. Try again.");
+      toast.error(t("downloadError"));
     } finally {
       setIsDownloading(false);
     }
@@ -67,12 +69,12 @@ export function DownloadButton({ resumeId, disabledReason }: DownloadButtonProps
       {isDownloading ? (
         <>
           <Loader2 className="h-4 w-4 animate-spin" />
-          Preparing…
+          {t("downloading")}
         </>
       ) : (
         <>
           <Download className="h-4 w-4" />
-          Download PDF
+          {t("download")}
         </>
       )}
     </Button>

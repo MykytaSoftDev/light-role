@@ -29,6 +29,7 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { api } from "@/lib/api";
+import { useTranslations } from "next-intl";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -62,6 +63,9 @@ export function JobContextMenu({
   onDelete,
 }: JobContextMenuProps) {
   const router = useRouter();
+  const tMenu = useTranslations("Jobs.contextMenu");
+  const tDel = useTranslations("Jobs.details.delete");
+  const tCommon = useTranslations("Common");
 
   const [menuOpen, setMenuOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
@@ -82,7 +86,7 @@ export function JobContextMenu({
       setDeleteOpen(false);
       onDelete(job.id);
     } catch {
-      setDeleteError("Failed to delete job. Please try again.");
+      setDeleteError(tDel("errorToast"));
       setIsDeleting(false);
     }
   };
@@ -100,13 +104,13 @@ export function JobContextMenu({
           {/* View Details */}
           <DropdownMenuItem onSelect={() => router.push(`/dashboard/jobs/${job.id}`)}>
             <Eye className="h-3.5 w-3.5 text-muted-foreground" />
-            View Details
+            {tMenu("view")}
           </DropdownMenuItem>
 
           {/* Edit Job */}
           <DropdownMenuItem onSelect={() => router.push(`/dashboard/jobs/${job.id}`)}>
             <Pencil className="h-3.5 w-3.5 text-muted-foreground" />
-            Edit Job
+            {tMenu("edit")}
           </DropdownMenuItem>
 
           <DropdownMenuSeparator />
@@ -118,7 +122,7 @@ export function JobContextMenu({
               onSelect={() => router.push(`/dashboard/resumes/${tailoredResumeId}`)}
             >
               <FileText className="h-3.5 w-3.5 text-muted-foreground" />
-              View Resume
+              {tMenu("viewResume")}
             </DropdownMenuItem>
           ) : (
             <DropdownMenuItem
@@ -127,7 +131,7 @@ export function JobContextMenu({
               }
             >
               <FileText className="h-3.5 w-3.5 text-muted-foreground" />
-              Tailor Resume
+              {tMenu("tailorResume")}
             </DropdownMenuItem>
           )}
 
@@ -140,7 +144,7 @@ export function JobContextMenu({
               }
             >
               <PenLine className="h-3.5 w-3.5 text-muted-foreground" />
-              Generate Cover Letter
+              {tMenu("generateCoverLetter")}
             </DropdownMenuItem>
           ) : (
             <DropdownMenuItem
@@ -149,7 +153,7 @@ export function JobContextMenu({
               }
             >
               <Mail className="h-3.5 w-3.5 text-muted-foreground" />
-              View Cover Letter
+              {tMenu("viewCoverLetter")}
             </DropdownMenuItem>
           )}
 
@@ -164,7 +168,7 @@ export function JobContextMenu({
             className="text-red-500 focus:bg-red-50 focus:text-red-600 dark:focus:bg-red-950/30"
           >
             <Trash2 className="h-3.5 w-3.5" />
-            Delete
+            {tMenu("delete")}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -184,10 +188,9 @@ export function JobContextMenu({
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-destructive/10 mb-2">
               <Trash2 className="h-5 w-5 text-destructive" />
             </div>
-            <DialogTitle>Delete Job?</DialogTitle>
+            <DialogTitle>{tDel("title")}</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete &ldquo;{job.title}&rdquo;? This action cannot be
-              undone.
+              {tDel("body", { title: job.title })}
             </DialogDescription>
           </DialogHeader>
 
@@ -204,18 +207,18 @@ export function JobContextMenu({
                 setDeleteError(null);
               }}
             >
-              Cancel
+              {tCommon("actions.cancel")}
             </Button>
             <Button variant="destructive" disabled={isDeleting} onClick={confirmDelete}>
               {isDeleting ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  Deleting...
+                  {tCommon("states.deleting")}
                 </>
               ) : (
                 <>
                   <Trash2 className="h-4 w-4" />
-                  Delete
+                  {tCommon("actions.delete")}
                 </>
               )}
             </Button>

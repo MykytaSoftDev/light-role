@@ -13,6 +13,7 @@
  * Submitting and letting the API surface the 409 is robust and idempotent.
  */
 import * as React from "react";
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
@@ -63,6 +64,8 @@ interface TailorWizardFormProps {
 }
 
 export function TailorWizardForm({ initialJobId }: TailorWizardFormProps) {
+  const t = useTranslations("Resumes.tailor");
+  const tCommon = useTranslations("Common.actions");
   const router = useRouter();
   const [selectedJobId, setSelectedJobId] = React.useState<string>(
     initialJobId ?? ""
@@ -122,7 +125,7 @@ export function TailorWizardForm({ initialJobId }: TailorWizardFormProps) {
       <div className="mx-auto w-full max-w-2xl">
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Select a job</CardTitle>
+            <CardTitle className="text-base">{t("selectJob")}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
             {/* Job picker / states */}
@@ -131,7 +134,7 @@ export function TailorWizardForm({ initialJobId }: TailorWizardFormProps) {
                 htmlFor="job-select"
                 className={cn(isJobsEmpty && "sr-only")}
               >
-                Job <span className="text-destructive">*</span>
+                {t("jobLabel")}
               </Label>
 
               {isJobsLoading ? (
@@ -142,30 +145,23 @@ export function TailorWizardForm({ initialJobId }: TailorWizardFormProps) {
               ) : isJobsError ? (
                 <Alert variant="destructive">
                   <AlertDescription className="flex items-center justify-between gap-2">
-                    <span>
-                      Couldn&apos;t load your jobs. Refresh the page or try
-                      again.
-                    </span>
+                    <span>{t("jobsError")}</span>
                     <Button
                       type="button"
                       size="sm"
                       variant="outline"
                       onClick={() => jobsQuery.refetch()}
                     >
-                      Try again
+                      {tCommon("tryAgain")}
                     </Button>
                   </AlertDescription>
                 </Alert>
               ) : isJobsEmpty ? (
                 <div className="rounded-md border border-dashed border-border p-6 text-center text-sm space-y-3">
-                  <p className="font-medium text-foreground">
-                    No jobs available to tailor
-                  </p>
-                  <p className="text-muted-foreground">
-                    Add a job first, then come back to tailor a resume for it.
-                  </p>
+                  <p className="font-medium text-foreground">{t("noJobs.title")}</p>
+                  <p className="text-muted-foreground">{t("noJobs.body")}</p>
                   <Button asChild size="sm" className="mt-2">
-                    <Link href="/dashboard/jobs">Add a job</Link>
+                    <Link href="/dashboard/jobs">{t("noJobs.cta")}</Link>
                   </Button>
                 </div>
               ) : (
@@ -175,7 +171,7 @@ export function TailorWizardForm({ initialJobId }: TailorWizardFormProps) {
                     onValueChange={setSelectedJobId}
                   >
                     <SelectTrigger id="job-select" aria-describedby="job-help">
-                      <SelectValue placeholder="Select a job…" />
+                      <SelectValue placeholder={t("jobPlaceholder")} />
                     </SelectTrigger>
                     <SelectContent>
                       {jobs.map((j) => (
@@ -185,11 +181,8 @@ export function TailorWizardForm({ initialJobId }: TailorWizardFormProps) {
                       ))}
                     </SelectContent>
                   </Select>
-                  <p
-                    id="job-help"
-                    className="text-xs text-muted-foreground"
-                  >
-                    Pick the job you want to tailor your resume for.
+                  <p id="job-help" className="text-xs text-muted-foreground">
+                    {t("jobHelp")}
                   </p>
                 </>
               )}
@@ -204,7 +197,7 @@ export function TailorWizardForm({ initialJobId }: TailorWizardFormProps) {
                   className="w-full sm:w-auto"
                   onClick={() => router.back()}
                 >
-                  Cancel
+                  {tCommon("cancel")}
                 </Button>
                 <Button
                   type="button"
@@ -212,7 +205,7 @@ export function TailorWizardForm({ initialJobId }: TailorWizardFormProps) {
                   disabled={submitDisabled}
                   onClick={handleSubmit}
                 >
-                  Tailor now
+                  {t("submit")}
                 </Button>
               </div>
             )}
@@ -224,7 +217,7 @@ export function TailorWizardForm({ initialJobId }: TailorWizardFormProps) {
                   variant="ghost"
                   onClick={() => router.back()}
                 >
-                  Cancel
+                  {tCommon("cancel")}
                 </Button>
               </div>
             )}

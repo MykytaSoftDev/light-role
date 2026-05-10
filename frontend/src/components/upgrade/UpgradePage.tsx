@@ -7,77 +7,15 @@ import { usePricePreview } from "@/hooks/usePricePreview";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { BillingCycleToggle } from "./BillingCycleToggle";
 import { FaqAccordion, type FaqItem } from "./FaqAccordion";
 import { PricingCard, type PricingFeature } from "./PricingCard";
 
-// ── Static data ──────────────────────────────────────────────────────────────
-
-const FAQ_ITEMS: FaqItem[] = [
-  {
-    q: "Can I cancel anytime?",
-    a: "Yes. You can cancel your subscription at any time from the billing settings page. Your paid access continues until the end of the current billing period.",
-  },
-  {
-    q: "What's the difference between the plans?",
-    a: "Free gives you up to 10 active jobs and 3 resume tailorings + 3 cover letters per cycle, with no analytics. Pro unlocks unlimited active jobs, 30 resume tailorings + 30 cover letters per cycle, and the analytics dashboard. Unlimited removes all per-cycle credit limits — unlimited resume tailorings and cover letters — and includes analytics.",
-  },
-  {
-    q: "How is payment processed?",
-    a: "Payments are securely handled by Paddle, a trusted Merchant of Record. Your card details are never stored on our servers.",
-  },
-  {
-    q: "Can I switch between monthly and annual?",
-    a: "Yes. You can switch billing cycles from the billing settings page at any time. Changes take effect at the start of your next billing period.",
-  },
-  {
-    q: "Is there a refund policy?",
-    a: "We offer a 14-day money-back guarantee on annual plans. For monthly plans, you may cancel before the next renewal to avoid being charged again.",
-  },
-];
-
 // ── Helpers ──────────────────────────────────────────────────────────────────
-
-function buildFeatures(plan: Plan): PricingFeature[] {
-  const jobsLabel =
-    plan.max_active_jobs === null
-      ? "Unlimited active jobs"
-      : `Up to ${plan.max_active_jobs} active jobs`;
-
-  const resumeLabel =
-    plan.resume_credits_per_cycle === null
-      ? "Unlimited resume tailorings"
-      : `${plan.resume_credits_per_cycle} resume tailorings / cycle`;
-
-  const clLabel =
-    plan.cl_credits_per_cycle === null
-      ? "Unlimited cover letters"
-      : `${plan.cl_credits_per_cycle} cover letters / cycle`;
-
-  const features: PricingFeature[] = [
-    { label: jobsLabel, included: true },
-    { label: resumeLabel, included: true },
-    { label: clLabel, included: true },
-    { label: "Analytics dashboard", included: plan.analytics_enabled },
-    { label: "Smart job description parsing", included: true },
-  ];
-
-  // Free plan can't be cancelled (it's free), so don't show the row at all.
-  if (plan.code !== "free") {
-    features.push({ label: "Cancel anytime — no questions asked", included: true });
-  }
-
-  return features;
-}
-
-function planDescription(plan: Plan, billingCycle: "monthly" | "annual"): string {
-  if (plan.code === "free") return "Get started with the essentials.";
-  if (plan.code === "unlimited") return "Maximum power. No limits, ever.";
-  // Pro
-  return billingCycle === "annual"
-    ? "Best value. Pay once, save big."
-    : "Flexible month-to-month. Cancel anytime.";
-}
+// `buildFeatures` / `planDescription` / `planTitle` were previously module-level
+// helpers; they consumed hardcoded English copy. They now live as closures
+// inside the component body so they can call `useTranslations`. See below.
 
 function planTitle(plan: Plan): string {
   // Use the API name (capitalized human label).
@@ -115,9 +53,65 @@ function resolvePriceId(plan: Plan, billingCycle: "monthly" | "annual"): string 
 export function UpgradePage() {
   const router = useRouter();
   const [billingCycle, setBillingCycle] = useState<"monthly" | "annual">("monthly");
+  const tHero = useTranslations("upgrade.hero");
+  const tToggle = useTranslations("upgrade.toggle");
+  const tErrors = useTranslations("upgrade.errors");
+  const tCards = useTranslations("upgrade.cards");
+  const tFeatures = useTranslations("upgrade.features");
+  const tFaq = useTranslations("upgrade.faq");
 
   const { data: plans, isLoading: plansLoading, isError: plansError, refetch } = usePlans();
   const { plan: currentPlanCode } = usePlan();
+
+  // FAQ items resolved from the upgrade.faq.* namespace.
+  const FAQ_ITEMS: FaqItem[] = [
+    { q: tFaq("items.cancel.q"), a: tFaq("items.cancel.a") },
+    { q: tFaq("items.difference.q"), a: tFaq("items.difference.a") },
+    { q: tFaq("items.payment.q"), a: tFaq("items.payment.a") },
+    { q: tFaq("items.switch.q"), a: tFaq("items.switch.a") },
+    { q: tFaq("items.refund.q"), a: tFaq("items.refund.a") },
+  ];
+
+  // Feature labels for a given plan. Replaces the module-level helper that used
+  // hardcoded English copy.
+  function buildFeatures(plan: Plan): PricingFeature[] {
+    const jobsLabel =
+      plan.max_active_jobs === null
+        ? tFeatures("unlimitedJobs")
+        : tFeatures("jobsLimited", { count: plan.max_active_jobs });
+
+    const resumeLabel =
+      plan.resume_credits_per_cycle === null
+        ? tFeatures("unlimitedResumes")
+        : tFeatures("resumesLimited", { count: plan.resume_credits_per_cycle });
+
+    const clLabel =
+      plan.cl_credits_per_cycle === null
+        ? tFeatures("unlimitedCoverLetters")
+        : tFeatures("coverLettersLimited", { count: plan.cl_credits_per_cycle });
+
+    const features: PricingFeature[] = [
+      { label: jobsLabel, included: true },
+      { label: resumeLabel, included: true },
+      { label: clLabel, included: true },
+      { label: tFeatures("analytics"), included: plan.analytics_enabled },
+      { label: tFeatures("priorityAi"), included: true },
+    ];
+    if (plan.code !== "free") {
+      features.push({ label: tFeatures("support"), included: true });
+    }
+    return features;
+  }
+
+  function planDescription(plan: Plan, cycle: "monthly" | "annual"): string {
+    if (plan.code === "free") return tCards("free.description");
+    if (plan.code === "unlimited") {
+      return tCards("unlimited.description");
+    }
+    return cycle === "annual"
+      ? tCards("annual.description")
+      : tCards("monthly.description");
+  }
 
   // Sort by display_order so cards render Free → Pro → Unlimited.
   const sortedPlans = (plans ?? []).slice().sort((a, b) => a.display_order - b.display_order);
@@ -179,8 +173,8 @@ export function UpgradePage() {
     const description = planDescription(plan, billingCycle);
 
     // Pricing values per card.
-    let formattedPrice = "$0";
-    let billingCycleLabel = "Forever free";
+    let formattedPrice = tCards("free.price");
+    let billingCycleLabel = tCards("free.billedAs");
     let monthlyEquivalent: string | undefined;
     let savingsBadge: string | undefined;
     let preview: ReturnType<typeof usePricePreview> | null = null;
@@ -191,11 +185,11 @@ export function UpgradePage() {
     if (preview) {
       const { monthly, annual, savingsPercent } = preview;
       formattedPrice = billingCycle === "annual" ? annual.formatted : monthly.formatted;
-      billingCycleLabel = billingCycle === "annual" ? "Billed annually" : "Billed monthly";
+      billingCycleLabel = billingCycle === "annual" ? tCards("annual.billedAs") : tCards("monthly.billedAs");
       if (billingCycle === "annual") {
         const eq = annualMonthlyEquivalent(annual.raw);
-        if (eq) monthlyEquivalent = ` ${eq} / month`;
-        if (savingsPercent > 0) savingsBadge = `Save ${savingsPercent}%`;
+        if (eq) monthlyEquivalent = tCards("annual.monthlyEquivalent", { price: eq });
+        if (savingsPercent > 0) savingsBadge = tCards("annual.savingsBadge", { percent: savingsPercent });
       }
     }
 
@@ -207,7 +201,7 @@ export function UpgradePage() {
       // outlined button so card heights line up with neighbours.
       cta = (
         <Button variant="outline" className="w-full py-1.5 text-sm font-medium" disabled>
-          Current plan
+          {tCards("free.currentPlanBadge")}
         </Button>
       );
     } else if (isFreeCard) {
@@ -220,7 +214,7 @@ export function UpgradePage() {
           className="w-full py-1.5 text-sm font-medium"
           onClick={goToSubscription}
         >
-          Downgrade to Free
+          {tCards("downgradeToFree")}
         </Button>
       );
     } else {
@@ -242,12 +236,15 @@ export function UpgradePage() {
             className="w-full py-1.5 text-sm font-medium"
             onClick={goToSubscription}
           >
-            Downgrade to {title}
+            {tCards("downgradeTo", { title })}
           </Button>
         );
       } else {
         // Upgrade (or first-time purchase from Free).
-        const label = currentPlanCode && currentPlanCode !== "free" ? `Upgrade to ${title}` : "Get Started";
+        const label =
+          currentPlanCode && currentPlanCode !== "free"
+            ? tCards("upgradeTo", { title })
+            : tCards("monthly.cta");
         cta = (
           <Button
             className={cn(
@@ -293,10 +290,10 @@ export function UpgradePage() {
     return (
       <div className="flex flex-col items-center justify-center py-24 text-center">
         <p className="text-muted-foreground mb-4 text-sm">
-          Could not load plans. Please try again.
+          {tErrors("plansLoadFailed")}
         </p>
         <Button variant="outline" onClick={() => refetch()}>
-          Try again
+          {tErrors("retry")}
         </Button>
       </div>
     );
@@ -307,11 +304,10 @@ export function UpgradePage() {
       {/* ── Hero ── */}
       <section className="flex flex-col items-center gap-3 pt-10 text-center">
         <h1 className="text-foreground max-w-2xl text-4xl leading-tight font-extrabold md:text-4xl">
-          Unlock the full power of your job search
+          {tHero("headline")}
         </h1>
         <p className="text-muted-foreground max-w-xl text-base">
-          Tailor every resume, generate every cover letter, and track unlimited opportunities — all
-          in one place.
+          {tHero("subheadline")}
         </p>
       </section>
 
@@ -319,9 +315,13 @@ export function UpgradePage() {
       <BillingCycleToggle
         value={billingCycle}
         onChange={setBillingCycle}
-        monthlyLabel="Monthly"
-        annualLabel="Annual"
-        savingsBadgeLabel={toggleSavingsPercent > 0 ? `Save ${toggleSavingsPercent}%` : undefined}
+        monthlyLabel={tToggle("monthly")}
+        annualLabel={tToggle("annual")}
+        savingsBadgeLabel={
+          toggleSavingsPercent > 0
+            ? tToggle("save", { percent: toggleSavingsPercent })
+            : undefined
+        }
       />
 
       {/* ── Pricing cards ── */}
@@ -343,7 +343,7 @@ export function UpgradePage() {
         <div className="grid w-full max-w-5xl grid-cols-1 items-stretch gap-6 pt-3 md:grid-cols-3">
           {anyPriceError && (
             <p className="text-muted-foreground col-span-full w-full text-center text-xs">
-              Showing default prices. Local currency unavailable.
+              {tErrors("pricesFallback")}
             </p>
           )}
 
@@ -353,7 +353,7 @@ export function UpgradePage() {
 
       {/* ── FAQ ── */}
       <div className="w-full max-w-5xl">
-        <FaqAccordion title="Frequently asked questions" items={FAQ_ITEMS} />
+        <FaqAccordion title={tFaq("title")} items={FAQ_ITEMS} />
       </div>
     </div>
   );

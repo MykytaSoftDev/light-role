@@ -6,6 +6,7 @@
  * Non-dismissible by overlay click. Esc/Cancel returns user to the wizard
  * with the gate still flagged (submit stays disabled in the parent).
  */
+import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
@@ -27,6 +28,7 @@ export function MissingProfileDialog({
   open,
   onClose,
 }: MissingProfileDialogProps) {
+  const t = useTranslations("Resumes.tailor.missingProfile");
   const router = useRouter();
 
   return (
@@ -41,15 +43,12 @@ export function MissingProfileDialog({
         onPointerDownOutside={(e) => e.preventDefault()}
       >
         <DialogHeader>
-          <DialogTitle>Missing profile information</DialogTitle>
-          <DialogDescription>
-            Tailoring needs at least one piece of experience to draw from. Add
-            at least one employment entry or one project to your profile.
-          </DialogDescription>
+          <DialogTitle>{t("title")}</DialogTitle>
+          <DialogDescription>{t("body")}</DialogDescription>
         </DialogHeader>
         <DialogFooter className="gap-2 sm:gap-2">
           <Button type="button" variant="outline" onClick={onClose}>
-            Cancel
+            {t("cancel")}
           </Button>
           <Button
             type="button"
@@ -58,7 +57,7 @@ export function MissingProfileDialog({
               router.push("/dashboard/profile");
             }}
           >
-            Complete profile
+            {t("completeCta")}
           </Button>
         </DialogFooter>
       </DialogContent>

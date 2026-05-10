@@ -3,6 +3,7 @@
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import { Sparkles } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -21,8 +22,7 @@ import type { CreditErrorCode } from "@/lib/api-errors";
 //
 // Pricing UI lives on /dashboard/upgrade (MONETIZE-10). This dialog is
 // intentionally a single CTA: title + body + "See plans" button. Reason-aware
-// content is data-driven via the CONTENT table — adding a new credit error
-// code is a one-line append.
+// content is driven by the Errors.upgradeModal.* namespace.
 // ---------------------------------------------------------------------------
 
 export interface UpgradeModalProps {
@@ -34,53 +34,6 @@ export interface UpgradeModalProps {
   resetAt?: string;
 }
 
-interface BodyParams {
-  planLimit?: number;
-  resetAt?: string;
-}
-
-const CONTENT: Record<
-  CreditErrorCode,
-  { title: string; body: (p: BodyParams) => React.ReactNode }
-> = {
-  RESUME_CREDITS_EXCEEDED: {
-    title: "Resume credits used up",
-    body: ({ planLimit, resetAt }) =>
-      `You've used all ${planLimit ?? 0} resume credits this cycle.${
-        resetAt ? ` Resets on ${formatDate(resetAt)}.` : ""
-      }`,
-  },
-  CL_CREDITS_EXCEEDED: {
-    title: "Cover letter credits used up",
-    body: ({ planLimit, resetAt }) =>
-      `You've used all ${planLimit ?? 0} cover letter credits this cycle.${
-        resetAt ? ` Resets on ${formatDate(resetAt)}.` : ""
-      }`,
-  },
-  ACTIVE_JOBS_EXCEEDED: {
-    title: "Active jobs limit reached",
-    body: ({ planLimit }) =>
-      `You've reached the limit of ${planLimit ?? 10} active jobs on Free plan. Delete a job or upgrade for unlimited tracking.`,
-  },
-  ANALYTICS_PAYWALL: {
-    title: "Analytics is a Pro feature",
-    body: () =>
-      "Get access to detailed application analytics with Pro or Unlimited plan.",
-  },
-};
-
-function formatDate(iso: string): string {
-  try {
-    return new Date(iso).toLocaleDateString("en-US", {
-      month: "long",
-      day: "numeric",
-      year: "numeric",
-    });
-  } catch {
-    return iso;
-  }
-}
-
 export function UpgradeModal({
   open,
   onClose,
@@ -89,7 +42,35 @@ export function UpgradeModal({
   resetAt,
 }: UpgradeModalProps) {
   const router = useRouter();
-  const { title, body } = CONTENT[reason];
+  const tCommon = useTranslations("Common.actions");
+  const tModal = useTranslations("Errors.upgradeModal");
+
+  void planLimit;
+  void resetAt;
+
+  let title: string;
+  let body: string;
+  switch (reason) {
+    case "RESUME_CREDITS_EXCEEDED":
+      title = tModal("resumeCreditsTitle");
+      body = tModal("resumeCreditsBody");
+      break;
+    case "CL_CREDITS_EXCEEDED":
+      title = tModal("clCreditsTitle");
+      body = tModal("clCreditsBody");
+      break;
+    case "ACTIVE_JOBS_EXCEEDED":
+      title = tModal("activeJobsTitle");
+      body = tModal("activeJobsBody");
+      break;
+    case "ANALYTICS_PAYWALL":
+      title = tModal("analyticsTitle");
+      body = tModal("analyticsBody");
+      break;
+    default:
+      title = tModal("title");
+      body = tModal("description");
+  }
 
   function handleSeePlans() {
     onClose();
@@ -109,14 +90,14 @@ export function UpgradeModal({
             <Sparkles className="h-5 w-5 text-amber-600 dark:text-amber-400" />
           </div>
           <DialogTitle>{title}</DialogTitle>
-          <DialogDescription>{body({ planLimit, resetAt })}</DialogDescription>
+          <DialogDescription>{body}</DialogDescription>
         </DialogHeader>
         <DialogFooter className="sm:justify-end">
           <Button type="button" variant="outline" onClick={onClose}>
-            Close
+            {tCommon("close")}
           </Button>
           <Button type="button" onClick={handleSeePlans}>
-            See plans
+            {tModal("seePlans")}
           </Button>
         </DialogFooter>
       </DialogContent>

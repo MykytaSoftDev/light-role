@@ -8,6 +8,7 @@
  * Spec: docs/v2/specs/tailor-flow-spec.md §1.
  */
 import { Suspense } from "react";
+import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 
@@ -19,6 +20,7 @@ export default async function TailorResumePage({
   searchParams: Promise<{ job_id?: string }>;
 }) {
   const { job_id } = await searchParams;
+  const t = await getTranslations("Resumes.tailor");
 
   return (
     <div className="space-y-8">
@@ -28,17 +30,13 @@ export default async function TailorResumePage({
           className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
         >
           <ArrowLeft className="h-4 w-4" />
-          Back to Resumes
+          {t("backToList")}
         </Link>
       </div>
 
       <div className="space-y-1">
-        <h1 className="text-2xl font-semibold tracking-tight">
-          Tailor a new resume
-        </h1>
-        <p className="text-sm text-muted-foreground">
-          AI tailors your profile to a specific job in ~30 seconds.
-        </p>
+        <h1 className="text-2xl font-semibold tracking-tight">{t("title")}</h1>
+        <p className="text-sm text-muted-foreground">{t("subtitle")}</p>
       </div>
 
       <Suspense fallback={<TailorWizardSkeleton />}>

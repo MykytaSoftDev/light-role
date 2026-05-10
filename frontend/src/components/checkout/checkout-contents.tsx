@@ -9,6 +9,7 @@ import throttle from "lodash.throttle";
 import { useParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 interface PathParams {
   priceId: string;
@@ -27,6 +28,8 @@ export function CheckoutContents({ userEmail, userId }: Props) {
   const [checkoutData, setCheckoutData] = useState<CheckoutEventsData | null>(null);
   const customerIdSaved = useRef<boolean>(false);
   const { mutate, isPending } = useSubscription();
+  const tCommon = useTranslations("Common");
+  const tCheckout = useTranslations("Checkout");
   const theme =
     typeof window !== "undefined" ? (localStorage.getItem("theme") ?? "system") : "system";
 
@@ -44,7 +47,7 @@ export function CheckoutContents({ userEmail, userId }: Props) {
           },
           onError: (error) => {
             console.log("error", error);
-            toast.error("We experienced some technical issues. Please try again later.");
+            toast.error(tCommon("toast.genericError"));
           },
         });
       }
@@ -116,7 +119,7 @@ export function CheckoutContents({ userEmail, userId }: Props) {
           <PriceSection checkoutData={checkoutData} quantity={1} />
         </div>
         <div className={"min-w-[375px] lg:min-w-[535px]"}>
-          <div className={"mb-8 text-base leading-[20px] font-semibold"}>Payment details</div>
+          <div className={"mb-8 text-base leading-[20px] font-semibold"}>{tCheckout("paymentDetails")}</div>
           <div className={"paddle-checkout-frame"} />
         </div>
       </div>

@@ -23,6 +23,7 @@
  * `text-muted-foreground`. No rating-value-based color coding (see spec §3.5).
  */
 import * as React from "react";
+import { useTranslations } from "next-intl";
 import { Star } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -50,6 +51,7 @@ export function RatingStars({
   disabled,
   size = "md",
 }: RatingStarsProps) {
+  const t = useTranslations("Resumes.editor.rating");
   const [hoverIndex, setHoverIndex] = React.useState<number>(0);
   const buttonsRef = React.useRef<Array<HTMLButtonElement | null>>([]);
 
@@ -94,7 +96,7 @@ export function RatingStars({
   return (
     <div
       role="radiogroup"
-      aria-label="Rate this resume"
+      aria-label={t("groupAria")}
       aria-disabled={disabled || undefined}
       onKeyDown={handleKeyDown}
       onMouseLeave={() => setHoverIndex(0)}
@@ -115,7 +117,7 @@ export function RatingStars({
             type="button"
             role="radio"
             aria-checked={value === i}
-            aria-label={`${i} out of 5`}
+            aria-label={t("starsAria", { score: i })}
             tabIndex={isOwner ? 0 : -1}
             disabled={disabled}
             onClick={() => {

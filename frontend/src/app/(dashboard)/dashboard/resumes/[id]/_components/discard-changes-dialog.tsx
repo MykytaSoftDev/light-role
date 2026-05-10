@@ -10,6 +10,7 @@
  * Spec: docs/v2/specs/editor-edit-mode-spec.md §1.7.
  */
 import * as React from "react";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -32,14 +33,13 @@ export function DiscardChangesDialog({
   onOpenChange,
   onConfirm,
 }: DiscardChangesDialogProps) {
+  const t = useTranslations("Resumes.editor.discardDialog");
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Discard unsaved changes?</DialogTitle>
-          <DialogDescription>
-            You have unsaved edits to this resume. Leaving now will lose them.
-          </DialogDescription>
+          <DialogTitle>{t("title")}</DialogTitle>
+          <DialogDescription>{t("body")}</DialogDescription>
         </DialogHeader>
         <DialogFooter className="gap-2 sm:gap-2">
           <Button
@@ -47,7 +47,7 @@ export function DiscardChangesDialog({
             variant="ghost"
             onClick={() => onOpenChange(false)}
           >
-            Stay
+            {t("stay")}
           </Button>
           <Button
             type="button"
@@ -57,7 +57,7 @@ export function DiscardChangesDialog({
               onConfirm();
             }}
           >
-            Discard &amp; leave
+            {t("discard")}
           </Button>
         </DialogFooter>
       </DialogContent>

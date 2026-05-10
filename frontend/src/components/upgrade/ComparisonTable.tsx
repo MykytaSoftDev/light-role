@@ -1,6 +1,7 @@
 "use client";
 
 import { Check } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 export interface ComparisonRow {
   feature: string;
@@ -17,8 +18,9 @@ export interface ComparisonTableProps {
 }
 
 function CellValue({ value }: { value: string }) {
+  const tCommon = useTranslations("Common.actions");
   if (value === "Yes" || value === "true") {
-    return <Check className="text-primary mx-auto h-4 w-4" aria-label="Yes" />;
+    return <Check className="text-primary mx-auto h-4 w-4" aria-label={tCommon("yes")} />;
   }
   if (value === "—" || value === "-" || value === "No") {
     return <span className="text-muted-foreground">{value === "No" ? "—" : value}</span>;

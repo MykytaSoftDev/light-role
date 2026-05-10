@@ -7,6 +7,7 @@ import { CheckCircle, Loader2, RefreshCw } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
@@ -27,6 +28,9 @@ function SuccessContent() {
 
   const [status, setStatus] = useState<PageStatus>("polling");
   const [subscriptionData, setSubscriptionData] = useState<SubscriptionData | null>(null);
+  const t = useTranslations("Checkout.success");
+  const tHeader = useTranslations("Subscriptions.header");
+  const tCommon = useTranslations("Common");
 
   useEffect(() => {
     let attempts = 0;
@@ -77,7 +81,7 @@ function SuccessContent() {
       <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center p-4">
         <div className="w-full max-w-md space-y-4 text-center">
           <Loader2 className="text-muted-foreground mx-auto h-10 w-10 animate-spin" />
-          <p className="text-muted-foreground">Processing your payment&hellip;</p>
+          <p className="text-muted-foreground">{t("processing")}</p>
         </div>
       </div>
     );
@@ -114,20 +118,18 @@ function SuccessContent() {
 
           <div className="space-y-2">
             <h1 className="text-foreground text-2xl font-semibold tracking-tight">
-              Payment Received!
+              {t("timeoutTitle")}
             </h1>
-            <p className="text-muted-foreground">
-              Your Pro features may take a moment to activate.
-            </p>
+            <p className="text-muted-foreground">{t("timeoutDescription")}</p>
           </div>
 
           <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
             <Button onClick={() => window.location.reload()} variant="outline">
               <RefreshCw className="mr-2 h-4 w-4" />
-              Refresh
+              {tCommon("actions.refresh")}
             </Button>
             <Button asChild>
-              <Link href="/dashboard">Go to Dashboard</Link>
+              <Link href="/dashboard">{t("goToDashboard")}</Link>
             </Button>
           </div>
         </div>
@@ -144,26 +146,26 @@ function SuccessContent() {
 
         <div className="space-y-2">
           <h1 className="text-foreground text-2xl font-semibold tracking-tight">
-            Payment Successful!
+            {t("title")}
           </h1>
-          <p className="text-muted-foreground">Welcome to Light Role Pro!</p>
+          <p className="text-muted-foreground">{t("description")}</p>
         </div>
 
         {/* Transaction details */}
         <div className="border-border bg-muted/30 space-y-2 rounded-lg border p-4 text-left text-sm">
           {txnId && (
             <div className="flex justify-between gap-4">
-              <span className="text-muted-foreground">Transaction ID</span>
+              <span className="text-muted-foreground">{t("transactionId")}</span>
               <span className="text-foreground font-mono text-xs break-all">{txnId}</span>
             </div>
           )}
           <div className="flex justify-between">
-            <span className="text-muted-foreground">Plan</span>
-            <span className="text-foreground font-medium">Pro</span>
+            <span className="text-muted-foreground">{t("planLabel")}</span>
+            <span className="text-foreground font-medium">{tHeader("pro")}</span>
           </div>
           {subscriptionData?.current_period_end && (
             <div className="flex justify-between">
-              <span className="text-muted-foreground">Next billing</span>
+              <span className="text-muted-foreground">{t("nextBilling")}</span>
               <span className="text-foreground font-medium">
                 {new Date(subscriptionData.current_period_end).toLocaleDateString(undefined, {
                   year: "numeric",
@@ -178,20 +180,18 @@ function SuccessContent() {
         {/* CTAs */}
         <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
           <Button asChild>
-            <Link href="/dashboard">Go to Dashboard</Link>
+            <Link href="/dashboard">{t("goToDashboard")}</Link>
           </Button>
           <Button variant="outline" asChild>
             <Link
               href={`${DASHBOARD_PAGES.SUBSCRIPTIONS}/${subscriptionData?.subscription_id || "free"}`}
             >
-              View Subscription
+              {t("manageSubscription")}
             </Link>
           </Button>
         </div>
 
-        <p className="text-muted-foreground text-xs">
-          A confirmation email will be sent to your inbox.
-        </p>
+        <p className="text-muted-foreground text-xs">{t("confirmationEmailHint")}</p>
       </div>
     </div>
   );

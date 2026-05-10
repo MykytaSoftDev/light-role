@@ -14,6 +14,7 @@
  * Spec: docs/v2/specs/tailor-flow-spec.md §3.5.
  */
 import * as React from "react";
+import { useTranslations } from "next-intl";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Check, Loader2, Pencil, X } from "lucide-react";
 import { toast } from "sonner";
@@ -36,6 +37,7 @@ export function InlineFilenameEditor({
   resumeId,
   initialName,
 }: InlineFilenameEditorProps) {
+  const t = useTranslations("Resumes.editor");
   const queryClient = useQueryClient();
   const [isEditing, setIsEditing] = React.useState(false);
   const [draft, setDraft] = React.useState(initialName);
@@ -57,7 +59,7 @@ export function InlineFilenameEditor({
     onSuccess: (data) => {
       queryClient.setQueryData(queryKeys.resumes.detail(resumeId), data);
       queryClient.invalidateQueries({ queryKey: queryKeys.resumes.lists() });
-      toast.success("Resume renamed.");
+      toast.success(t("renameSuccessToast"));
       setIsEditing(false);
       // Restore focus to the (now display-mode) heading per spec §3.12.
       setTimeout(() => headingRef.current?.focus(), 0);
@@ -65,8 +67,8 @@ export function InlineFilenameEditor({
     onError: (err) => {
       const message =
         err.code === "NOT_IMPLEMENTED"
-          ? "Renaming isn't available yet — backend endpoint pending."
-          : "Couldn't rename. Try again.";
+          ? t("renameNotImplemented")
+          : t("renameErrorToast");
       toast.error(message);
       setDraft(initialName);
       setIsEditing(false);
@@ -104,7 +106,7 @@ export function InlineFilenameEditor({
           ref={inputRef}
           value={draft}
           disabled={renameMutation.isPending}
-          aria-label="Resume name"
+          aria-label={t("filenameLabel")}
           className="h-auto py-1 px-2 text-2xl font-semibold tracking-tight"
           onChange={(e) => setDraft(e.target.value)}
           onBlur={commit}
@@ -129,7 +131,7 @@ export function InlineFilenameEditor({
               type="button"
               size="icon"
               variant="ghost"
-              aria-label="Save name"
+              aria-label={t("saveNameAria")}
               onMouseDown={(e) => e.preventDefault()}
               onClick={commit}
             >
@@ -139,7 +141,7 @@ export function InlineFilenameEditor({
               type="button"
               size="icon"
               variant="ghost"
-              aria-label="Cancel rename"
+              aria-label={t("cancelRenameAria")}
               onMouseDown={(e) => e.preventDefault()}
               onClick={cancel}
             >
@@ -164,7 +166,7 @@ export function InlineFilenameEditor({
         type="button"
         size="icon"
         variant="ghost"
-        aria-label="Rename resume"
+        aria-label={t("renameAria")}
         className="h-8 w-8 text-muted-foreground hover:text-foreground"
         onClick={startEdit}
       >

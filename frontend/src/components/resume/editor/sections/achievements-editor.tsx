@@ -11,6 +11,7 @@
  *   Row 3: description (Tiptap)
  */
 import * as React from "react";
+import { useTranslations } from "next-intl";
 import {
   DndContext,
   KeyboardSensor,
@@ -52,6 +53,8 @@ export function AchievementsEditor({
   onFocusApplied,
   keywords,
 }: AchievementsEditorProps) {
+  const tSection = useTranslations("Resumes.sectionTitles");
+  const tProfile = useTranslations("profile.achievements");
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
     useSensor(KeyboardSensor, {
@@ -92,11 +95,11 @@ export function AchievementsEditor({
 
   return (
     <EditableSection
-      title="Achievements"
-      addLabel="Add achievement"
+      title={tSection("achievements")}
+      addLabel={tProfile("addButton")}
       onAdd={handleAdd}
       isEmpty={value.length === 0}
-      emptyMessage="No achievements yet — click + to add."
+      emptyMessage={tProfile("empty")}
     >
       <DndContext
         sensors={sensors}
@@ -138,6 +141,8 @@ const AchievementEntryEditor = React.memo(function AchievementEntryEditor({
   onRemove,
   keywords,
 }: AchievementEntryEditorProps) {
+  const tProfile = useTranslations("profile.achievements");
+  const tEditor = useTranslations("Resumes.editor.section");
   const titleRef = React.useRef<HTMLInputElement>(null);
   React.useEffect(() => {
     if (autoFocus) {
@@ -149,7 +154,7 @@ const AchievementEntryEditor = React.memo(function AchievementEntryEditor({
   return (
     <EditableEntry
       id={entry.id ?? "__missing"}
-      label="Achievement entry"
+      label={tEditor("achievementEntryLabel")}
       onRemove={onRemove}
     >
       <div className="resume-entry-row flex items-baseline justify-between gap-4">
@@ -159,8 +164,8 @@ const AchievementEntryEditor = React.memo(function AchievementEntryEditor({
               ref={titleRef}
               value={entry.title}
               onChange={(title) => onChange({ title })}
-              placeholder="Achievement title"
-              aria-label="Title"
+              placeholder={tProfile("title")}
+              aria-label={tProfile("title")}
             />
           </span>
         </div>
@@ -169,9 +174,9 @@ const AchievementEntryEditor = React.memo(function AchievementEntryEditor({
             <MonthInput
               value={entry.date ?? null}
               onChange={(d) => onChange({ date: d })}
-              placeholder="Date"
+              placeholder={tProfile("date")}
               clearable
-              ariaLabel="Date"
+              ariaLabel={tProfile("date")}
             />
           </span>
         </div>
@@ -181,8 +186,8 @@ const AchievementEntryEditor = React.memo(function AchievementEntryEditor({
         <InlineTextField
           value={entry.issuer ?? ""}
           onChange={(v) => onChange({ issuer: v || null })}
-          placeholder="Issuer"
-          aria-label="Issuer"
+          placeholder={tProfile("issuer")}
+          aria-label={tProfile("issuer")}
         />
       </p>
 
@@ -191,8 +196,8 @@ const AchievementEntryEditor = React.memo(function AchievementEntryEditor({
           value={entry.description ?? ""}
           onChange={(html) => onChange({ description: html })}
           enableBulletList={false}
-          placeholder="Describe the achievement"
-          ariaLabel="Description"
+          placeholder={tProfile("description")}
+          ariaLabel={tProfile("description")}
           keywords={keywords}
         />
       </div>

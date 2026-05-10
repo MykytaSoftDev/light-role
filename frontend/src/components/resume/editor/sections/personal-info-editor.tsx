@@ -14,6 +14,7 @@
  * Save (per task spec Step 10).
  */
 import * as React from "react";
+import { useTranslations } from "next-intl";
 import {
   DndContext,
   KeyboardSensor,
@@ -72,11 +73,14 @@ export const PersonalInfoEditor = React.memo(function PersonalInfoEditor({
   onValidityChange,
   firstFieldRef,
 }: PersonalInfoEditorProps) {
+  const tProfile = useTranslations("profile.personalInfo");
+  const tValidation = useTranslations("Common.validation");
+  const tEditor = useTranslations("Resumes.editor.section");
   const v = value ?? EMPTY;
 
   const emailError =
     v.email && v.email.trim() !== "" && !EMAIL_RE.test(v.email.trim())
-      ? "Enter a valid email address."
+      ? tValidation("invalidEmail")
       : null;
 
   // Notify parent of validity changes — ONLY whenever email validity flips.
@@ -152,8 +156,8 @@ export const PersonalInfoEditor = React.memo(function PersonalInfoEditor({
           ref={firstFieldRef}
           value={v.full_name}
           onChange={(name) => patch({ full_name: name })}
-          placeholder="Your full name"
-          aria-label="Full name"
+          placeholder={tProfile("fullNameLabel")}
+          aria-label={tProfile("fullNameLabel")}
           inputClassName="font-bold"
         />
       </div>
@@ -163,23 +167,23 @@ export const PersonalInfoEditor = React.memo(function PersonalInfoEditor({
         <ContactField
           value={v.email}
           onChange={(email) => patch({ email })}
-          placeholder="email@example.com"
-          ariaLabel="Email"
+          placeholder={tEditor("emailExamplePlaceholder")}
+          ariaLabel={tProfile("emailLabel")}
           error={emailError}
         />
         <Sep />
         <ContactField
           value={v.phone}
           onChange={(phone) => patch({ phone })}
-          placeholder="Phone"
-          ariaLabel="Phone"
+          placeholder={tProfile("phoneLabel")}
+          ariaLabel={tProfile("phoneLabel")}
         />
         <Sep />
         <ContactField
           value={v.location ?? ""}
           onChange={(location) => patch({ location })}
-          placeholder="Location"
-          ariaLabel="Location"
+          placeholder={tProfile("locationLabel")}
+          ariaLabel={tProfile("locationLabel")}
         />
       </p>
 
@@ -224,7 +228,7 @@ export const PersonalInfoEditor = React.memo(function PersonalInfoEditor({
           className="text-muted-foreground hover:text-foreground h-7"
         >
           <Plus className="h-3.5 w-3.5" />
-          Add link
+          {tProfile("addSocialLink")}
         </Button>
       </div>
     </header>
@@ -292,6 +296,8 @@ function SocialLinkRow({
   onUrlChange,
   onRemove,
 }: SocialLinkRowProps) {
+  const tProfile = useTranslations("profile.personalInfo");
+  const tEditor = useTranslations("Resumes.editor.section");
   const {
     attributes,
     listeners,
@@ -317,7 +323,7 @@ function SocialLinkRow({
     >
       <button
         type="button"
-        aria-label="Drag link"
+        aria-label={tEditor("dragLink")}
         className="cursor-grab touch-none rounded p-0.5 text-muted-foreground/60 hover:text-muted-foreground active:cursor-grabbing opacity-0 group-hover/sl:opacity-100 focus:opacity-100 transition-opacity"
         {...attributes}
         {...listeners}
@@ -327,8 +333,8 @@ function SocialLinkRow({
       <InlineTextField
         value={platform}
         onChange={onPlatformChange}
-        placeholder="Platform (e.g. LinkedIn)"
-        aria-label="Platform"
+        placeholder={tEditor("platformExamplePlaceholder")}
+        aria-label={tProfile("platformLabel")}
         inputClassName="text-sm w-32"
         list="social-platforms"
       />
@@ -347,14 +353,14 @@ function SocialLinkRow({
       <InlineTextField
         value={url}
         onChange={onUrlChange}
-        placeholder="https://…"
-        aria-label="URL"
+        placeholder={tEditor("liveUrlPlaceholder")}
+        aria-label={tProfile("urlLabel")}
         inputClassName="text-sm flex-1"
       />
       <button
         type="button"
         onClick={onRemove}
-        aria-label="Remove link"
+        aria-label={tProfile("removeSocialLink")}
         className="rounded p-0.5 text-muted-foreground hover:text-destructive opacity-0 group-hover/sl:opacity-100 focus:opacity-100 transition-opacity"
       >
         <Trash2 className="h-3.5 w-3.5" />

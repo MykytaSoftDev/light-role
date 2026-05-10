@@ -3,6 +3,7 @@
 import { useState, useCallback, useMemo, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useQuery } from "@tanstack/react-query";
 import {
   DndContext,
@@ -163,35 +164,42 @@ const STATUS_BADGE: Record<
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 // ---------------------------------------------------------------------------
-// DnD ARIA live announcements (English; i18n once next-intl baseline lands)
+// DnD ARIA live announcements — built inside the component via
+// `useDndAnnouncements` so screen reader strings can be translated.
 // ---------------------------------------------------------------------------
 
-const announcements = {
-  onDragStart: ({ active }: { active: { id: string | number } }) =>
-    `Picked up job ${active.id}.`,
-  onDragOver: ({
-    active,
-    over,
-  }: {
-    active: { id: string | number };
-    over: { id: string | number } | null;
-  }) =>
-    over
-      ? `Job ${active.id} is over ${over.id}.`
-      : `Job ${active.id} is no longer over a droppable area.`,
-  onDragEnd: ({
-    active,
-    over,
-  }: {
-    active: { id: string | number };
-    over: { id: string | number } | null;
-  }) =>
-    over
-      ? `Job ${active.id} was dropped over ${over.id}.`
-      : `Job ${active.id} was dropped.`,
-  onDragCancel: ({ active }: { active: { id: string | number } }) =>
-    `Dragging job ${active.id} was cancelled.`,
-};
+function useDndAnnouncements() {
+  const t = useTranslations("Jobs.list.dnd");
+  return useMemo(
+    () => ({
+      onDragStart: ({ active }: { active: { id: string | number } }) =>
+        t("pickedUp", { id: String(active.id) }),
+      onDragOver: ({
+        active,
+        over,
+      }: {
+        active: { id: string | number };
+        over: { id: string | number } | null;
+      }) =>
+        over
+          ? t("overTarget", { id: String(active.id), overId: String(over.id) })
+          : t("leftDroppable", { id: String(active.id) }),
+      onDragEnd: ({
+        active,
+        over,
+      }: {
+        active: { id: string | number };
+        over: { id: string | number } | null;
+      }) =>
+        over
+          ? t("droppedOver", { id: String(active.id), overId: String(over.id) })
+          : t("dropped", { id: String(active.id) }),
+      onDragCancel: ({ active }: { active: { id: string | number } }) =>
+        t("cancelled", { id: String(active.id) }),
+    }),
+    [t],
+  );
+}
 
 // ---------------------------------------------------------------------------
 // Sort config
@@ -343,12 +351,17 @@ function ExcitementStars({ level }: { level: number | null }) {
 // ---------------------------------------------------------------------------
 
 function StatusBadge({ status }: { status: string }) {
+  const tStatus = useTranslations("Jobs.status");
   const s = status as Status;
   const colors = STATUS_BADGE[s] ?? {
     bg: "bg-gray-100 dark:bg-gray-800",
     text: "text-gray-600 dark:text-gray-400",
     dot: "bg-gray-400",
   };
+  // Fall back to capitalized raw status if not a known Status (defensive).
+  const label = (STATUSES as readonly string[]).includes(status)
+    ? tStatus(s)
+    : status.charAt(0).toUpperCase() + status.slice(1);
   return (
     <span
       className={cn(
@@ -358,7 +371,7 @@ function StatusBadge({ status }: { status: string }) {
       )}
     >
       <span className={cn("h-1.5 w-1.5 rounded-full", colors.dot)} />
-      {status.charAt(0).toUpperCase() + status.slice(1)}
+      {label}
     </span>
   );
 }
@@ -378,6 +391,7 @@ function JobCardPresentation({
   isDragging = false,
   onDelete,
 }: JobCardPresentationProps) {
+  const t = useTranslations("Jobs.list");
   return (
     <div
       className={cn(
@@ -402,7 +416,7 @@ function JobCardPresentation({
             <button
               onClick={(e) => e.stopPropagation()}
               className="rounded p-0.5 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-muted focus:opacity-100 focus:outline-none"
-              aria-label="Open job menu"
+              aria-label={t("openJobMenuAria")}
             >
               <MoreHorizontal className="h-4 w-4 text-muted-foreground" />
             </button>
@@ -486,8 +500,10 @@ function KanbanSection({
   collapsed,
   onToggleCollapse,
 }: KanbanSectionProps) {
+  const tStatus = useTranslations("Jobs.status");
+  const tList = useTranslations("Jobs.list");
   const dotColor = COLUMN_COLORS[status];
-  const label = status.toUpperCase();
+  const label = tStatus(status).toUpperCase();
 
   const { setNodeRef, isOver } = useDroppable({ id: status });
 
@@ -512,7 +528,11 @@ function KanbanSection({
         {/* Collapse/expand chevron */}
         <button
           onClick={() => onToggleCollapse(status)}
-          aria-label={collapsed ? `Expand ${label}` : `Collapse ${label}`}
+          aria-label={
+            collapsed
+              ? tList("expandSectionAria", { label })
+              : tList("collapseSectionAria", { label })
+          }
           className="shrink-0 rounded p-0.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors focus:outline-none"
         >
           {collapsed ? (
@@ -559,7 +579,7 @@ function KanbanSection({
                       : "border-border"
                   )}
                 >
-                  Drop jobs here
+                  {tList("dropJobsHere")}
                 </div>
               )}
             </div>
@@ -577,7 +597,9 @@ function KanbanSection({
             )}
           >
             {isOver && (
-              <span className="text-xs text-muted-foreground">Drop here</span>
+              <span className="text-xs text-muted-foreground">
+                {tList("dropHere")}
+              </span>
             )}
           </div>
         )}
@@ -639,6 +661,8 @@ interface StatusFilterProps {
 }
 
 function StatusFilterDropdown({ selected, onChange }: StatusFilterProps) {
+  const tList = useTranslations("Jobs.list");
+  const tStatus = useTranslations("Jobs.status");
   const toggleStatus = (s: Status) => {
     const next = new Set(selected);
     if (next.has(s)) {
@@ -661,7 +685,7 @@ function StatusFilterDropdown({ selected, onChange }: StatusFilterProps) {
           )}
         >
           <Filter className="h-3.5 w-3.5" />
-          Status
+          {tList("statusFilterLabel")}
           {count > 0 && (
             <span className="flex h-4 min-w-[16px] items-center justify-center rounded-full bg-primary px-1 text-[10px] font-semibold text-primary-foreground">
               {count}
@@ -697,7 +721,7 @@ function StatusFilterDropdown({ selected, onChange }: StatusFilterProps) {
                   {checked && <Check className="h-2.5 w-2.5 text-primary-foreground" />}
                 </span>
                 <span className={cn("h-2 w-2 rounded-full", badge.dot)} />
-                <span className="capitalize">{s}</span>
+                <span>{tStatus(s)}</span>
               </DropdownMenu.Item>
             );
           })}
@@ -712,7 +736,7 @@ function StatusFilterDropdown({ selected, onChange }: StatusFilterProps) {
                   onChange(new Set());
                 }}
               >
-                Clear selection
+                {tList("clearSelection")}
               </DropdownMenu.Item>
             </>
           )}
@@ -733,6 +757,7 @@ interface TableViewProps {
 
 function TableView({ jobs, onDelete }: TableViewProps) {
   const router = useRouter();
+  const tList = useTranslations("Jobs.list");
   const [sort, setSort] = useState<SortConfig>({
     column: "date_saved",
     direction: "desc",
@@ -778,7 +803,7 @@ function TableView({ jobs, onDelete }: TableViewProps) {
           <Search className="pointer-events-none absolute left-2.5 h-3.5 w-3.5 text-muted-foreground" />
           <input
             type="text"
-            placeholder="Search by company..."
+            placeholder={tList("searchPlaceholder")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="h-8 w-52 rounded-lg border border-border bg-background pl-8 pr-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/50"
@@ -787,7 +812,7 @@ function TableView({ jobs, onDelete }: TableViewProps) {
             <button
               onClick={() => setSearch("")}
               className="absolute right-2 text-muted-foreground hover:text-foreground"
-              aria-label="Clear search"
+              aria-label={tList("clearSearchAria")}
             >
               <X className="h-3.5 w-3.5" />
             </button>
@@ -807,13 +832,13 @@ function TableView({ jobs, onDelete }: TableViewProps) {
             className="inline-flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
           >
             <X className="h-3.5 w-3.5" />
-            Clear filters
+            {tList("clearFilters")}
           </button>
         )}
 
         {/* Result count */}
         <span className="ml-auto text-xs text-muted-foreground">
-          {filtered.length} job{filtered.length !== 1 ? "s" : ""}
+          {tList("resultCount", { count: filtered.length })}
         </span>
       </div>
 
@@ -822,36 +847,36 @@ function TableView({ jobs, onDelete }: TableViewProps) {
         <table className="w-full text-sm">
           <thead className="border-b border-border bg-muted/40">
             <tr>
-              <SortHeader label="Job Position" column="title" sort={sort} onSort={handleSort} />
-              <SortHeader label="Company" column="company" sort={sort} onSort={handleSort} />
+              <SortHeader label={tList("columns.title")} column="title" sort={sort} onSort={handleSort} />
+              <SortHeader label={tList("columns.company")} column="company" sort={sort} onSort={handleSort} />
               <SortHeader
-                label="Location"
+                label={tList("columns.location")}
                 column="location"
                 sort={sort}
                 onSort={handleSort}
                 className="hidden sm:table-cell"
               />
               <SortHeader
-                label="Salary"
+                label={tList("columns.salary")}
                 column="salary"
                 sort={sort}
                 onSort={handleSort}
                 className="hidden sm:table-cell"
               />
-              <SortHeader label="Status" column="status" sort={sort} onSort={handleSort} />
-              <SortHeader label="Date Saved" column="date_saved" sort={sort} onSort={handleSort} />
-              <SortHeader label="Date Applied" column="date_applied" sort={sort} onSort={handleSort} />
-              <SortHeader label="Deadline" column="deadline" sort={sort} onSort={handleSort} />
+              <SortHeader label={tList("columns.status")} column="status" sort={sort} onSort={handleSort} />
+              <SortHeader label={tList("columns.dateSaved")} column="date_saved" sort={sort} onSort={handleSort} />
+              <SortHeader label={tList("columns.dateApplied")} column="date_applied" sort={sort} onSort={handleSort} />
+              <SortHeader label={tList("columns.deadline")} column="deadline" sort={sort} onSort={handleSort} />
               <SortHeader
-                label="Follow-up"
+                label={tList("columns.followUp")}
                 column="follow_up"
                 sort={sort}
                 onSort={handleSort}
                 className="hidden sm:table-cell"
               />
-              <SortHeader label="Excitement" column="excitement" sort={sort} onSort={handleSort} />
+              <SortHeader label={tList("columns.excitement")} column="excitement" sort={sort} onSort={handleSort} />
               <th className="px-3 py-2.5 text-right text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                Actions
+                {tList("columns.actions")}
               </th>
             </tr>
           </thead>
@@ -863,8 +888,8 @@ function TableView({ jobs, onDelete }: TableViewProps) {
                   className="px-3 py-12 text-center text-sm text-muted-foreground"
                 >
                   {hasFilters
-                    ? "No jobs match your filters."
-                    : "No jobs yet. Add your first job to get started."}
+                    ? tList("emptyFiltered")
+                    : tList("emptyTableRow")}
                 </td>
               </tr>
             ) : (
@@ -949,7 +974,7 @@ function TableView({ jobs, onDelete }: TableViewProps) {
                       trigger={
                         <button
                           className="rounded p-0.5 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-muted focus:opacity-100 focus:outline-none"
-                          aria-label="Open job menu"
+                          aria-label={tList("openJobMenuAria")}
                         >
                           <MoreHorizontal className="h-4 w-4 text-muted-foreground" />
                         </button>
@@ -998,24 +1023,26 @@ function KanbanSkeleton() {
 }
 
 function TableSkeleton() {
+  const tList = useTranslations("Jobs.list");
+  const columns = [
+    tList("columns.title"),
+    tList("columns.company"),
+    tList("columns.location"),
+    tList("columns.salary"),
+    tList("columns.status"),
+    tList("columns.dateSaved"),
+    tList("columns.dateApplied"),
+    tList("columns.deadline"),
+    tList("columns.followUp"),
+    tList("columns.excitement"),
+    tList("columns.actions"),
+  ];
   return (
     <div className="overflow-x-auto rounded-xl border border-border">
       <table className="w-full text-sm">
         <thead className="border-b border-border bg-muted/40">
           <tr>
-            {[
-              "Job Position",
-              "Company",
-              "Location",
-              "Salary",
-              "Status",
-              "Date Saved",
-              "Date Applied",
-              "Deadline",
-              "Follow-up",
-              "Excitement",
-              "Actions",
-            ].map((col) => (
+            {columns.map((col) => (
               <th
                 key={col}
                 className="px-3 py-2.5 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide"
@@ -1052,6 +1079,7 @@ function ErrorBanner({
   message: string;
   onDismiss: () => void;
 }) {
+  const tList = useTranslations("Jobs.list");
   return (
     <div className="fixed bottom-4 left-1/2 z-50 -translate-x-1/2 flex items-center gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-2.5 shadow-lg dark:border-red-800 dark:bg-red-950/70">
       <span className="text-sm font-medium text-red-700 dark:text-red-300">
@@ -1061,7 +1089,7 @@ function ErrorBanner({
         onClick={onDismiss}
         className="text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-200 text-xs font-semibold"
       >
-        Dismiss
+        {tList("dismiss")}
       </button>
     </div>
   );
@@ -1088,6 +1116,9 @@ const dropAnimation = {
 type ViewMode = "kanban" | "table";
 
 export default function JobsPage() {
+  const tList = useTranslations("Jobs.list");
+  const tCommon = useTranslations("Common.toast");
+  const announcements = useDndAnnouncements();
   const [jobsMap, setJobsMap] = useState<JobsMap>(() => {
     const map: JobsMap = {};
     for (const s of STATUSES) map[s] = [];
@@ -1164,7 +1195,7 @@ export default function JobsPage() {
   const allJobs = useMemo(() => flattenJobsMap(jobsMap), [jobsMap]);
 
   // Surface fetch error via the same error banner used for DnD errors
-  const error = isError ? "Failed to load jobs. Please refresh the page." : dndError;
+  const error = isError ? tCommon("loadError") : dndError;
 
   // Persist view mode
   const switchView = (mode: ViewMode) => {
@@ -1341,7 +1372,7 @@ export default function JobsPage() {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
     } catch {
       if (snapshot) setJobsMap(snapshot);
-      setDndError("Failed to update job status. Please try again.");
+      setDndError(tList("statusUpdateFailed"));
     }
   }
 
@@ -1371,13 +1402,17 @@ export default function JobsPage() {
     <div className="flex h-full flex-col gap-4 p-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold tracking-tight">Job Tracking</h1>
+        <h1 className="text-2xl font-bold tracking-tight">{tList("heading")}</h1>
         <div className="flex items-center gap-2">
           {/* Show/hide empty toggle (kanban only) */}
           {viewMode === "kanban" && (
             <button
               onClick={() => setShowEmpty((v) => !v)}
-              aria-label={showEmpty ? "Hide empty sections" : "Show empty sections"}
+              aria-label={
+                showEmpty
+                  ? tList("hideEmptySectionsAria")
+                  : tList("showEmptySectionsAria")
+              }
               className={cn(
                 "inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-sm transition-colors hover:bg-muted focus:outline-none",
                 showEmpty && "border-primary/40 bg-primary/5 text-primary"
@@ -1389,7 +1424,7 @@ export default function JobsPage() {
                 <EyeOff className="h-3.5 w-3.5" />
               )}
               <span className="hidden sm:inline">
-                {showEmpty ? "Hide empty" : "Show empty"}
+                {showEmpty ? tList("hideEmpty") : tList("showEmpty")}
               </span>
             </button>
           )}
@@ -1397,7 +1432,7 @@ export default function JobsPage() {
           {/* View toggle */}
           <div className="flex rounded-lg border border-border p-0.5">
             <button
-              aria-label="Kanban view"
+              aria-label={tList("kanbanViewAria")}
               onClick={() => switchView("kanban")}
               className={cn(
                 "rounded-md p-1.5 transition-colors",
@@ -1409,7 +1444,7 @@ export default function JobsPage() {
               <LayoutGrid className="h-4 w-4" />
             </button>
             <button
-              aria-label="Table view"
+              aria-label={tList("tableViewAria")}
               onClick={() => switchView("table")}
               className={cn(
                 "rounded-md p-1.5 transition-colors",
@@ -1427,7 +1462,7 @@ export default function JobsPage() {
             className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
           >
             <Plus className="h-4 w-4" />
-            Add Job
+            {tList("addJob")}
           </Link>
         </div>
       </div>
@@ -1444,10 +1479,10 @@ export default function JobsPage() {
           <div className="flex flex-1 items-center justify-center rounded-xl border border-border bg-muted/30">
             <EmptyState
               icon={<Table2 className="h-8 w-8" />}
-              title="No jobs yet"
-              description="Start tracking your job applications by adding your first job."
+              title={tList("empty.title")}
+              description={tList("empty.description")}
               action={{
-                label: "Create Your First Job",
+                label: tList("empty.cta"),
                 href: "/dashboard/jobs/new",
               }}
             />
@@ -1459,10 +1494,10 @@ export default function JobsPage() {
         <div className="flex flex-1 items-center justify-center rounded-xl border border-border bg-muted/30">
           <EmptyState
             icon={<LayoutGrid className="h-8 w-8" />}
-            title="No jobs yet"
-            description="Start tracking your job applications by adding your first job."
+            title={tList("empty.title")}
+            description={tList("empty.description")}
             action={{
-              label: "Create Your First Job",
+              label: tList("empty.cta"),
               href: "/dashboard/jobs/new",
             }}
           />

@@ -11,6 +11,7 @@ import {
   X,
   Zap,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -79,21 +80,24 @@ interface JobsResponse {
 // Helpers
 // ---------------------------------------------------------------------------
 
-function relativeDate(isoString: string): string {
-  const date = new Date(isoString);
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+function useRelativeDate() {
+  const t = useTranslations("DashboardHome.relativeDate");
+  return (isoString: string): string => {
+    const date = new Date(isoString);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 
-  if (diffDays === 0) return "Today";
-  if (diffDays === 1) return "Yesterday";
-  if (diffDays < 7) return `${diffDays} days ago`;
-  if (diffDays < 30) {
-    const weeks = Math.floor(diffDays / 7);
-    return `${weeks} ${weeks === 1 ? "week" : "weeks"} ago`;
-  }
-  const months = Math.floor(diffDays / 30);
-  return `${months} ${months === 1 ? "month" : "months"} ago`;
+    if (diffDays === 0) return t("today");
+    if (diffDays === 1) return t("yesterday");
+    if (diffDays < 7) return t("daysAgo", { count: diffDays });
+    if (diffDays < 30) {
+      const weeks = Math.floor(diffDays / 7);
+      return t("weeksAgo", { count: weeks });
+    }
+    const months = Math.floor(diffDays / 30);
+    return t("monthsAgo", { count: months });
+  };
 }
 
 /**
@@ -143,13 +147,14 @@ function InfoBanner({
   message: string;
   onDismiss: () => void;
 }) {
+  const t = useTranslations("DashboardHome.quickActions");
   return (
     <div className="border-border bg-background fixed bottom-4 left-1/2 z-50 flex -translate-x-1/2 items-center gap-3 rounded-lg border px-4 py-2.5 shadow-lg">
       <span className="text-foreground text-sm font-medium">{message}</span>
       <button
         onClick={onDismiss}
         className="text-muted-foreground hover:text-foreground"
-        aria-label="Dismiss"
+        aria-label={t("dismiss")}
       >
         <X size={14} />
       </button>
@@ -178,6 +183,7 @@ function QuickActionCard({
   disabled,
   onDisabledClick,
 }: QuickActionCardProps) {
+  const t = useTranslations("DashboardHome.quickActions");
   const inner = (
     <div
       data-slot="card"
@@ -208,7 +214,7 @@ function QuickActionCard({
           disabled ? "text-muted-foreground" : "text-primary"
         )}
       >
-        Get started <ArrowRight size={12} />
+        {t("getStarted")} <ArrowRight size={12} />
       </div>
     </div>
   );
@@ -225,6 +231,12 @@ function QuickActionCard({
 // ---------------------------------------------------------------------------
 
 export default function DashboardPage() {
+  const t = useTranslations("DashboardHome");
+  const tQA = useTranslations("DashboardHome.quickActions");
+  const tStats = useTranslations("DashboardHome.stats");
+  const tActivity = useTranslations("DashboardHome.recentActivity");
+  const relativeDate = useRelativeDate();
+
   // Banner message UI state for "add a job first" toast.
   const [banner, setBanner] = useState<string | null>(null);
 
@@ -280,14 +292,14 @@ export default function DashboardPage() {
   const greeting = userLoading
     ? null
     : user?.first_name
-      ? `Hello, ${user.first_name}!`
-      : "Welcome back!";
+      ? t("greeting", { name: user.first_name })
+      : t("greetingFallback");
 
   const summaryLine = (() => {
     if (usageLoading) return null;
     const active = usage?.active_jobs_count ?? 0;
     const month = usage?.applications_this_month ?? 0;
-    return `${active} active ${active === 1 ? "job" : "jobs"}, ${month} ${month === 1 ? "application" : "applications"} this month`;
+    return t("summaryLine", { activeCount: active, appCount: month });
   })();
 
   // ----- Section ordering (spec §1) -----
@@ -313,7 +325,7 @@ export default function DashboardPage() {
   const panelAboveQuickActions = hasJobs === false;
 
   function handleLockedAction(label: string) {
-    setBanner(`Add a job first before ${label}.`);
+    setBanner(tQA("lockedToast", { action: label }));
   }
 
   return (
@@ -354,30 +366,34 @@ export default function DashboardPage() {
       {/* ------------------------------------------------------------------ */}
       <section>
         <h2 className="text-muted-foreground mb-3 text-sm font-semibold tracking-wider uppercase">
-          Quick Actions
+          {tQA("heading")}
         </h2>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <QuickActionCard
             icon={<Plus size={20} />}
-            title="Create a Job"
-            description="Track a new application by adding a job listing."
+            title={tQA("createJob.title")}
+            description={tQA("createJob.description")}
             href="/dashboard/jobs/new"
           />
           <QuickActionCard
             icon={<FileText size={20} />}
-            title="Tailor Resume"
-            description="Optimize your resume for a specific job using AI."
+            title={tQA("tailorResume.title")}
+            description={tQA("tailorResume.description")}
             href="/dashboard/resumes/tailor"
             disabled={hasJobs === false}
-            onDisabledClick={() => handleLockedAction("tailoring your resume")}
+            onDisabledClick={() =>
+              handleLockedAction(tQA("lockedActions.tailoring"))
+            }
           />
           <QuickActionCard
             icon={<Mail size={20} />}
-            title="Generate Cover Letter"
-            description="Create a personalized cover letter with AI assistance."
+            title={tQA("generateCoverLetter.title")}
+            description={tQA("generateCoverLetter.description")}
             href="/dashboard/cover-letters/generate"
             disabled={hasJobs === false}
-            onDisabledClick={() => handleLockedAction("generating a cover letter")}
+            onDisabledClick={() =>
+              handleLockedAction(tQA("lockedActions.generating"))
+            }
           />
         </div>
       </section>
@@ -387,7 +403,7 @@ export default function DashboardPage() {
       {/* ------------------------------------------------------------------ */}
       <section>
         <h2 className="text-muted-foreground mb-3 text-sm font-semibold tracking-wider uppercase">
-          Your Stats
+          {tStats("heading")}
         </h2>
         {usageLoading || usage == null ? (
           <StatCardGridSkeleton />
@@ -413,14 +429,15 @@ export default function DashboardPage() {
           return (
             <div className="bg-primary/5 border-primary/20 mt-3 flex items-center justify-between rounded-md border px-3 py-2">
               <p className="text-muted-foreground text-sm">
-                {resumeRemaining} resume{resumeRemaining === 1 ? "" : "s"},{" "}
-                {clRemaining} cover letter{clRemaining === 1 ? "" : "s"} remaining
-                this cycle
+                {tStats("remainingThisCycle", {
+                  resumes: resumeRemaining,
+                  coverLetters: clRemaining,
+                })}
               </p>
               <Button size="sm" variant="default" asChild>
                 <Link href="/dashboard/upgrade">
                   <Zap className="mr-1 h-3.5 w-3.5" />
-                  Upgrade
+                  {tStats("upgrade")}
                 </Link>
               </Button>
             </div>
@@ -448,14 +465,14 @@ export default function DashboardPage() {
       <section>
         <div className="mb-3 flex items-center justify-between">
           <h2 className="text-muted-foreground text-sm font-semibold tracking-wider uppercase">
-            Recent Activity
+            {tActivity("heading")}
           </h2>
           {!jobsLoading && recentJobs.length > 0 && (
             <Link
               href="/dashboard/jobs"
               className="text-primary flex items-center gap-1 text-xs font-medium hover:underline"
             >
-              View all <ArrowRight size={11} />
+              {tActivity("viewAll")} <ArrowRight size={11} />
             </Link>
           )}
         </div>
@@ -474,9 +491,11 @@ export default function DashboardPage() {
                 <Briefcase size={22} className="text-muted-foreground" />
               </div>
               <div>
-                <p className="text-foreground font-semibold">No jobs yet</p>
+                <p className="text-foreground font-semibold">
+                  {tActivity("emptyTitle")}
+                </p>
                 <p className="text-muted-foreground mt-1 text-sm">
-                  Start tracking your job search by adding your first listing.
+                  {tActivity("emptyDescription")}
                 </p>
               </div>
               <Link
@@ -484,7 +503,7 @@ export default function DashboardPage() {
                 className="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors"
               >
                 <Plus size={15} />
-                Add your first job
+                {tActivity("addFirst")}
               </Link>
             </div>
           ) : (
@@ -499,9 +518,10 @@ export default function DashboardPage() {
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className="text-foreground truncate text-sm font-medium">
-                    Added <span className="font-semibold">{job.company}</span>
-                    {" — "}
-                    {job.title}
+                    {tActivity("addedJob", {
+                      company: job.company,
+                      title: job.title,
+                    })}
                   </p>
                   <p className="text-muted-foreground mt-0.5 flex items-center gap-1 text-xs">
                     <Clock size={11} />

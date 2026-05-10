@@ -1,28 +1,30 @@
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import { PricingPageContent } from "./_components/pricing-page-content";
 
 // SEO metadata. Server-component-only export (this file has no `"use client"`
 // directive); the interactive bits live in `PricingPageContent`.
-export const metadata: Metadata = {
-  title: "Pricing — Light Role",
-  description:
-    "Choose the plan that fits your job search. Free, Pro, or Unlimited — cancel anytime.",
-  keywords: [
-    "job search",
-    "AI resume",
-    "cover letter",
-    "Light Role pricing",
-    "career tools",
-  ],
-  openGraph: {
-    title: "Pricing — Light Role",
-    description:
-      "Choose the plan that fits your job search. Free, Pro, or Unlimited — cancel anytime.",
-    url: "/pricing",
-    type: "website",
-  },
-  alternates: { canonical: "/pricing" },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("Pricing");
+  return {
+    title: t("metaTitle"),
+    description: t("metaDescription"),
+    keywords: [
+      "job search",
+      "AI resume",
+      "cover letter",
+      "Light Role pricing",
+      "career tools",
+    ],
+    openGraph: {
+      title: t("metaTitle"),
+      description: t("metaDescription"),
+      url: "/pricing",
+      type: "website",
+    },
+    alternates: { canonical: "/pricing" },
+  };
+}
 
 // JSON-LD Product schema (one entity per paid plan). Values mirror PRD 6.8 —
 // Free is omitted on purpose; $0 products add no SEO value. Hardcoded rather

@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import { useTranslations } from "next-intl";
 
 interface BillingToggleProps {
   value: "monthly" | "annual";
@@ -15,6 +16,7 @@ export function BillingToggle({
   disabled = false,
   savingsPercent,
 }: BillingToggleProps) {
+  const t = useTranslations("Checkout.billingToggle");
   return (
     <div className="inline-flex items-center rounded-lg border border-border bg-background p-1">
       <button
@@ -28,7 +30,7 @@ export function BillingToggle({
             : "text-muted-foreground hover:text-foreground"
         )}
       >
-        Monthly
+        {t("monthly")}
       </button>
       <button
         type="button"
@@ -41,7 +43,7 @@ export function BillingToggle({
             : "text-muted-foreground hover:text-foreground"
         )}
       >
-        Annual
+        {t("annual")}
         {savingsPercent != null && (
           <span
             className={cn(
@@ -51,7 +53,7 @@ export function BillingToggle({
                 : "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400"
             )}
           >
-            Save {savingsPercent}%
+            {t("save", { percent: savingsPercent })}
           </span>
         )}
       </button>

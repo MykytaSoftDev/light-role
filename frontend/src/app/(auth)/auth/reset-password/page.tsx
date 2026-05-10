@@ -7,32 +7,41 @@ import { z } from 'zod';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { CircleAlert, Eye, EyeOff, Loader2 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
 import { api } from '@/lib/api';
 
-const resetPasswordSchema = z
-  .object({
-    password: z.string().min(8, 'Password must be at least 8 characters'),
-    confirmPassword: z.string().min(1, 'Please confirm your password'),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: 'Passwords do not match',
-    path: ['confirmPassword'],
-  });
+function makeResetPasswordSchema(t: (key: string) => string, tReset: (key: string) => string) {
+  return z
+    .object({
+      password: z.string().min(8, t('passwordMin')),
+      confirmPassword: z.string().min(1, t('confirmPasswordRequired')),
+    })
+    .refine((data) => data.password === data.confirmPassword, {
+      message: tReset('passwordsDoNotMatch'),
+      path: ['confirmPassword'],
+    });
+}
 
-type ResetPasswordFormValues = z.infer<typeof resetPasswordSchema>;
+type ResetPasswordFormValues = z.infer<ReturnType<typeof makeResetPasswordSchema>>;
 
 function ResetPasswordForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams?.get('token') ?? null;
 
+  const t = useTranslations('Auth.resetPassword');
+  const tCommon = useTranslations('Auth.common');
+  const tValidation = useTranslations('Auth.validation');
+
   const [serverError, setServerError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+
+  const resetPasswordSchema = makeResetPasswordSchema(tValidation, t);
 
   const {
     register,
@@ -47,15 +56,13 @@ function ResetPasswordForm() {
       <div className="flex min-h-screen items-center justify-center bg-background px-4">
         <div className="w-full max-w-sm">
           <div className="rounded-xl border bg-card p-8 shadow-sm text-center">
-            <h1 className="text-2xl font-semibold">Invalid link</h1>
-            <p className="mt-2 text-sm text-muted-foreground">
-              No reset token found. Please request a new password reset link.
-            </p>
+            <h1 className="text-2xl font-semibold">{t('invalidLinkTitle')}</h1>
+            <p className="mt-2 text-sm text-muted-foreground">{t('noTokenBody')}</p>
             <Link
               href="/auth/forgot-password"
               className="text-primary hover:text-primary/80 mt-6 inline-block text-sm font-medium underline-offset-4 hover:underline"
             >
-              Request reset link
+              {t('requestResetLink')}
             </Link>
           </div>
         </div>
@@ -73,12 +80,12 @@ function ResetPasswordForm() {
       if (res.ok || res.status === 200) {
         router.push('/auth/login?reset=success');
       } else if (res.status === 400 || res.status === 422) {
-        setServerError('Invalid or expired reset link. Please request a new one.');
+        setServerError(t('tokenInvalid'));
       } else {
-        setServerError('Something went wrong. Please try again.');
+        setServerError(tCommon('genericError'));
       }
     } catch {
-      setServerError('Unable to connect. Check your internet connection.');
+      setServerError(tCommon('networkError'));
     }
   }
 
@@ -87,22 +94,20 @@ function ResetPasswordForm() {
       <div className="w-full max-w-sm">
         <div className="rounded-xl border bg-card p-8 shadow-sm">
           <div className="mb-6 space-y-1">
-            <h1 className="text-2xl font-semibold tracking-tight">Set a new password</h1>
-            <p className="text-sm text-muted-foreground">
-              Enter a new password for your account.
-            </p>
+            <h1 className="text-2xl font-semibold tracking-tight">{t('title')}</h1>
+            <p className="text-sm text-muted-foreground">{t('subtitle')}</p>
           </div>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
             {/* New password */}
             <div className="space-y-1.5">
-              <Label htmlFor="password">New Password</Label>
+              <Label htmlFor="password">{t('newPasswordLabel')}</Label>
               <div className="relative">
                 <Input
                   id="password"
                   type={showPassword ? 'text' : 'password'}
                   autoComplete="new-password"
-                  placeholder="At least 8 characters"
+                  placeholder={t('passwordPlaceholder')}
                   {...register('password')}
                   className={cn('pr-10', errors.password && 'border-destructive focus-visible:ring-destructive')}
                 />
@@ -110,7 +115,7 @@ function ResetPasswordForm() {
                   type="button"
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                   onClick={() => setShowPassword(!showPassword)}
-                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  aria-label={showPassword ? t('hidePassword') : t('showPassword')}
                 >
                   {showPassword ? (
                     <EyeOff className="h-4 w-4" />
@@ -126,13 +131,13 @@ function ResetPasswordForm() {
 
             {/* Confirm password */}
             <div className="space-y-1.5">
-              <Label htmlFor="confirmPassword">Confirm New Password</Label>
+              <Label htmlFor="confirmPassword">{t('confirmPasswordLabel')}</Label>
               <div className="relative">
                 <Input
                   id="confirmPassword"
                   type={showConfirm ? 'text' : 'password'}
                   autoComplete="new-password"
-                  placeholder="••••••••"
+                  placeholder={tCommon('passwordPlaceholder')}
                   {...register('confirmPassword')}
                   className={cn('pr-10', errors.confirmPassword && 'border-destructive focus-visible:ring-destructive')}
                 />
@@ -140,7 +145,7 @@ function ResetPasswordForm() {
                   type="button"
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                   onClick={() => setShowConfirm(!showConfirm)}
-                  aria-label={showConfirm ? 'Hide password' : 'Show password'}
+                  aria-label={showConfirm ? t('hidePassword') : t('showPassword')}
                 >
                   {showConfirm ? (
                     <EyeOff className="h-4 w-4" />
@@ -166,10 +171,10 @@ function ResetPasswordForm() {
               {isSubmitting ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  Resetting...
+                  {t('submitting')}
                 </>
               ) : (
-                'Reset password'
+                t('submit')
               )}
             </Button>
           </form>
@@ -179,7 +184,7 @@ function ResetPasswordForm() {
               href="/auth/login"
               className="text-primary hover:text-primary/80 font-medium underline-offset-4 hover:underline"
             >
-              Back to sign in
+              {t('backToLogin')}
             </Link>
           </p>
         </div>
@@ -188,19 +193,22 @@ function ResetPasswordForm() {
   );
 }
 
+function ResetPasswordFallback() {
+  const tStates = useTranslations('Common.states');
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-background px-4">
+      <div className="w-full max-w-sm">
+        <div className="rounded-xl border bg-card p-8 shadow-sm text-center">
+          <p className="text-sm text-muted-foreground">{tStates('loading')}</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function ResetPasswordPage() {
   return (
-    <Suspense
-      fallback={
-        <div className="flex min-h-screen items-center justify-center bg-background px-4">
-          <div className="w-full max-w-sm">
-            <div className="rounded-xl border bg-card p-8 shadow-sm text-center">
-              <p className="text-sm text-muted-foreground">Loading...</p>
-            </div>
-          </div>
-        </div>
-      }
-    >
+    <Suspense fallback={<ResetPasswordFallback />}>
       <ResetPasswordForm />
     </Suspense>
   );

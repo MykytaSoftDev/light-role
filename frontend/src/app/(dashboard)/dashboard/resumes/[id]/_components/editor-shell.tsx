@@ -19,6 +19,7 @@
  *   - docs/v2/specs/editor-edit-mode-spec.md §1, §2, §3, §4, §5
  */
 import * as React from "react";
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 
@@ -97,13 +98,14 @@ export function EditorShell({ id }: EditorShellProps) {
 // ---------------------------------------------------------------------------
 
 function EditorChrome({ id, resume }: { id: string; resume: TailoredResume }) {
+  const tEditor = useTranslations("Resumes.editor");
   // TAILOR-8 backend gap: `TailoredResumeResponse` does not currently
   // include the joined Job — so we can't render
   // "Resume tailored for {company_name}" (spec §3.5) without a follow-up
   // fetch. Fall back to the spec's documented alternative until backend-dev
   // either adds a `job` relation to the response or we fetch the job
   // separately via `resume.job_id`.
-  const subtitle = "Resume tailored from your profile";
+  const subtitle = tEditor("tailoredFromProfileSubtitle");
 
   // ---- Edit-mode draft state ----
   const draftState = useResumeDraft(id, resume);
@@ -219,7 +221,7 @@ function EditorChrome({ id, resume }: { id: string; resume: TailoredResume }) {
         <DownloadButton
           resumeId={resume.id}
           disabledReason={
-            mode === "edit" ? "Save your changes to download." : undefined
+            mode === "edit" ? tEditor("saveBeforeDownload") : undefined
           }
         />
       </div>
@@ -296,7 +298,7 @@ function EditorChrome({ id, resume }: { id: string; resume: TailoredResume }) {
               scrolling sees both cards as a single column. */}
           <aside
             role="complementary"
-            aria-label="Resume insights and feedback"
+            aria-label={tEditor("insightsAside")}
             className="space-y-6 2xl:sticky 2xl:top-6 2xl:max-h-[calc(100vh-3rem)] 2xl:overflow-y-auto"
           >
             <InsightsPanel
@@ -347,6 +349,7 @@ function EditorChrome({ id, resume }: { id: string; resume: TailoredResume }) {
 // ---------------------------------------------------------------------------
 
 function NotFoundState() {
+  const t = useTranslations("Resumes.editor");
   const headingRef = React.useRef<HTMLHeadingElement | null>(null);
   React.useEffect(() => {
     headingRef.current?.focus();
@@ -359,13 +362,11 @@ function NotFoundState() {
         tabIndex={-1}
         className="text-xl font-semibold tracking-tight focus:outline-none"
       >
-        Resume not found
+        {t("notFoundTitle")}
       </h1>
-      <p className="text-sm text-muted-foreground">
-        This resume doesn&apos;t exist or you don&apos;t have access to it.
-      </p>
+      <p className="text-sm text-muted-foreground">{t("notFoundDescription")}</p>
       <Button asChild>
-        <Link href="/dashboard/resumes">Back to Resumes</Link>
+        <Link href="/dashboard/resumes">{t("backToList")}</Link>
       </Button>
     </div>
   );

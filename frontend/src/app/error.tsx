@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import Link from "next/link";
 import { AlertTriangle } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 
 export default function Error({
@@ -12,6 +13,8 @@ export default function Error({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const t = useTranslations("Errors.boundary");
+
   useEffect(() => {
     // Log to error tracking service in production
     console.error(error);
@@ -23,18 +26,14 @@ export default function Error({
         <AlertTriangle className="h-10 w-10 text-destructive" />
       </div>
 
-      <h1 className="mt-6 text-3xl font-bold tracking-tight">
-        Something went wrong
-      </h1>
+      <h1 className="mt-6 text-3xl font-bold tracking-tight">{t("title")}</h1>
 
-      <p className="mt-3 max-w-sm text-muted-foreground">
-        An unexpected error occurred. Please try again.
-      </p>
+      <p className="mt-3 max-w-sm text-muted-foreground">{t("description")}</p>
 
       <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-        <Button onClick={reset}>Try Again</Button>
+        <Button onClick={reset}>{t("tryAgain")}</Button>
         <Button asChild variant="outline">
-          <Link href="/dashboard">Go to Dashboard</Link>
+          <Link href="/dashboard">{t("goHome")}</Link>
         </Button>
       </div>
     </div>

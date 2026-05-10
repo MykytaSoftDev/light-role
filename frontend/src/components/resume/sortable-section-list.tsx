@@ -39,6 +39,7 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { GripVertical } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { cn } from "@/lib/utils";
 
@@ -103,6 +104,7 @@ function SortableSectionRow({
   label,
   rightContent,
 }: SortableSectionRowProps) {
+  const t = useTranslations("Resumes.editor.reorderDialog");
   const {
     attributes,
     listeners,
@@ -128,7 +130,7 @@ function SortableSectionRow({
     >
       <button
         type="button"
-        aria-label={`Drag ${label} to reorder`}
+        aria-label={t("dragHandleAria")}
         className="cursor-grab touch-none rounded p-1 text-muted-foreground hover:bg-accent hover:text-foreground active:cursor-grabbing focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
         {...attributes}
         {...listeners}

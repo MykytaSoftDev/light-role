@@ -2,12 +2,14 @@
 
 import { useEffect, useState } from "react";
 import { WifiOff, Wifi } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 
 type BannerState = "offline" | "back-online" | "hidden";
 
 export function OfflineDetector() {
   const [bannerState, setBannerState] = useState<BannerState>("hidden");
+  const t = useTranslations("Errors.offline");
 
   useEffect(() => {
     let dismissTimer: ReturnType<typeof setTimeout> | null = null;
@@ -61,12 +63,12 @@ export function OfflineDetector() {
       {bannerState === "offline" ? (
         <>
           <WifiOff className="h-4 w-4 shrink-0" />
-          <span>No internet connection. Some features may not work.</span>
+          <span>{t("bannerOffline")}</span>
         </>
       ) : (
         <>
           <Wifi className="h-4 w-4 shrink-0" />
-          <span>You&apos;re back online!</span>
+          <span>{t("backOnline")}</span>
         </>
       )}
     </div>

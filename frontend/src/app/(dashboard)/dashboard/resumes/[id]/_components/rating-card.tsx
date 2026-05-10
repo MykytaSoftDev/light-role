@@ -33,6 +33,7 @@
  *   the 15-second window). See spec §1.1.
  */
 import * as React from "react";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { X } from "lucide-react";
@@ -70,6 +71,7 @@ export function RatingCard({
   isEditMode,
   onClose,
 }: RatingCardProps) {
+  const t = useTranslations("Resumes.editor.rating");
   const queryClient = useQueryClient();
 
   const [rating, setRating] = React.useState<number>(0);
@@ -100,7 +102,7 @@ export function RatingCard({
         queryKeys.resumes.detail(resumeId),
         (old) => (old ? { ...old, rating } : old)
       );
-      toast.success("Thanks for the feedback!");
+      toast.success(t("thanksToast"));
       onClose();
     } catch (err) {
       if (err instanceof RatingSubmitError && err.status === 409) {
@@ -118,7 +120,7 @@ export function RatingCard({
         return;
       }
       // 5xx / network / unknown → keep card open with inline error.
-      setSubmitError("Couldn't save your rating. Please try again.");
+      setSubmitError(t("submitError"));
       setIsSubmitting(false);
       return;
     }
@@ -140,17 +142,15 @@ export function RatingCard({
     >
       <CardHeader className="flex flex-row items-start justify-between space-y-0">
         <div className="space-y-1">
-          <CardTitle className="text-base">How was the result?</CardTitle>
-          <CardDescription>
-            Help us improve by rating your tailored resume.
-          </CardDescription>
+          <CardTitle className="text-base">{t("cardTitle")}</CardTitle>
+          <CardDescription>{t("cardDescription")}</CardDescription>
         </div>
         <Button
           type="button"
           variant="ghost"
           size="icon"
           className="-mr-2 -mt-2 h-7 w-7 shrink-0"
-          aria-label="Dismiss rating prompt"
+          aria-label={t("dismissAria")}
           onClick={handleDismiss}
         >
           <X className="h-4 w-4" />
@@ -185,15 +185,13 @@ export function RatingCard({
           aria-hidden={!showComment}
         >
           <div className="min-h-0 space-y-2">
-            <Label htmlFor="rating-comment">
-              Tell us what went wrong (optional)
-            </Label>
+            <Label htmlFor="rating-comment">{t("commentLabel")}</Label>
             <Textarea
               id="rating-comment"
               value={comment}
               onChange={(e) => setComment(e.target.value)}
               maxLength={500}
-              placeholder="What was missing or off about this resume?"
+              placeholder={t("commentPlaceholder")}
               disabled={isSubmitting || !showComment}
               tabIndex={showComment ? 0 : -1}
             />
@@ -212,7 +210,7 @@ export function RatingCard({
             onClick={() => void handleSubmit()}
             disabled={submitDisabled}
           >
-            {isSubmitting ? "Submitting…" : "Submit"}
+            {isSubmitting ? t("submitting") : t("submit")}
           </Button>
         </div>
       </CardContent>

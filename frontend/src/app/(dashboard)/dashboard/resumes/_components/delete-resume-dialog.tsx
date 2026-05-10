@@ -1,5 +1,7 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -33,21 +35,20 @@ export function DeleteResumeDialog({
   hasRating,
   onConfirm,
 }: DeleteResumeDialogProps) {
+  const t = useTranslations("Resumes.list.delete");
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Delete this resume?</DialogTitle>
+          <DialogTitle>{t("title")}</DialogTitle>
           <DialogDescription>
-            &ldquo;{resumeName}&rdquo; will be permanently deleted, including
-            the applied changes log
-            {hasRating ? ", your star rating," : ""} and any unsaved edits. The
-            original Job stays untouched.
+            {t("body", { name: resumeName })}
+            {hasRating ? t("bodyHasRating") : ""}
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
+            {t("cancel")}
           </Button>
           <Button
             variant="destructive"
@@ -56,7 +57,7 @@ export function DeleteResumeDialog({
               onConfirm();
             }}
           >
-            Delete
+            {t("confirm")}
           </Button>
         </DialogFooter>
       </DialogContent>
