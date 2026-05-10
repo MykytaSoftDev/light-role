@@ -38,9 +38,9 @@ export function InsufficientDataState({ sufficiency }: InsufficientDataStateProp
   return (
     <div className="flex flex-col items-center gap-6 py-12 max-w-md mx-auto text-center">
       {/* Icon */}
-      <div className="flex h-14 w-14 items-center justify-center rounded-full bg-indigo-100 dark:bg-indigo-950/60">
+      <div className="bg-primary/10 flex h-14 w-14 items-center justify-center rounded-full">
         <svg
-          className="h-7 w-7 text-indigo-600 dark:text-indigo-400"
+          className="text-primary h-7 w-7"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"

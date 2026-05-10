@@ -9,8 +9,9 @@ from sqlalchemy import func, text
 from sqlalchemy.orm import Session
 
 from app.models.application import Application
-from app.models.enums import ApplicationStatus, OperationType
+from app.models.enums import ApplicationStatus
 from app.models.job import Job
+from app.models.tailored_resume import TailoredResume
 from app.models.usage_log import UsageLog
 from app.redis import get_redis_client
 from app.schemas.analytics import (
@@ -228,7 +229,7 @@ def get_ai_operations_breakdown(
         .all()
     )
 
-    return [AIOperationCount(operation_type=row[0].value, count=row[1]) for row in rows]
+    return [AIOperationCount(operation_type=row[0], count=row[1]) for row in rows]
 
 
 def get_response_time(
@@ -342,9 +343,11 @@ def get_data_sufficiency(
         .scalar()
     ) or 0
 
-    # NOTE (ARCH-1): scored-resume count temporarily reports 0 until the new
-    # tailored_resumes pipeline is wired up in Phase 4.
-    total_scored_resumes: int = 0
+    total_scored_resumes: int = (
+        db.query(func.count(TailoredResume.id))
+        .filter(TailoredResume.user_id == user_id)
+        .scalar()
+    ) or 0
 
     return DataSufficiency(
         total_jobs=total_jobs,
