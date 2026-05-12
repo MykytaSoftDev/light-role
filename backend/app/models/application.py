@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import uuid
 from datetime import datetime
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, List
 
 from sqlalchemy import CheckConstraint, DateTime, Enum as SAEnum, ForeignKey, Index, SmallInteger, Text
 from sqlalchemy.dialects.postgresql import UUID
@@ -13,6 +13,7 @@ from app.models.base import TimestampMixin
 from app.models.enums import ApplicationStatus
 
 if TYPE_CHECKING:
+    from app.models.application_status_history import ApplicationStatusHistory
     from app.models.cover_letter import CoverLetter
     from app.models.job import Job
 
@@ -91,4 +92,10 @@ class Application(TimestampMixin, Base):
         "CoverLetter",
         back_populates="applications",
         foreign_keys=[cover_letter_id],
+    )
+    status_history: Mapped[List[ApplicationStatusHistory]] = relationship(
+        "ApplicationStatusHistory",
+        back_populates="application",
+        cascade="all, delete-orphan",
+        order_by="ApplicationStatusHistory.created_at",
     )

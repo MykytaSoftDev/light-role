@@ -1,5 +1,6 @@
 from app.models.ai_quality_rating import AIQualityRating
 from app.models.application import Application
+from app.models.application_status_history import ApplicationStatusHistory
 from app.models.cover_letter import CoverLetter
 from app.models.enums import (
     ApplicationStatus,
@@ -42,6 +43,7 @@ __all__ = [
     "UserProfile",
     "Job",
     "Application",
+    "ApplicationStatusHistory",
     "TailoredResume",
     "CoverLetter",
     "AIQualityRating",

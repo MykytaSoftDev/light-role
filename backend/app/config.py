@@ -57,7 +57,12 @@ class Settings(BaseSettings):
     google_client_secret: str = ""
 
     # Analytics
-    analytics_cache_version: int = 1
+    # Bump this on any change to the AnalyticsResponse wire shape so
+    # already-cached entries are invalidated transparently. The cache key
+    # pattern is `analytics:v{version}:{user_id}:{period}`.
+    # v2 (2026-05-11): ActivityEvent gained structured company/role/to_status
+    # fields so the frontend can localize the activity feed.
+    analytics_cache_version: int = 2
 
     # PDF rendering (TAILOR-3)
     # Hard cap on a single page.pdf() render. Chromium occasionally hangs on

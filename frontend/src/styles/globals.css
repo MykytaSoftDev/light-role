@@ -48,6 +48,22 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+
+  /* Analytics redesign — heatmap, status, and success palettes.
+     Light/dark values live in :root and .dark below; these aliases let
+     Tailwind generate utilities like bg-heat-0, text-status-offer, etc. */
+  --color-heat-0: var(--heat-0);
+  --color-heat-1: var(--heat-1);
+  --color-heat-2: var(--heat-2);
+  --color-heat-3: var(--heat-3);
+  --color-heat-4: var(--heat-4);
+  --color-status-saved: var(--status-saved);
+  --color-status-applied: var(--status-applied);
+  --color-status-screening: var(--status-screening);
+  --color-status-interview: var(--status-interview);
+  --color-status-offer: var(--status-offer);
+  --color-success: var(--success);
+  --color-success-bg: var(--success-bg);
 }
 
 :root {
@@ -123,6 +139,26 @@
   --keyword-mark-bg-6: rgba(255, 237, 213, 0.55);
   --keyword-mark-bg-7: rgba(207, 250, 254, 0.55);
   --keyword-mark-bg-8: rgba(237, 233, 254, 0.55);
+
+  /* Analytics redesign (Phase 10.1) — heatmap, status, success palettes.
+     - heat-0..4: activity-density ramp for the 91-day streak heatmap.
+     - status-*: stable colors for funnel/donut/activity slices, shared
+       across light + dark so the legend stays visually consistent.
+     - success / success-bg: positive-delta affordance for KPI cards. */
+  --heat-0: oklch(92% 0.01 286);
+  --heat-1: oklch(88% 0.12 120);
+  --heat-2: oklch(75% 0.18 120);
+  --heat-3: oklch(55% 0.18 120);
+  --heat-4: oklch(38% 0.15 120);
+
+  --status-saved: #64748B;
+  --status-applied: #3B82F6;
+  --status-screening: #8B5CF6;
+  --status-interview: #F59E0B;
+  --status-offer: #10B981;
+
+  --success: oklch(55% 0.15 160);
+  --success-bg: oklch(95% 0.05 160);
 }
 
 .dark {
@@ -198,6 +234,25 @@
   --keyword-mark-bg-6: rgba(255, 237, 213, 0.55);
   --keyword-mark-bg-7: rgba(207, 250, 254, 0.55);
   --keyword-mark-bg-8: rgba(237, 233, 254, 0.55);
+
+  /* Analytics redesign (Phase 10.1) — dark palette.
+     Status colors are reused from light mode (per SPEC: same hex on both
+     themes — they read correctly on the dark surface and keep the legend
+     visually consistent across mode switches). */
+  --heat-0: oklch(20% 0.02 286);
+  --heat-1: oklch(35% 0.12 120);
+  --heat-2: oklch(55% 0.18 120);
+  --heat-3: oklch(75% 0.2 120);
+  --heat-4: oklch(88% 0.2 120);
+
+  --status-saved: #64748B;
+  --status-applied: #3B82F6;
+  --status-screening: #8B5CF6;
+  --status-interview: #F59E0B;
+  --status-offer: #10B981;
+
+  --success: oklch(70% 0.15 160);
+  --success-bg: oklch(20% 0.05 160);
 }
 
 @theme inline {

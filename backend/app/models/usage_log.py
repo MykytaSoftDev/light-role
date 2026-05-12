@@ -27,6 +27,23 @@ class UsageLog(Base):
       - operation_type: tailor_resume | generate_cover_letter | parse_job
                        | parse_profile
       - cost_type:     resume_credit | cl_credit | free
+
+    APPEND-ONLY — DO NOT PURGE
+    --------------------------
+    This table is the single source of truth for BOTH:
+      1. Quota enforcement — counted as
+         ``COUNT(*) WHERE user_id = ? AND operation_type IN (...) AND
+         created_at >= subscriptions.current_period_start``. The
+         "monthly reset" is a query-time window over an append-only
+         ledger, not a delete operation (same pattern Stripe / Twilio /
+         OpenAI use for usage-metered billing).
+      2. Analytics — daily aggregations feed the generation timeline
+         and the activity feed on /dashboard/analytics.
+
+    Therefore: never schedule a cleanup / trim / monthly-purge job for
+    this table. Deleting historical rows would silently break analytics
+    history and violate the auditability guarantee. If table size ever
+    becomes a concern, partition by month rather than delete.
     """
 
     __tablename__ = "usage_log"

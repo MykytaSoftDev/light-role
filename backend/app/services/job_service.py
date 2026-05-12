@@ -10,6 +10,7 @@ from sqlalchemy import asc, desc, func
 from sqlalchemy.orm import Session, joinedload
 
 from app.models.application import Application
+from app.models.application_status_history import ApplicationStatusHistory
 from app.models.enums import ApplicationStatus
 from app.models.job import Job
 from app.models.user import User
@@ -183,6 +184,7 @@ def update_application_status(
     db: Session,
 ) -> Application:
     application = _get_application(app_id, user, db)
+    old_status = application.status
 
     # Populate first_response_at when transitioning from 'applied' to a response
     # status, but only if a date_applied is set and the field is not yet filled.
@@ -195,6 +197,23 @@ def update_application_status(
         application.first_response_at = datetime.now(timezone.utc)
 
     application.status = new_status
+
+    # Record the transition in the append-only status history ledger so
+    # analytics (cumulative funnel, KPI sparklines for interview/offer,
+    # activity feed status_change_* events) can reconstruct stage
+    # progression even when the application later moves further along.
+    # No-op if the status is unchanged — avoid polluting history with
+    # idempotent writes from clients that re-PATCH the same value.
+    if old_status != new_status:
+        db.add(
+            ApplicationStatusHistory(
+                application_id=application.id,
+                user_id=user.id,
+                from_status=old_status,
+                to_status=new_status,
+            )
+        )
+
     db.commit()
     db.refresh(application)
     logger.info(f"Application status updated: app_id={app_id} status={new_status} user_id={user.id}")

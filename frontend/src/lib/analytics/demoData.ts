@@ -1,6 +1,10 @@
-import type { AnalyticsResponse } from "@/lib/types/analytics";
+// @deprecated — typed against the legacy AnalyticsResponse shape. Retained
+// until Phase 10.5 cleanup so the page can keep importing it during the
+// migration. The new analytics page renders this only in the 402 blurred
+// branch (still using the old card components) for visual continuity.
+import type { AnalyticsResponseLegacy } from "@/lib/types/analytics";
 
-export const DEMO_ANALYTICS_DATA: AnalyticsResponse = {
+export const DEMO_ANALYTICS_DATA: AnalyticsResponseLegacy = {
   hero_counters: {
     jobs_saved: 18,
     applied: 12,

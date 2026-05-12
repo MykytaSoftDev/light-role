@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from app.schemas.analytics import FunnelStage, ResumeSparklinePoint
+from app.schemas.analytics import FunnelStageLegacy as FunnelStage, ResumeSparklinePoint
 
 # Human-readable stage transition labels for funnel insight messages.
 _STAGE_TRANSITION_LABELS: dict[str, str] = {
