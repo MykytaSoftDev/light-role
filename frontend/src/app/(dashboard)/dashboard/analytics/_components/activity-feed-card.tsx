@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useTranslations } from "next-intl";
 
 import {
@@ -18,14 +17,6 @@ interface ActivityFeedCardProps {
   recentActivity: ActivityEvent[];
 }
 
-/**
- * Row 5 — full-width recent activity feed. Hidden entirely when the list is
- * empty so a fresh account doesn't render a card with just a header and a
- * "See all" link pointing nowhere useful.
- *
- * `/dashboard/activity` is a placeholder route per SPEC §5.6; the link is
- * left in so we don't have to revisit this component when that page lands.
- */
 export function ActivityFeedCard({ recentActivity }: ActivityFeedCardProps) {
   const t = useTranslations("analytics");
 
@@ -35,21 +26,13 @@ export function ActivityFeedCard({ recentActivity }: ActivityFeedCardProps) {
 
   return (
     <Card>
-      <CardHeader className="flex flex-row flex-wrap items-start justify-between gap-2 space-y-0">
-        <div>
-          <CardTitle className="text-[15px] font-medium leading-none tracking-normal">
-            {t("activity_title")}
-          </CardTitle>
-          <CardDescription className="mt-1 text-xs">
-            {t("activity_subtitle")}
-          </CardDescription>
-        </div>
-        <Link
-          href="/dashboard/activity"
-          className="text-sm text-primary hover:underline"
-        >
-          {t("activity_view_all")}
-        </Link>
+      <CardHeader className="space-y-0">
+        <CardTitle className="text-[15px] font-medium leading-none tracking-normal">
+          {t("activity_title")}
+        </CardTitle>
+        <CardDescription className="mt-1 text-xs">
+          {t("activity_subtitle")}
+        </CardDescription>
       </CardHeader>
       <CardContent className="p-0 px-6 pb-2">
         {/* Per-item border-bottom (skipped on last) — we rely on that rather

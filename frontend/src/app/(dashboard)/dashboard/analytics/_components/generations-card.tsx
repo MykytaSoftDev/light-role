@@ -123,7 +123,7 @@ export function GenerationsCard({
           </div>
         ) : (
           <>
-            <ChartContainer config={chartConfig} className="h-[200px] w-full">
+            <ChartContainer config={chartConfig} className="h-[260px] w-full">
               <AreaChart
                 data={generationsTimeline}
                 margin={{ top: 10, right: 8, left: 0, bottom: 8 }}
@@ -165,7 +165,7 @@ export function GenerationsCard({
                   stackId="1"
                   stroke="var(--chart-2)"
                   fill="var(--chart-2)"
-                  fillOpacity={0.9}
+                  fillOpacity={0.25}
                   strokeWidth={1.5}
                   isAnimationActive={false}
                 />
@@ -175,7 +175,7 @@ export function GenerationsCard({
                   stackId="1"
                   stroke="var(--chart-1)"
                   fill="var(--chart-1)"
-                  fillOpacity={0.8}
+                  fillOpacity={0.2}
                   strokeWidth={1.5}
                   isAnimationActive={false}
                 />

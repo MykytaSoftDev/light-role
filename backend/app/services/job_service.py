@@ -186,6 +186,15 @@ def update_application_status(
     application = _get_application(app_id, user, db)
     old_status = application.status
 
+    # Auto-fill date_applied when the application moves out of SAVED for the
+    # first time. Without this, applications transitioned via the Kanban
+    # board or status dropdown have date_applied=NULL and are invisible to
+    # the hero chart / "Откликов" KPI (which count by date_applied).
+    # The timestamp is a best-guess (now() at the time of the status change);
+    # users can still override via the manual date field on the job detail page.
+    if new_status != ApplicationStatus.SAVED and application.date_applied is None:
+        application.date_applied = datetime.now(timezone.utc)
+
     # Populate first_response_at when transitioning from 'applied' to a response
     # status, but only if a date_applied is set and the field is not yet filled.
     if (
