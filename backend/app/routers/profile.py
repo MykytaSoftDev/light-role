@@ -11,6 +11,7 @@ from sqlalchemy.orm import Session
 from app.ai.openai_service import OpenAIService
 from app.database import get_db
 from app.dependencies.auth import get_verified_user
+from app.dependencies.impersonation import SessionContext, get_session_context
 from app.models.usage_log import UsageLog
 from app.models.user import User
 from app.schemas.profile import (
@@ -89,6 +90,7 @@ def _log_usage(
     user_id: UUID,
     success: bool,
     profile_id: Optional[UUID] = None,
+    impersonator_id: Optional[UUID] = None,
 ) -> None:
     """Insert a free-tier audit row for a Reset Profile attempt.
 
@@ -97,6 +99,11 @@ def _log_usage(
     where the AI call failed and the profile was never touched. If this
     insert itself fails we swallow the error: an audit-log glitch must not
     break the user-facing endpoint.
+
+    ``impersonator_id`` is recorded when the request is part of an admin
+    impersonation session (SPEC §6.8) — even though Reset Profile costs
+    no AI credit, we tag it for audit symmetry with the credit-consuming
+    operations.
     """
     try:
         log = UsageLog(
@@ -106,6 +113,7 @@ def _log_usage(
             entity_type="profile" if profile_id is not None else None,
             entity_id=profile_id,
             success=success,
+            impersonator_id=impersonator_id,
         )
         db.add(log)
         db.commit()
@@ -143,6 +151,11 @@ async def reset_profile(
     file: UploadFile = File(...),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_verified_user),
+    # SPEC §6.8: thread the SessionContext so the audit row carries
+    # `impersonator_id` when this is an admin-driven action. Reset Profile
+    # is `cost_type='free'` so it never affects quota, but tagging keeps
+    # the audit trail symmetrical.
+    session_ctx: SessionContext = Depends(get_session_context),
 ) -> ProfileResponse:
     """Replace the user's profile by uploading a resume (PRD 3.3.12).
 
@@ -178,13 +191,20 @@ async def reset_profile(
     # 3. Ensure the user has a profile row (auto-creates if missing).
     profile = get_or_create_profile(current_user.id, db)
 
+    # Capture impersonator (if any) once — every audit row below carries it.
+    impersonator_id: Optional[UUID] = (
+        session_ctx.impersonator.id
+        if session_ctx.is_impersonating and session_ctx.impersonator is not None
+        else None
+    )
+
     # 4. Call the AI parser. Per PROFILE-2 contract:
     #      - ValueError       → 422 (bad input file: unreadable, empty, malformed)
     #      - any other Exception → 502 (AI / network / OpenAI failure)
     try:
         result = await _ai_service.parse_resume_to_profile(file_bytes, file_format)
     except ValueError as exc:
-        _log_usage(db, current_user.id, success=False)
+        _log_usage(db, current_user.id, success=False, impersonator_id=impersonator_id)
         logger.info(
             "Profile reset: invalid %s file for user %s: %s",
             file_format,
@@ -196,7 +216,7 @@ async def reset_profile(
             detail="Couldn't parse the resume. Please try a different file.",
         )
     except Exception as exc:
-        _log_usage(db, current_user.id, success=False)
+        _log_usage(db, current_user.id, success=False, impersonator_id=impersonator_id)
         logger.warning(
             "Profile reset: AI service failure for user %s: %s",
             current_user.id,
@@ -208,7 +228,7 @@ async def reset_profile(
         )
 
     if not result.success:
-        _log_usage(db, current_user.id, success=False)
+        _log_usage(db, current_user.id, success=False, impersonator_id=impersonator_id)
         logger.warning(
             "Profile reset: AI returned unsuccessful result for user %s",
             current_user.id,
@@ -226,7 +246,13 @@ async def reset_profile(
     db.refresh(profile)
 
     # 6. Audit success (separate commit — see _log_usage docstring).
-    _log_usage(db, current_user.id, success=True, profile_id=profile.id)
+    _log_usage(
+        db,
+        current_user.id,
+        success=True,
+        profile_id=profile.id,
+        impersonator_id=impersonator_id,
+    )
 
     logger.info("Profile reset complete for user %s", current_user.id)
 

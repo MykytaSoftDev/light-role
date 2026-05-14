@@ -120,6 +120,11 @@ def login_user(data: LoginRequest, db: Session, response: Response) -> UserRespo
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid email or password")
 
     set_auth_cookies(response, str(user.id))
+    # SPEC §4.7: track last_login_at on successful login. Stored as naive
+    # UTC (column convention — see app/models/user.py).
+    user.last_login_at = datetime.now(timezone.utc).replace(tzinfo=None)
+    db.commit()
+    db.refresh(user)
     logger.info(f"User logged in: {user.id}")
     return UserResponse.model_validate(user)
 

@@ -13,6 +13,7 @@ from app.models.base import TimestampMixin
 from app.models.enums import AuthProvider
 
 if TYPE_CHECKING:
+    from app.models.admin_audit_log import AdminAuditLog
     from app.models.ai_quality_rating import AIQualityRating
     from app.models.cover_letter import CoverLetter
     from app.models.feedback import Feedback
@@ -121,6 +122,16 @@ class User(TimestampMixin, Base):
         DateTime(timezone=False),
         nullable=True,
     )
+    is_admin: Mapped[bool] = mapped_column(
+        Boolean,
+        nullable=False,
+        default=False,
+        server_default=text("false"),
+    )
+    last_login_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=False),
+        nullable=True,
+    )
 
     # Relationships
     jobs: Mapped[List[Job]] = relationship(
@@ -143,6 +154,7 @@ class User(TimestampMixin, Base):
         "UsageLog",
         back_populates="user",
         cascade="all, delete-orphan",
+        foreign_keys="UsageLog.user_id",
     )
     notifications: Mapped[List[Notification]] = relationship(
         "Notification",
@@ -169,4 +181,22 @@ class User(TimestampMixin, Base):
         "AIQualityRating",
         back_populates="user",
         cascade="all, delete-orphan",
+    )
+    # Audit log relationships — two FKs from admin_audit_logs land on
+    # users.id (admin_id and target_user_id), so each side must declare
+    # ``foreign_keys=...`` explicitly. ``admin_audit_logs_authored``
+    # intentionally uses ``cascade="save-update, merge"`` (no delete):
+    # the DB-level ``ON DELETE RESTRICT`` on admin_id is the enforcement
+    # boundary — orphan-deleting audit rows when an admin is removed
+    # would defeat the audit trail.
+    admin_audit_logs_authored: Mapped[List[AdminAuditLog]] = relationship(
+        "AdminAuditLog",
+        back_populates="admin",
+        foreign_keys="AdminAuditLog.admin_id",
+        cascade="save-update, merge",
+    )
+    admin_audit_logs_received: Mapped[List[AdminAuditLog]] = relationship(
+        "AdminAuditLog",
+        back_populates="target_user",
+        foreign_keys="AdminAuditLog.target_user_id",
     )

@@ -1,10 +1,15 @@
 from datetime import datetime, timezone
 
-from fastapi import APIRouter, Depends, HTTPException, Response
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.dependencies.auth import get_current_user, get_verified_user
+from app.dependencies.impersonation import (
+    SessionContext,
+    block_during_impersonation,
+    get_session_context,
+)
 from app.models.user import User, _resume_preferences_default
 from app.schemas.usage import UsageResponse
 from app.schemas.user import (
@@ -19,8 +24,24 @@ router = APIRouter(prefix="/api/v1/users", tags=["users"])
 
 
 @router.get("/me", response_model=UserResponse)
-def get_me(current_user: User = Depends(get_current_user)):
-    return current_user
+def get_me(
+    session_ctx: SessionContext = Depends(get_session_context),
+):
+    """Return the effective acting user (SPEC §5.7, §6.6).
+
+    During impersonation `session_ctx.user` is the impersonated user, so
+    the dashboard renders as them; `is_impersonating` + `impersonator_email`
+    are surfaced for the global ImpersonationBanner. For normal sessions
+    the two extra fields fall back to their defaults (False / None).
+    """
+    base = UserResponse.model_validate(session_ctx.user)
+    if session_ctx.is_impersonating and session_ctx.impersonator is not None:
+        # UserResponse is a mutable Pydantic v2 model (no `frozen=True`)
+        # so direct field assignment is safe and avoids the model_copy
+        # round-trip.
+        base.is_impersonating = True
+        base.impersonator_email = session_ctx.impersonator.email
+    return base
 
 
 @router.patch("/me", response_model=UserResponse)
@@ -28,7 +49,18 @@ def update_me(
     data: UserUpdateRequest,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    session_ctx: SessionContext = Depends(get_session_context),
 ):
+    # SPEC §6.7: email changes are blocked during impersonation (identity
+    # change). Name updates remain allowed — useful for debugging UX bugs
+    # tied to specific display-name values without forcing the admin to
+    # exit impersonation.
+    if session_ctx.is_impersonating and data.email is not None:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Cannot change email during impersonation",
+        )
+
     if data.first_name is not None:
         current_user.first_name = data.first_name
     if data.last_name is not None:
@@ -153,6 +185,9 @@ def delete_me(
     response: Response,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    # SPEC §6.7: account deletion is destructive and identity-changing;
+    # admins must exit impersonation before deleting the target user.
+    _: None = Depends(block_during_impersonation),
 ):
     from app.services.user_service import delete_user_account
     delete_user_account(current_user, db, response)

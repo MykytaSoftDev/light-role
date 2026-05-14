@@ -101,6 +101,12 @@ class UserResponse(BaseModel):
     last_name: Optional[str]
     auth_provider: AuthProvider
     is_verified: bool
+    is_admin: bool
+    # Impersonation surfacing (SPEC §5.7). Defaults are correct for normal
+    # sessions; populated only when the request carries an impersonation
+    # session (logic wired in Step 7 — start/stop impersonation flow).
+    is_impersonating: bool = False
+    impersonator_email: Optional[EmailStr] = None
     onboarding_completed: bool
     created_at: datetime
     # DASHBOARD-1: surfaced so the dashboard home knows whether to render

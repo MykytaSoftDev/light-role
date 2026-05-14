@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from app.config import settings
 from app.database import get_db
 from app.dependencies.auth import get_verified_user
+from app.dependencies.impersonation import block_during_impersonation
 from app.models.plan import Plan
 from app.models.subscription import Subscription
 from app.models.user import User
@@ -117,6 +118,8 @@ async def save_customer_id(
     body: SaveCustomerIdRequest,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_verified_user),
+    # SPEC §6.7: money-touching — blocked during impersonation.
+    _: None = Depends(block_during_impersonation),
 ):
     """Save the Paddle customer ID on the user's subscription (called from inline checkout)."""
     subscription: Subscription | None = (
@@ -295,6 +298,8 @@ async def get_transactions(
 async def cancel_subscription(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_verified_user),
+    # SPEC §6.7: money-touching — blocked during impersonation.
+    _: None = Depends(block_during_impersonation),
 ):
     """Schedule subscription cancellation at the end of the current billing period."""
     subscription: Subscription | None = (
@@ -324,6 +329,8 @@ async def change_subscription_plan(
     body: ChangePlanRequest,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_verified_user),
+    # SPEC §6.7: money-touching — blocked during impersonation.
+    _: None = Depends(block_during_impersonation),
 ):
     """Change the subscription's plan/billing cycle at the next billing period.
 
@@ -401,6 +408,10 @@ async def change_subscription_plan(
 async def create_portal_session(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_verified_user),
+    # SPEC §6.7: money-touching — blocked during impersonation. The Paddle
+    # customer portal would otherwise let the admin update payment methods
+    # for the impersonated user.
+    _: None = Depends(block_during_impersonation),
 ):
     """Generate a Paddle Customer Portal session URL."""
     subscription: Subscription | None = (

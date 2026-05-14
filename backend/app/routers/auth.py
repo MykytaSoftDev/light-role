@@ -5,6 +5,10 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.dependencies.auth import get_verified_user
+from app.dependencies.impersonation import (
+    block_during_impersonation,
+    block_logout_during_impersonation,
+)
 from app.dependencies.rate_limit import (
     forgot_password_rate_limit,
     login_rate_limit,
@@ -52,7 +56,13 @@ async def login(
 
 
 @router.post("/logout")
-def logout(response: Response):
+def logout(
+    response: Response,
+    # SPEC §6.7: logout during impersonation would orphan the admin's
+    # session — direct them to "Exit impersonation" instead via the
+    # custom message in `block_logout_during_impersonation`.
+    _: None = Depends(block_logout_during_impersonation),
+):
     return logout_user(response)
 
 
@@ -75,6 +85,11 @@ def refresh(
     response: Response,
     db: Session = Depends(get_db),
     refresh_token: Optional[str] = Cookie(default=None),
+    # SPEC §6.7: refresh is blocked during impersonation. The admin's
+    # refresh_token is still valid (and intentionally untouched) — we
+    # don't want it accidentally minting a fresh `access_token` for the
+    # impersonated user mid-session.
+    _: None = Depends(block_during_impersonation),
 ):
     if not refresh_token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="No refresh token")
@@ -95,5 +110,8 @@ def change_password_endpoint(
     data: ChangePasswordRequest,
     db: Session = Depends(get_db),
     current_user=Depends(get_verified_user),
+    # SPEC §6.7: password change is identity-changing — blocked outright
+    # during impersonation.
+    _: None = Depends(block_during_impersonation),
 ):
     return change_password(data, current_user, db)

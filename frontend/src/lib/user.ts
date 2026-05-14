@@ -34,6 +34,20 @@ export interface CurrentUser {
   complete_steps_dismissed_at?: string | null
   /** PREFS-1: required field; backend always returns a populated object. */
   resume_preferences: ResumePreferences
+  /**
+   * Admin panel (SPEC-admin-panel-phase1). Default `false` for regular users.
+   * When `true`, the sidebar reveals the Admin section and `/dashboard/admin/*`
+   * routes are accessible (the server-side admin layout still re-checks via
+   * `GET /api/v1/admin/me`).
+   */
+  is_admin: boolean
+  /**
+   * Impersonation fields — only `true`/set during an active admin impersonation
+   * session. Always default-false in Phase 1 Step 3; Step 7 wires the start/stop
+   * flow and the global `<ImpersonationBanner />`.
+   */
+  is_impersonating: boolean
+  impersonator_email?: string | null
 }
 
 export interface DismissCompleteStepsResponse {

@@ -96,6 +96,12 @@ services:
       - "3000:3000"
     environment:
       NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-https://dev-api.lightrole.com}
+      # Server-side-only URL for Server Components / Route Handlers calling
+      # the backend from inside the frontend container. The browser-facing
+      # NEXT_PUBLIC_API_URL resolves to a public hostname or localhost, which
+      # the frontend container can't reach. Defaults to the docker-compose
+      # service name (works in compose; override for other setups).
+      INTERNAL_API_URL: ${INTERNAL_API_URL:-http://backend:8000}
       NEXT_PUBLIC_GOOGLE_CLIENT_ID: ${NEXT_PUBLIC_GOOGLE_CLIENT_ID}
       NEXT_PUBLIC_PADDLE_CLIENT_TOKEN: ${NEXT_PUBLIC_PADDLE_CLIENT_TOKEN}
       NEXT_PUBLIC_PADDLE_PRICE_ID_PRO_MONTHLY: ${NEXT_PUBLIC_PADDLE_PRICE_ID_PRO_MONTHLY}

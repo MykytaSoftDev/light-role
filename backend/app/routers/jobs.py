@@ -28,6 +28,7 @@ from app.dependencies.ai_limit import (
 )
 from app.dependencies.ai_rate_limit import require_ai_gen_rate_limit
 from app.dependencies.auth import get_verified_user
+from app.dependencies.impersonation import SessionContext, get_session_context
 from app.models.cover_letter import CoverLetter
 from app.models.enums import ApplicationStatus, NotificationType
 from app.models.job import Job
@@ -188,11 +189,17 @@ def _log_tailor_usage(
     user_id: UUID,
     success: bool,
     entity_id: Optional[UUID] = None,
+    impersonator_id: Optional[UUID] = None,
 ) -> None:
     """Insert a `usage_log` audit row for a tailor-resume attempt.
 
     Independent commit so an audit-glitch never blocks the user-facing
     response (mirrors the pattern in `app/routers/profile.py:_log_usage`).
+
+    When ``impersonator_id`` is set the row is excluded from the target
+    user's quota count (SPEC §6.8) — `usage_service` / `ai_limit`
+    filter on ``impersonator_id IS NULL``. The row itself is preserved
+    for audit / forensics.
     """
     try:
         log = UsageLog(
@@ -202,6 +209,7 @@ def _log_tailor_usage(
             entity_type="tailored_resume" if entity_id is not None else None,
             entity_id=entity_id,
             success=success,
+            impersonator_id=impersonator_id,
         )
         db.add(log)
         db.commit()
@@ -249,6 +257,9 @@ async def tailor_resume(
     request: Request,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_verified_user),
+    # SPEC §6.8: thread the SessionContext so usage_log inserts can carry
+    # `impersonator_id` and be excluded from the target user's quota count.
+    session_ctx: SessionContext = Depends(get_session_context),
     _quota: None = Depends(require_resume_credit),
     # MONETIZE-5: anti-abuse cap (25/hour, all plans). Listed AFTER the
     # per-credit quota so legitimate "out of credits" 402s take precedence
@@ -272,6 +283,15 @@ async def tailor_resume(
     before we return, an in-app Notification is created so the user can find
     the result later.
     """
+    # Capture the impersonator (if any) once up front so every usage_log
+    # write below carries the same value (SPEC §6.8). For non-impersonation
+    # sessions this resolves to None and the rows are quota-counted normally.
+    impersonator_id: Optional[UUID] = (
+        session_ctx.impersonator.id
+        if session_ctx.is_impersonating and session_ctx.impersonator is not None
+        else None
+    )
+
     # 1. Job ownership — 404 leaks no info about whether the job exists.
     job = db.query(Job).filter(Job.id == job_id).first()
     if job is None or job.user_id != current_user.id:
@@ -348,7 +368,9 @@ async def tailor_resume(
             current_user.id,
             exc,
         )
-        _log_tailor_usage(db, current_user.id, success=False)
+        _log_tailor_usage(
+            db, current_user.id, success=False, impersonator_id=impersonator_id
+        )
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
             detail="AI service is temporarily unavailable. Please try again.",
@@ -360,7 +382,9 @@ async def tailor_resume(
             current_user.id,
             job.id,
         )
-        _log_tailor_usage(db, current_user.id, success=False)
+        _log_tailor_usage(
+            db, current_user.id, success=False, impersonator_id=impersonator_id
+        )
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
             detail="AI service is temporarily unavailable. Please try again.",
@@ -385,7 +409,9 @@ async def tailor_resume(
             job.id,
             exc,
         )
-        _log_tailor_usage(db, current_user.id, success=False)
+        _log_tailor_usage(
+            db, current_user.id, success=False, impersonator_id=impersonator_id
+        )
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
             detail="AI service returned an unexpected payload. Please try again.",
@@ -417,7 +443,13 @@ async def tailor_resume(
     db.refresh(row)
 
     # 9. Audit success in usage_log (separate commit — see _log_tailor_usage).
-    _log_tailor_usage(db, current_user.id, success=True, entity_id=row.id)
+    _log_tailor_usage(
+        db,
+        current_user.id,
+        success=True,
+        entity_id=row.id,
+        impersonator_id=impersonator_id,
+    )
 
     # 9a. Bump the per-credit Redis counter so the next quota check sees
     #     the updated value without paying for a DB recount. Recompute the
@@ -586,6 +618,7 @@ def _log_cl_usage(
     user_id: UUID,
     success: bool,
     entity_id: Optional[UUID] = None,
+    impersonator_id: Optional[UUID] = None,
 ) -> None:
     """Insert a `usage_log` audit row for a cover-letter generation attempt.
 
@@ -596,6 +629,9 @@ def _log_cl_usage(
     `_compute_usage` reducer in `app.services.usage_service` filters by
     `operation_type == 'generate_cover_letter'` and counts rows
     indiscriminately, so we only ever insert success=True rows here.
+
+    When ``impersonator_id`` is set the row is excluded from the target
+    user's quota count (SPEC §6.8).
     """
     if not success:
         # Per CL-2 spec: failed AI calls do NOT consume credit. Skip the
@@ -610,6 +646,7 @@ def _log_cl_usage(
             entity_type="job",
             entity_id=entity_id,
             success=True,
+            impersonator_id=impersonator_id,
         )
         db.add(log)
         db.commit()
@@ -647,6 +684,9 @@ async def generate_cover_letter_for_job(
     request: Request,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_verified_user),
+    # SPEC §6.8: thread the SessionContext so usage_log inserts can carry
+    # `impersonator_id` and be excluded from the target user's quota count.
+    session_ctx: SessionContext = Depends(get_session_context),
     _quota: None = Depends(require_cl_credit),
     # MONETIZE-5: anti-abuse cap (25/hour, all plans). Listed AFTER the
     # per-credit quota so "out of CL credits" 402 still takes precedence.
@@ -821,7 +861,18 @@ async def generate_cover_letter_for_job(
         )
 
     # 11. Audit success in usage_log (separate commit). Credit consumed here.
-    _log_cl_usage(db, current_user.id, success=True, entity_id=job.id)
+    impersonator_id: Optional[UUID] = (
+        session_ctx.impersonator.id
+        if session_ctx.is_impersonating and session_ctx.impersonator is not None
+        else None
+    )
+    _log_cl_usage(
+        db,
+        current_user.id,
+        success=True,
+        entity_id=job.id,
+        impersonator_id=impersonator_id,
+    )
 
     # 11a. Bump the per-credit Redis counter (see tailor endpoint for the
     #      rationale on recomputing cycle_start at this site rather than

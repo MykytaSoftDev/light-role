@@ -35,6 +35,34 @@ def create_refresh_token(user_id: str) -> str:
     )
 
 
+def create_impersonation_token(target_user_id: str, admin_user_id: str) -> str:
+    """Mint a 60-min access token tagged with ``is_impersonating=true``
+    (SPEC §6.3).
+
+    Carries an extra ``impersonator_id`` claim so middleware can identify
+    the admin behind the request without re-reading cookies. The token's
+    ``sub`` is the *target* user — every downstream dependency that resolves
+    the "current user" from ``sub`` therefore acts as the impersonated
+    user, which is the intended behaviour.
+
+    No refresh path — when this 60-min token expires the admin must exit
+    impersonation (or click Impersonate again). The frontend warns at
+    T-5min via toast (SPEC §6.3).
+    """
+    expire = datetime.now(timezone.utc) + timedelta(minutes=60)
+    return jwt.encode(
+        {
+            "sub": target_user_id,
+            "exp": expire,
+            "type": "access",
+            "is_impersonating": True,
+            "impersonator_id": admin_user_id,
+        },
+        settings.secret_key,
+        algorithm=settings.algorithm,
+    )
+
+
 def decode_token(token: str) -> Optional[dict]:
     try:
         return jwt.decode(token, settings.secret_key, algorithms=[settings.algorithm])

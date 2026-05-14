@@ -1,0 +1,117 @@
+"use client";
+
+import { Search, X } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+interface AdminUsersFiltersProps {
+  search: string;
+  onSearchChange: (v: string) => void;
+  plan: string;
+  onPlanChange: (v: string) => void;
+  status: string;
+  onStatusChange: (v: string) => void;
+  pageSize: number;
+  onPageSizeChange: (n: number) => void;
+  total?: number;
+}
+
+export function AdminUsersFilters({
+  search,
+  onSearchChange,
+  plan,
+  onPlanChange,
+  status,
+  onStatusChange,
+  pageSize,
+  onPageSizeChange,
+  total,
+}: AdminUsersFiltersProps) {
+  return (
+    <div className="flex flex-wrap items-center gap-2">
+      <div className="relative w-72">
+        <Search className="pointer-events-none absolute top-1/2 left-2.5 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <Input
+          value={search}
+          onChange={(e) => onSearchChange(e.target.value)}
+          placeholder="Search by email or name…"
+          className="h-9 pl-8 pr-8"
+        />
+        {search && (
+          <button
+            type="button"
+            aria-label="Clear search"
+            onClick={() => onSearchChange("")}
+            className="absolute top-1/2 right-2 -translate-y-1/2 rounded-sm p-0.5 text-muted-foreground hover:bg-accent hover:text-foreground"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        )}
+      </div>
+
+      <Select value={plan} onValueChange={onPlanChange}>
+        <SelectTrigger className="w-36">
+          <SelectValue placeholder="All plans" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">All plans</SelectItem>
+          <SelectItem value="free">Free</SelectItem>
+          <SelectItem value="pro">Pro</SelectItem>
+          <SelectItem value="pro_annual">Pro Annual</SelectItem>
+        </SelectContent>
+      </Select>
+
+      <Select value={status} onValueChange={onStatusChange}>
+        <SelectTrigger className="w-40">
+          <SelectValue placeholder="All statuses" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">All statuses</SelectItem>
+          <SelectItem value="active">Active</SelectItem>
+          <SelectItem value="trialing">Trialing</SelectItem>
+          <SelectItem value="past_due">Past due</SelectItem>
+          <SelectItem value="cancelled">Cancelled</SelectItem>
+        </SelectContent>
+      </Select>
+
+      <div className="ml-auto flex items-center gap-2">
+        {typeof total === "number" && (
+          <span className="text-xs text-muted-foreground">
+            {total} {total === 1 ? "user" : "users"}
+          </span>
+        )}
+        <Select
+          value={String(pageSize)}
+          onValueChange={(v) => onPageSizeChange(Number(v))}
+        >
+          <SelectTrigger className="w-24">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="25">25</SelectItem>
+            <SelectItem value="50">50</SelectItem>
+            <SelectItem value="100">100</SelectItem>
+          </SelectContent>
+        </Select>
+        <span className="text-xs text-muted-foreground">per page</span>
+      </div>
+    </div>
+  );
+}
+
+// Unused export kept for future "clear all" affordance in empty state.
+export function ClearFiltersButton({ onClick }: { onClick: () => void }) {
+  return (
+    <Button variant="ghost" size="sm" onClick={onClick}>
+      Clear filters
+    </Button>
+  );
+}

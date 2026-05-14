@@ -1,3 +1,4 @@
+from app.models.admin_audit_log import AdminAuditLog
 from app.models.ai_quality_rating import AIQualityRating
 from app.models.application import Application
 from app.models.application_status_history import ApplicationStatusHistory
@@ -52,4 +53,5 @@ __all__ = [
     "UsageLog",
     "Notification",
     "Feedback",
+    "AdminAuditLog",
 ]

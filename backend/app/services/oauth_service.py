@@ -125,6 +125,11 @@ async def google_oauth_login(
             db.add(subscription)
             logger.info("Created new user via Google OAuth: %s", user.id)
 
+    # SPEC §4.7: track last_login_at on every successful login — both
+    # first-time-via-Google (user was just created) and returning OAuth
+    # users. Stored as naive UTC (column convention).
+    user.last_login_at = datetime.now(timezone.utc).replace(tzinfo=None)
+
     db.commit()
     db.refresh(user)
 

@@ -30,6 +30,9 @@ class DASHBOARD {
   CHECKOUT_UPDATE = `${this.CHECKOUT}/update`;
   ANALYTICS = `${this.root}/analytics`;
   ADMIN = `${this.root}/admin`;
+  ADMIN_USERS = `${this.ADMIN}/users`;
+  ADMIN_USER = (id: string) => `${this.ADMIN_USERS}/${id}`;
+  ADMIN_FEEDBACK = `${this.ADMIN}/feedback`;
   NOT_FOUND = `${this.root}/404`;
 }
 

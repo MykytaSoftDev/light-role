@@ -92,9 +92,20 @@ class UsageLog(Base):
         nullable=False,
         server_default=func.now(),
     )
+    # When NOT NULL, this UsageLog was generated during an admin
+    # impersonation session and should be EXCLUDED from the target
+    # user's quota count (see usage_service). The FK uses
+    # ``ON DELETE SET NULL`` so deleting the admin's account preserves
+    # the historical log but breaks the impersonator linkage.
+    impersonator_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("users.id", ondelete="SET NULL"),
+        nullable=True,
+    )
 
     # Relationships
     user: Mapped[User] = relationship(
         "User",
         back_populates="usage_logs",
+        foreign_keys=[user_id],
     )

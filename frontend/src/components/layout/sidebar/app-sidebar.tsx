@@ -19,6 +19,7 @@ import { DASHBOARD_PAGES } from "@/constants/nav.constants";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 import Link from "next/link";
+import { SidebarAdmin } from "./sidebar-admin";
 import { SidebarDocuments } from "./sidebar-documents";
 import { SidebarSecondary } from "./sidebar-secondary";
 
@@ -53,6 +54,7 @@ export function AppSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
       <SidebarContent>
         <SidebarMain />
         <SidebarDocuments />
+        <SidebarAdmin />
       </SidebarContent>
       <SidebarFooter>
         <SidebarSecondary />

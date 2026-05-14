@@ -1,5 +1,6 @@
 import { AppHeader } from "@/components/layout/header";
 import { AppSidebar } from "@/components/layout/sidebar/app-sidebar";
+import { ImpersonationBanner } from "@/components/impersonation-banner";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -7,6 +8,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     <SidebarProvider>
       <AppSidebar variant="inset" />
       <SidebarInset>
+        {/*
+          Impersonation banner sits ABOVE the app header so it occupies the
+          very top of the viewport during admin impersonation sessions. It
+          renders `null` for normal sessions, so there is no layout cost
+          outside the admin debugging flow (SPEC §5.7).
+        */}
+        <ImpersonationBanner />
         <AppHeader />
         {/*
           `min-w-0` on every nested flex-col container is required because

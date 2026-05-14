@@ -111,6 +111,10 @@ def _count_used_in_cycle(
     Filters by ``cost_type`` (NOT ``operation_type``) so this naturally
     handles the future case where the same cost type can be charged by
     multiple operation types.
+
+    Rows generated during admin impersonation (``impersonator_id IS NOT
+    NULL``) are EXCLUDED from quota — they exist for audit only
+    (SPEC §6.8).
     """
     # ``usage_log.created_at`` is stored as naive UTC. Strip tzinfo from
     # cycle bounds so the comparison stays naive-vs-naive in PostgreSQL.
@@ -123,6 +127,7 @@ def _count_used_in_cycle(
             UsageLog.user_id == user_id,
             UsageLog.cost_type == cost_type,
             UsageLog.success.is_(True),
+            UsageLog.impersonator_id.is_(None),
             UsageLog.created_at >= start_naive,
             UsageLog.created_at < end_naive,
         )
