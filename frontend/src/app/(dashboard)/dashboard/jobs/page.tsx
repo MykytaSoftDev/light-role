@@ -12,7 +12,6 @@ import {
   KeyboardSensor,
   useSensor,
   useSensors,
-  useDroppable,
   pointerWithin,
   rectIntersection,
   defaultDropAnimationSideEffects,
@@ -23,13 +22,9 @@ import {
   type CollisionDetection,
 } from "@dnd-kit/core";
 import {
-  SortableContext,
   arrayMove,
-  rectSortingStrategy,
   sortableKeyboardCoordinates,
-  useSortable,
 } from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import {
   LayoutGrid,
@@ -53,6 +48,9 @@ import { api } from "@/lib/api";
 import { queryKeys } from "@/hooks/api/keys";
 import { JobContextMenu } from "@/components/jobs/job-context-menu";
 import { EmptyState } from "@/components/shared/empty-state";
+import { KanbanBoard } from "@/components/jobs/kanban/KanbanBoard";
+import { JobCardSurface } from "@/components/jobs/kanban/JobCard";
+import { STATUSES, type Status } from "@/components/jobs/kanban/statuses";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -89,30 +87,10 @@ type JobsMap = Record<string, Job[]>;
 // ---------------------------------------------------------------------------
 // Constants
 // ---------------------------------------------------------------------------
-
-const STATUSES = [
-  "saved",
-  "applied",
-  "screening",
-  "interview",
-  "offer",
-  "accepted",
-  "rejected",
-  "withdrawn",
-] as const;
-
-type Status = (typeof STATUSES)[number];
-
-const COLUMN_COLORS: Record<Status, string> = {
-  saved: "bg-slate-500",
-  applied: "bg-blue-500",
-  screening: "bg-violet-500",
-  interview: "bg-amber-500",
-  offer: "bg-emerald-500",
-  accepted: "bg-green-600",
-  rejected: "bg-red-500",
-  withdrawn: "bg-gray-400",
-};
+// STATUSES and the `Status` union are imported from
+// `@/components/jobs/kanban/statuses` so the Kanban board and this page share
+// a single source of truth for the 8 application statuses and their canonical
+// left-to-right order.
 
 // Badge colors for table status pills (bg + text pairs)
 const STATUS_BADGE: Record<
@@ -269,11 +247,6 @@ function formatDate(iso: string | null): string {
   return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 }
 
-function formatDateShort(iso: string): string {
-  const d = new Date(iso);
-  return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
-}
-
 function compareDates(a: string | null, b: string | null, dir: "asc" | "desc"): number {
   if (!a && !b) return 0;
   if (!a) return dir === "asc" ? 1 : -1;
@@ -373,238 +346,6 @@ function StatusBadge({ status }: { status: string }) {
       <span className={cn("h-1.5 w-1.5 rounded-full", colors.dot)} />
       {label}
     </span>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// JobCardPresentation — pure visual card (no DnD wiring)
-// ---------------------------------------------------------------------------
-
-interface JobCardPresentationProps {
-  job: Job;
-  isDragging?: boolean;
-  onDelete: (jobId: string) => void;
-}
-
-function JobCardPresentation({
-  job,
-  isDragging = false,
-  onDelete,
-}: JobCardPresentationProps) {
-  const t = useTranslations("Jobs.list");
-  return (
-    <div
-      className={cn(
-        "group rounded-lg border border-border bg-card p-3 shadow-sm select-none",
-        "transition-shadow duration-150",
-        isDragging && "shadow-lg ring-2 ring-primary/30 rotate-1"
-      )}
-    >
-      {/* Title row */}
-      <div className="flex items-start justify-between gap-1">
-        <Link
-          href={`/dashboard/jobs/${job.id}`}
-          className="flex-1 font-semibold text-sm leading-snug hover:underline"
-          onClick={(e) => e.stopPropagation()}
-        >
-          {job.title}
-        </Link>
-        <JobContextMenu
-          job={job}
-          onDelete={onDelete}
-          trigger={
-            <button
-              onClick={(e) => e.stopPropagation()}
-              className="rounded p-0.5 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-muted focus:opacity-100 focus:outline-none"
-              aria-label={t("openJobMenuAria")}
-            >
-              <MoreHorizontal className="h-4 w-4 text-muted-foreground" />
-            </button>
-          }
-        />
-      </div>
-
-      {/* Company */}
-      <p className="mt-0.5 text-xs text-muted-foreground truncate">
-        {job.company}
-      </p>
-
-      {/* Footer row */}
-      <div className="mt-2 flex items-center justify-between">
-        <span className="text-xs text-muted-foreground">
-          {formatDateShort(job.created_at)}
-        </span>
-        <div className="flex items-center gap-1.5">
-          {job.is_ai_parsed && (
-            <span className="inline-flex items-center gap-0.5 rounded-full bg-violet-100 px-1.5 py-0.5 text-[10px] font-medium text-violet-700 dark:bg-violet-900/30 dark:text-violet-300">
-              <Sparkles className="h-2.5 w-2.5" />
-              AI
-            </span>
-          )}
-          <ExcitementStars level={job.application.excitement_level} />
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// JobCard (Kanban) — wraps presentation in a useSortable for @dnd-kit.
-// ---------------------------------------------------------------------------
-
-interface JobCardProps {
-  job: Job;
-  onDelete: (jobId: string) => void;
-}
-
-function JobCard({ job, onDelete }: JobCardProps) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: job.id });
-
-  const style: React.CSSProperties = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    // The DragOverlay shows the clone — hide the original to avoid double cards.
-    opacity: isDragging ? 0 : 1,
-  };
-
-  return (
-    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
-      <JobCardPresentation job={job} onDelete={onDelete} />
-    </div>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// KanbanSection — vertical collapsible section replacing KanbanColumn
-// ---------------------------------------------------------------------------
-
-interface KanbanSectionProps {
-  status: Status;
-  jobs: Job[];
-  onDelete: (jobId: string) => void;
-  collapsed: boolean;
-  onToggleCollapse: (status: Status) => void;
-}
-
-function KanbanSection({
-  status,
-  jobs,
-  onDelete,
-  collapsed,
-  onToggleCollapse,
-}: KanbanSectionProps) {
-  const tStatus = useTranslations("Jobs.status");
-  const tList = useTranslations("Jobs.list");
-  const dotColor = COLUMN_COLORS[status];
-  const label = tStatus(status).toUpperCase();
-
-  const { setNodeRef, isOver } = useDroppable({ id: status });
-
-  return (
-    <div className="flex flex-col">
-      {/* Section header */}
-      <div className="flex items-center gap-3">
-        {/* Left: dot + label + count */}
-        <div className="flex items-center gap-2 shrink-0">
-          <span className={cn("h-2.5 w-2.5 rounded-full", dotColor)} />
-          <span className="text-xs font-semibold tracking-widest text-foreground">
-            {label}
-          </span>
-          <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-muted px-1.5 text-[11px] font-medium text-muted-foreground">
-            {jobs.length}
-          </span>
-        </div>
-
-        {/* Separator line */}
-        <div className="flex-1 h-px bg-border" />
-
-        {/* Collapse/expand chevron */}
-        <button
-          onClick={() => onToggleCollapse(status)}
-          aria-label={
-            collapsed
-              ? tList("expandSectionAria", { label })
-              : tList("collapseSectionAria", { label })
-          }
-          className="shrink-0 rounded p-0.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors focus:outline-none"
-        >
-          {collapsed ? (
-            <ChevronDown className="h-4 w-4" />
-          ) : (
-            <ChevronUp className="h-4 w-4" />
-          )}
-        </button>
-      </div>
-
-      {/* Card grid (expanded) or collapsed drop placeholder */}
-      <div
-        className={cn(
-          "mt-3 transition-colors duration-150",
-          collapsed && "mt-0"
-        )}
-      >
-        {!collapsed && (
-          <SortableContext
-            id={status}
-            items={jobs.map((j) => j.id)}
-            strategy={rectSortingStrategy}
-          >
-            <div
-              ref={setNodeRef}
-              className={cn(
-                "grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4",
-                jobs.length === 0 && "min-h-[80px]",
-                isOver && "rounded-lg bg-muted/50 p-2"
-              )}
-            >
-              {jobs.map((job) => (
-                <JobCard key={job.id} job={job} onDelete={onDelete} />
-              ))}
-              {/* Drop zone placeholder — always rendered when section is empty
-                  so the droppable rect doesn't collapse when isOver flips on
-                  hover (which would create a flicker loop and prevent drop). */}
-              {jobs.length === 0 && (
-                <div
-                  className={cn(
-                    "col-span-full flex items-center justify-center rounded-lg border border-dashed bg-muted/20 text-xs text-muted-foreground min-h-[60px] transition-colors",
-                    isOver
-                      ? "border-primary/60 bg-primary/5 text-primary"
-                      : "border-border"
-                  )}
-                >
-                  {tList("dropJobsHere")}
-                </div>
-              )}
-            </div>
-          </SortableContext>
-        )}
-
-        {/* Collapsed: minimal droppable so drags can still target this status. */}
-        {collapsed && (
-          <div
-            ref={setNodeRef}
-            className={cn(
-              "mt-1 rounded-lg border border-dashed border-transparent min-h-[4px] transition-all duration-150",
-              isOver &&
-                "min-h-[60px] border-border bg-muted/50 flex items-center justify-center mt-2"
-            )}
-          >
-            {isOver && (
-              <span className="text-xs text-muted-foreground">
-                {tList("dropHere")}
-              </span>
-            )}
-          </div>
-        )}
-      </div>
-    </div>
   );
 }
 
@@ -996,23 +737,26 @@ function TableView({ jobs, onDelete }: TableViewProps) {
 // ---------------------------------------------------------------------------
 
 function KanbanSkeleton() {
+  // Mirrors KanbanBoard: 8 fixed-width (280px) columns in a horizontal-scroll
+  // flex row, uniform across viewports.
   return (
-    <div className="flex flex-col gap-6">
-      {STATUSES.slice(0, 4).map((status) => (
-        <div key={status} className="flex flex-col gap-3">
-          {/* Section header skeleton */}
-          <div className="flex items-center gap-3">
-            <div className="h-2.5 w-2.5 rounded-full bg-muted-foreground/30 animate-pulse shrink-0" />
-            <div className="h-3 w-20 rounded bg-muted-foreground/30 animate-pulse shrink-0" />
-            <div className="h-5 w-6 rounded-full bg-muted-foreground/20 animate-pulse shrink-0" />
-            <div className="flex-1 h-px bg-border" />
+    <div className="flex flex-1 min-h-0 gap-4 overflow-x-auto pb-2">
+      {Array.from({ length: STATUSES.length }).map((_, colIdx) => (
+        <div
+          key={colIdx}
+          className="w-[280px] flex-shrink-0 flex flex-col rounded-lg border border-border bg-muted/30 p-3 h-full"
+        >
+          {/* Column header skeleton — mono label + counter */}
+          <div className="flex items-center justify-between pb-3 mb-2">
+            <div className="h-3 w-16 rounded bg-muted-foreground/20 animate-pulse" />
+            <div className="h-3 w-4 rounded bg-muted-foreground/20 animate-pulse" />
           </div>
-          {/* Card grid skeleton */}
-          <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {/* Card skeletons */}
+          <div className="flex flex-col gap-2">
             {Array.from({ length: 3 }).map((_, i) => (
               <div
                 key={i}
-                className="h-[84px] rounded-lg bg-muted-foreground/10 animate-pulse"
+                className="h-[72px] rounded-md bg-muted-foreground/10 animate-pulse"
               />
             ))}
           </div>
@@ -1132,9 +876,11 @@ export default function JobsPage() {
     }
     return "kanban";
   });
-
-  // Kanban-specific UI state
-  const [collapsedSections, setCollapsedSections] = useState<Set<string>>(new Set());
+  // Show/hide empty columns toggle. Default `true` (show all 8 columns) so
+  // first-time/cold-load behavior is unchanged. When the user is mid-drag we
+  // temporarily force all columns visible so hidden empty sections remain valid
+  // drop targets — MeasuringStrategy.Always on DndContext picks up the newly
+  // mounted droppables on the next frame.
   const [showEmpty, setShowEmpty] = useState(true);
 
   // DnD state
@@ -1205,19 +951,6 @@ export default function JobsPage() {
     }
   };
 
-  // Toggle collapse for a single section
-  const toggleCollapse = useCallback((status: Status) => {
-    setCollapsedSections((prev) => {
-      const next = new Set(prev);
-      if (next.has(status)) {
-        next.delete(status);
-      } else {
-        next.add(status);
-      }
-      return next;
-    });
-  }, []);
-
   // -------------------------------------------------------------------------
   // DnD handlers (Phase 3: DND-006/007/008).
   //
@@ -1284,18 +1017,6 @@ export default function JobsPage() {
         ],
       };
     });
-
-    // Auto-expand the destination section if it was collapsed. Outer check
-    // is a perf optimization; the inner setter is functional so it's safe.
-    const overContainer = findContainer(overId, jobsMap);
-    if (overContainer && collapsedSections.has(overContainer)) {
-      setCollapsedSections((prev) => {
-        if (!prev.has(overContainer)) return prev;
-        const next = new Set(prev);
-        next.delete(overContainer);
-        return next;
-      });
-    }
   }
 
   function handleDragCancel() {
@@ -1389,12 +1110,11 @@ export default function JobsPage() {
 
   const totalJobs = STATUSES.reduce((sum, s) => sum + jobsMap[s].length, 0);
 
-  // While a drag is in progress, force-show empty sections so the user can
-  // drop into them. MeasuringStrategy.Always on DndContext picks up the
-  // newly-mounted droppables on the next frame so they become valid targets.
-  const isDragging = activeJob !== null;
-  const effectiveShowEmpty = showEmpty || isDragging;
-  const visibleStatuses = effectiveShowEmpty
+  // Hidden empty columns stay hidden during drag. Re-mounting them on
+  // drag-start shifted the layout and threw off @dnd-kit's captured cursor
+  // offset, making the DragOverlay drift ~280px (one column width) from the
+  // pointer. To drop into a hidden empty status, toggle Show empty first.
+  const visibleStatuses = showEmpty
     ? STATUSES
     : STATUSES.filter((s) => jobsMap[s].length > 0);
 
@@ -1404,7 +1124,7 @@ export default function JobsPage() {
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold tracking-tight">{tList("heading")}</h1>
         <div className="flex items-center gap-2">
-          {/* Show/hide empty toggle (kanban only) */}
+          {/* Show/hide empty columns toggle — kanban-only */}
           {viewMode === "kanban" && (
             <button
               onClick={() => setShowEmpty((v) => !v)}
@@ -1415,7 +1135,7 @@ export default function JobsPage() {
               }
               className={cn(
                 "inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-sm transition-colors hover:bg-muted focus:outline-none",
-                showEmpty && "border-primary/40 bg-primary/5 text-primary"
+                !showEmpty && "border-primary/40 bg-primary/5 text-primary"
               )}
             >
               {showEmpty ? (
@@ -1515,21 +1235,14 @@ export default function JobsPage() {
           onDragCancel={handleDragCancel}
           accessibility={{ announcements }}
         >
-          <div className="flex flex-col gap-6">
-            {visibleStatuses.map((status) => (
-              <KanbanSection
-                key={status}
-                status={status}
-                jobs={jobsMap[status]}
-                onDelete={handleDelete}
-                collapsed={collapsedSections.has(status)}
-                onToggleCollapse={toggleCollapse}
-              />
-            ))}
-          </div>
+          <KanbanBoard
+            jobsMap={jobsMap}
+            onDelete={handleDelete}
+            statuses={visibleStatuses}
+          />
           <DragOverlay dropAnimation={dropAnimation}>
             {activeJob ? (
-              <JobCardPresentation
+              <JobCardSurface
                 job={activeJob}
                 isDragging
                 onDelete={handleDelete}
