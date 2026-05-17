@@ -5,21 +5,33 @@ import { getLocale, getMessages } from "next-intl/server";
 import { Toaster } from "sonner";
 
 import "@/styles/globals.css";
-import { JetBrains_Mono, Space_Grotesk } from "next/font/google";
+import { Space_Grotesk } from "next/font/google";
+import localFont from "next/font/local";
 import { allResumeFontVariables } from "@/lib/fonts/resume-fonts";
-const space_grotesk_display = Space_Grotesk({
+
+const space_grotesk = Space_Grotesk({
   subsets: ["latin"],
-  weight: ["700"],
-  variable: "--display-family",
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
+  preload: true,
+  adjustFontFallback: true,
+  variable: "--font-display",
 });
-const space_grotesk_body = Space_Grotesk({
-  subsets: ["latin"],
-  weight: ["400"],
-  variable: "--body-family",
-});
-const jetbrains_mono = JetBrains_Mono({
-  subsets: ["latin"],
-  weight: ["400"],
+
+const jetbrains_mono = localFont({
+  src: [
+    {
+      path: "../../public/fonts/JetBrainsMono-VariableFont_wght.ttf",
+      weight: "100 900",
+      style: "normal",
+    },
+    {
+      path: "../../public/fonts/JetBrainsMono-Italic-VariableFont_wght.ttf",
+      weight: "100 900",
+      style: "italic",
+    },
+  ],
+  display: "swap",
   variable: "--font-mono",
 });
 
@@ -35,7 +47,12 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html
       lang={locale}
-      className={`${space_grotesk_display.variable} ${space_grotesk_body.variable} ${jetbrains_mono.variable} ${allResumeFontVariables}`}
+      className={`${space_grotesk.variable} ${jetbrains_mono.variable} ${allResumeFontVariables}`}
+      style={{
+        ["--font-body" as string]: "var(--font-display)",
+        ["--display-family" as string]: "var(--font-display)",
+        ["--body-family" as string]: "var(--font-display)",
+      }}
       suppressHydrationWarning
     >
       <body className={`antialiased`}>
