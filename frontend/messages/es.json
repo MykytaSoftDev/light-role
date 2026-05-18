@@ -1408,7 +1408,7 @@
       "monthlyEquivalent": "≈ {price} / mes"
     },
     "success": {
-      "title": "¡Bienvenido a Pro!",
+      "title": "¡Bienvenido a {plan}!",
       "description": "Tu suscripción está activa. Vamos a ponerla a trabajar.",
       "goToDashboard": "Ir al panel",
       "manageSubscription": "Gestionar suscripción",
@@ -1977,10 +1977,10 @@
     "activity_action_resume_tailored": "Adapté CV",
     "activity_action_cover_letter_generated": "Generé carta",
     "activity_action_job_saved": "Guardé vacante",
-    "upgrade_overlay_aria_label": "Mejora a Pro para desbloquear Analítica",
-    "upgrade_title": "Desbloquea Analítica con Pro",
+    "upgrade_overlay_aria_label": "Mejora tu plan para desbloquear Analítica",
+    "upgrade_title": "Desbloquea Analítica",
     "upgrade_description": "Obtén información detallada sobre tu búsqueda de empleo: embudo, racha, actividad y más.",
-    "upgrade_cta": "Mejorar a Pro",
+    "upgrade_cta": "Mejorar plan",
     "error_generic": "Algo salió mal al cargar tu analítica. Inténtalo de nuevo.",
     "error_boundary_message": "Algo salió mal al cargar tu analítica. Hemos sido notificados.",
     "error_boundary_retry": "Inténtalo de nuevo"

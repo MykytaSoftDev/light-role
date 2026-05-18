@@ -1408,7 +1408,7 @@
       "monthlyEquivalent": "≈ {price} / Monat"
     },
     "success": {
-      "title": "Willkommen bei Pro!",
+      "title": "Willkommen bei {plan}!",
       "description": "Ihr Abonnement ist aktiv. Lassen Sie es für Sie arbeiten.",
       "goToDashboard": "Zum Dashboard",
       "manageSubscription": "Abonnement verwalten",
@@ -1977,10 +1977,10 @@
     "activity_action_resume_tailored": "Lebenslauf angepasst",
     "activity_action_cover_letter_generated": "Anschreiben generiert",
     "activity_action_job_saved": "Job gespeichert",
-    "upgrade_overlay_aria_label": "Upgrade auf Pro, um Analytics freizuschalten",
-    "upgrade_title": "Analytics mit Pro freischalten",
+    "upgrade_overlay_aria_label": "Upgrade deinen Plan, um Analytics freizuschalten",
+    "upgrade_title": "Analytics freischalten",
     "upgrade_description": "Erhalte tiefe Einblicke in deine Jobsuche — Funnel, Streak, Aktivität und mehr.",
-    "upgrade_cta": "Auf Pro upgraden",
+    "upgrade_cta": "Plan upgraden",
     "error_generic": "Beim Laden deiner Analytics ist etwas schiefgelaufen. Bitte versuche es erneut.",
     "error_boundary_message": "Beim Laden deiner Analytics ist etwas schiefgelaufen. Wir wurden benachrichtigt.",
     "error_boundary_retry": "Erneut versuchen"

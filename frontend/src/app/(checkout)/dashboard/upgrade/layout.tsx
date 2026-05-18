@@ -24,7 +24,7 @@ export default async function UpgradeLayout({ children }: { children: React.Reac
     });
     if (res.ok) {
       const sub = await res.json();
-      if (sub?.plan_slug === "pro") {
+      if (sub?.plan_slug && sub.plan_slug !== "free") {
         redirect("/dashboard/subscription");
       }
     }

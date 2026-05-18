@@ -16,8 +16,8 @@ export function UpgradeOverlay() {
       aria-label={t("upgrade_overlay_aria_label")}
     >
       <div className="rounded-2xl border border-border bg-card/95 backdrop-blur-sm shadow-lg p-8 flex flex-col items-center gap-4 text-center max-w-sm w-full">
-        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-indigo-100 dark:bg-indigo-950/60">
-          <Sparkles className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
+        <div className="bg-primary/10 flex h-12 w-12 items-center justify-center rounded-full">
+          <Sparkles className="text-primary h-6 w-6" />
         </div>
         <div className="flex flex-col gap-2">
           <h2 className="text-lg font-bold">{t("upgrade_title")}</h2>

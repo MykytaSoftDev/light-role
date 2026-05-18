@@ -1408,7 +1408,7 @@
       "monthlyEquivalent": "≈ {price} / mois"
     },
     "success": {
-      "title": "Bienvenue dans Pro !",
+      "title": "Bienvenue dans {plan} !",
       "description": "Votre abonnement est actif. Mettons-le à profit.",
       "goToDashboard": "Aller au tableau de bord",
       "manageSubscription": "Gérer l'abonnement",
@@ -1977,10 +1977,10 @@
     "activity_action_resume_tailored": "CV adapté",
     "activity_action_cover_letter_generated": "Lettre générée",
     "activity_action_job_saved": "Offre sauvegardée",
-    "upgrade_overlay_aria_label": "Passe à Pro pour débloquer les analyses",
-    "upgrade_title": "Débloque les analyses avec Pro",
+    "upgrade_overlay_aria_label": "Améliore ton plan pour débloquer les analyses",
+    "upgrade_title": "Débloque les analyses",
     "upgrade_description": "Obtiens des informations approfondies sur ta recherche d'emploi — entonnoir, série, activité et plus encore.",
-    "upgrade_cta": "Passer à Pro",
+    "upgrade_cta": "Améliorer le plan",
     "error_generic": "Une erreur s'est produite lors du chargement de tes analyses. Réessaie.",
     "error_boundary_message": "Une erreur s'est produite lors du chargement de tes analyses. Nous en avons été informés.",
     "error_boundary_retry": "Réessayer"

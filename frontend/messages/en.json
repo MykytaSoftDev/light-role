@@ -1408,7 +1408,7 @@
       "monthlyEquivalent": "≈ {price} / month"
     },
     "success": {
-      "title": "Welcome to Pro!",
+      "title": "Welcome to {plan}!",
       "description": "Your subscription is active. Let's put it to work.",
       "goToDashboard": "Go to dashboard",
       "manageSubscription": "Manage subscription",
@@ -1977,10 +1977,10 @@
     "activity_action_resume_tailored": "Tailored resume",
     "activity_action_cover_letter_generated": "Generated cover letter",
     "activity_action_job_saved": "Saved job",
-    "upgrade_overlay_aria_label": "Upgrade to Pro to unlock Analytics",
-    "upgrade_title": "Unlock Analytics with Pro",
+    "upgrade_overlay_aria_label": "Upgrade your plan to unlock Analytics",
+    "upgrade_title": "Unlock Analytics",
     "upgrade_description": "Get deep insights into your job search — funnel, streak, activity, and more.",
-    "upgrade_cta": "Upgrade to Pro",
+    "upgrade_cta": "Upgrade your plan",
     "error_generic": "Something went wrong loading your analytics. Please try again.",
     "error_boundary_message": "Something went wrong loading your analytics. We've been notified.",
     "error_boundary_retry": "Try again"

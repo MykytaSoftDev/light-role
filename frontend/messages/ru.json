@@ -1408,7 +1408,7 @@
       "monthlyEquivalent": "≈ {price} / месяц"
     },
     "success": {
-      "title": "Добро пожаловать в Pro!",
+      "title": "Добро пожаловать в {plan}!",
       "description": "Ваша подписка активна. Используйте её на полную.",
       "goToDashboard": "В панель управления",
       "manageSubscription": "Управление подпиской",
@@ -1977,10 +1977,10 @@
     "activity_action_resume_tailored": "Адаптировал резюме",
     "activity_action_cover_letter_generated": "Сгенерировал cover letter",
     "activity_action_job_saved": "Сохранил вакансию",
-    "upgrade_overlay_aria_label": "Перейди на Pro, чтобы открыть аналитику",
-    "upgrade_title": "Открой аналитику с Pro",
+    "upgrade_overlay_aria_label": "Обнови план, чтобы открыть аналитику",
+    "upgrade_title": "Открой аналитику",
     "upgrade_description": "Получи глубокие инсайты о поиске работы — воронку, стрик, активность и многое другое.",
-    "upgrade_cta": "Перейти на Pro",
+    "upgrade_cta": "Обновить план",
     "error_generic": "Что-то пошло не так при загрузке аналитики. Попробуй ещё раз.",
     "error_boundary_message": "Что-то пошло не так при загрузке аналитики. Мы уже знаем об этом.",
     "error_boundary_retry": "Попробовать снова"

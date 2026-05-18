@@ -13,6 +13,7 @@ import { useTranslations } from "next-intl";
 
 interface SubscriptionData {
   plan_slug: string;
+  plan_name?: string;
   status: string;
   current_period_end?: string;
   subscription_id: string | null;
@@ -45,7 +46,7 @@ function SuccessContent() {
         const res = await api.get("/api/v1/subscriptions/current");
         if (res.ok) {
           const data: SubscriptionData = await res.json();
-          if (data.plan_slug === "pro" && data.status === "active") {
+          if (data.plan_slug !== "free" && data.status === "active") {
             if (!cancelled) {
               setSubscriptionData(data);
               setStatus("confirmed");
@@ -146,7 +147,7 @@ function SuccessContent() {
 
         <div className="space-y-2">
           <h1 className="text-foreground text-2xl font-semibold tracking-tight">
-            {t("title")}
+            {t("title", { plan: subscriptionData?.plan_name ?? tHeader("pro") })}
           </h1>
           <p className="text-muted-foreground">{t("description")}</p>
         </div>
@@ -161,7 +162,9 @@ function SuccessContent() {
           )}
           <div className="flex justify-between">
             <span className="text-muted-foreground">{t("planLabel")}</span>
-            <span className="text-foreground font-medium">{tHeader("pro")}</span>
+            <span className="text-foreground font-medium">
+              {subscriptionData?.plan_name ?? tHeader("pro")}
+            </span>
           </div>
           {subscriptionData?.current_period_end && (
             <div className="flex justify-between">

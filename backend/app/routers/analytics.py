@@ -46,11 +46,11 @@ async def get_analytics(
         .first()
     )
     effective_plan = get_effective_plan(subscription)
-    if effective_plan != "pro":
+    if effective_plan == "free":
         raise HTTPException(
             status_code=402,
             detail={
-                "message": "Pro subscription required",
+                "message": "Paid subscription required",
                 "upgrade_url": "/dashboard/upgrade",
             },
         )
