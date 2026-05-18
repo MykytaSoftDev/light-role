@@ -243,7 +243,7 @@ def impersonate_user(
     db: Session = Depends(get_db),
     admin: User = Depends(get_current_admin_user),
     access_token: Optional[str] = Cookie(default=None),
-) -> Response:
+) -> None:
     """Start an impersonation session (SPEC §6.4).
 
     Cookie semantics:
@@ -319,7 +319,7 @@ def impersonate_user(
     )
     db.commit()
 
-    return Response(status_code=status.HTTP_204_NO_CONTENT)
+    return None
 
 
 @router.post(
@@ -333,7 +333,7 @@ def stop_impersonation(
     db: Session = Depends(get_db),
     access_token: Optional[str] = Cookie(default=None),
     original_admin_token: Optional[str] = Cookie(default=None),
-) -> Response:
+) -> None:
     """End an impersonation session and restore the admin's own access
     token (SPEC §6.5).
 
@@ -418,7 +418,7 @@ def stop_impersonation(
     )
     db.commit()
 
-    return Response(status_code=status.HTTP_204_NO_CONTENT)
+    return None
 
 
 # ---------------------------------------------------------------------------
