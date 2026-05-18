@@ -390,7 +390,12 @@ export function useAdminFeedback(
 
 export interface AdminAuditLogItem {
   id: string;
-  admin_id: string;
+  // `admin_id` is nullable after the admin deletes their own account — the
+  // FK becomes NULL but the audit row survives. `admin_email` is still
+  // guaranteed to be a string (backend falls back to a snapshot email or
+  // the literal "(deleted admin)"). Mirrors backend `AdminAuditLogItem`
+  // in `app/schemas/admin.py` (`admin_id: Optional[uuid.UUID]`).
+  admin_id: string | null;
   admin_email: string;
   target_user_id: string | null;
   target_user_email: string | null;

@@ -23,12 +23,13 @@ class AdminAuditLog(Base):
     itself so the ledger never diverges from reality — if the audit
     insert fails the underlying action rolls back.
 
-    Foreign-key semantics (encoded in migration 020):
+    Foreign-key semantics (encoded in migration 020, relaxed in 021):
 
-      * ``admin_id`` — ``ON DELETE RESTRICT``. Deleting an admin who
-        has audit history fails loudly; admin accounts are not meant
-        to be removed through the normal Settings → Delete Account
-        flow (that path is gated for non-admins only).
+      * ``admin_id`` — ``ON DELETE SET NULL`` (was RESTRICT in 020).
+        When an admin deletes their account the FK is nulled out and
+        the audit row survives. The admin's email at the time of the
+        action is preserved in ``admin_email_snapshot`` so the audit
+        UI can still attribute the action to a recognizable identity.
 
       * ``target_user_id`` — ``ON DELETE SET NULL``. When a regular
         user deletes their account, the audit row is preserved for
@@ -59,10 +60,18 @@ class AdminAuditLog(Base):
         primary_key=True,
         default=uuid.uuid4,
     )
-    admin_id: Mapped[uuid.UUID] = mapped_column(
+    admin_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True),
-        ForeignKey("users.id", ondelete="RESTRICT"),
-        nullable=False,
+        ForeignKey("users.id", ondelete="SET NULL"),
+        nullable=True,
+    )
+    admin_email_snapshot: Mapped[str | None] = mapped_column(
+        String(255),
+        nullable=True,
+        doc=(
+            "Email of the admin at time of action. Preserved when the "
+            "admin user is later deleted (admin_id becomes NULL)."
+        ),
     )
     target_user_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True),
@@ -96,7 +105,7 @@ class AdminAuditLog(Base):
     # Relationships
     # Two FKs reference users.id, so each relationship must declare its
     # own ``foreign_keys=...`` to disambiguate the join condition.
-    admin: Mapped[User] = relationship(
+    admin: Mapped["User | None"] = relationship(
         "User",
         back_populates="admin_audit_logs_authored",
         foreign_keys=[admin_id],

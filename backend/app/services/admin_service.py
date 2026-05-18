@@ -429,6 +429,7 @@ def _log_admin_action(
     db.add(
         AdminAuditLog(
             admin_id=admin.id,
+            admin_email_snapshot=admin.email,
             target_user_id=target_user_id,
             action=action,
             payload=payload or {},
@@ -779,11 +780,12 @@ def list_audit_logs(
     """List admin audit log entries newest-first with admin/target email joins.
 
     Two ``User`` aliases are used so we can join the same ``users`` table
-    twice — once for the acting admin (INNER JOIN; admin_id is NOT NULL),
-    once for the affected target user (LEFT JOIN; target_user_id is
-    nullable and is also SET NULL on user deletion). Email columns from
-    both joins are projected into the response so the FE doesn't have to
-    do an N+1 lookup per row.
+    twice. Both joins are LEFT JOINs because both FKs are now nullable
+    (migration 021 relaxed ``admin_id`` to ``ON DELETE SET NULL``; the
+    target FK was already SET NULL). When the admin row is missing we
+    fall back to ``admin_email_snapshot`` so attribution survives the
+    admin's deletion. Email columns from both joins are projected into
+    the response so the FE doesn't have to do an N+1 lookup per row.
 
     Returns dict with items, total, page, page_size.
     """
@@ -795,7 +797,7 @@ def list_audit_logs(
 
     q = (
         db.query(AdminAuditLog, AdminU, TargetU)
-        .join(AdminU, AdminU.id == AdminAuditLog.admin_id)
+        .outerjoin(AdminU, AdminU.id == AdminAuditLog.admin_id)
         .outerjoin(TargetU, TargetU.id == AdminAuditLog.target_user_id)
     )
 
@@ -829,7 +831,15 @@ def list_audit_logs(
             {
                 "id": log.id,
                 "admin_id": log.admin_id,
-                "admin_email": admin_u.email,
+                # Live row wins, then the denormalized snapshot, then a
+                # sentinel string. Both fall-throughs only fire after the
+                # admin has been deleted (admin_id IS NULL).
+                "admin_email": (
+                    admin_u.email
+                    if admin_u is not None
+                    else log.admin_email_snapshot
+                )
+                or "(deleted admin)",
                 "target_user_id": log.target_user_id,
                 "target_user_email": target_u.email if target_u else None,
                 "action": log.action,

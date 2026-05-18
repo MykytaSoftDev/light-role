@@ -184,19 +184,24 @@ class User(TimestampMixin, Base):
     )
     # Audit log relationships — two FKs from admin_audit_logs land on
     # users.id (admin_id and target_user_id), so each side must declare
-    # ``foreign_keys=...`` explicitly. ``admin_audit_logs_authored``
-    # intentionally uses ``cascade="save-update, merge"`` (no delete):
-    # the DB-level ``ON DELETE RESTRICT`` on admin_id is the enforcement
-    # boundary — orphan-deleting audit rows when an admin is removed
-    # would defeat the audit trail.
+    # ``foreign_keys=...`` explicitly. We deliberately do NOT cascade
+    # deletes: audit rows must persist after the acting admin is
+    # deleted. The DB-level ``ON DELETE SET NULL`` on admin_id (migration
+    # 021) plus the denormalized ``admin_email_snapshot`` column preserve
+    # attribution forever. ``passive_deletes=True`` is essential — without
+    # it SQLAlchemy would auto-emit an UPDATE setting admin_id = NULL
+    # before the parent DELETE, racing the DB-level SET NULL and (when
+    # admin_id was still NOT NULL pre-021) triggering an IntegrityError.
     admin_audit_logs_authored: Mapped[List[AdminAuditLog]] = relationship(
         "AdminAuditLog",
         back_populates="admin",
         foreign_keys="AdminAuditLog.admin_id",
         cascade="save-update, merge",
+        passive_deletes=True,
     )
     admin_audit_logs_received: Mapped[List[AdminAuditLog]] = relationship(
         "AdminAuditLog",
         back_populates="target_user",
         foreign_keys="AdminAuditLog.target_user_id",
+        passive_deletes=True,
     )

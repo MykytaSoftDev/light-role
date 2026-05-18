@@ -84,7 +84,11 @@ class GrantProRequest(BaseModel):
 
 class AdminAuditLogItem(BaseModel):
     id: uuid.UUID
-    admin_id: uuid.UUID
+    # ``admin_id`` is nullable after migration 021: when an admin
+    # deletes their account the FK becomes NULL, but the row survives.
+    # The service still always supplies a non-empty ``admin_email``
+    # (falling back to ``admin_email_snapshot`` or "(deleted admin)").
+    admin_id: Optional[uuid.UUID]
     admin_email: str
     target_user_id: Optional[uuid.UUID]
     target_user_email: Optional[str]
