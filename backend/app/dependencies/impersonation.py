@@ -1,6 +1,6 @@
 """Impersonation-aware session context (SPEC §6.4, §6.6, §6.7, §9).
 
-This module exposes three things every impersonation-touched route
+This module exposes four things every impersonation-touched route
 relies on:
 
 1. :class:`SessionContext` — a dataclass bundling the effective acting
@@ -12,12 +12,17 @@ relies on:
 2. :func:`block_during_impersonation` — a small dependency that raises
    ``HTTP 403`` when the request is part of an impersonation session.
    Mounted on destructive / money-touching endpoints (delete account,
-   change password, subscription mutations, refresh).
+   change password, subscription mutations).
 
 3. :func:`block_logout_during_impersonation` — same shape, but returns
    a friendlier message pointing the admin at the "Exit impersonation"
    action. Logging out mid-impersonation would orphan the admin's own
    session, so we redirect them to the proper exit path (SPEC §6.7).
+
+4. :func:`block_refresh_during_impersonation` — refresh-specific variant
+   that does not require a live ``access_token``. Used by ``/auth/refresh``
+   so the dependency check survives the exact case the endpoint exists
+   to handle (an expired access_token).
 
 Sentry tagging
 --------------
@@ -157,3 +162,37 @@ def block_logout_during_impersonation(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Cannot log out during impersonation. Use 'Exit impersonation' instead.",
         )
+
+
+def block_refresh_during_impersonation(
+    access_token: Optional[str] = Cookie(default=None),
+    original_admin_token: Optional[str] = Cookie(default=None),
+) -> None:
+    """Block ``/auth/refresh`` during impersonation without requiring a
+    live ``access_token`` (SPEC §6.7).
+
+    Why: the whole point of ``/auth/refresh`` is that ``access_token`` is
+    gone (expired or otherwise missing), so we cannot route through
+    :func:`get_session_context` — it would 401 on the very case refresh
+    is meant to handle. Instead we sniff the cookies directly:
+
+    - ``original_admin_token`` present → impersonation is active (the
+      cookie is set on impersonation start and only cleared by
+      ``stop_impersonation``), OR
+    - ``access_token`` present and decodes with ``is_impersonating: true``.
+
+    Either signal → 403. Otherwise the request proceeds and the refresh
+    handler validates ``refresh_token`` on its own.
+    """
+    if original_admin_token:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Forbidden in impersonation mode",
+        )
+    if access_token:
+        payload = decode_token(access_token)
+        if payload and payload.get("is_impersonating"):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Forbidden in impersonation mode",
+            )

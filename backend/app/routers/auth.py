@@ -8,6 +8,7 @@ from app.dependencies.auth import get_verified_user
 from app.dependencies.impersonation import (
     block_during_impersonation,
     block_logout_during_impersonation,
+    block_refresh_during_impersonation,
 )
 from app.dependencies.rate_limit import (
     forgot_password_rate_limit,
@@ -88,8 +89,10 @@ def refresh(
     # SPEC §6.7: refresh is blocked during impersonation. The admin's
     # refresh_token is still valid (and intentionally untouched) — we
     # don't want it accidentally minting a fresh `access_token` for the
-    # impersonated user mid-session.
-    _: None = Depends(block_during_impersonation),
+    # impersonated user mid-session. Refresh-specific dependency so this
+    # check still works when `access_token` has already expired (the exact
+    # case `/auth/refresh` exists to handle).
+    _: None = Depends(block_refresh_during_impersonation),
 ):
     if not refresh_token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="No refresh token")

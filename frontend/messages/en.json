@@ -1300,7 +1300,7 @@
       "changePlan": "Change plan",
       "cancelScheduledToast": "Cancellation scheduled.",
       "cancelConfirmTitle": "Cancel your subscription?",
-      "cancelConfirmBody": "Your Pro access continues until the end of the current billing period. After that, you'll be moved to the Free plan."
+      "cancelConfirmBody": "Your {name} access continues until the end of the current billing period. After that, you'll be moved to the Free plan."
     },
     "details": {
       "status": "Status",
