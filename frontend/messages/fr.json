@@ -112,7 +112,7 @@
     },
     "rateLimit": {
       "title": "Vous avez atteint votre limite d'opérations IA",
-      "description": "Passez à Pro pour 150 opérations mensuelles et un nombre illimité d'emplois actifs.",
+      "description": "Passez à Pro pour des limites mensuelles plus élevées et un nombre illimité d'emplois actifs.",
       "upgrade": "Passer à Pro",
       "later": "Plus tard"
     },
@@ -130,9 +130,9 @@
       "later": "Plus tard",
       "seePlans": "Voir les forfaits",
       "resumeCreditsTitle": "Vous avez utilisé tous vos crédits CV ce mois-ci",
-      "resumeCreditsBody": "Passez à Pro pour adapter plus de CV — Pro inclut des adaptations illimitées.",
+      "resumeCreditsBody": "Améliorez votre forfait pour adapter plus de CV — consultez les forfaits pour des limites mensuelles plus élevées et une option illimitée.",
       "clCreditsTitle": "Vous avez utilisé tous vos crédits de lettres de motivation ce mois-ci",
-      "clCreditsBody": "Passez à Pro pour des lettres de motivation générées par IA en illimité.",
+      "clCreditsBody": "Améliorez votre forfait pour rédiger plus de lettres de motivation — consultez les forfaits pour des limites mensuelles plus élevées et une option illimitée.",
       "activeJobsTitle": "Vous avez atteint la limite d'emplois actifs",
       "activeJobsBody": "Free est limité à quelques emplois actifs. Pro supprime cette limite pour suivre chaque opportunité.",
       "analyticsTitle": "Les analyses sont une fonctionnalité Pro",
@@ -159,6 +159,20 @@
       "minutes": "{count, plural, =1 {il y a 1 minute} other {il y a # minutes}}",
       "hours": "{count, plural, =1 {il y a 1 heure} other {il y a # heures}}",
       "days": "{count, plural, =1 {il y a 1 jour} other {il y a # jours}}"
+    },
+    "items": {
+      "followUp": { "title": "Rappel de relance", "message": "Il est temps de relancer votre candidature chez {company}" },
+      "inactivity": { "title": "Votre candidature nécessite une action", "message": "Votre candidature chez {company} est au statut Enregistrée depuis plus de 5 jours. Pensez à agir." },
+      "limitWarning": {
+        "title": "Vos crédits s'épuisent",
+        "resume": "Vous avez utilisé {used} sur {limit} adaptations de CV ce cycle ({pct}%).",
+        "coverLetter": "Vous avez utilisé {used} sur {limit} lettres de motivation ce cycle ({pct}%).",
+        "upsellPro": "Passez à Pro pour en obtenir plus.",
+        "upsellUnlimited": "Passez à Unlimited pour supprimer la limite."
+      },
+      "limitReset": { "title": "Vos crédits ont été réinitialisés", "message": "Vos crédits ont été réinitialisés — vous disposez à nouveau de {resumeLimit} adaptations de CV et {clLimit} lettres de motivation ce cycle." },
+      "resumeReady": { "title": "CV adapté prêt", "message": "Votre CV adapté pour {jobTitle} est prêt." },
+      "coverLetterReady": { "title": "La lettre de motivation est prête", "message": "Votre lettre de motivation pour {jobTitle} est prête — cliquez pour examiner les variantes." }
     }
   },
   "Auth": {
@@ -1513,7 +1527,7 @@
       "features": {
         "title": "Tout ce qui est inclus dans Pro :",
         "list": [
-          "150 opérations IA par mois (contre 10 sur Free)",
+          "30 adaptations de CV et 30 lettres de motivation par mois (contre 3 de chaque sur Free)",
           "Emplois actifs illimités dans votre suivi",
           "CV adaptés par IA pour chaque candidature",
           "Lettres de motivation générées par IA avec plusieurs variantes",
@@ -1569,7 +1583,7 @@
         },
         "difference": {
           "q": "Quelle est la différence entre Free et Pro ?",
-          "a": "Le forfait Free vous donne 10 opérations IA par mois et jusqu'à 5 emplois actifs. Pro débloque 150 opérations IA, des emplois actifs illimités, tous les modèles de CV, les analyses et un traitement IA prioritaire."
+          "a": "Le forfait Free comprend 3 adaptations de CV et 3 lettres de motivation par mois, ainsi que jusqu'à 10 emplois actifs. Pro porte ces deux limites à 30 par mois et ajoute des emplois actifs illimités, tous les modèles de CV, les analyses et un traitement IA prioritaire. Besoin de plus ? Le forfait Unlimited supprime totalement les limites."
         },
         "payment": {
           "q": "Comment le paiement est-il traité ?",

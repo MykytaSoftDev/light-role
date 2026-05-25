@@ -19,6 +19,7 @@ class NotificationResponse(BaseModel):
     is_read: bool
     entity_type: Optional[str] = None
     entity_id: Optional[uuid.UUID] = None
+    params: Optional[dict] = None
     created_at: datetime
 
 

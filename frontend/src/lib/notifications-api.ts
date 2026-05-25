@@ -5,6 +5,7 @@ export interface Notification {
   type: string;
   title: string;
   message: string;
+  params?: Record<string, string | number> | null;
   is_read: boolean;
   entity_type: string | null;
   entity_id: string | null;

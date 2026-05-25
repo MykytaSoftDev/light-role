@@ -5,7 +5,7 @@ from datetime import datetime
 from typing import TYPE_CHECKING
 
 from sqlalchemy import Boolean, DateTime, Enum as SAEnum, ForeignKey, Index, String, Text, func, text
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
@@ -66,6 +66,13 @@ class Notification(Base):
     )
     entity_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True),
+        nullable=True,
+    )
+    # Structured payload for frontend localization (keyed off `type`).
+    # The title/message columns remain the English fallback. NULL for
+    # notifications created before this column existed.
+    params: Mapped[dict | None] = mapped_column(
+        JSONB,
         nullable=True,
     )
     created_at: Mapped[datetime] = mapped_column(

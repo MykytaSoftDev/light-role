@@ -112,7 +112,7 @@
     },
     "rateLimit": {
       "title": "Sie haben Ihr KI-Operationslimit erreicht",
-      "description": "Upgraden Sie auf Pro für 150 monatliche Operationen und unbegrenzte aktive Stellen.",
+      "description": "Upgraden Sie auf Pro für höhere monatliche Limits und unbegrenzte aktive Stellen.",
       "upgrade": "Auf Pro upgraden",
       "later": "Vielleicht später"
     },
@@ -130,9 +130,9 @@
       "later": "Vielleicht später",
       "seePlans": "Tarife ansehen",
       "resumeCreditsTitle": "Sie haben alle Lebenslauf-Guthaben in diesem Monat aufgebraucht",
-      "resumeCreditsBody": "Upgraden Sie auf Pro, um weitere Lebensläufe anzupassen — Pro umfasst unbegrenzte Anpassungen.",
+      "resumeCreditsBody": "Upgraden Sie, um weitere Lebensläufe anzupassen — in den Tarifen finden Sie höhere monatliche Limits und eine unbegrenzte Option.",
       "clCreditsTitle": "Sie haben alle Anschreiben-Guthaben in diesem Monat aufgebraucht",
-      "clCreditsBody": "Upgraden Sie auf Pro für unbegrenzte KI-generierte Anschreiben.",
+      "clCreditsBody": "Upgraden Sie, um weitere Anschreiben zu erstellen — in den Tarifen finden Sie höhere monatliche Limits und eine unbegrenzte Option.",
       "activeJobsTitle": "Sie haben das Limit für aktive Stellen erreicht",
       "activeJobsBody": "Free ist auf wenige aktive Stellen begrenzt. Pro hebt die Grenze auf, sodass Sie jede Gelegenheit verfolgen können.",
       "analyticsTitle": "Analytics ist eine Pro-Funktion",
@@ -159,6 +159,20 @@
       "minutes": "{count, plural, =1 {vor 1 Minute} other {vor # Minuten}}",
       "hours": "{count, plural, =1 {vor 1 Stunde} other {vor # Stunden}}",
       "days": "{count, plural, =1 {vor 1 Tag} other {vor # Tagen}}"
+    },
+    "items": {
+      "followUp": { "title": "Erinnerung zum Nachfassen", "message": "Zeit, sich bei Ihrer Bewerbung bei {company} zu melden" },
+      "inactivity": { "title": "Bewerbung braucht Aufmerksamkeit", "message": "Ihre Bewerbung bei {company} ist seit über 5 Tagen im Status „Gespeichert“. Werden Sie aktiv." },
+      "limitWarning": {
+        "title": "Ihr Guthaben geht zur Neige",
+        "resume": "Sie haben {used} von {limit} Lebenslauf-Anpassungen in diesem Zyklus genutzt ({pct}%).",
+        "coverLetter": "Sie haben {used} von {limit} Anschreiben in diesem Zyklus genutzt ({pct}%).",
+        "upsellPro": "Upgraden Sie auf Pro für mehr.",
+        "upsellUnlimited": "Wechseln Sie zu Unlimited, um das Limit aufzuheben."
+      },
+      "limitReset": { "title": "Ihr Guthaben wurde zurückgesetzt", "message": "Ihr Guthaben wurde zurückgesetzt — Sie haben in diesem Zyklus wieder {resumeLimit} Lebenslauf-Anpassungen und {clLimit} Anschreiben." },
+      "resumeReady": { "title": "Angepasster Lebenslauf ist fertig", "message": "Ihr angepasster Lebenslauf für {jobTitle} ist fertig." },
+      "coverLetterReady": { "title": "Anschreiben ist fertig", "message": "Ihr Anschreiben für {jobTitle} ist fertig — klicken Sie, um die Varianten zu prüfen." }
     }
   },
   "Auth": {
@@ -1513,7 +1527,7 @@
       "features": {
         "title": "Alles in Pro:",
         "list": [
-          "150 KI-Operationen pro Monat (gegenüber 10 bei Free)",
+          "30 Lebenslauf-Anpassungen und 30 Anschreiben pro Monat (gegenüber je 3 bei Free)",
           "Unbegrenzte aktive Stellen in Ihrem Tracker",
           "KI-angepasste Lebensläufe für jede Bewerbung",
           "KI-generierte Anschreiben mit mehreren Varianten",
@@ -1569,7 +1583,7 @@
         },
         "difference": {
           "q": "Was ist der Unterschied zwischen Free und Pro?",
-          "a": "Der Free-Tarif bietet Ihnen 10 KI-Operationen pro Monat und bis zu 5 aktive Stellen. Pro schaltet 150 KI-Operationen, unbegrenzte aktive Stellen, alle Lebenslauf-Vorlagen, Analytics und priorisierte KI-Verarbeitung frei."
+          "a": "Der Free-Tarif umfasst 3 Lebenslauf-Anpassungen und 3 Anschreiben pro Monat sowie bis zu 10 aktive Stellen. Pro erhöht beides auf 30 pro Monat und ergänzt unbegrenzte aktive Stellen, alle Lebenslauf-Vorlagen, Analytics und priorisierte KI-Verarbeitung. Mehr nötig? Der Unlimited-Tarif hebt die Limits vollständig auf."
         },
         "payment": {
           "q": "Wie wird die Zahlung abgewickelt?",

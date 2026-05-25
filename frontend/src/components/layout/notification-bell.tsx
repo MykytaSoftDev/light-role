@@ -41,6 +41,100 @@ function makeTimeAgo(
   };
 }
 
+/** next-intl scoped translator for the `Notifications.items` namespace. */
+type ItemsTranslator = {
+  (key: string, values?: Record<string, string | number>): string;
+  has: (key: string) => boolean;
+};
+
+/**
+ * Localize a backend notification into `{title, message}` for the user's
+ * current UI language.
+ *
+ * The backend sends a machine-readable `type` plus a `params` object; we map
+ * those onto the `Notifications.items` i18n namespace. Anything we don't
+ * recognize — an unknown `type`, `params === null` (old rows / types without
+ * params like `resume_analysis_complete`), or a missing required param —
+ * falls back to the English `title`/`message` the backend stored on the row.
+ * Lookups are guarded so a missing key can never crash the bell.
+ */
+function localizeNotification(
+  notification: Notification,
+  t: ItemsTranslator
+): { title: string; message: string } {
+  const fallback = { title: notification.title, message: notification.message };
+  const params = notification.params;
+  if (!params) return fallback;
+
+  // Guarded translate: returns null if the key is absent so we can fall back.
+  const tr = (key: string, values?: Record<string, string | number>): string | null => {
+    try {
+      if (!t.has(key)) return null;
+      return t(key, values);
+    } catch {
+      return null;
+    }
+  };
+
+  const has = (...keys: string[]) => keys.every((k) => params[k] !== undefined && params[k] !== null);
+
+  switch (notification.type) {
+    case "follow_up": {
+      if (!has("company")) return fallback;
+      const title = tr("followUp.title");
+      const message = tr("followUp.message", { company: params.company });
+      return title && message ? { title, message } : fallback;
+    }
+    case "inactivity": {
+      if (!has("company")) return fallback;
+      const title = tr("inactivity.title");
+      const message = tr("inactivity.message", { company: params.company });
+      return title && message ? { title, message } : fallback;
+    }
+    case "limit_warning": {
+      if (!has("bucket", "used", "limit", "pct", "upsell")) return fallback;
+      const title = tr("limitWarning.title");
+      const lineKey =
+        params.bucket === "resume" ? "limitWarning.resume" : "limitWarning.coverLetter";
+      const line = tr(lineKey, {
+        used: params.used,
+        limit: params.limit,
+        pct: params.pct,
+      });
+      const ctaKey =
+        params.upsell === "unlimited"
+          ? "limitWarning.upsellUnlimited"
+          : "limitWarning.upsellPro";
+      const cta = tr(ctaKey);
+      if (!title || !line || !cta) return fallback;
+      return { title, message: `${line} ${cta}` };
+    }
+    case "limit_reset": {
+      if (!has("resumeLimit", "clLimit")) return fallback;
+      const title = tr("limitReset.title");
+      const message = tr("limitReset.message", {
+        resumeLimit: params.resumeLimit,
+        clLimit: params.clLimit,
+      });
+      return title && message ? { title, message } : fallback;
+    }
+    case "resume_ready": {
+      if (!has("jobTitle")) return fallback;
+      const title = tr("resumeReady.title");
+      const message = tr("resumeReady.message", { jobTitle: params.jobTitle });
+      return title && message ? { title, message } : fallback;
+    }
+    case "cover_letter_ready": {
+      if (!has("jobTitle")) return fallback;
+      const title = tr("coverLetterReady.title");
+      const message = tr("coverLetterReady.message", { jobTitle: params.jobTitle });
+      return title && message ? { title, message } : fallback;
+    }
+    default:
+      return fallback;
+  }
+}
+
 /** Map entity_type values to dashboard routes.
  *
  * `entityId` is nullable: CL-12 emits `cover_letter` notifications with a
@@ -81,6 +175,7 @@ export function NotificationBell({ className }: { className?: string }) {
   const [open, setOpen] = useState(false);
   const t = useTranslations("Notifications.bell");
   const tTime = useTranslations("Notifications.timeAgo");
+  const tItems = useTranslations("Notifications.items") as ItemsTranslator;
   const timeAgo = makeTimeAgo(tTime);
 
   const { data } = useNotifications();
@@ -186,34 +281,37 @@ export function NotificationBell({ className }: { className?: string }) {
               <p className="text-muted-foreground text-sm">{t("empty")}</p>
             </div>
           ) : (
-            notifications.map((notification) => (
-              <button
-                key={notification.id}
-                className={cn(
-                  "hover:bg-accent flex w-full flex-col gap-1 border-b px-4 py-3 text-left transition-colors last:border-b-0",
-                  !notification.is_read && "bg-primary/5"
-                )}
-                onClick={() => handleMarkAsRead(notification)}
-              >
-                <div className="flex items-start justify-between gap-2">
-                  <span
-                    className={cn(
-                      "text-sm leading-snug",
-                      !notification.is_read ? "font-medium" : "text-muted-foreground"
-                    )}
-                  >
-                    {notification.title}
-                  </span>
-                  {!notification.is_read && (
-                    <span className="bg-primary mt-1 size-2 shrink-0 rounded-full" />
+            notifications.map((notification) => {
+              const { title, message } = localizeNotification(notification, tItems);
+              return (
+                <button
+                  key={notification.id}
+                  className={cn(
+                    "hover:bg-accent flex w-full flex-col gap-1 border-b px-4 py-3 text-left transition-colors last:border-b-0",
+                    !notification.is_read && "bg-primary/5"
                   )}
-                </div>
-                <p className="text-muted-foreground line-clamp-2 text-xs">{notification.message}</p>
-                <span className="text-muted-foreground/70 text-[11px]">
-                  {timeAgo(notification.created_at)}
-                </span>
-              </button>
-            ))
+                  onClick={() => handleMarkAsRead(notification)}
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <span
+                      className={cn(
+                        "text-sm leading-snug",
+                        !notification.is_read ? "font-medium" : "text-muted-foreground"
+                      )}
+                    >
+                      {title}
+                    </span>
+                    {!notification.is_read && (
+                      <span className="bg-primary mt-1 size-2 shrink-0 rounded-full" />
+                    )}
+                  </div>
+                  <p className="text-muted-foreground line-clamp-2 text-xs">{message}</p>
+                  <span className="text-muted-foreground/70 text-[11px]">
+                    {timeAgo(notification.created_at)}
+                  </span>
+                </button>
+              );
+            })
           )}
         </div>
       </DropdownMenuContent>

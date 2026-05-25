@@ -510,6 +510,7 @@ async def tailor_resume(
                     type=NotificationType.RESUME_READY,
                     title="Tailored resume ready",
                     message=f"Your tailored resume for {title_str} is ready.",
+                    params={"jobTitle": title_str},
                     entity_type="tailored_resume",
                     entity_id=row.id,
                 )
@@ -935,6 +936,7 @@ async def generate_cover_letter_for_job(
                         f"Your cover letter for {title_str} is ready — "
                         "click to review variants."
                     ),
+                    params={"jobTitle": title_str},
                     entity_type="cover_letter",
                     # Variants weren't persisted (option B). FE routes to
                     # the wizard fresh-start when entity_id is null.

@@ -112,7 +112,7 @@
     },
     "rateLimit": {
       "title": "You've reached your AI operation limit",
-      "description": "Upgrade to Pro for 150 monthly operations and unlimited active jobs.",
+      "description": "Upgrade to Pro for higher monthly limits and unlimited active jobs.",
       "upgrade": "Upgrade to Pro",
       "later": "Maybe later"
     },
@@ -130,9 +130,9 @@
       "later": "Maybe later",
       "seePlans": "See plans",
       "resumeCreditsTitle": "You've used all your resume credits this month",
-      "resumeCreditsBody": "Upgrade to Pro to tailor more resumes — Pro includes unlimited tailorings.",
+      "resumeCreditsBody": "Upgrade to tailor more resumes — see plans for higher monthly limits and an unlimited option.",
       "clCreditsTitle": "You've used all your cover letter credits this month",
-      "clCreditsBody": "Upgrade to Pro for unlimited AI-generated cover letters.",
+      "clCreditsBody": "Upgrade to draft more cover letters — see plans for higher monthly limits and an unlimited option.",
       "activeJobsTitle": "You've reached the active jobs limit",
       "activeJobsBody": "Free is limited to a few active jobs. Pro removes the cap so you can track every opportunity.",
       "analyticsTitle": "Analytics is a Pro feature",
@@ -159,6 +159,20 @@
       "minutes": "{count, plural, =1 {1 minute ago} other {# minutes ago}}",
       "hours": "{count, plural, =1 {1 hour ago} other {# hours ago}}",
       "days": "{count, plural, =1 {1 day ago} other {# days ago}}"
+    },
+    "items": {
+      "followUp": { "title": "Follow-up reminder", "message": "Time to follow up on your application to {company}" },
+      "inactivity": { "title": "Application update needed", "message": "Your application to {company} has been in Saved status for 5+ days. Consider taking action." },
+      "limitWarning": {
+        "title": "You're running low on credits",
+        "resume": "You've used {used} of {limit} resume tailorings this cycle ({pct}%).",
+        "coverLetter": "You've used {used} of {limit} cover letters this cycle ({pct}%).",
+        "upsellPro": "Upgrade to Pro for more.",
+        "upsellUnlimited": "Go Unlimited to remove the cap."
+      },
+      "limitReset": { "title": "Your credits have reset", "message": "Your credits have reset — you again have {resumeLimit} resume tailorings and {clLimit} cover letters this cycle." },
+      "resumeReady": { "title": "Tailored resume ready", "message": "Your tailored resume for {jobTitle} is ready." },
+      "coverLetterReady": { "title": "Cover letter is ready", "message": "Your cover letter for {jobTitle} is ready — click to review variants." }
     }
   },
   "Auth": {
@@ -1513,7 +1527,7 @@
       "features": {
         "title": "Everything in Pro:",
         "list": [
-          "150 AI operations per month (vs 10 on Free)",
+          "30 resume tailorings and 30 cover letters per month (vs 3 each on Free)",
           "Unlimited active jobs in your tracker",
           "AI-tailored resumes for every application",
           "AI-generated cover letters with multiple variants",
@@ -1569,7 +1583,7 @@
         },
         "difference": {
           "q": "What is the difference between Free and Pro?",
-          "a": "The Free plan gives you 10 AI operations per month and up to 5 active jobs. Pro unlocks 150 AI operations, unlimited active jobs, all resume templates, analytics, and priority AI processing."
+          "a": "The Free plan includes 3 resume tailorings and 3 cover letters per month, plus up to 10 active jobs. Pro raises both to 30 per month and adds unlimited active jobs, all resume templates, analytics, and priority AI processing. Need more? The Unlimited plan removes the caps entirely."
         },
         "payment": {
           "q": "How is payment processed?",

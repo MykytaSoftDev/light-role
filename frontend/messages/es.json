@@ -112,7 +112,7 @@
     },
     "rateLimit": {
       "title": "Has alcanzado tu límite de operaciones de IA",
-      "description": "Mejora a Pro para 150 operaciones mensuales y empleos activos ilimitados.",
+      "description": "Mejora a Pro para límites mensuales más altos y empleos activos ilimitados.",
       "upgrade": "Mejorar a Pro",
       "later": "Quizá más tarde"
     },
@@ -130,9 +130,9 @@
       "later": "Quizá más tarde",
       "seePlans": "Ver planes",
       "resumeCreditsTitle": "Has usado todos tus créditos de currículum este mes",
-      "resumeCreditsBody": "Mejora a Pro para adaptar más currículums: Pro incluye adaptaciones ilimitadas.",
+      "resumeCreditsBody": "Mejora tu plan para adaptar más currículums: consulta los planes con límites mensuales más altos y una opción ilimitada.",
       "clCreditsTitle": "Has usado todos tus créditos de cartas de presentación este mes",
-      "clCreditsBody": "Mejora a Pro para cartas de presentación generadas por IA ilimitadas.",
+      "clCreditsBody": "Mejora tu plan para redactar más cartas de presentación: consulta los planes con límites mensuales más altos y una opción ilimitada.",
       "activeJobsTitle": "Has alcanzado el límite de empleos activos",
       "activeJobsBody": "Free está limitado a unos pocos empleos activos. Pro elimina el tope para que puedas seguir cada oportunidad.",
       "analyticsTitle": "Analítica es una función Pro",
@@ -159,6 +159,20 @@
       "minutes": "{count, plural, =1 {hace 1 minuto} other {hace # minutos}}",
       "hours": "{count, plural, =1 {hace 1 hora} other {hace # horas}}",
       "days": "{count, plural, =1 {hace 1 día} other {hace # días}}"
+    },
+    "items": {
+      "followUp": { "title": "Recordatorio de seguimiento", "message": "Es hora de hacer seguimiento de tu candidatura en {company}" },
+      "inactivity": { "title": "Tu candidatura necesita atención", "message": "Tu candidatura en {company} lleva más de 5 días en estado Guardada. Considera tomar acción." },
+      "limitWarning": {
+        "title": "Te estás quedando sin créditos",
+        "resume": "Has usado {used} de {limit} adaptaciones de currículum este ciclo ({pct}%).",
+        "coverLetter": "Has usado {used} de {limit} cartas de presentación este ciclo ({pct}%).",
+        "upsellPro": "Mejora a Pro para obtener más.",
+        "upsellUnlimited": "Pásate a Unlimited para quitar el límite."
+      },
+      "limitReset": { "title": "Tus créditos se han restablecido", "message": "Tus créditos se han restablecido: vuelves a tener {resumeLimit} adaptaciones de currículum y {clLimit} cartas de presentación este ciclo." },
+      "resumeReady": { "title": "Currículum adaptado listo", "message": "Tu currículum adaptado para {jobTitle} está listo." },
+      "coverLetterReady": { "title": "La carta de presentación está lista", "message": "Tu carta de presentación para {jobTitle} está lista: haz clic para revisar las variantes." }
     }
   },
   "Auth": {
@@ -1513,7 +1527,7 @@
       "features": {
         "title": "Todo lo de Pro:",
         "list": [
-          "150 operaciones de IA al mes (frente a 10 en Free)",
+          "30 adaptaciones de currículum y 30 cartas de presentación al mes (frente a 3 de cada una en Free)",
           "Empleos activos ilimitados en tu seguimiento",
           "Currículums adaptados con IA para cada candidatura",
           "Cartas de presentación generadas con IA con varias variantes",
@@ -1569,7 +1583,7 @@
         },
         "difference": {
           "q": "¿Cuál es la diferencia entre Free y Pro?",
-          "a": "El plan Free te ofrece 10 operaciones de IA al mes y hasta 5 empleos activos. Pro desbloquea 150 operaciones de IA, empleos activos ilimitados, todas las plantillas de currículum, analítica y procesamiento prioritario de IA."
+          "a": "El plan Free incluye 3 adaptaciones de currículum y 3 cartas de presentación al mes, además de hasta 10 empleos activos. Pro amplía ambas a 30 al mes y añade empleos activos ilimitados, todas las plantillas de currículum, analítica y procesamiento prioritario de IA. ¿Necesitas más? El plan Unlimited elimina los límites por completo."
         },
         "payment": {
           "q": "¿Cómo se procesa el pago?",
