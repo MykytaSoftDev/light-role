@@ -9,8 +9,6 @@ from app.ai.interface import (
     ParsedJobData,
     ParseJobResult,
     ParseResumeProfileResult,
-    ResumeAnalysisResult,
-    ResumeData,
 )
 
 
@@ -32,26 +30,6 @@ class MockAIService(AIServiceInterface):
             response_time_ms=10,
         )
         return ParseJobResult(data=data, usage=usage, success=True)
-
-    async def analyze_resume(
-        self, resume_text: str, job_description: str
-    ) -> ResumeAnalysisResult:
-        empty = ResumeData()
-        usage = AIUsageInfo(
-            model="mock",
-            tokens_input=200,
-            tokens_output=100,
-            response_time_ms=10,
-        )
-        return ResumeAnalysisResult(
-            parsed_data=empty,
-            match_score=75,
-            keyword_gaps=["Docker", "Kubernetes"],
-            recommendations=["Add Docker experience to skills section."],
-            optimized_data=empty,
-            usage=usage,
-            success=True,
-        )
 
     async def generate_cover_letter(
         self,

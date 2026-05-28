@@ -10,18 +10,12 @@ from openai import AsyncOpenAI
 from app.ai.interface import (
     AIServiceInterface,
     AIUsageInfo,
-    CertificationItem,
     CoverLetterVariant,
-    EducationItem,
-    ExperienceItem,
     GenerateCoverLetterResult,
     GenerateTailoredResumeResult,
     ParsedJobData,
     ParseJobResult,
     ParseResumeProfileResult,
-    PersonalInfo,
-    ResumeAnalysisResult,
-    ResumeData,
 )
 from app.config import settings
 
@@ -29,7 +23,6 @@ logger = logging.getLogger(__name__)
 
 _MODEL = "gpt-4o-mini"
 _TIMEOUT = 30.0        # seconds — for simple calls (job parsing)
-_ANALYZE_TIMEOUT = 120.0  # seconds — for the heavy combined resume analysis call
 _PROFILE_PARSE_TIMEOUT = 60.0  # seconds — for resume → ProfileData parsing (PROFILE-2)
 _TAILOR_TIMEOUT = 90.0  # seconds — for tailored resume generation (TAILOR-1)
 _COVER_LETTER_TIMEOUT = 90.0  # seconds — for 3-variant CL generation (CL-1)
@@ -98,97 +91,6 @@ Example output:
   "salary": "$80,000–$100,000/year"
 }
 """
-
-_RESUME_ANALYZE_SYSTEM_PROMPT = """\
-You are an expert resume coach and ATS optimization specialist. You will be given a resume (as plain text) and a job description. Perform all four tasks below in a single pass and return the result as valid JSON.
-
-Tasks:
-1. PARSE the resume into structured data.
-2. SCORE the match between the resume and the job description on a scale of 1-100.
-3. IDENTIFY keyword gaps (important terms from the job description missing from the resume) and write actionable recommendations.
-4. GENERATE an optimized version of the resume that improves the match score while remaining truthful.
-
-Return a JSON object with exactly these top-level keys:
-
-{
-  "parsed_data": {
-    "personal_info": {
-      "name": string | null,
-      "email": string | null,
-      "phone": string | null,
-      "location": string | null,
-      "linkedin": string | null,
-      "website": string | null,
-      "summary": string | null
-    },
-    "summary": string | null,
-    "experience": [
-      {
-        "company": string,
-        "title": string,
-        "start_date": string | null,
-        "end_date": string | null,
-        "current": boolean,
-        "description": string,
-        "achievements": [string]
-      }
-    ],
-    "education": [
-      {
-        "institution": string,
-        "degree": string,
-        "field": string | null,
-        "start_date": string | null,
-        "end_date": string | null,
-        "gpa": string | null
-      }
-    ],
-    "skills": [string],
-    "languages": [string],
-    "certifications": [
-      {
-        "name": string,
-        "issuer": string | null,
-        "date": string | null
-      }
-    ]
-  },
-  "match_score": integer (1-100),
-  "keyword_gaps": [string],
-  "recommendations": [string],
-  "optimized_data": { /* same structure as parsed_data */ }
-}
-
-Experience parsing rules (apply to both parsed_data and optimized_data):
-- "description": One sentence only — a brief high-level summary of what the person did in the role overall. If no clear single-sentence summary exists in the source text, set to "" (empty string).
-- "achievements": Array of individual accomplishments, one per array item. Split on bullet points (•, -, *, etc.), line breaks, or sentence boundaries. Each item is one standalone sentence/bullet. Preserve the original wording exactly in parsed_data; in optimized_data you may rephrase to match job keywords but keep each as a separate array item.
-- If the source text is entirely a list of accomplishments with no separate summary sentence, set description="" and put ALL sentences/bullets into achievements.
-- NEVER leave achievements as [] when the experience entry contains any descriptive or accomplishment text.
-
-Experience example (correct):
-{
-  "company": "Acme Corp",
-  "title": "Software Engineer",
-  "start_date": "Jan 2022",
-  "end_date": null,
-  "current": true,
-  "description": "Designed and maintained backend services using NestJS and TypeScript.",
-  "achievements": [
-    "Optimized API performance, reducing response times by 30% across multiple projects",
-    "Built and customized CMS plugins (WordPress, Shopify), increasing user engagement by 40%",
-    "Integrated payment gateways (Stripe, Paddle), reducing transaction failures"
-  ]
-}
-
-Rules:
-- Never invent experience, education, or credentials not present in the original resume.
-- For optimized_data you may: rephrase bullet points to better match job keywords, reorder achievements for impact, add or expand a professional summary, incorporate job-relevant keywords naturally.
-- match_score must be an integer from 1 to 100 reflecting how well the original resume matches the job description.
-- keyword_gaps should list terms that appear in the job description but are absent or weak in the resume.
-- recommendations should be specific, actionable strings (e.g. "Add 'TypeScript' to your skills section").
-- Return ONLY valid JSON — no markdown fences, no extra text.
-"""
-
 
 _PROFILE_PARSE_SYSTEM_PROMPT = """\
 You are an expert resume parser. Extract a complete, structured user profile from the resume text provided by the user.
@@ -320,62 +222,75 @@ CRITICAL RULES:
 
 
 _TAILOR_RESUME_SYSTEM_PROMPT = """\
-You are an expert resume tailor and ATS-optimization specialist. You will be given the user's full PROFILE (source of truth), a parsed JOB, and resume PREFERENCES. Produce a tailored version of the profile that maximises relevance to the job WITHOUT inventing any new content.
+You are an expert resume tailor and ATS-optimization specialist. You will be given the user's full PROFILE, a parsed JOB, and resume PREFERENCES. Your mission is to maximise the resume's chance of passing ATS keyword filters and reaching a human recruiter — without fabricating verifiable facts about the candidate.
 
-ABSOLUTE SOURCE-OF-TRUTH RULE — read carefully:
-- The PROFILE is the ONLY allowed source of facts. Do NOT invent companies, roles, dates, education, skills, projects, certifications, achievements, languages, or any specific accomplishment that is not already present in the profile.
-- Tailoring means: rephrasing existing bullets to surface job-relevant keywords; reordering items so the most relevant ones come first; emphasizing transferable skills the user actually has; tightening summary language.
-- If a job-required skill is missing from the profile, do NOT fabricate it. Instead, surface it via `matched_keywords` (so the UI can flag the gap) and reference the closest legitimate experience the user does have.
-- Preserve every entry's identifying facts exactly: company names, institution names, role titles, dates, technologies, locations. Do not change them.
-- You MAY rewrite the prose inside `summary`, employment `details`, project `details`, and project `description`. You may reorder items in employment, education, projects, skills, certificates, languages, achievements, and volunteer arrays.
+WHAT YOU MAY DO (ATS optimization):
+- ADD skills, frameworks, tools, methodologies, and soft skills that appear in the JOB and are plausibly within the candidate's professional domain given their existing experience. Insert them into the `skills` section. Prefer skills adjacent to what the candidate already does; avoid additions that would be jarringly outside their stated background (e.g. don't add "Rust embedded systems" to a pure frontend developer).
+- REPHRASE `summary`, employment `details`, project `description`/`details`, and volunteer `details` to surface job-relevant vocabulary, problems-solved framings, and outcomes the recruiter cares about. If the JOB describes specific problems the employer wants solved, recast the candidate's existing accomplishments to emphasise that they have solved analogous problems — using only what the profile supports.
+- REORDER items in any list section so the most relevant entries appear first.
+- WEAVE job keywords naturally into rewritten prose. Do not keyword-stuff.
+
+WHAT YOU MUST NEVER DO (factual integrity):
+- Do NOT invent or add new entries to: `employment`, `education`, `certificates`, `volunteer`, `projects`, `languages`, `achievements`. These represent verifiable facts and must remain exactly the set the user provided.
+- Do NOT invent or modify quantitative metrics. If the original bullet says "improved performance", you may rewrite it as "optimised performance for high-throughput workloads" but NOT "improved performance by 40%". Numbers, percentages, headcounts, revenue figures, durations, and timeframes that are not already in the profile are off-limits.
+- Do NOT modify identifying facts in any existing entry: company names, institution names, role titles, dates, locations, certificate issuers, language proficiency levels, project names. Preserve these verbatim.
+- Do NOT change languages spoken or their proficiency levels.
+- The PROFILE you receive will have contact fields (email, phone, location, links) stripped from `personal_info` — this is intentional (contact data is removed before being sent to the model for privacy). Set `tailored_data.personal_info` to whatever was provided (possibly just a name, or null). Do NOT invent emails, phone numbers, or links.
+- Preserve all `id` fields verbatim if present.
 
 OUTPUT — return ONLY a single valid JSON object with EXACTLY these four top-level keys (no markdown fences, no extra text):
 
 {
   "tailored_data": {
-    "personal_info": { /* same shape as profile.personal_info — copy verbatim, do not modify */ },
-    "summary": "<string — may be rewritten to emphasise job alignment>",
-    "employment": [ /* same shape as profile.employment, items may be reordered, details rewritten */ ],
-    "education":  [ /* same shape, items may be reordered */ ],
-    "skills":     [ /* same shape — may be reordered, never invented */ ],
-    "projects":   [ /* same shape, items may be reordered, description/details rewritten */ ],
-    "languages":  [ /* same shape, may be reordered */ ],
-    "certificates":[ /* same shape, may be reordered */ ],
-    "achievements":[ /* same shape, may be reordered */ ],
-    "volunteer":  [ /* same shape, items may be reordered, details rewritten */ ]
+    "personal_info": { /* copied verbatim from the (already-sanitised) profile */ },
+    "summary": "<rewritten to emphasise alignment with the job>",
+    "employment": [ /* same items, may be reordered, details rewritten; company/title/dates/location preserved verbatim */ ],
+    "education":  [ /* same items, may be reordered; all fields preserved verbatim */ ],
+    "skills":     [ /* existing skills plus added job-relevant skills; may be reordered */ ],
+    "projects":   [ /* same items, may be reordered, description/details rewritten; name/dates preserved verbatim */ ],
+    "languages":  [ /* preserved verbatim; may be reordered */ ],
+    "certificates":[ /* preserved verbatim; may be reordered */ ],
+    "achievements":[ /* preserved verbatim; may be reordered */ ],
+    "volunteer":  [ /* same items, may be reordered, details rewritten; organisation/title/dates preserved verbatim */ ]
   },
   "matched_keywords": [
     {"term": "<concrete skill/tool/qualification from the JOB>", "color_id": <integer 1..8>}
   ],
   "applied_changes": {
-    "<section_key>": ["<one natural-language description of what changed>", "..."]
+    "<section_key>": ["<natural-language description of what changed>", "..."]
   },
   "match_score": <integer 0..100>
 }
 
 RULES PER FIELD:
 
-1. tailored_data MUST contain ALL of these keys, even if the section is empty in the profile: personal_info, summary, employment, education, skills, projects, languages, certificates, achievements, volunteer. Use the same shape as ProfileData (PRD 6.4). Use empty arrays for empty sections; preserve `personal_info` exactly as provided. Preserve all `id` fields verbatim if present.
+1. tailored_data MUST contain ALL of these keys, even when empty: personal_info, summary, employment, education, skills, projects, languages, certificates, achievements, volunteer. Use empty arrays for empty sections. Use the same shape as ProfileData (PRD 6.4). Copy `personal_info` verbatim from the input — it has already been sanitised by the backend. Preserve all `id` fields verbatim.
 
-2. preferences.sections_order is provided as a hint about which sections the user prioritises in their resume layout. Use this hint when deciding which sections deserve the most tailoring effort and most aggressive rewording — sections appearing earlier in `sections_order` matter more. The keys in `tailored_data` itself are always the canonical names listed in rule 1, regardless of order.
+2. preferences.sections_order is a hint about which sections the user prioritises in their resume layout. Use this when deciding where to invest the most tailoring effort — sections appearing earlier matter more. The keys in `tailored_data` itself are always the canonical names listed in rule 1, regardless of order.
 
-3. matched_keywords:
-   - Extract concrete, job-specific terms from `job.requirements` and `job.description`. Prefer NOUNS and tools (e.g. "FastAPI", "PostgreSQL", "Kubernetes", "team lead", "GDPR") over generic verbs or fluff (e.g. "strong communicator", "team player").
+3. Skills additions:
+   - Only add skills that appear in the JOB requirements/description AND are plausibly within the candidate's professional domain.
+   - Place added skills among existing skills in a logical order — not all clustered at the top — so the list reads as a coherent skill set rather than a keyword dump.
+   - Use the same shape and naming convention as existing skill entries in the profile.
+   - In `applied_changes.skills`, explicitly list which skills were added (e.g. "Added 'Docker', 'CI/CD', 'PostgreSQL' to align with job requirements.") separately from any reordering note.
+
+4. matched_keywords:
+   - Extract concrete, job-specific terms from `job.requirements` and `job.description`. Prefer nouns and tools (e.g. "FastAPI", "PostgreSQL", "Kubernetes", "team lead", "GDPR") over generic verbs or fluff (e.g. "strong communicator", "team player").
    - Cap the list at 12 keywords. Choose the most important ones if there are more.
-   - color_id MUST be an integer in 1..8. Cycle 1..8 deterministically by index (1st keyword=1, 2nd=2, ..., 8th=8, 9th=1, 10th=2, ...). Stable across calls — never randomize.
-   - Each keyword should appear at most once.
+   - color_id MUST be an integer in 1..8. Cycle 1..8 deterministically by index (1st keyword=1, 2nd=2, ..., 8th=8, 9th=1, ...). Stable across calls — never randomize.
+   - Each keyword appears at most once.
 
-4. applied_changes:
-   - Object keyed by section name (use one of: "summary", "employment", "education", "skills", "projects", "languages", "certificates", "achievements", "volunteer").
-   - Include ONLY sections you actually modified. Omit unchanged sections entirely (do NOT include them with empty arrays).
-   - Each value is a non-empty array of short, natural-language descriptions (e.g. "Rephrased opening line to emphasise distributed-systems experience.", "Reordered Python and FastAPI to the top of skills.").
-   - Be specific — reference the change, not boilerplate like "improved section".
+5. applied_changes:
+   - Object keyed by section name (one of: "summary", "employment", "education", "skills", "projects", "languages", "certificates", "achievements", "volunteer").
+   - Include ONLY sections you actually modified. Omit unchanged sections entirely.
+   - Each value is a non-empty array of short, specific descriptions (e.g. "Rephrased opening line to lead with distributed-systems experience.", "Reordered Python and FastAPI to the top of skills.", "Added 'Kubernetes' and 'Helm' to skills based on job requirements.").
+   - Be specific — reference the actual change, not boilerplate like "improved section".
 
-5. match_score:
-   - Integer 0..100 reflecting how well the ORIGINAL profile matches the job (before tailoring).
-   - Calibrate honestly — do not inflate. A 90+ score means strong alignment on most requirements; 50–70 means partial alignment; below 40 means significant gaps.
+6. match_score:
+   - Integer 0..100 reflecting how well the ORIGINAL profile matches the job BEFORE tailoring (so the baseline gap is visible to the user).
+   - Calibrate honestly — do not inflate. 90+ means strong alignment on most requirements; 50–70 partial alignment; below 40 significant gaps.
 
-6. Language: Mirror the language of the profile and job content. If they differ, prefer the language of the job description for the tailored output (this is what the recruiter will read).
+7. Language: Mirror the language of the profile and job content. If they differ, prefer the language of the job description for the tailored output (this is what the recruiter will read).
 
 Return ONLY the JSON object. No commentary, no preamble.
 """
@@ -390,6 +305,7 @@ ABSOLUTE SOURCE-OF-TRUTH RULE — read carefully:
 - The SOURCE is the ONLY allowed source of facts about the applicant. Do NOT invent companies, roles, dates, education, projects, certifications, achievements, or specific accomplishments that are not already present in the SOURCE.
 - You MAY rephrase, summarise, and re-emphasise existing facts to better match the job. You MAY draw motivation/intent from `additional_context` if provided.
 - The SOURCE is labelled with `source_type` ("tailored_resume" or "profile") for context only — DO NOT change your behaviour based on this field. The factual base is identical in either case.
+- The SOURCE's personal_info has contact details (email, phone, location, links) removed for privacy — only the name may be present. Sign the letter using the applicant's name when available; never invent contact details.
 
 VARIANTS MUST BE LEGIBLY DIFFERENT. Past attempts produced near-duplicates; that is unacceptable. Use these mandatory differentiators:
 - Variant 1 — ACHIEVEMENT-FIRST: open with the applicant's strongest, most job-relevant accomplishment (a concrete result with numbers if available). Body emphasises proof of impact. Tight, evidence-driven structure.
@@ -473,81 +389,6 @@ class OpenAIService(AIServiceInterface):
             logger.warning("OpenAI parse_job_description failed: %s", exc)
             return ParseJobResult(data=empty_data, usage=None, success=False)
 
-    async def analyze_resume(
-        self, resume_text: str, job_description: str
-    ) -> ResumeAnalysisResult:
-        empty_resume = ResumeData()
-        empty_result = ResumeAnalysisResult(
-            parsed_data=empty_resume,
-            match_score=0,
-            keyword_gaps=[],
-            recommendations=[],
-            optimized_data=empty_resume,
-            usage=None,
-            success=False,
-        )
-
-        try:
-            user_content = (
-                f"=== RESUME ===\n{resume_text}\n\n"
-                f"=== JOB DESCRIPTION ===\n{job_description}"
-            )
-
-            start_ms = time.monotonic()
-
-            response = await self._client.chat.completions.create(
-                model=_MODEL,
-                response_format={"type": "json_object"},
-                timeout=_ANALYZE_TIMEOUT,
-                messages=[
-                    {"role": "system", "content": _RESUME_ANALYZE_SYSTEM_PROMPT},
-                    {"role": "user", "content": user_content},
-                ],
-                temperature=0.2,
-            )
-
-            elapsed_ms = int((time.monotonic() - start_ms) * 1000)
-
-            raw_content = response.choices[0].message.content or ""
-            analysis = self._parse_resume_analysis_response(raw_content)
-
-            usage_info = AIUsageInfo(
-                model=response.model,
-                tokens_input=response.usage.prompt_tokens if response.usage else 0,
-                tokens_output=response.usage.completion_tokens if response.usage else 0,
-                response_time_ms=elapsed_ms,
-            )
-
-            logger.info(
-                "Resume analysis complete: score=%d tokens_in=%d tokens_out=%d elapsed_ms=%d",
-                analysis["match_score"],
-                usage_info.tokens_input,
-                usage_info.tokens_output,
-                elapsed_ms,
-            )
-
-            return ResumeAnalysisResult(
-                parsed_data=analysis["parsed_data"],
-                match_score=analysis["match_score"],
-                keyword_gaps=analysis["keyword_gaps"],
-                recommendations=analysis["recommendations"],
-                optimized_data=analysis["optimized_data"],
-                usage=usage_info,
-                success=True,
-            )
-
-        except Exception as exc:
-            logger.warning("OpenAI analyze_resume failed: %s", exc)
-            return ResumeAnalysisResult(
-                parsed_data=empty_resume,
-                match_score=0,
-                keyword_gaps=[],
-                recommendations=[],
-                optimized_data=empty_resume,
-                usage=None,
-                success=False,
-            )
-
     async def generate_cover_letter(
         self,
         source_data: dict,
@@ -585,13 +426,22 @@ class OpenAIService(AIServiceInterface):
             target_words = (band[0] + band[1]) // 2
 
             # --- Build the user payload ------------------------------------------
+            # Keep contact PII out of the OpenAI payload: blank everything in
+            # personal_info except full_name. No restore needed — the output is
+            # plain letter text. Use a shallow top-level copy + the fresh inner
+            # dict the helper returns so the caller's source_data is never mutated.
+            sanitized_source = dict(source_data or {})
+            sanitized_source["personal_info"] = _strip_contact_pii(
+                sanitized_source.get("personal_info")
+            )
+
             user_payload: dict[str, Any] = {
                 "source": {
                     # source_type is informational only — the AI must NOT branch
                     # behaviour on it (per system prompt). Surfaced so the model
                     # can reason about provenance if it wants to.
                     "source_type": source_type,
-                    "data": source_data or {},
+                    "data": sanitized_source,
                 },
                 "job": {
                     "job_title": job_data.get("job_title") or "",
@@ -810,8 +660,17 @@ class OpenAIService(AIServiceInterface):
         )
 
         try:
+            # Keep contact PII out of the OpenAI payload: blank everything in
+            # personal_info except full_name. We restore the real contacts onto
+            # the structured response after the call. Use a shallow top-level
+            # copy + the fresh inner dict the helper returns so the caller's
+            # profile_data is never mutated.
+            original_personal_info = (profile_data or {}).get("personal_info")
+            sanitized_profile = dict(profile_data or {})
+            sanitized_profile["personal_info"] = _strip_contact_pii(original_personal_info)
+
             user_payload = {
-                "profile": profile_data,
+                "profile": sanitized_profile,
                 "job": {
                     "job_title": job_data.get("job_title") or "",
                     "company": job_data.get("company") or "",
@@ -863,6 +722,9 @@ class OpenAIService(AIServiceInterface):
             tailored_dict = self._coerce_tailored_data(
                 raw_obj.get("tailored_data"), profile_data
             )
+            # Restore the real contact details (blanked before the AI call for
+            # privacy) onto the structured response before validation/persist.
+            tailored_dict["personal_info"] = original_personal_info
             matched_keywords = self._coerce_matched_keywords(raw_obj.get("matched_keywords"))
             applied_changes = self._coerce_applied_changes(raw_obj.get("applied_changes"))
             match_score = self._clamp_match_score(raw_obj.get("match_score"))
@@ -958,111 +820,6 @@ class OpenAIService(AIServiceInterface):
             requirements=requirements,
             location=_str_or_none(raw.get("location")),
             salary=_str_or_none(raw.get("salary")),
-        )
-
-    def _parse_resume_analysis_response(self, content: str) -> dict[str, Any]:
-        """Parse JSON response for resume analysis. Raises on any error."""
-        raw: dict[str, Any] = json.loads(content)
-
-        parsed_data = self._parse_resume_data(raw.get("parsed_data", {}))
-        optimized_data = self._parse_resume_data(raw.get("optimized_data", {}))
-
-        match_score_raw = raw.get("match_score", 0)
-        try:
-            match_score = max(1, min(100, int(match_score_raw)))
-        except (TypeError, ValueError):
-            match_score = 1
-
-        keyword_gaps = [str(g) for g in raw.get("keyword_gaps", []) if g]
-        recommendations = [str(r) for r in raw.get("recommendations", []) if r]
-
-        return {
-            "parsed_data": parsed_data,
-            "match_score": match_score,
-            "keyword_gaps": keyword_gaps,
-            "recommendations": recommendations,
-            "optimized_data": optimized_data,
-        }
-
-    def _parse_resume_data(self, raw: Any) -> ResumeData:
-        """Convert a raw dict into a ResumeData dataclass, tolerating missing fields."""
-        if not isinstance(raw, dict):
-            return ResumeData()
-
-        def _str_or_none(val: Any) -> str | None:
-            if val is None or val == "":
-                return None
-            return str(val)
-
-        # personal_info
-        pi_raw = raw.get("personal_info", {}) or {}
-        personal_info = PersonalInfo(
-            name=_str_or_none(pi_raw.get("name")),
-            email=_str_or_none(pi_raw.get("email")),
-            phone=_str_or_none(pi_raw.get("phone")),
-            location=_str_or_none(pi_raw.get("location")),
-            linkedin=_str_or_none(pi_raw.get("linkedin")),
-            website=_str_or_none(pi_raw.get("website")),
-            summary=_str_or_none(pi_raw.get("summary")),
-        )
-
-        # experience
-        experience: list[ExperienceItem] = []
-        for exp in raw.get("experience", []) or []:
-            if not isinstance(exp, dict):
-                continue
-            experience.append(
-                ExperienceItem(
-                    company=str(exp.get("company", "")),
-                    title=str(exp.get("title", "")),
-                    start_date=_str_or_none(exp.get("start_date")),
-                    end_date=_str_or_none(exp.get("end_date")),
-                    current=bool(exp.get("current", False)),
-                    description=str(exp.get("description", "")),
-                    achievements=[str(a) for a in exp.get("achievements", []) if a],
-                )
-            )
-
-        # education
-        education: list[EducationItem] = []
-        for edu in raw.get("education", []) or []:
-            if not isinstance(edu, dict):
-                continue
-            education.append(
-                EducationItem(
-                    institution=str(edu.get("institution", "")),
-                    degree=str(edu.get("degree", "")),
-                    field=_str_or_none(edu.get("field")),
-                    start_date=_str_or_none(edu.get("start_date")),
-                    end_date=_str_or_none(edu.get("end_date")),
-                    gpa=_str_or_none(edu.get("gpa")),
-                )
-            )
-
-        # certifications
-        certifications: list[CertificationItem] = []
-        for cert in raw.get("certifications", []) or []:
-            if not isinstance(cert, dict):
-                continue
-            certifications.append(
-                CertificationItem(
-                    name=str(cert.get("name", "")),
-                    issuer=_str_or_none(cert.get("issuer")),
-                    date=_str_or_none(cert.get("date")),
-                )
-            )
-
-        skills = [str(s) for s in raw.get("skills", []) if s]
-        languages = [str(lang) for lang in raw.get("languages", []) if lang]
-
-        return ResumeData(
-            personal_info=personal_info,
-            summary=_str_or_none(raw.get("summary")),
-            experience=experience,
-            education=education,
-            skills=skills,
-            languages=languages,
-            certifications=certifications,
         )
 
     def _parse_cover_letter_response(self, content: str) -> list[CoverLetterVariant]:
@@ -1542,6 +1299,22 @@ def _coerce_str_list(val: Any) -> list[str]:
         if s:
             out.append(s)
     return out
+
+
+def _strip_contact_pii(personal_info: Any) -> Any:
+    """Return a copy of personal_info with contact details blanked, keeping
+    only full_name. Non-dict / None passes through unchanged. Keeps contact
+    PII out of OpenAI payloads (full_name is retained for the cover-letter
+    signature)."""
+    if not isinstance(personal_info, dict):
+        return personal_info
+    return {
+        **personal_info,
+        "email": "",
+        "phone": "",
+        "location": None,
+        "social_links": [],
+    }
 
 
 def _empty_profile_data() -> dict[str, Any]:

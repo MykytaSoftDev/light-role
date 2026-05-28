@@ -61,7 +61,6 @@ class NotificationType(str, Enum):
     INACTIVITY = "inactivity"
     LIMIT_WARNING = "limit_warning"
     LIMIT_RESET = "limit_reset"
-    RESUME_ANALYSIS_COMPLETE = "resume_analysis_complete"
     RESUME_READY = "resume_ready"
     COVER_LETTER_READY = "cover_letter_ready"
 
