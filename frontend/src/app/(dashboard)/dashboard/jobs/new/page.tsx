@@ -8,6 +8,8 @@ import { api } from "@/lib/api";
 import { parseLimitError } from "@/lib/api-errors";
 import { cn } from "@/lib/utils";
 import { useUpgradeModal } from "@/hooks/use-upgrade-modal";
+import { queryKeys } from "@/hooks/api/keys";
+import { useQueryClient } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   CircleAlert,
@@ -133,6 +135,7 @@ function RequirementsInput({ tags, onAdd, onRemove }: RequirementsInputProps) {
 
 export default function NewJobPage() {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const t = useTranslations("Jobs.new");
   const tCommon = useTranslations("Common");
   const tAuth = useTranslations("Auth.common");
@@ -293,6 +296,11 @@ export default function NewJobPage() {
       const res = await api.post("/api/v1/jobs", payload);
 
       if (res.ok || res.status === 201) {
+        // Invalidate the cached jobs list so the board refetches on return.
+        // Without this the list page serves stale cached data (staleTime: 2m),
+        // showing the pre-create snapshot — missing the new job and including
+        // jobs deleted since the cache was populated.
+        await queryClient.invalidateQueries({ queryKey: queryKeys.jobs.all });
         router.push("/dashboard/jobs");
         return;
       }

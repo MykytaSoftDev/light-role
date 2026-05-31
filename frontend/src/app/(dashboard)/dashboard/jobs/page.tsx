@@ -4,7 +4,7 @@ import { useState, useCallback, useMemo, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   DndContext,
   DragOverlay,
@@ -863,6 +863,7 @@ export default function JobsPage() {
   const tList = useTranslations("Jobs.list");
   const tCommon = useTranslations("Common.toast");
   const announcements = useDndAnnouncements();
+  const queryClient = useQueryClient();
   const [jobsMap, setJobsMap] = useState<JobsMap>(() => {
     const map: JobsMap = {};
     for (const s of STATUSES) map[s] = [];
@@ -1098,15 +1099,22 @@ export default function JobsPage() {
   }
 
   // Delete handler — called by JobContextMenu after a successful DELETE request.
-  const handleDelete = useCallback((jobId: string) => {
-    setJobsMap((prev) => {
-      const next: JobsMap = {};
-      for (const s of STATUSES) {
-        next[s] = prev[s].filter((j) => j.id !== jobId);
-      }
-      return next;
-    });
-  }, []);
+  // Removes the job from local state optimistically, then invalidates the cached
+  // jobs list so the deleted job doesn't resurface from the stale cache
+  // (staleTime: 2m) on a later navigation back to this page.
+  const handleDelete = useCallback(
+    (jobId: string) => {
+      setJobsMap((prev) => {
+        const next: JobsMap = {};
+        for (const s of STATUSES) {
+          next[s] = prev[s].filter((j) => j.id !== jobId);
+        }
+        return next;
+      });
+      queryClient.invalidateQueries({ queryKey: queryKeys.jobs.all });
+    },
+    [queryClient],
+  );
 
   const totalJobs = STATUSES.reduce((sum, s) => sum + jobsMap[s].length, 0);
 
