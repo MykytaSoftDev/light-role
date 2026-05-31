@@ -217,6 +217,7 @@
       "alreadyRegistered": "E-mail déjà enregistré. Essayez plutôt de vous connecter.",
       "haveAccount": "Vous avez déjà un compte ?",
       "signIn": "Se connecter",
+      "agreeToTerms": "En vous inscrivant, vous acceptez nos <terms>Conditions d'utilisation</terms> et notre <privacy>Politique de confidentialité</privacy>.",
       "checkEmail": {
         "title": "Vérifiez votre e-mail",
         "description": "Nous avons envoyé un lien de vérification dans votre boîte de réception. Cliquez dessus pour activer votre compte.",

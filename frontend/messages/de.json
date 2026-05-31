@@ -217,6 +217,7 @@
       "alreadyRegistered": "E-Mail bereits registriert. Versuchen Sie stattdessen, sich anzumelden.",
       "haveAccount": "Haben Sie bereits ein Konto?",
       "signIn": "Anmelden",
+      "agreeToTerms": "Mit der Registrierung stimmen Sie unseren <terms>Nutzungsbedingungen</terms> und unserer <privacy>Datenschutzrichtlinie</privacy> zu.",
       "checkEmail": {
         "title": "Überprüfen Sie Ihre E-Mails",
         "description": "Wir haben einen Bestätigungslink an Ihren Posteingang gesendet. Klicken Sie darauf, um Ihr Konto zu aktivieren.",
