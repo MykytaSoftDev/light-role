@@ -5,6 +5,7 @@ import { GoogleIcon } from "@/components/shared/google-icon";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { LANDING_PAGES } from "@/constants/nav.constants";
 import { api } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -244,7 +245,31 @@ export default function RegisterPage() {
           </Button>
 
           {/* Footer link */}
-          <p className="text-muted-foreground mt-8 text-center text-sm">
+          <p className="text-muted-foreground mt-8 text-center text-xs">
+            {t.rich("agreeToTerms", {
+              terms: (chunks) => (
+                <a
+                  href={LANDING_PAGES.TERMS}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary hover:text-primary/80 underline-offset-4 hover:underline"
+                >
+                  {chunks}
+                </a>
+              ),
+              privacy: (chunks) => (
+                <a
+                  href={LANDING_PAGES.POLICY}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary hover:text-primary/80 underline-offset-4 hover:underline"
+                >
+                  {chunks}
+                </a>
+              ),
+            })}
+          </p>
+          <p className="text-muted-foreground mt-3 text-center text-sm">
             {t("haveAccount")}{" "}
             <Link
               href="/auth/login"

@@ -217,6 +217,7 @@
       "alreadyRegistered": "Email already registered. Try signing in instead.",
       "haveAccount": "Already have an account?",
       "signIn": "Sign in",
+      "agreeToTerms": "By signing up, you agree to our <terms>Terms of Use</terms> and <privacy>Privacy Policy</privacy>.",
       "checkEmail": {
         "title": "Check your email",
         "description": "We sent a verification link to your inbox. Click it to activate your account.",
