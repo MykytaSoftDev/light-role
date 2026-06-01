@@ -186,7 +186,7 @@ function ResumesListInner() {
       if (seen.has(r.job_id)) continue;
       const label =
         r.job_company && r.job_title
-          ? `${r.job_title} — ${r.job_company}`
+          ? `${r.job_title}, ${r.job_company}`
           : r.job_title || r.job_company || t("untitledJob");
       seen.set(r.job_id, { id: r.job_id, label });
     }

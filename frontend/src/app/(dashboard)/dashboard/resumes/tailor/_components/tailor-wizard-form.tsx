@@ -176,7 +176,7 @@ export function TailorWizardForm({ initialJobId }: TailorWizardFormProps) {
                     <SelectContent>
                       {jobs.map((j) => (
                         <SelectItem key={j.id} value={j.id}>
-                          {j.company ? `${j.title} — ${j.company}` : j.title}
+                          {j.company ? `${j.title}, ${j.company}` : j.title}
                         </SelectItem>
                       ))}
                     </SelectContent>

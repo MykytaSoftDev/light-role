@@ -288,12 +288,12 @@
     }
   },
   "Marketing": {
-    "metaTitle": "Light Role — Gestión de búsqueda de empleo con IA",
+    "metaTitle": "Light Role: gestión de búsqueda de empleo con IA",
     "metaDescription": "Adapta cada currículum, genera cada carta de presentación y haz seguimiento de cada candidatura, todo en un solo lugar.",
     "landing": {
       "title": "Light Role",
-      "metaTitle": "Light Role — Adaptación de CV con IA y seguimiento de candidaturas",
-      "metaDescription": "Adapta tu CV a cada puesto, redacta cartas de presentación con tu propia voz y haz seguimiento de cada candidatura — todo en un solo lugar.",
+      "metaTitle": "Light Role: adaptación de CV con IA y seguimiento de candidaturas",
+      "metaDescription": "Adapta tu CV a cada puesto, redacta cartas de presentación con tu propia voz y haz seguimiento de cada candidatura, todo en un solo lugar.",
       "tagline": "Plataforma de gestión de búsqueda de empleo con IA",
       "ctaPrimary": "Comenzar",
       "ctaSecondary": "Iniciar sesión",
@@ -302,7 +302,7 @@
         "headlineLine1": "Deja de reescribir tu",
         "headlineLine2": "currículum.",
         "headlineLine3": "Empieza a conseguirlos.",
-        "paragraph": "Light Role adapta tu currículum a cada puesto, redacta la carta de presentación y hace seguimiento de cada candidatura — para que dediques menos tiempo a formatear y más a hablar con personas.",
+        "paragraph": "Light Role adapta tu currículum a cada puesto, redacta la carta de presentación y hace seguimiento de cada candidatura, para que dediques menos tiempo a formatear y más a hablar con personas.",
         "ctaPrimary": "Empezar gratis",
         "ctaPrimaryAuthed": "Ir al panel",
         "trustLine": "Sin tarjeta · Configuración en 60 s",
@@ -375,13 +375,13 @@
       },
       "howItWorks": {
         "sectionKicker": "Cómo funciona",
-        "sectionTitle": "De la oferta a la candidatura — en tres pasos.",
+        "sectionTitle": "De la oferta a la candidatura, en tres pasos.",
         "sectionSub": "Sin copiar y pegar entre Google Docs y el portal de empleo. Light Role conecta tu perfil, la descripción del puesto y tu pipeline en un único flujo.",
         "step1Title": "Configura tu perfil, una vez.",
-        "step1Body": "Sube tu currículum o pégalo. La IA analiza tu experiencia, habilidades y proyectos en un perfil estructurado — la fuente canónica para cada futuro currículum.",
+        "step1Body": "Sube tu currículum o pégalo. La IA analiza tu experiencia, habilidades y proyectos en un perfil estructurado: la fuente canónica para cada futuro currículum.",
         "step1Meta": "~60 segundos",
         "step2Title": "Pega la oferta. Recibe un currículum adaptado.",
-        "step2Body": "Pega una descripción del puesto o una URL. Extraemos las palabras clave, reescribimos tus bullets para que coincidan y reordenamos las secciones por relevancia — manteniendo todo fiel a tu perfil.",
+        "step2Body": "Pega una descripción del puesto o una URL. Extraemos las palabras clave, reescribimos tus bullets para que coincidan y reordenamos las secciones por relevancia, manteniendo todo fiel a tu perfil.",
         "step2Meta": "~40 segundos",
         "step3Title": "Postula. Haz seguimiento de todo.",
         "step3Body": "Carta de presentación en un clic. Vista Kanban o tabla a través de GUARDADA → ENVIADA → ENTREVISTA → OFERTA. Recordatorios de follow-up, deadlines y valoraciones de entusiasmo.",
@@ -390,7 +390,7 @@
       "features": {
         "sectionKicker": "Funciones",
         "sectionTitle": "Cuatro herramientas, un flujo de trabajo.",
-        "sectionSub": "Cada parte de Light Role se apoya en tu perfil. Adaptación, cartas, seguimiento y analíticas — ninguna te pide copiar datos dos veces.",
+        "sectionSub": "Cada parte de Light Role se apoya en tu perfil. Adaptación, cartas, seguimiento y analíticas: ninguna te pide copiar datos dos veces.",
         "card1Tag": "Seguimiento",
         "card1Title": "Pipeline que no parece una hoja de cálculo.",
         "card1Body": "Kanban para vista rápida, tabla para el detalle. Arrastra entre GUARDADA, ENVIADA, SCREENING, ENTREVISTA, OFERTA. Deadlines, follow-ups y valoraciones de entusiasmo incluidos.",
@@ -402,7 +402,7 @@
         "card3Body": "Ajusta tono, extensión y voz. Tiene en cuenta la descripción del puesto y tu perfil. El tipo de carta que alguien podría leer hasta el final.",
         "card4Tag": "Analíticas",
         "card4Title": "Lo que realmente funciona.",
-        "card4Body": "Tasa de respuesta por empresa, tiempo hasta la entrevista, velocidad de postulación. Olvida el instinto — distingue una semana floja de un embudo roto.",
+        "card4Body": "Tasa de respuesta por empresa, tiempo hasta la entrevista, velocidad de postulación. Olvida el instinto: distingue una semana floja de un embudo roto.",
         "kanbanSaved": "GUARDADA",
         "kanbanApplied": "ENVIADA",
         "kanbanInterview": "ENTREVISTA",
@@ -424,7 +424,7 @@
         "tailorRole1Part4": " sin tiempo de inactividad.",
         "tailorRole2Part1": "Lideré el equipo de ",
         "tailorRole2Part2": ". Reescribí el router central en ",
-        "tailorRole2Part3": " — p99 reducido un 60 %.",
+        "tailorRole2Part3": ". p99 reducido un 60 %.",
         "clDraftLabel": "Carta de presentación · borrador",
         "clGreeting": "Hola equipo de Anthropic,",
         "clBody1Pre": "He pasado los últimos cuatro años construyendo en silencio el tipo de",
@@ -432,7 +432,7 @@
         "clBody1Post": "cuidadosa y deliberada sobre la que escribe vuestro equipo. En Stripe me encargué de auth en la ruta de pagos; en Plaid lideré el equipo que llevó nuestro router distribuido de p99 470 ms a 180 ms.",
         "clBody2Pre": "Lo que me atrae es la forma",
         "clBody2Highlight": "guiada por la investigación",
-        "clBody2Post": "con la que entregáis producto — y me encantaría hablar de cómo podría ayudar en eval y deployment.",
+        "clBody2Post": "con la que entregáis producto, y me encantaría hablar de cómo podría ayudar en eval y deployment.",
         "clSignoff": "Un saludo,",
         "clName": "Tom",
         "analyticsStat1Label": "Tasa de respuesta",
@@ -455,12 +455,12 @@
         "stat3Value": "9 de 10",
         "stat3Label": "solicitudes a medida vs genéricas",
         "testimonial1": {
-          "quote": "Envié 12 solicitudes en dos noches. Adaptar el CV era lo que siempre posponía — ahora simplemente ocurre.",
+          "quote": "Envié 12 solicitudes en dos noches. Adaptar el CV era lo que siempre posponía, y ahora simplemente ocurre.",
           "name": "Maya Khan",
           "role": "Sr. Product Manager"
         },
         "testimonial2": {
-          "quote": "Las cartas de presentación suenan como las que escribiría a las 2 de la mañana — solo que no tuve que estar despierto.",
+          "quote": "Las cartas de presentación suenan como las que escribiría a las 2 de la mañana, solo que no tuve que estar despierto.",
           "name": "Andre Silva",
           "role": "Backend Engineer"
         },
@@ -475,7 +475,7 @@
           "role": "Staff Designer"
         },
         "testimonial5": {
-          "quote": "Lo que más me gusta es lo que no hace — sin aplicación automática, sin spam. Mejora mis solicitudes reales.",
+          "quote": "Lo que más me gusta es lo que no hace: sin aplicación automática, sin spam. Mejora mis solicitudes reales.",
           "name": "Dana Park",
           "role": "Data Analyst"
         },
@@ -512,11 +512,11 @@
         "sectionTitle": "Lo que la gente pregunta antes de registrarse.",
         "q1": {
           "question": "¿Cómo adapta la IA mi CV?",
-          "answer": "Light Role mantiene un perfil canónico con tu experiencia real. Cuando pegas una oferta, la IA extrae las palabras clave y reescribe tus bullets para destacar lo más relevante — sin inventar. Ves y editas todos los cambios antes de exportar."
+          "answer": "Light Role mantiene un perfil canónico con tu experiencia real. Cuando pegas una oferta, la IA extrae las palabras clave y reescribe tus bullets para destacar lo más relevante, sin inventar. Ves y editas todos los cambios antes de exportar."
         },
         "q2": {
           "question": "¿Qué pasa cuando termina mi prueba gratuita?",
-          "answer": "No hay prueba — el plan Free es gratis para siempre e incluye lo suficiente para gestionar 10 trabajos activos. Solo subes de plan si envías muchas solicitudes. Sin tarjeta por adelantado."
+          "answer": "No hay prueba. El plan Free es gratis para siempre e incluye lo suficiente para gestionar 10 trabajos activos. Solo subes de plan si envías muchas solicitudes. Sin tarjeta por adelantado."
         },
         "q3": {
           "question": "¿Puedo exportar mi CV?",
@@ -524,11 +524,11 @@
         },
         "q4": {
           "question": "¿Soportáis portales de empleo internacionales?",
-          "answer": "Light Role es agnóstico al portal — pega una oferta de donde sea. La interfaz está en inglés, alemán, español, francés y ruso, y la adaptación funciona en docenas de idiomas de principio a fin."
+          "answer": "Light Role es agnóstico al portal: pega una oferta de donde sea. La interfaz está en inglés, alemán, español, francés y ruso, y la adaptación funciona en docenas de idiomas de principio a fin."
         },
         "q5": {
           "question": "¿Son mis datos privados?",
-          "answer": "Sí. Usamos la API de OpenAI con retención cero para los contenidos de oferta y CV. Tu perfil está cifrado en reposo y nunca se usa para entrenar modelos — ni los nuestros ni los de nadie."
+          "answer": "Sí. Usamos la API de OpenAI con retención cero para los contenidos de oferta y CV. Tu perfil está cifrado en reposo y nunca se usa para entrenar modelos, ni los nuestros ni los de nadie."
         },
         "q6": {
           "question": "¿Puedo cancelar cuando quiera?",
@@ -537,7 +537,7 @@
       },
       "bigCta": {
         "heading": "Las próximas 10 postulaciones <highlight>las pagamos nosotros.</highlight>",
-        "body": "El plan Free no caduca. Sin tarjeta. Lleva un minuto. Si no consigues una entrevista en 30 días, te devolvemos Pro — promesa.",
+        "body": "El plan Free no caduca. Sin tarjeta. Lleva un minuto. Si no consigues una entrevista en 30 días, te devolvemos Pro, promesa.",
         "ctaPrimary": "Empezar gratis →",
         "ctaPrimaryMeta": "60 s",
         "ctaPrimaryAuthed": "Ir al dashboard →",
@@ -588,7 +588,7 @@
     }
   },
   "Pricing": {
-    "metaTitle": "Precios — Light Role",
+    "metaTitle": "Precios: Light Role",
     "metaDescription": "Precios simples y transparentes. Empieza gratis y mejora cuando necesites más.",
     "heading": "Precios simples y transparentes",
     "subheading": "Empieza gratis. Mejora cuando necesites más. Cancela cuando quieras.",
@@ -659,7 +659,7 @@
       "unlimitedPlan": "Plan Ilimitado",
       "aria": "Plan actual: {label}"
     },
-    "dashboardHomeAria": "Light Role — Panel",
+    "dashboardHomeAria": "Light Role: Panel",
     "documents": {
       "title": "Documentos",
       "viewAll": "Ver todo"
@@ -693,7 +693,7 @@
     }
   },
   "DashboardHome": {
-    "metaTitle": "Panel — Light Role",
+    "metaTitle": "Panel: Light Role",
     "greeting": "¡Hola, {name}!",
     "greetingFallback": "¡Bienvenido de nuevo!",
     "summaryLine": "{activeCount, plural, =1 {1 empleo activo} other {# empleos activos}}, {appCount, plural, =1 {1 candidatura} other {# candidaturas}} este mes",
@@ -730,7 +730,7 @@
       "emptyTitle": "Aún no hay empleos",
       "emptyDescription": "Empieza a hacer seguimiento de tu búsqueda de empleo añadiendo tu primera oferta.",
       "addFirst": "Añade tu primer empleo",
-      "addedJob": "Añadido {company} — {title}"
+      "addedJob": "Añadido {company}: {title}"
     },
     "completeSteps": {
       "heading": "Completa tu configuración",
@@ -789,7 +789,7 @@
   },
   "Resumes": {
     "list": {
-      "metaTitle": "Currículums — Light Role",
+      "metaTitle": "Currículums: Light Role",
       "title": "Currículums",
       "subtitle": "Tus currículums adaptados: un clic para descargar o editar.",
       "ctaTailor": "Adaptar nuevo currículum",
@@ -1075,7 +1075,7 @@
   },
   "Jobs": {
     "list": {
-      "metaTitle": "Empleos — Light Role",
+      "metaTitle": "Empleos: Light Role",
       "title": "Empleos",
       "heading": "Seguimiento de empleos",
       "addJob": "Añadir empleo",
@@ -1451,7 +1451,7 @@
     }
   },
   "Payments": {
-    "metaTitle": "Pagos — Light Role",
+    "metaTitle": "Pagos: Light Role",
     "title": "Pagos",
     "subtitle": "Tu historial de facturación y facturas.",
     "table": {
@@ -2073,7 +2073,7 @@
         },
         "contextLabel": "Contexto adicional",
         "contextOptional": "(opcional)",
-        "contextPlaceholder": "¿Algo concreto que quieras incluir? (opcional) — p. ej. una conexión personal con la empresa, un proyecto que quieras destacar o una recomendación.",
+        "contextPlaceholder": "¿Algo concreto que quieras incluir? (opcional) Por ejemplo: una conexión personal con la empresa, un proyecto que quieras destacar o una recomendación.",
         "contextCounter": "{count} / 500 caracteres",
         "profileHint": "Completa tu perfil para continuar.",
         "modal": {

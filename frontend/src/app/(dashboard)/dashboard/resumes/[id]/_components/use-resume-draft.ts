@@ -178,11 +178,11 @@ export function useResumeDraft(
       const message =
         err instanceof TailorError
           ? err.code === "NOT_IMPLEMENTED"
-            ? "Saving isn't available yet — backend endpoint pending."
+            ? "Saving isn't available yet. Backend endpoint pending."
             : err.code === "JOB_NOT_FOUND"
               ? "This resume no longer exists."
-              : "Save failed — please try again."
-          : "Save failed — please try again.";
+              : "Save failed. Please try again."
+          : "Save failed. Please try again.";
       toast.error(message);
       // Stay in Edit mode; draft preserved.
     }

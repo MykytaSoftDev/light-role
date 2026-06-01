@@ -110,7 +110,7 @@ export function EducationTab({ onDirtyChange }: EducationTabProps) {
             </div>
             <div className="text-xs text-muted-foreground">
               {item.field_of_study ? `${item.field_of_study} • ` : ""}
-              {formatMonth(item.start_date)} —{" "}
+              {formatMonth(item.start_date)} –{" "}
               {item.is_current
                 ? tSection("present")
                 : formatMonth(item.end_date)}

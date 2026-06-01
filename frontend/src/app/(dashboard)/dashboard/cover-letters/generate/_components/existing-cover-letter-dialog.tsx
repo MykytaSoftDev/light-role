@@ -60,7 +60,7 @@ export function ExistingCoverLetterDialog({
 
   const heading = info
     ? info.company
-      ? `${info.company} — ${info.jobTitle}`
+      ? `${info.company}, ${info.jobTitle}`
       : info.jobTitle
     : "";
 

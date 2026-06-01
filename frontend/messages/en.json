@@ -117,7 +117,7 @@
       "later": "Maybe later"
     },
     "rateLimitModal": {
-      "title": "Slow down — please try again later",
+      "title": "Slow down. Please try again later",
       "body1": "You've sent a lot of requests in a short period.",
       "body2WithTime": "Please try again in {seconds} seconds.",
       "supportLine": "If this keeps happening, contact support@lightrole.com.",
@@ -130,13 +130,13 @@
       "later": "Maybe later",
       "seePlans": "See plans",
       "resumeCreditsTitle": "You've used all your resume credits this month",
-      "resumeCreditsBody": "Upgrade to tailor more resumes — see plans for higher monthly limits and an unlimited option.",
+      "resumeCreditsBody": "Upgrade to tailor more resumes: see plans for higher monthly limits and an unlimited option.",
       "clCreditsTitle": "You've used all your cover letter credits this month",
-      "clCreditsBody": "Upgrade to draft more cover letters — see plans for higher monthly limits and an unlimited option.",
+      "clCreditsBody": "Upgrade to draft more cover letters: see plans for higher monthly limits and an unlimited option.",
       "activeJobsTitle": "You've reached the active jobs limit",
       "activeJobsBody": "Free is limited to a few active jobs. Pro removes the cap so you can track every opportunity.",
       "analyticsTitle": "Analytics is a Pro feature",
-      "analyticsBody": "Upgrade to unlock the full analytics dashboard — funnel, response times, and resume performance."
+      "analyticsBody": "Upgrade to unlock the full analytics dashboard: funnel, response times, and resume performance."
     },
     "offline": {
       "title": "You're offline",
@@ -170,15 +170,15 @@
         "upsellPro": "Upgrade to Pro for more.",
         "upsellUnlimited": "Go Unlimited to remove the cap."
       },
-      "limitReset": { "title": "Your credits have reset", "message": "Your credits have reset — you again have {resumeLimit} resume tailorings and {clLimit} cover letters this cycle." },
+      "limitReset": { "title": "Your credits have reset", "message": "Your credits have reset: you again have {resumeLimit} resume tailorings and {clLimit} cover letters this cycle." },
       "resumeReady": { "title": "Tailored resume ready", "message": "Your tailored resume for {jobTitle} is ready." },
-      "coverLetterReady": { "title": "Cover letter is ready", "message": "Your cover letter for {jobTitle} is ready — click to review variants." }
+      "coverLetterReady": { "title": "Cover letter is ready", "message": "Your cover letter for {jobTitle} is ready. Click to review variants." }
     }
   },
   "Auth": {
     "branding": {
       "headline": "Manage your job search with AI.",
-      "tagline": "Optimize your resume for every role, generate tailored cover letters, and track every application — all in one place.",
+      "tagline": "Optimize your resume for every role, generate tailored cover letters, and track every application, all in one place.",
       "logoAlt": "LightRole Logo",
       "testimonialQuote": "Light Role helped me tailor my resume for every application. I went from zero callbacks to three offers in six weeks.",
       "testimonialName": "Marcus K.",
@@ -288,12 +288,12 @@
     }
   },
   "Marketing": {
-    "metaTitle": "Light Role — AI-powered job search management",
-    "metaDescription": "Tailor every resume, generate every cover letter, and track every application — all in one place.",
+    "metaTitle": "Light Role: AI-powered job search management",
+    "metaDescription": "Tailor every resume, generate every cover letter, and track every application, all in one place.",
     "landing": {
       "title": "Light Role",
-      "metaTitle": "Light Role — AI resume tailoring and job application tracker",
-      "metaDescription": "Tailor your resume to every job, draft cover letters that sound like you, and track every application — all in one place.",
+      "metaTitle": "Light Role: AI resume tailoring and job application tracker",
+      "metaDescription": "Tailor your resume to every job, draft cover letters that sound like you, and track every application, all in one place.",
       "tagline": "AI-powered job search management platform",
       "ctaPrimary": "Get Started",
       "ctaSecondary": "Sign In",
@@ -302,7 +302,7 @@
         "headlineLine1": "Stop rewriting your",
         "headlineLine2": "resume.",
         "headlineLine3": "Start landing them.",
-        "paragraph": "Light Role tailors your resume to every job, drafts the cover letter, and tracks every application — so you spend less time formatting and more time talking to humans.",
+        "paragraph": "Light Role tailors your resume to every job, drafts the cover letter, and tracks every application, so you spend less time formatting and more time talking to humans.",
         "ctaPrimary": "Start free",
         "ctaPrimaryAuthed": "Go to dashboard",
         "trustLine": "No credit card · 60-sec setup",
@@ -375,13 +375,13 @@
       },
       "howItWorks": {
         "sectionKicker": "How it works",
-        "sectionTitle": "From job posting to applied — in three steps.",
+        "sectionTitle": "From job posting to applied, in three steps.",
         "sectionSub": "No copy-pasting between Google Docs and the job board. Light Role connects your profile, the Job description, and your pipeline into one flow.",
         "step1Title": "Set up your profile, once.",
-        "step1Body": "Upload your resume or paste it. AI parses your experience, skills, and projects into a structured profile — the canonical source for every future resume.",
+        "step1Body": "Upload your resume or paste it. AI parses your experience, skills, and projects into a structured profile: the canonical source for every future resume.",
         "step1Meta": "~60 seconds",
         "step2Title": "Paste the job. Get a tailored resume.",
-        "step2Body": "Drop a Job description or URL. We extract the keywords, rewrite your bullets to match, and reorder sections for relevance — keeping every claim true to your profile.",
+        "step2Body": "Drop a Job description or URL. We extract the keywords, rewrite your bullets to match, and reorder sections for relevance, keeping every claim true to your profile.",
         "step2Meta": "~40 seconds",
         "step3Title": "Apply. Track everything.",
         "step3Body": "One-click cover letter. Kanban or table view across SAVED → APPLIED → INTERVIEW → OFFER. Follow-up reminders, deadlines, excitement ratings.",
@@ -390,7 +390,7 @@
       "features": {
         "sectionKicker": "Features",
         "sectionTitle": "Four tools, one workflow.",
-        "sectionSub": "Every part of Light Role is built around your profile. Tailoring, cover letters, tracking, and analytics — none of them ask you to copy data twice.",
+        "sectionSub": "Every part of Light Role is built around your profile. Tailoring, cover letters, tracking, and analytics: none of them ask you to copy data twice.",
         "card1Tag": "Tracking",
         "card1Title": "Pipeline that doesn't feel like a spreadsheet.",
         "card1Body": "Kanban for skimmers, table for inspectors. Drag between SAVED, APPLIED, SCREENING, INTERVIEW, OFFER. Deadlines, follow-ups, and excitement ratings included.",
@@ -402,7 +402,7 @@
         "card3Body": "Adjust tone, length, and voice. Aware of the Job description and your profile. The kind of letter someone might actually read to the end.",
         "card4Tag": "Analytics",
         "card4Title": "What's actually working.",
-        "card4Body": "Response rate by company, time-to-interview, application velocity. Skip the gut feeling — tell the difference between a slow week and a broken funnel.",
+        "card4Body": "Response rate by company, time-to-interview, application velocity. Skip the gut feeling: tell the difference between a slow week and a broken funnel.",
         "kanbanSaved": "SAVED",
         "kanbanApplied": "APPLIED",
         "kanbanInterview": "INTERVIEW",
@@ -424,7 +424,7 @@
         "tailorRole1Part4": " with zero downtime.",
         "tailorRole2Part1": "Led ",
         "tailorRole2Part2": " team. Rewrote core router in ",
-        "tailorRole2Part3": " — p99 down 60%.",
+        "tailorRole2Part3": ". p99 down 60%.",
         "clDraftLabel": "Cover letter · draft",
         "clGreeting": "Hi Anthropic team,",
         "clBody1Pre": "I've spent the last four years quietly building the kind of careful, deliberate",
@@ -432,7 +432,7 @@
         "clBody1Post": "infrastructure your team writes about. At Stripe I owned auth on the payments path; at Plaid I led the team that brought our distributed router from p99 470ms to 180ms.",
         "clBody2Pre": "What pulled me here is the",
         "clBody2Highlight": "research-driven",
-        "clBody2Post": "way you ship product — and I'd love to talk about how I could help on the eval and deployment side.",
+        "clBody2Post": "way you ship product, and I'd love to talk about how I could help on the eval and deployment side.",
         "clSignoff": "Best,",
         "clName": "Tom",
         "analyticsStat1Label": "Response rate",
@@ -455,12 +455,12 @@
         "stat3Value": "9 of 10",
         "stat3Label": "apps tailored vs generic",
         "testimonial1": {
-          "quote": "I sent 12 applications in two evenings. The tailoring is the part I always procrastinated on — now it just happens.",
+          "quote": "I sent 12 applications in two evenings. The tailoring is the part I always procrastinated on, and now it just happens.",
           "name": "Maya Khan",
           "role": "Sr. Product Manager"
         },
         "testimonial2": {
-          "quote": "The cover letters sound like the ones I'd write at 2am — only I didn't have to be awake.",
+          "quote": "The cover letters sound like the ones I'd write at 2am, only I didn't have to be awake.",
           "name": "Andre Silva",
           "role": "Backend Engineer"
         },
@@ -475,7 +475,7 @@
           "role": "Staff Designer"
         },
         "testimonial5": {
-          "quote": "What I like is what it doesn't do — no auto-apply, no spam. It makes my real applications better.",
+          "quote": "What I like is what it doesn't do: no auto-apply, no spam. It makes my real applications better.",
           "name": "Dana Park",
           "role": "Data Analyst"
         },
@@ -512,11 +512,11 @@
         "sectionTitle": "Things people ask before they sign up.",
         "q1": {
           "question": "How does the AI tailor my resume?",
-          "answer": "Light Role keeps a canonical profile of your real experience. When you paste a job description, the AI extracts the keywords and rewrites your bullets to highlight the most relevant work — without inventing claims. You see and edit every change before exporting."
+          "answer": "Light Role keeps a canonical profile of your real experience. When you paste a job description, the AI extracts the keywords and rewrites your bullets to highlight the most relevant work, without inventing claims. You see and edit every change before exporting."
         },
         "q2": {
           "question": "What happens after my free trial?",
-          "answer": "There's no free trial — the Free plan is free forever, and includes enough to track 10 active jobs. You only upgrade if you start sending a lot of applications. No card required up front."
+          "answer": "There's no free trial. The Free plan is free forever, and includes enough to track 10 active jobs. You only upgrade if you start sending a lot of applications. No card required up front."
         },
         "q3": {
           "question": "Can I export my resume?",
@@ -524,11 +524,11 @@
         },
         "q4": {
           "question": "Do you support international job boards?",
-          "answer": "Light Role is job-board agnostic — paste a Job description from anywhere. The product UI ships in English, German, Spanish, French, and Russian, and tailoring works in dozens of languages end-to-end."
+          "answer": "Light Role is job-board agnostic: paste a Job description from anywhere. The product UI ships in English, German, Spanish, French, and Russian, and tailoring works in dozens of languages end-to-end."
         },
         "q5": {
           "question": "Is my data private?",
-          "answer": "Yes. We use OpenAI's API with zero-retention turned on for both job and resume content. Your profile is encrypted at rest and never used to train any model — ours or anyone else's."
+          "answer": "Yes. We use OpenAI's API with zero-retention turned on for both job and resume content. Your profile is encrypted at rest and never used to train any model, ours or anyone else's."
         },
         "q6": {
           "question": "Can I cancel anytime?",
@@ -537,7 +537,7 @@
       },
       "bigCta": {
         "heading": "Apply to the next 10 jobs <highlight>on us.</highlight>",
-        "body": "Free plan never expires. No card. Takes a minute. If we don't get you an interview within 30 days, we'll refund Pro — pinky promise.",
+        "body": "Free plan never expires. No card. Takes a minute. If we don't get you an interview within 30 days, we'll refund Pro, pinky promise.",
         "ctaPrimary": "Start free →",
         "ctaPrimaryMeta": "60s",
         "ctaPrimaryAuthed": "Go to dashboard →",
@@ -588,7 +588,7 @@
     }
   },
   "Pricing": {
-    "metaTitle": "Pricing — Light Role",
+    "metaTitle": "Pricing: Light Role",
     "metaDescription": "Simple, transparent pricing. Free to start, upgrade when you need more.",
     "heading": "Simple, transparent pricing",
     "subheading": "Start free. Upgrade when you need more. Cancel anytime.",
@@ -617,7 +617,7 @@
       "support": "Priority support"
     },
     "cta": {
-      "getStartedFree": "Get started — it's free",
+      "getStartedFree": "Get started, it's free",
       "startWithPlan": "Start with {plan}",
       "yourCurrentPlan": "Your current plan",
       "downgrade": "Downgrade",
@@ -659,7 +659,7 @@
       "unlimitedPlan": "Unlimited plan",
       "aria": "Current plan: {label}"
     },
-    "dashboardHomeAria": "Light Role — Dashboard",
+    "dashboardHomeAria": "Light Role: Dashboard",
     "documents": {
       "title": "Documents",
       "viewAll": "View all"
@@ -693,7 +693,7 @@
     }
   },
   "DashboardHome": {
-    "metaTitle": "Dashboard — Light Role",
+    "metaTitle": "Dashboard: Light Role",
     "greeting": "Hello, {name}!",
     "greetingFallback": "Welcome back!",
     "summaryLine": "{activeCount, plural, =1 {1 active job} other {# active jobs}}, {appCount, plural, =1 {1 application} other {# applications}} this month",
@@ -730,7 +730,7 @@
       "emptyTitle": "No jobs yet",
       "emptyDescription": "Start tracking your job search by adding your first listing.",
       "addFirst": "Add your first job",
-      "addedJob": "Added {company} — {title}"
+      "addedJob": "Added {company}: {title}"
     },
     "completeSteps": {
       "heading": "Complete your setup",
@@ -789,9 +789,9 @@
   },
   "Resumes": {
     "list": {
-      "metaTitle": "Resumes — Light Role",
+      "metaTitle": "Resumes: Light Role",
       "title": "Resumes",
-      "subtitle": "Your tailored resumes — one click to download or edit.",
+      "subtitle": "Your tailored resumes, one click to download or edit.",
       "ctaTailor": "Tailor New Resume",
       "searchPlaceholder": "Search by filename, job, or company…",
       "sortLabel": "Sort resumes",
@@ -892,7 +892,7 @@
           "Even small role changes can dramatically improve your match score.",
           "Keep your profile up to date for the best tailoring."
         ],
-        "creditHint": "Hang tight — we're using one of your credits to tailor this.",
+        "creditHint": "Hang tight. We're using one of your credits to tailor this.",
         "failed": "Something went wrong.",
         "retry": "Try again",
         "progressAria": "Tailoring progress",
@@ -906,7 +906,7 @@
       },
       "toast": {
         "success": "Resume tailored.",
-        "aiFail": "AI couldn't tailor right now — please try again. No credits charged.",
+        "aiFail": "AI couldn't tailor right now. Please try again. No credits charged.",
         "networkFail": "Something went wrong. Please try again.",
         "profileNotReady": "Your profile isn't complete enough to tailor a resume.",
         "jobNotFound": "Job not found.",
@@ -1075,7 +1075,7 @@
   },
   "Jobs": {
     "list": {
-      "metaTitle": "Jobs — Light Role",
+      "metaTitle": "Jobs: Light Role",
       "title": "Jobs",
       "heading": "Job Tracking",
       "addJob": "Add Job",
@@ -1102,7 +1102,7 @@
       "emptyTableRow": "No jobs yet. Add your first job to get started.",
       "empty": {
         "title": "No jobs yet",
-        "description": "Track your first job — paste a posting and we'll handle the parsing.",
+        "description": "Track your first job: paste a posting and we'll handle the parsing.",
         "cta": "Add your first job"
       },
       "columns": {
@@ -1155,7 +1155,7 @@
       "saving": "Saving…",
       "successToast": "Job created.",
       "errorToast": "Couldn't create the job. Please try again.",
-      "parseErrorToast": "AI couldn't parse this job — please fill in the fields manually.",
+      "parseErrorToast": "AI couldn't parse this job. Please fill in the fields manually.",
       "aiLimitTooltip": "You've reached your AI operation limit. Upgrade to continue.",
       "modeAi": "Use AI",
       "modeManual": "Manual entry",
@@ -1429,7 +1429,7 @@
       "manageSubscription": "Manage subscription",
       "processing": "Confirming your payment…",
       "timeoutTitle": "Still confirming…",
-      "timeoutDescription": "It's taking longer than expected. Your payment is being processed — refresh in a moment.",
+      "timeoutDescription": "It's taking longer than expected. Your payment is being processed. Refresh in a moment.",
       "transactionId": "Transaction ID",
       "planLabel": "Plan",
       "nextBilling": "Next billing date",
@@ -1451,7 +1451,7 @@
     }
   },
   "Payments": {
-    "metaTitle": "Payments — Light Role",
+    "metaTitle": "Payments: Light Role",
     "title": "Payments",
     "subtitle": "Your billing history and invoices.",
     "table": {
@@ -1518,7 +1518,7 @@
       },
       "unlimited": {
         "title": "Unlimited",
-        "description": "Power users — everything, without limits.",
+        "description": "Power users: everything, without limits.",
         "billedAs": "Billed monthly",
         "cta": "Get Started"
       },
@@ -1532,11 +1532,11 @@
           "Unlimited active jobs in your tracker",
           "AI-tailored resumes for every application",
           "AI-generated cover letters with multiple variants",
-          "Smart job description parsing — paste and go",
+          "Smart job description parsing: paste and go",
           "All resume templates unlocked",
           "Analytics dashboard to track your progress",
           "Priority AI generation",
-          "Cancel anytime — no questions asked"
+          "Cancel anytime, no questions asked"
         ]
       }
     },
@@ -1810,7 +1810,7 @@
     },
     "languages": {
       "heading": "Languages",
-      "description": "Languages you speak — written and spoken. Optional proficiency levels arrive in a future update.",
+      "description": "Languages you speak, written and spoken. Optional proficiency levels arrive in a future update.",
       "nameLabel": "Language",
       "addLanguage": "Add Language",
       "removeLanguage": "Remove language"
@@ -1954,12 +1954,12 @@
     "funnel_stage_screening": "Screening",
     "funnel_stage_interview": "Interview",
     "funnel_stage_offer": "Offer",
-    "funnel_insight_offer_conversion": "Offer conversion above average — great work",
-    "funnel_insight_interview_conversion": "Interview conversion above average — keep it up",
-    "funnel_insight_screening_conversion": "High percentage of applications reach screening — your resume works",
-    "funnel_insight_applied_speed": "You don't sit on saved jobs — that's the right habit",
-    "funnel_insight_streak": "A week of daily activity — the hardest part is behind you",
-    "funnel_insight_default": "Keep going — every application brings you closer to an offer",
+    "funnel_insight_offer_conversion": "Offer conversion above average. Great work",
+    "funnel_insight_interview_conversion": "Interview conversion above average. Keep it up",
+    "funnel_insight_screening_conversion": "High percentage of applications reach screening: your resume works",
+    "funnel_insight_applied_speed": "You don't sit on saved jobs, and that's the right habit",
+    "funnel_insight_streak": "A week of daily activity: the hardest part is behind you",
+    "funnel_insight_default": "Keep going: every application brings you closer to an offer",
     "donut_title": "Active pipeline",
     "donut_subtitle": "by status",
     "donut_status_saved": "Saved",
@@ -1994,7 +1994,7 @@
     "activity_action_job_saved": "Saved job",
     "upgrade_overlay_aria_label": "Upgrade your plan to unlock Analytics",
     "upgrade_title": "Unlock Analytics",
-    "upgrade_description": "Get deep insights into your job search — funnel, streak, activity, and more.",
+    "upgrade_description": "Get deep insights into your job search: funnel, streak, activity, and more.",
     "upgrade_cta": "Upgrade your plan",
     "error_generic": "Something went wrong loading your analytics. Please try again.",
     "error_boundary_message": "Something went wrong loading your analytics. We've been notified.",
@@ -2060,7 +2060,7 @@
         "source": {
           "tr": {
             "label": "Tailored Resume (for this job)",
-            "sub": "Recommended — uses your TR optimized for this role"
+            "sub": "Recommended: uses your TR optimized for this role"
           },
           "profile": {
             "label": "My Profile",
@@ -2073,7 +2073,7 @@
         },
         "contextLabel": "Additional Context",
         "contextOptional": "(optional)",
-        "contextPlaceholder": "Anything specific you want included? (optional) — e.g. a personal connection to the company, a project you want highlighted, or a referral.",
+        "contextPlaceholder": "Anything specific you want included? (optional) For example: a personal connection to the company, a project you want highlighted, or a referral.",
         "contextCounter": "{count} / 500 characters",
         "profileHint": "Complete your profile to continue.",
         "modal": {
@@ -2157,12 +2157,12 @@
         "tipHeading": "Did you know?",
         "tips": [
           "A strong opening line lifts response rates more than a fancy closing.",
-          "Light Role drafts 3 takes so you can pick the voice that fits — not just the words.",
+          "Light Role drafts 3 takes so you can pick the voice that fits, not just the words.",
           "Mentioning a specific project or value of the company shows research, not just enthusiasm.",
-          "Your cover letter complements your resume — it doesn't repeat it."
+          "Your cover letter complements your resume; it doesn't repeat it."
         ],
-        "creditHint": "Hang tight — we're using one of your credits to draft this.",
-        "aiFailToast": "AI couldn't draft right now — please try again. No credits charged.",
+        "creditHint": "Hang tight. We're using one of your credits to draft this.",
+        "aiFailToast": "AI couldn't draft right now. Please try again. No credits charged.",
         "networkFailToast": "Something went wrong. Please try again.",
         "profileNotReadyToast": "Your profile isn't complete enough to draft a cover letter.",
         "jobNotFoundToast": "Job not found.",
@@ -2171,7 +2171,7 @@
       },
       "step3": {
         "title": "Review Variants",
-        "subtitle": "These are 3 distinct takes on your cover letter — pick the one that resonates.",
+        "subtitle": "These are 3 distinct takes on your cover letter. Pick the one that resonates.",
         "tab": {
           "variant1": "Variant 1",
           "variant2": "Variant 2",

@@ -113,7 +113,7 @@ export function VolunteerTab({ onDirtyChange }: VolunteerTabProps) {
               </span>
             </div>
             <div className="text-xs text-muted-foreground">
-              {formatMonth(item.start_date)} —{" "}
+              {formatMonth(item.start_date)} –{" "}
               {item.is_current
                 ? tSection("present")
                 : formatMonth(item.end_date)}

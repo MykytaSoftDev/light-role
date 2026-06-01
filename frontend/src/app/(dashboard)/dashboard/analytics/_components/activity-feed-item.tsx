@@ -105,7 +105,7 @@ export function ActivityFeedItem({ event, isLast }: ActivityFeedItemProps) {
         <p className="text-sm leading-tight">
           {event.company && event.role ? (
             <>
-              {action} · <strong className="font-medium">{event.company}</strong> — {event.role}
+              {action} · <strong className="font-medium">{event.company}</strong>, {event.role}
             </>
           ) : event.company ? (
             <>

@@ -88,7 +88,7 @@ function makeBuildSubtitle(t: (key: string) => string) {
   ): string => {
     if (!jobId) return t("subtitleStandalone");
     if (!job) return t("subtitleLinkedFallback");
-    if (job.company && job.title) return `${job.company} — ${job.title}`;
+    if (job.company && job.title) return `${job.company}, ${job.title}`;
     return job.title || job.company || t("subtitleLinkedFallback");
   };
 }

@@ -178,7 +178,7 @@ export function Step1JobSource({
               <SelectContent>
                 {eligibleJobs.map((j) => (
                   <SelectItem key={j.id} value={j.id}>
-                    {j.company ? `${j.title} — ${j.company}` : j.title}
+                    {j.company ? `${j.title}, ${j.company}` : j.title}
                   </SelectItem>
                 ))}
               </SelectContent>

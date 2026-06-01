@@ -117,7 +117,7 @@
       "later": "Vielleicht später"
     },
     "rateLimitModal": {
-      "title": "Bitte langsamer — versuchen Sie es später erneut",
+      "title": "Bitte langsamer. Versuchen Sie es später erneut",
       "body1": "Sie haben in kurzer Zeit viele Anfragen gesendet.",
       "body2WithTime": "Bitte versuchen Sie es in {seconds} Sekunden erneut.",
       "supportLine": "Wenn dies weiterhin auftritt, kontaktieren Sie support@lightrole.com.",
@@ -130,13 +130,13 @@
       "later": "Vielleicht später",
       "seePlans": "Tarife ansehen",
       "resumeCreditsTitle": "Sie haben alle Lebenslauf-Guthaben in diesem Monat aufgebraucht",
-      "resumeCreditsBody": "Upgraden Sie, um weitere Lebensläufe anzupassen — in den Tarifen finden Sie höhere monatliche Limits und eine unbegrenzte Option.",
+      "resumeCreditsBody": "Upgraden Sie, um weitere Lebensläufe anzupassen: In den Tarifen finden Sie höhere monatliche Limits und eine unbegrenzte Option.",
       "clCreditsTitle": "Sie haben alle Anschreiben-Guthaben in diesem Monat aufgebraucht",
-      "clCreditsBody": "Upgraden Sie, um weitere Anschreiben zu erstellen — in den Tarifen finden Sie höhere monatliche Limits und eine unbegrenzte Option.",
+      "clCreditsBody": "Upgraden Sie, um weitere Anschreiben zu erstellen: In den Tarifen finden Sie höhere monatliche Limits und eine unbegrenzte Option.",
       "activeJobsTitle": "Sie haben das Limit für aktive Stellen erreicht",
       "activeJobsBody": "Free ist auf wenige aktive Stellen begrenzt. Pro hebt die Grenze auf, sodass Sie jede Gelegenheit verfolgen können.",
       "analyticsTitle": "Analytics ist eine Pro-Funktion",
-      "analyticsBody": "Upgraden Sie, um das vollständige Analytics-Dashboard freizuschalten — Funnel, Antwortzeiten und Lebenslauf-Performance."
+      "analyticsBody": "Upgraden Sie, um das vollständige Analytics-Dashboard freizuschalten: Funnel, Antwortzeiten und Lebenslauf-Performance."
     },
     "offline": {
       "title": "Sie sind offline",
@@ -170,15 +170,15 @@
         "upsellPro": "Upgraden Sie auf Pro für mehr.",
         "upsellUnlimited": "Wechseln Sie zu Unlimited, um das Limit aufzuheben."
       },
-      "limitReset": { "title": "Ihr Guthaben wurde zurückgesetzt", "message": "Ihr Guthaben wurde zurückgesetzt — Sie haben in diesem Zyklus wieder {resumeLimit} Lebenslauf-Anpassungen und {clLimit} Anschreiben." },
+      "limitReset": { "title": "Ihr Guthaben wurde zurückgesetzt", "message": "Ihr Guthaben wurde zurückgesetzt: Sie haben in diesem Zyklus wieder {resumeLimit} Lebenslauf-Anpassungen und {clLimit} Anschreiben." },
       "resumeReady": { "title": "Angepasster Lebenslauf ist fertig", "message": "Ihr angepasster Lebenslauf für {jobTitle} ist fertig." },
-      "coverLetterReady": { "title": "Anschreiben ist fertig", "message": "Ihr Anschreiben für {jobTitle} ist fertig — klicken Sie, um die Varianten zu prüfen." }
+      "coverLetterReady": { "title": "Anschreiben ist fertig", "message": "Ihr Anschreiben für {jobTitle} ist fertig. Klicken Sie, um die Varianten zu prüfen." }
     }
   },
   "Auth": {
     "branding": {
       "headline": "Verwalten Sie Ihre Jobsuche mit KI.",
-      "tagline": "Optimieren Sie Ihren Lebenslauf für jede Stelle, erstellen Sie maßgeschneiderte Anschreiben und verfolgen Sie jede Bewerbung — alles an einem Ort.",
+      "tagline": "Optimieren Sie Ihren Lebenslauf für jede Stelle, erstellen Sie maßgeschneiderte Anschreiben und verfolgen Sie jede Bewerbung, alles an einem Ort.",
       "logoAlt": "LightRole Logo",
       "testimonialQuote": "Light Role hat mir geholfen, meinen Lebenslauf für jede Bewerbung anzupassen. Von null Rückmeldungen zu drei Angeboten in sechs Wochen.",
       "testimonialName": "Marcus K.",
@@ -288,12 +288,12 @@
     }
   },
   "Marketing": {
-    "metaTitle": "Light Role — KI-gestützte Verwaltung der Jobsuche",
-    "metaDescription": "Passen Sie jeden Lebenslauf an, erstellen Sie jedes Anschreiben und verfolgen Sie jede Bewerbung — alles an einem Ort.",
+    "metaTitle": "Light Role: KI-gestützte Verwaltung der Jobsuche",
+    "metaDescription": "Passen Sie jeden Lebenslauf an, erstellen Sie jedes Anschreiben und verfolgen Sie jede Bewerbung, alles an einem Ort.",
     "landing": {
       "title": "Light Role",
-      "metaTitle": "Light Role — KI-Lebenslauf-Anpassung und Bewerbungs-Tracker",
-      "metaDescription": "Passen Sie Ihren Lebenslauf an jeden Job an, verfassen Sie Anschreiben, die nach Ihnen klingen, und verfolgen Sie jede Bewerbung — alles an einem Ort.",
+      "metaTitle": "Light Role: KI-Lebenslauf-Anpassung und Bewerbungs-Tracker",
+      "metaDescription": "Passen Sie Ihren Lebenslauf an jeden Job an, verfassen Sie Anschreiben, die nach Ihnen klingen, und verfolgen Sie jede Bewerbung, alles an einem Ort.",
       "tagline": "KI-gestützte Plattform zur Verwaltung der Jobsuche",
       "ctaPrimary": "Loslegen",
       "ctaSecondary": "Anmelden",
@@ -302,7 +302,7 @@
         "headlineLine1": "Hör auf, deinen",
         "headlineLine2": "Lebenslauf umzuschreiben.",
         "headlineLine3": "Fang an, sie zu landen.",
-        "paragraph": "Light Role passt deinen Lebenslauf an jeden Job an, entwirft das Anschreiben und verfolgt jede Bewerbung — so verbringst du weniger Zeit mit Formatieren und mehr Zeit im Gespräch mit Menschen.",
+        "paragraph": "Light Role passt deinen Lebenslauf an jeden Job an, entwirft das Anschreiben und verfolgt jede Bewerbung, sodass du weniger Zeit mit Formatieren und mehr Zeit im Gespräch mit Menschen verbringst.",
         "ctaPrimary": "Kostenlos starten",
         "ctaPrimaryAuthed": "Zum Dashboard",
         "trustLine": "Keine Kreditkarte · Einrichtung in 60 Sek.",
@@ -375,13 +375,13 @@
       },
       "howItWorks": {
         "sectionKicker": "So funktioniert's",
-        "sectionTitle": "Von der Stellenanzeige zur Bewerbung — in drei Schritten.",
+        "sectionTitle": "Von der Stellenanzeige zur Bewerbung, in drei Schritten.",
         "sectionSub": "Kein Hin- und Herkopieren zwischen Google Docs und Jobbörse. Light Role verbindet dein Profil, die Stellenbeschreibung und deine Pipeline in einem Flow.",
         "step1Title": "Profil einmal einrichten.",
-        "step1Body": "Lade deinen Lebenslauf hoch oder füge ihn ein. Die KI parst Erfahrung, Skills und Projekte in ein strukturiertes Profil — die kanonische Quelle für jeden zukünftigen Lebenslauf.",
+        "step1Body": "Lade deinen Lebenslauf hoch oder füge ihn ein. Die KI parst Erfahrung, Skills und Projekte in ein strukturiertes Profil: die kanonische Quelle für jeden zukünftigen Lebenslauf.",
         "step1Meta": "~60 Sekunden",
         "step2Title": "Job einfügen. Maßgeschneidertes Resultat.",
-        "step2Body": "Stellenbeschreibung oder URL einfügen. Wir extrahieren die Keywords, formulieren deine Bullets passend um und ordnen die Abschnitte nach Relevanz — alles bleibt wahr zu deinem Profil.",
+        "step2Body": "Stellenbeschreibung oder URL einfügen. Wir extrahieren die Keywords, formulieren deine Bullets passend um und ordnen die Abschnitte nach Relevanz, wobei alles wahr zu deinem Profil bleibt.",
         "step2Meta": "~40 Sekunden",
         "step3Title": "Bewerben. Alles verfolgen.",
         "step3Body": "Anschreiben per Klick. Kanban- oder Tabellenansicht über GESPEICHERT → BEWORBEN → INTERVIEW → ANGEBOT. Follow-up-Erinnerungen, Deadlines, Begeisterungs-Bewertungen.",
@@ -390,7 +390,7 @@
       "features": {
         "sectionKicker": "Funktionen",
         "sectionTitle": "Vier Werkzeuge, ein Workflow.",
-        "sectionSub": "Jeder Teil von Light Role baut auf deinem Profil auf. Anpassung, Anschreiben, Tracking und Analysen — keines davon verlangt doppelte Datenpflege.",
+        "sectionSub": "Jeder Teil von Light Role baut auf deinem Profil auf. Anpassung, Anschreiben, Tracking und Analysen: keines davon verlangt doppelte Datenpflege.",
         "card1Tag": "Tracking",
         "card1Title": "Pipeline, die sich nicht wie eine Tabelle anfühlt.",
         "card1Body": "Kanban für Überflieger:innen, Tabelle für Detail-Fans. Drag & Drop zwischen GESPEICHERT, BEWORBEN, SCREENING, INTERVIEW, ANGEBOT. Deadlines, Follow-ups und Begeisterungs-Ratings inklusive.",
@@ -402,7 +402,7 @@
         "card3Body": "Stell Ton, Länge und Stimme ein. Berücksichtigt Stellenbeschreibung und Profil. Die Art Brief, die jemand wirklich bis zum Schluss liest.",
         "card4Tag": "Analysen",
         "card4Title": "Was wirklich funktioniert.",
-        "card4Body": "Antwortquote pro Unternehmen, Zeit bis zum Interview, Bewerbungstempo. Bauchgefühl überspringen — den Unterschied zwischen einer ruhigen Woche und einem kaputten Funnel erkennen.",
+        "card4Body": "Antwortquote pro Unternehmen, Zeit bis zum Interview, Bewerbungstempo. Bauchgefühl überspringen und den Unterschied zwischen einer ruhigen Woche und einem kaputten Funnel erkennen.",
         "kanbanSaved": "GESPEICHERT",
         "kanbanApplied": "BEWORBEN",
         "kanbanInterview": "INTERVIEW",
@@ -424,7 +424,7 @@
         "tailorRole1Part4": " ohne Ausfallzeit.",
         "tailorRole2Part1": "Leitung des Teams für ",
         "tailorRole2Part2": ". Core-Router neu geschrieben in ",
-        "tailorRole2Part3": " — p99 um 60 % gesenkt.",
+        "tailorRole2Part3": ". p99 um 60 % gesenkt.",
         "clDraftLabel": "Anschreiben · Entwurf",
         "clGreeting": "Hallo Anthropic-Team,",
         "clBody1Pre": "In den letzten vier Jahren habe ich genau die Art sorgfältiger, durchdachter",
@@ -432,7 +432,7 @@
         "clBody1Post": "Infrastruktur gebaut, über die euer Team schreibt. Bei Stripe verantwortete ich Auth auf dem Payments-Pfad; bei Plaid leitete ich das Team, das unseren verteilten Router von p99 470 ms auf 180 ms brachte.",
         "clBody2Pre": "Was mich hierher zieht, ist die",
         "clBody2Highlight": "forschungsgetriebene",
-        "clBody2Post": "Art, wie ihr Produkte ausliefert — und ich würde gerne darüber sprechen, wie ich auf der Eval- und Deployment-Seite helfen kann.",
+        "clBody2Post": "Art, wie ihr Produkte ausliefert, und ich würde gerne darüber sprechen, wie ich auf der Eval- und Deployment-Seite helfen kann.",
         "clSignoff": "Beste Grüße,",
         "clName": "Tom",
         "analyticsStat1Label": "Antwortquote",
@@ -455,12 +455,12 @@
         "stat3Value": "9 von 10",
         "stat3Label": "Bewerbungen maßgeschneidert",
         "testimonial1": {
-          "quote": "Ich habe an zwei Abenden 12 Bewerbungen verschickt. Das Anpassen war immer der Teil, vor dem ich mich gedrückt habe — jetzt passiert es einfach.",
+          "quote": "Ich habe an zwei Abenden 12 Bewerbungen verschickt. Das Anpassen war immer der Teil, vor dem ich mich gedrückt habe, und jetzt passiert es einfach.",
           "name": "Maya Khan",
           "role": "Sr. Product Manager"
         },
         "testimonial2": {
-          "quote": "Die Anschreiben klingen wie die, die ich um 2 Uhr morgens schreiben würde — nur dass ich nicht wach sein musste.",
+          "quote": "Die Anschreiben klingen wie die, die ich um 2 Uhr morgens schreiben würde, nur dass ich nicht wach sein musste.",
           "name": "Andre Silva",
           "role": "Backend Engineer"
         },
@@ -475,7 +475,7 @@
           "role": "Staff Designer"
         },
         "testimonial5": {
-          "quote": "Mir gefällt vor allem, was es nicht macht — kein Auto-Apply, kein Spam. Es macht meine echten Bewerbungen besser.",
+          "quote": "Mir gefällt vor allem, was es nicht macht: kein Auto-Apply, kein Spam. Es macht meine echten Bewerbungen besser.",
           "name": "Dana Park",
           "role": "Data Analyst"
         },
@@ -512,11 +512,11 @@
         "sectionTitle": "Was Leute vor der Anmeldung fragen.",
         "q1": {
           "question": "Wie passt die KI meinen Lebenslauf an?",
-          "answer": "Light Role behält ein zentrales Profil mit deiner echten Erfahrung. Wenn du eine Stellenanzeige einfügst, extrahiert die KI die Schlüsselwörter und formuliert deine Bullets so um, dass die relevantesten Erfahrungen hervorgehoben werden — ohne etwas zu erfinden. Du siehst und bearbeitest jede Änderung vor dem Export."
+          "answer": "Light Role behält ein zentrales Profil mit deiner echten Erfahrung. Wenn du eine Stellenanzeige einfügst, extrahiert die KI die Schlüsselwörter und formuliert deine Bullets so um, dass die relevantesten Erfahrungen hervorgehoben werden, ohne etwas zu erfinden. Du siehst und bearbeitest jede Änderung vor dem Export."
         },
         "q2": {
           "question": "Was passiert nach meiner kostenlosen Testphase?",
-          "answer": "Es gibt keine Testphase — der Free-Tarif bleibt kostenlos und enthält genug, um 10 aktive Jobs zu verfolgen. Upgrade nur, wenn du viele Bewerbungen verschickst. Keine Kreditkarte erforderlich."
+          "answer": "Es gibt keine Testphase. Der Free-Tarif bleibt kostenlos und enthält genug, um 10 aktive Jobs zu verfolgen. Upgrade nur, wenn du viele Bewerbungen verschickst. Keine Kreditkarte erforderlich."
         },
         "q3": {
           "question": "Kann ich meinen Lebenslauf exportieren?",
@@ -524,20 +524,20 @@
         },
         "q4": {
           "question": "Unterstützt ihr internationale Jobbörsen?",
-          "answer": "Light Role ist unabhängig von der Jobbörse — füge eine Stellenanzeige von überall ein. Die Produktoberfläche gibt es auf Englisch, Deutsch, Spanisch, Französisch und Russisch, und die Anpassung funktioniert in dutzenden Sprachen Ende-zu-Ende."
+          "answer": "Light Role ist unabhängig von der Jobbörse: Füge eine Stellenanzeige von überall ein. Die Produktoberfläche gibt es auf Englisch, Deutsch, Spanisch, Französisch und Russisch, und die Anpassung funktioniert in dutzenden Sprachen Ende-zu-Ende."
         },
         "q5": {
           "question": "Sind meine Daten privat?",
-          "answer": "Ja. Wir nutzen die OpenAI-API mit Zero-Retention für Job- und Lebenslaufinhalte. Dein Profil ist verschlüsselt gespeichert und wird nie zum Training von Modellen verwendet — weder bei uns noch bei anderen."
+          "answer": "Ja. Wir nutzen die OpenAI-API mit Zero-Retention für Job- und Lebenslaufinhalte. Dein Profil ist verschlüsselt gespeichert und wird nie zum Training von Modellen verwendet, weder bei uns noch bei anderen."
         },
         "q6": {
           "question": "Kann ich jederzeit kündigen?",
-          "answer": "Ja. Kündige direkt im Dashboard mit zwei Klicks. Du behältst den Zugang bis zum Ende des Abrechnungszeitraums. Jahrespläne sind innerhalb von 30 Tagen rückerstattbar — ohne Rückfragen."
+          "answer": "Ja. Kündige direkt im Dashboard mit zwei Klicks. Du behältst den Zugang bis zum Ende des Abrechnungszeitraums. Jahrespläne sind innerhalb von 30 Tagen rückerstattbar, ohne Rückfragen."
         }
       },
       "bigCta": {
         "heading": "Die nächsten 10 Bewerbungen <highlight>gehen auf uns.</highlight>",
-        "body": "Der Free-Plan läuft nie ab. Keine Karte. Dauert eine Minute. Wenn wir dir nicht innerhalb von 30 Tagen ein Interview verschaffen, erstatten wir Pro — Ehrenwort.",
+        "body": "Der Free-Plan läuft nie ab. Keine Karte. Dauert eine Minute. Wenn wir dir nicht innerhalb von 30 Tagen ein Interview verschaffen, erstatten wir Pro, Ehrenwort.",
         "ctaPrimary": "Kostenlos starten →",
         "ctaPrimaryMeta": "60 Sek",
         "ctaPrimaryAuthed": "Zum Dashboard →",
@@ -588,7 +588,7 @@
     }
   },
   "Pricing": {
-    "metaTitle": "Preise — Light Role",
+    "metaTitle": "Preise: Light Role",
     "metaDescription": "Einfache, transparente Preise. Kostenlos starten, upgraden, wenn Sie mehr brauchen.",
     "heading": "Einfache, transparente Preise",
     "subheading": "Kostenlos starten. Upgraden, wenn Sie mehr brauchen. Jederzeit kündbar.",
@@ -617,7 +617,7 @@
       "support": "Priorisierter Support"
     },
     "cta": {
-      "getStartedFree": "Loslegen — kostenlos",
+      "getStartedFree": "Loslegen, kostenlos",
       "startWithPlan": "Mit {plan} starten",
       "yourCurrentPlan": "Ihr aktueller Tarif",
       "downgrade": "Downgraden",
@@ -659,7 +659,7 @@
       "unlimitedPlan": "Unlimited-Tarif",
       "aria": "Aktueller Tarif: {label}"
     },
-    "dashboardHomeAria": "Light Role — Dashboard",
+    "dashboardHomeAria": "Light Role: Dashboard",
     "documents": {
       "title": "Dokumente",
       "viewAll": "Alle anzeigen"
@@ -693,7 +693,7 @@
     }
   },
   "DashboardHome": {
-    "metaTitle": "Dashboard — Light Role",
+    "metaTitle": "Dashboard: Light Role",
     "greeting": "Hallo, {name}!",
     "greetingFallback": "Willkommen zurück!",
     "summaryLine": "{activeCount, plural, =1 {1 aktive Stelle} other {# aktive Stellen}}, {appCount, plural, =1 {1 Bewerbung} other {# Bewerbungen}} in diesem Monat",
@@ -730,7 +730,7 @@
       "emptyTitle": "Noch keine Stellen",
       "emptyDescription": "Beginnen Sie mit der Verfolgung Ihrer Jobsuche, indem Sie Ihre erste Stellenanzeige hinzufügen.",
       "addFirst": "Erste Stelle hinzufügen",
-      "addedJob": "{company} hinzugefügt — {title}"
+      "addedJob": "{company} hinzugefügt: {title}"
     },
     "completeSteps": {
       "heading": "Einrichtung abschließen",
@@ -789,9 +789,9 @@
   },
   "Resumes": {
     "list": {
-      "metaTitle": "Lebensläufe — Light Role",
+      "metaTitle": "Lebensläufe: Light Role",
       "title": "Lebensläufe",
-      "subtitle": "Ihre angepassten Lebensläufe — ein Klick zum Herunterladen oder Bearbeiten.",
+      "subtitle": "Ihre angepassten Lebensläufe, ein Klick zum Herunterladen oder Bearbeiten.",
       "ctaTailor": "Neuen Lebenslauf anpassen",
       "searchPlaceholder": "Suche nach Dateiname, Stelle oder Unternehmen…",
       "sortLabel": "Lebensläufe sortieren",
@@ -892,7 +892,7 @@
           "Schon kleine Anpassungen können Ihre Übereinstimmungsbewertung deutlich verbessern.",
           "Halten Sie Ihr Profil aktuell, um die beste Anpassung zu erhalten."
         ],
-        "creditHint": "Bitte warten — wir verwenden eines Ihrer Guthaben, um dies anzupassen.",
+        "creditHint": "Bitte warten. Wir verwenden eines Ihrer Guthaben, um dies anzupassen.",
         "failed": "Etwas ist schiefgelaufen.",
         "retry": "Erneut versuchen",
         "progressAria": "Anpassungsfortschritt",
@@ -906,7 +906,7 @@
       },
       "toast": {
         "success": "Lebenslauf angepasst.",
-        "aiFail": "Die KI konnte gerade nicht anpassen — bitte versuchen Sie es erneut. Es wurden keine Guthaben abgezogen.",
+        "aiFail": "Die KI konnte gerade nicht anpassen. Bitte versuchen Sie es erneut. Es wurden keine Guthaben abgezogen.",
         "networkFail": "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut.",
         "profileNotReady": "Ihr Profil ist nicht vollständig genug, um einen Lebenslauf anzupassen.",
         "jobNotFound": "Stelle nicht gefunden.",
@@ -1075,7 +1075,7 @@
   },
   "Jobs": {
     "list": {
-      "metaTitle": "Stellen — Light Role",
+      "metaTitle": "Stellen: Light Role",
       "title": "Stellen",
       "heading": "Stellenverfolgung",
       "addJob": "Stelle hinzufügen",
@@ -1102,7 +1102,7 @@
       "emptyTableRow": "Noch keine Stellen. Fügen Sie Ihre erste Stelle hinzu, um zu beginnen.",
       "empty": {
         "title": "Noch keine Stellen",
-        "description": "Verfolgen Sie Ihre erste Stelle — fügen Sie eine Anzeige ein und wir übernehmen das Parsen.",
+        "description": "Verfolgen Sie Ihre erste Stelle: Fügen Sie eine Anzeige ein und wir übernehmen das Parsen.",
         "cta": "Erste Stelle hinzufügen"
       },
       "columns": {
@@ -1155,7 +1155,7 @@
       "saving": "Wird gespeichert…",
       "successToast": "Stelle erstellt.",
       "errorToast": "Die Stelle konnte nicht erstellt werden. Bitte versuchen Sie es erneut.",
-      "parseErrorToast": "Die KI konnte diese Stelle nicht parsen — bitte füllen Sie die Felder manuell aus.",
+      "parseErrorToast": "Die KI konnte diese Stelle nicht parsen. Bitte füllen Sie die Felder manuell aus.",
       "aiLimitTooltip": "Sie haben Ihr KI-Operationslimit erreicht. Upgraden Sie, um fortzufahren.",
       "modeAi": "KI verwenden",
       "modeManual": "Manuelle Eingabe",
@@ -1429,7 +1429,7 @@
       "manageSubscription": "Abonnement verwalten",
       "processing": "Ihre Zahlung wird bestätigt…",
       "timeoutTitle": "Wird noch bestätigt…",
-      "timeoutDescription": "Es dauert länger als erwartet. Ihre Zahlung wird verarbeitet — aktualisieren Sie in einem Moment.",
+      "timeoutDescription": "Es dauert länger als erwartet. Ihre Zahlung wird verarbeitet. Aktualisieren Sie in einem Moment.",
       "transactionId": "Transaktions-ID",
       "planLabel": "Tarif",
       "nextBilling": "Nächstes Abrechnungsdatum",
@@ -1451,7 +1451,7 @@
     }
   },
   "Payments": {
-    "metaTitle": "Zahlungen — Light Role",
+    "metaTitle": "Zahlungen: Light Role",
     "title": "Zahlungen",
     "subtitle": "Ihr Abrechnungsverlauf und Ihre Rechnungen.",
     "table": {
@@ -1486,7 +1486,7 @@
     "hero": {
       "eyebrow": "Auf Pro upgraden",
       "headline": "Schöpfen Sie das volle Potenzial Ihrer Jobsuche aus",
-      "subheadline": "Passen Sie jeden Lebenslauf an, erstellen Sie jedes Anschreiben und verfolgen Sie unbegrenzt viele Gelegenheiten — alles an einem Ort.",
+      "subheadline": "Passen Sie jeden Lebenslauf an, erstellen Sie jedes Anschreiben und verfolgen Sie unbegrenzt viele Gelegenheiten, alles an einem Ort.",
       "trust": "Jederzeit kündbar · Sichere Zahlung über Paddle"
     },
     "toggle": {
@@ -1518,7 +1518,7 @@
       },
       "unlimited": {
         "title": "Unlimited",
-        "description": "Power-User — alles, ohne Grenzen.",
+        "description": "Power-User: alles, ohne Grenzen.",
         "billedAs": "Monatliche Abrechnung",
         "cta": "Loslegen"
       },
@@ -1532,11 +1532,11 @@
           "Unbegrenzte aktive Stellen in Ihrem Tracker",
           "KI-angepasste Lebensläufe für jede Bewerbung",
           "KI-generierte Anschreiben mit mehreren Varianten",
-          "Intelligentes Parsen von Stellenbeschreibungen — einfügen und loslegen",
+          "Intelligentes Parsen von Stellenbeschreibungen: einfügen und loslegen",
           "Alle Lebenslauf-Vorlagen freigeschaltet",
           "Analytics-Dashboard zur Verfolgung Ihres Fortschritts",
           "Priorisierte KI-Generierung",
-          "Jederzeit kündbar — keine Fragen"
+          "Jederzeit kündbar, keine Fragen"
         ]
       }
     },
@@ -1810,7 +1810,7 @@
     },
     "languages": {
       "heading": "Sprachen",
-      "description": "Sprachen, die Sie sprechen — schriftlich und mündlich. Optionale Sprachniveaus folgen in einem zukünftigen Update.",
+      "description": "Sprachen, die Sie sprechen, schriftlich und mündlich. Optionale Sprachniveaus folgen in einem zukünftigen Update.",
       "nameLabel": "Sprache",
       "addLanguage": "Sprache hinzufügen",
       "removeLanguage": "Sprache entfernen"
@@ -1954,12 +1954,12 @@
     "funnel_stage_screening": "Screening",
     "funnel_stage_interview": "Vorstellungsgespräch",
     "funnel_stage_offer": "Angebot",
-    "funnel_insight_offer_conversion": "Angebots-Konversion über dem Durchschnitt — großartige Arbeit",
-    "funnel_insight_interview_conversion": "Gesprächs-Konversion über dem Durchschnitt — weiter so",
-    "funnel_insight_screening_conversion": "Hoher Anteil deiner Bewerbungen erreicht das Screening — dein Lebenslauf funktioniert",
-    "funnel_insight_applied_speed": "Du lässt gespeicherte Stellen nicht liegen — eine gute Gewohnheit",
-    "funnel_insight_streak": "Eine Woche tägliche Aktivität — das Schwerste liegt hinter dir",
-    "funnel_insight_default": "Mach weiter — jede Bewerbung bringt dich näher zum Angebot",
+    "funnel_insight_offer_conversion": "Angebots-Konversion über dem Durchschnitt. Großartige Arbeit",
+    "funnel_insight_interview_conversion": "Gesprächs-Konversion über dem Durchschnitt. Weiter so",
+    "funnel_insight_screening_conversion": "Hoher Anteil deiner Bewerbungen erreicht das Screening: dein Lebenslauf funktioniert",
+    "funnel_insight_applied_speed": "Du lässt gespeicherte Stellen nicht liegen, eine gute Gewohnheit",
+    "funnel_insight_streak": "Eine Woche tägliche Aktivität: das Schwerste liegt hinter dir",
+    "funnel_insight_default": "Mach weiter: jede Bewerbung bringt dich näher zum Angebot",
     "donut_title": "Aktive Pipeline",
     "donut_subtitle": "nach Status",
     "donut_status_saved": "Gespeichert",
@@ -1994,7 +1994,7 @@
     "activity_action_job_saved": "Job gespeichert",
     "upgrade_overlay_aria_label": "Upgrade deinen Plan, um Analytics freizuschalten",
     "upgrade_title": "Analytics freischalten",
-    "upgrade_description": "Erhalte tiefe Einblicke in deine Jobsuche — Funnel, Streak, Aktivität und mehr.",
+    "upgrade_description": "Erhalte tiefe Einblicke in deine Jobsuche: Funnel, Streak, Aktivität und mehr.",
     "upgrade_cta": "Plan upgraden",
     "error_generic": "Beim Laden deiner Analytics ist etwas schiefgelaufen. Bitte versuche es erneut.",
     "error_boundary_message": "Beim Laden deiner Analytics ist etwas schiefgelaufen. Wir wurden benachrichtigt.",
@@ -2060,7 +2060,7 @@
         "source": {
           "tr": {
             "label": "Angepasster Lebenslauf (für diese Stelle)",
-            "sub": "Empfohlen — verwendet Ihren TR, der für diese Rolle optimiert wurde"
+            "sub": "Empfohlen: verwendet Ihren TR, der für diese Rolle optimiert wurde"
           },
           "profile": {
             "label": "Mein Profil",
@@ -2073,7 +2073,7 @@
         },
         "contextLabel": "Zusätzlicher Kontext",
         "contextOptional": "(optional)",
-        "contextPlaceholder": "Gibt es etwas Bestimmtes, das Sie aufnehmen möchten? (optional) — z.B. eine persönliche Verbindung zum Unternehmen, ein Projekt, das Sie hervorheben möchten, oder eine Empfehlung.",
+        "contextPlaceholder": "Gibt es etwas Bestimmtes, das Sie aufnehmen möchten? (optional) Zum Beispiel: eine persönliche Verbindung zum Unternehmen, ein Projekt, das Sie hervorheben möchten, oder eine Empfehlung.",
         "contextCounter": "{count} / 500 Zeichen",
         "profileHint": "Vervollständigen Sie Ihr Profil, um fortzufahren.",
         "modal": {
@@ -2157,12 +2157,12 @@
         "tipHeading": "Wussten Sie schon?",
         "tips": [
           "Ein starker Eröffnungssatz erhöht die Antwortrate mehr als ein ausgefallener Schlusssatz.",
-          "Light Role entwirft 3 Versionen, damit Sie die Stimme wählen können, die passt — nicht nur die Worte.",
+          "Light Role entwirft 3 Versionen, damit Sie die Stimme wählen können, die passt, nicht nur die Worte.",
           "Die Erwähnung eines konkreten Projekts oder Wertes des Unternehmens zeigt Recherche, nicht nur Begeisterung.",
-          "Ihr Anschreiben ergänzt Ihren Lebenslauf — es wiederholt ihn nicht."
+          "Ihr Anschreiben ergänzt Ihren Lebenslauf; es wiederholt ihn nicht."
         ],
-        "creditHint": "Bitte warten — wir verwenden eines Ihrer Guthaben, um dies zu entwerfen.",
-        "aiFailToast": "Die KI konnte gerade nicht entwerfen — bitte versuchen Sie es erneut. Es wurden keine Guthaben abgezogen.",
+        "creditHint": "Bitte warten. Wir verwenden eines Ihrer Guthaben, um dies zu entwerfen.",
+        "aiFailToast": "Die KI konnte gerade nicht entwerfen. Bitte versuchen Sie es erneut. Es wurden keine Guthaben abgezogen.",
         "networkFailToast": "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut.",
         "profileNotReadyToast": "Ihr Profil ist nicht vollständig genug, um ein Anschreiben zu entwerfen.",
         "jobNotFoundToast": "Stelle nicht gefunden.",
@@ -2171,7 +2171,7 @@
       },
       "step3": {
         "title": "Varianten überprüfen",
-        "subtitle": "Dies sind 3 unterschiedliche Versionen Ihres Anschreibens — wählen Sie die, die Sie am meisten anspricht.",
+        "subtitle": "Dies sind 3 unterschiedliche Versionen Ihres Anschreibens. Wählen Sie die, die Sie am meisten anspricht.",
         "tab": {
           "variant1": "Variante 1",
           "variant2": "Variante 2",

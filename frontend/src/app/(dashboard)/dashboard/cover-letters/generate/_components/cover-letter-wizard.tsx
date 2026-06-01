@@ -312,7 +312,7 @@ export function CoverLetterWizard({ initialJobId }: CoverLetterWizardProps) {
       );
       const name =
         job?.company && job.company.trim().length > 0
-          ? `${job.company} — ${job.title}`
+          ? `${job.company}, ${job.title}`
           : job?.title || "Cover Letter";
 
       return finalizeCoverLetter({

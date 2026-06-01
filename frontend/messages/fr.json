@@ -117,7 +117,7 @@
       "later": "Plus tard"
     },
     "rateLimitModal": {
-      "title": "Ralentissez — veuillez réessayer plus tard",
+      "title": "Ralentissez. Veuillez réessayer plus tard",
       "body1": "Vous avez envoyé beaucoup de requêtes en peu de temps.",
       "body2WithTime": "Veuillez réessayer dans {seconds} secondes.",
       "supportLine": "Si cela persiste, contactez support@lightrole.com.",
@@ -130,13 +130,13 @@
       "later": "Plus tard",
       "seePlans": "Voir les forfaits",
       "resumeCreditsTitle": "Vous avez utilisé tous vos crédits CV ce mois-ci",
-      "resumeCreditsBody": "Améliorez votre forfait pour adapter plus de CV — consultez les forfaits pour des limites mensuelles plus élevées et une option illimitée.",
+      "resumeCreditsBody": "Améliorez votre forfait pour adapter plus de CV : consultez les forfaits pour des limites mensuelles plus élevées et une option illimitée.",
       "clCreditsTitle": "Vous avez utilisé tous vos crédits de lettres de motivation ce mois-ci",
-      "clCreditsBody": "Améliorez votre forfait pour rédiger plus de lettres de motivation — consultez les forfaits pour des limites mensuelles plus élevées et une option illimitée.",
+      "clCreditsBody": "Améliorez votre forfait pour rédiger plus de lettres de motivation : consultez les forfaits pour des limites mensuelles plus élevées et une option illimitée.",
       "activeJobsTitle": "Vous avez atteint la limite d'emplois actifs",
       "activeJobsBody": "Free est limité à quelques emplois actifs. Pro supprime cette limite pour suivre chaque opportunité.",
       "analyticsTitle": "Les analyses sont une fonctionnalité Pro",
-      "analyticsBody": "Passez à Pro pour débloquer le tableau de bord d'analyses complet — entonnoir, temps de réponse et performance des CV."
+      "analyticsBody": "Passez à Pro pour débloquer le tableau de bord d'analyses complet : entonnoir, temps de réponse et performance des CV."
     },
     "offline": {
       "title": "Vous êtes hors ligne",
@@ -170,15 +170,15 @@
         "upsellPro": "Passez à Pro pour en obtenir plus.",
         "upsellUnlimited": "Passez à Unlimited pour supprimer la limite."
       },
-      "limitReset": { "title": "Vos crédits ont été réinitialisés", "message": "Vos crédits ont été réinitialisés — vous disposez à nouveau de {resumeLimit} adaptations de CV et {clLimit} lettres de motivation ce cycle." },
+      "limitReset": { "title": "Vos crédits ont été réinitialisés", "message": "Vos crédits ont été réinitialisés : vous disposez à nouveau de {resumeLimit} adaptations de CV et {clLimit} lettres de motivation ce cycle." },
       "resumeReady": { "title": "CV adapté prêt", "message": "Votre CV adapté pour {jobTitle} est prêt." },
-      "coverLetterReady": { "title": "La lettre de motivation est prête", "message": "Votre lettre de motivation pour {jobTitle} est prête — cliquez pour examiner les variantes." }
+      "coverLetterReady": { "title": "La lettre de motivation est prête", "message": "Votre lettre de motivation pour {jobTitle} est prête. Cliquez pour examiner les variantes." }
     }
   },
   "Auth": {
     "branding": {
       "headline": "Gérez votre recherche d'emploi avec l'IA.",
-      "tagline": "Optimisez votre CV pour chaque poste, générez des lettres de motivation adaptées et suivez chaque candidature — le tout au même endroit.",
+      "tagline": "Optimisez votre CV pour chaque poste, générez des lettres de motivation adaptées et suivez chaque candidature, le tout au même endroit.",
       "logoAlt": "Logo LightRole",
       "testimonialQuote": "Light Role m'a aidé à adapter mon CV pour chaque candidature. Je suis passé de zéro réponse à trois offres en six semaines.",
       "testimonialName": "Marcus K.",
@@ -288,12 +288,12 @@
     }
   },
   "Marketing": {
-    "metaTitle": "Light Role — Gestion de recherche d'emploi propulsée par l'IA",
-    "metaDescription": "Adaptez chaque CV, générez chaque lettre de motivation et suivez chaque candidature — le tout au même endroit.",
+    "metaTitle": "Light Role : gestion de recherche d'emploi propulsée par l'IA",
+    "metaDescription": "Adaptez chaque CV, générez chaque lettre de motivation et suivez chaque candidature, le tout au même endroit.",
     "landing": {
       "title": "Light Role",
-      "metaTitle": "Light Role — CV adapté par IA et suivi des candidatures",
-      "metaDescription": "Adaptez votre CV à chaque offre, rédigez des lettres de motivation qui vous ressemblent et suivez chaque candidature — le tout au même endroit.",
+      "metaTitle": "Light Role : CV adapté par IA et suivi des candidatures",
+      "metaDescription": "Adaptez votre CV à chaque offre, rédigez des lettres de motivation qui vous ressemblent et suivez chaque candidature, le tout au même endroit.",
       "tagline": "Plateforme de gestion de recherche d'emploi propulsée par l'IA",
       "ctaPrimary": "Commencer",
       "ctaSecondary": "Se connecter",
@@ -302,7 +302,7 @@
         "headlineLine1": "Arrêtez de réécrire votre",
         "headlineLine2": "CV.",
         "headlineLine3": "Décrochez-les.",
-        "paragraph": "Light Role adapte votre CV à chaque offre, rédige la lettre de motivation et suit chaque candidature — pour passer moins de temps à mettre en forme et plus à parler avec des humains.",
+        "paragraph": "Light Role adapte votre CV à chaque offre, rédige la lettre de motivation et suit chaque candidature, pour passer moins de temps à mettre en forme et plus à parler avec des humains.",
         "ctaPrimary": "Commencer gratuitement",
         "ctaPrimaryAuthed": "Aller au tableau de bord",
         "trustLine": "Pas de carte · Configuration en 60 s",
@@ -375,13 +375,13 @@
       },
       "howItWorks": {
         "sectionKicker": "Comment ça marche",
-        "sectionTitle": "De l'annonce à la candidature — en trois étapes.",
+        "sectionTitle": "De l'annonce à la candidature, en trois étapes.",
         "sectionSub": "Plus de copier-coller entre Google Docs et le site d'emploi. Light Role relie ton profil, l'offre d'emploi et ton pipeline dans un seul flux.",
         "step1Title": "Configure ton profil, une fois.",
-        "step1Body": "Téléverse ton CV ou colle-le. L'IA analyse ton expérience, tes compétences et tes projets dans un profil structuré — la source canonique pour chaque futur CV.",
+        "step1Body": "Téléverse ton CV ou colle-le. L'IA analyse ton expérience, tes compétences et tes projets dans un profil structuré : la source canonique pour chaque futur CV.",
         "step1Meta": "~60 secondes",
         "step2Title": "Colle l'offre. Reçois un CV sur mesure.",
-        "step2Body": "Colle une offre d'emploi ou une URL. On extrait les mots-clés, on reformule tes puces pour qu'elles collent, et on réordonne les sections par pertinence — en gardant tout fidèle à ton profil.",
+        "step2Body": "Colle une offre d'emploi ou une URL. On extrait les mots-clés, on reformule tes puces pour qu'elles collent, et on réordonne les sections par pertinence, en gardant tout fidèle à ton profil.",
         "step2Meta": "~40 secondes",
         "step3Title": "Postule. Suis tout.",
         "step3Body": "Lettre de motivation en un clic. Vue Kanban ou tableau de ENREGISTRÉ → ENVOYÉ → ENTRETIEN → OFFRE. Rappels de suivi, deadlines, notes d'enthousiasme.",
@@ -390,7 +390,7 @@
       "features": {
         "sectionKicker": "Fonctionnalités",
         "sectionTitle": "Quatre outils, un seul workflow.",
-        "sectionSub": "Chaque partie de Light Role s'appuie sur ton profil. Adaptation, lettres, suivi et analyses — aucune ne te demande de recopier des données.",
+        "sectionSub": "Chaque partie de Light Role s'appuie sur ton profil. Adaptation, lettres, suivi et analyses : aucune ne te demande de recopier des données.",
         "card1Tag": "Suivi",
         "card1Title": "Un pipeline qui n'a rien d'une feuille de calcul.",
         "card1Body": "Kanban pour ceux qui survolent, tableau pour ceux qui analysent. Glisse entre ENREGISTRÉ, ENVOYÉ, SCREENING, ENTRETIEN, OFFRE. Deadlines, suivis et notes d'enthousiasme inclus.",
@@ -402,7 +402,7 @@
         "card3Body": "Ajuste ton, longueur et voix. Tient compte de l'offre d'emploi et de ton profil. Le genre de lettre que quelqu'un lit jusqu'au bout.",
         "card4Tag": "Analyses",
         "card4Title": "Ce qui marche vraiment.",
-        "card4Body": "Taux de réponse par entreprise, délai jusqu'à l'entretien, vitesse de candidature. Laisse tomber le ressenti — distingue une semaine creuse d'un entonnoir cassé.",
+        "card4Body": "Taux de réponse par entreprise, délai jusqu'à l'entretien, vitesse de candidature. Laisse tomber le ressenti : distingue une semaine creuse d'un entonnoir cassé.",
         "kanbanSaved": "ENREGISTRÉ",
         "kanbanApplied": "ENVOYÉ",
         "kanbanInterview": "ENTRETIEN",
@@ -424,7 +424,7 @@
         "tailorRole1Part4": " sans interruption.",
         "tailorRole2Part1": "Dirigé l'équipe ",
         "tailorRole2Part2": ". Routeur central réécrit en ",
-        "tailorRole2Part3": " — p99 réduit de 60 %.",
+        "tailorRole2Part3": ". p99 réduit de 60 %.",
         "clDraftLabel": "Lettre de motivation · brouillon",
         "clGreeting": "Bonjour l'équipe Anthropic,",
         "clBody1Pre": "Pendant les quatre dernières années, j'ai construit en silence le genre d'infrastructure",
@@ -432,7 +432,7 @@
         "clBody1Post": "soignée et délibérée dont parle votre équipe. Chez Stripe j'étais responsable de l'auth sur le chemin des paiements ; chez Plaid j'ai dirigé l'équipe qui a fait passer notre routeur distribué de p99 470 ms à 180 ms.",
         "clBody2Pre": "Ce qui m'attire ici, c'est la façon",
         "clBody2Highlight": "guidée par la recherche",
-        "clBody2Post": "dont vous livrez le produit — et j'aimerais beaucoup discuter de la façon dont je pourrais aider côté eval et deployment.",
+        "clBody2Post": "dont vous livrez le produit, et j'aimerais beaucoup discuter de la façon dont je pourrais aider côté eval et deployment.",
         "clSignoff": "Cordialement,",
         "clName": "Tom",
         "analyticsStat1Label": "Taux de réponse",
@@ -455,12 +455,12 @@
         "stat3Value": "9 sur 10",
         "stat3Label": "candidatures sur-mesure vs génériques",
         "testimonial1": {
-          "quote": "J'ai envoyé 12 candidatures en deux soirées. L'adaptation, c'est ce que je remettais toujours à demain — maintenant ça se fait tout seul.",
+          "quote": "J'ai envoyé 12 candidatures en deux soirées. L'adaptation, c'est ce que je remettais toujours à demain, et maintenant ça se fait tout seul.",
           "name": "Maya Khan",
           "role": "Sr. Product Manager"
         },
         "testimonial2": {
-          "quote": "Les lettres de motivation ressemblent à celles que j'écrirais à 2 h du matin — sauf que je n'avais pas besoin d'être éveillé.",
+          "quote": "Les lettres de motivation ressemblent à celles que j'écrirais à 2 h du matin, sauf que je n'avais pas besoin d'être éveillé.",
           "name": "Andre Silva",
           "role": "Backend Engineer"
         },
@@ -475,7 +475,7 @@
           "role": "Staff Designer"
         },
         "testimonial5": {
-          "quote": "Ce que j'aime, c'est ce qu'il ne fait pas — pas d'auto-candidature, pas de spam. Il rend mes vraies candidatures meilleures.",
+          "quote": "Ce que j'aime, c'est ce qu'il ne fait pas : pas d'auto-candidature, pas de spam. Il rend mes vraies candidatures meilleures.",
           "name": "Dana Park",
           "role": "Data Analyst"
         },
@@ -512,11 +512,11 @@
         "sectionTitle": "Ce qu'on nous demande avant l'inscription.",
         "q1": {
           "question": "Comment l'IA adapte-t-elle mon CV ?",
-          "answer": "Light Role conserve un profil canonique de ton expérience réelle. Quand tu colles une offre, l'IA extrait les mots-clés et reformule tes puces pour mettre en avant ce qui est pertinent — sans rien inventer. Tu vois et tu modifies chaque changement avant l'export."
+          "answer": "Light Role conserve un profil canonique de ton expérience réelle. Quand tu colles une offre, l'IA extrait les mots-clés et reformule tes puces pour mettre en avant ce qui est pertinent, sans rien inventer. Tu vois et tu modifies chaque changement avant l'export."
         },
         "q2": {
           "question": "Que se passe-t-il après mon essai gratuit ?",
-          "answer": "Il n'y a pas d'essai — l'offre Free est gratuite à vie et permet de suivre 10 offres actives. Tu ne passes à une offre supérieure que si tu envoies beaucoup de candidatures. Pas de carte à l'avance."
+          "answer": "Il n'y a pas d'essai. L'offre Free est gratuite à vie et permet de suivre 10 offres actives. Tu ne passes à une offre supérieure que si tu envoies beaucoup de candidatures. Pas de carte à l'avance."
         },
         "q3": {
           "question": "Puis-je exporter mon CV ?",
@@ -524,11 +524,11 @@
         },
         "q4": {
           "question": "Supportez-vous les sites d'emploi internationaux ?",
-          "answer": "Light Role est indépendant du site d'emploi — colle une offre de n'importe où. L'interface est en anglais, allemand, espagnol, français et russe, et l'adaptation fonctionne dans des dizaines de langues de bout en bout."
+          "answer": "Light Role est indépendant du site d'emploi : colle une offre de n'importe où. L'interface est en anglais, allemand, espagnol, français et russe, et l'adaptation fonctionne dans des dizaines de langues de bout en bout."
         },
         "q5": {
           "question": "Mes données sont-elles privées ?",
-          "answer": "Oui. Nous utilisons l'API d'OpenAI en mode zéro rétention pour les contenus d'offre et de CV. Ton profil est chiffré au repos et n'est jamais utilisé pour entraîner un modèle — ni le nôtre, ni celui d'un autre."
+          "answer": "Oui. Nous utilisons l'API d'OpenAI en mode zéro rétention pour les contenus d'offre et de CV. Ton profil est chiffré au repos et n'est jamais utilisé pour entraîner un modèle, ni le nôtre, ni celui d'un autre."
         },
         "q6": {
           "question": "Puis-je annuler à tout moment ?",
@@ -537,7 +537,7 @@
       },
       "bigCta": {
         "heading": "Postulez à 10 offres, <highlight>c'est offert.</highlight>",
-        "body": "L'offre Free n'expire jamais. Pas de carte. Une minute. Si on ne t'obtient pas d'entretien sous 30 jours, on rembourse Pro — promis.",
+        "body": "L'offre Free n'expire jamais. Pas de carte. Une minute. Si on ne t'obtient pas d'entretien sous 30 jours, on rembourse Pro, promis.",
         "ctaPrimary": "Démarrer gratuitement →",
         "ctaPrimaryMeta": "60 s",
         "ctaPrimaryAuthed": "Aller au dashboard →",
@@ -588,7 +588,7 @@
     }
   },
   "Pricing": {
-    "metaTitle": "Tarifs — Light Role",
+    "metaTitle": "Tarifs : Light Role",
     "metaDescription": "Tarifs simples et transparents. Gratuit pour commencer, mise à niveau quand vous en avez besoin.",
     "heading": "Tarifs simples et transparents",
     "subheading": "Commencez gratuitement. Mettez à niveau si nécessaire. Annulez à tout moment.",
@@ -617,7 +617,7 @@
       "support": "Support prioritaire"
     },
     "cta": {
-      "getStartedFree": "Commencer — c'est gratuit",
+      "getStartedFree": "Commencer, c'est gratuit",
       "startWithPlan": "Commencer avec {plan}",
       "yourCurrentPlan": "Votre forfait actuel",
       "downgrade": "Rétrograder",
@@ -659,7 +659,7 @@
       "unlimitedPlan": "Forfait Unlimited",
       "aria": "Forfait actuel : {label}"
     },
-    "dashboardHomeAria": "Light Role — Tableau de bord",
+    "dashboardHomeAria": "Light Role : tableau de bord",
     "documents": {
       "title": "Documents",
       "viewAll": "Voir tout"
@@ -693,7 +693,7 @@
     }
   },
   "DashboardHome": {
-    "metaTitle": "Tableau de bord — Light Role",
+    "metaTitle": "Tableau de bord : Light Role",
     "greeting": "Bonjour, {name} !",
     "greetingFallback": "Bon retour !",
     "summaryLine": "{activeCount, plural, =1 {1 emploi actif} other {# emplois actifs}}, {appCount, plural, =1 {1 candidature} other {# candidatures}} ce mois-ci",
@@ -730,7 +730,7 @@
       "emptyTitle": "Aucun emploi pour le moment",
       "emptyDescription": "Commencez à suivre votre recherche d'emploi en ajoutant votre première offre.",
       "addFirst": "Ajouter votre premier emploi",
-      "addedJob": "Ajouté {company} — {title}"
+      "addedJob": "Ajouté {company} : {title}"
     },
     "completeSteps": {
       "heading": "Terminez votre configuration",
@@ -789,9 +789,9 @@
   },
   "Resumes": {
     "list": {
-      "metaTitle": "CV — Light Role",
+      "metaTitle": "CV : Light Role",
       "title": "CV",
-      "subtitle": "Vos CV adaptés — un clic pour télécharger ou modifier.",
+      "subtitle": "Vos CV adaptés, un clic pour télécharger ou modifier.",
       "ctaTailor": "Adapter un nouveau CV",
       "searchPlaceholder": "Rechercher par nom de fichier, emploi ou entreprise…",
       "sortLabel": "Trier les CV",
@@ -892,7 +892,7 @@
           "Même de petits changements de poste peuvent considérablement améliorer votre score de correspondance.",
           "Maintenez votre profil à jour pour la meilleure adaptation."
         ],
-        "creditHint": "Patientez — nous utilisons l'un de vos crédits pour adapter ce CV.",
+        "creditHint": "Patientez. Nous utilisons l'un de vos crédits pour adapter ce CV.",
         "failed": "Une erreur s'est produite.",
         "retry": "Réessayer",
         "progressAria": "Progression de l'adaptation",
@@ -906,7 +906,7 @@
       },
       "toast": {
         "success": "CV adapté.",
-        "aiFail": "L'IA n'a pas pu adapter pour le moment — veuillez réessayer. Aucun crédit n'a été facturé.",
+        "aiFail": "L'IA n'a pas pu adapter pour le moment. Veuillez réessayer. Aucun crédit n'a été facturé.",
         "networkFail": "Une erreur s'est produite. Veuillez réessayer.",
         "profileNotReady": "Votre profil n'est pas suffisamment complet pour adapter un CV.",
         "jobNotFound": "Emploi introuvable.",
@@ -1075,7 +1075,7 @@
   },
   "Jobs": {
     "list": {
-      "metaTitle": "Emplois — Light Role",
+      "metaTitle": "Emplois : Light Role",
       "title": "Emplois",
       "heading": "Suivi des emplois",
       "addJob": "Ajouter un emploi",
@@ -1102,7 +1102,7 @@
       "emptyTableRow": "Aucun emploi pour le moment. Ajoutez votre premier emploi pour commencer.",
       "empty": {
         "title": "Aucun emploi pour le moment",
-        "description": "Suivez votre premier emploi — collez une offre et nous nous occuperons de l'analyse.",
+        "description": "Suivez votre premier emploi : collez une offre et nous nous occuperons de l'analyse.",
         "cta": "Ajouter votre premier emploi"
       },
       "columns": {
@@ -1155,7 +1155,7 @@
       "saving": "Enregistrement…",
       "successToast": "Emploi créé.",
       "errorToast": "Impossible de créer l'emploi. Veuillez réessayer.",
-      "parseErrorToast": "L'IA n'a pas pu analyser cet emploi — veuillez remplir les champs manuellement.",
+      "parseErrorToast": "L'IA n'a pas pu analyser cet emploi. Veuillez remplir les champs manuellement.",
       "aiLimitTooltip": "Vous avez atteint votre limite d'opérations IA. Mettez à niveau pour continuer.",
       "modeAi": "Utiliser l'IA",
       "modeManual": "Saisie manuelle",
@@ -1429,7 +1429,7 @@
       "manageSubscription": "Gérer l'abonnement",
       "processing": "Confirmation de votre paiement…",
       "timeoutTitle": "Confirmation en cours…",
-      "timeoutDescription": "Cela prend plus de temps que prévu. Votre paiement est en cours de traitement — actualisez dans un instant.",
+      "timeoutDescription": "Cela prend plus de temps que prévu. Votre paiement est en cours de traitement. Actualisez dans un instant.",
       "transactionId": "ID de transaction",
       "planLabel": "Forfait",
       "nextBilling": "Prochaine date de facturation",
@@ -1451,7 +1451,7 @@
     }
   },
   "Payments": {
-    "metaTitle": "Paiements — Light Role",
+    "metaTitle": "Paiements : Light Role",
     "title": "Paiements",
     "subtitle": "Votre historique de facturation et vos factures.",
     "table": {
@@ -1518,7 +1518,7 @@
       },
       "unlimited": {
         "title": "Unlimited",
-        "description": "Utilisateurs avancés — tout, sans limite.",
+        "description": "Utilisateurs avancés : tout, sans limite.",
         "billedAs": "Facturé mensuellement",
         "cta": "Commencer"
       },
@@ -1532,11 +1532,11 @@
           "Emplois actifs illimités dans votre suivi",
           "CV adaptés par IA pour chaque candidature",
           "Lettres de motivation générées par IA avec plusieurs variantes",
-          "Analyse intelligente des descriptions de poste — collez et c'est parti",
+          "Analyse intelligente des descriptions de poste : collez et c'est parti",
           "Tous les modèles de CV débloqués",
           "Tableau de bord d'analyses pour suivre votre progression",
           "Génération IA prioritaire",
-          "Annulez à tout moment — sans poser de question"
+          "Annulez à tout moment, sans poser de question"
         ]
       }
     },
@@ -1810,7 +1810,7 @@
     },
     "languages": {
       "heading": "Langues",
-      "description": "Langues que vous parlez — écrites et orales. Les niveaux de maîtrise optionnels arriveront dans une future mise à jour.",
+      "description": "Langues que vous parlez, écrites et orales. Les niveaux de maîtrise optionnels arriveront dans une future mise à jour.",
       "nameLabel": "Langue",
       "addLanguage": "Ajouter une langue",
       "removeLanguage": "Retirer la langue"
@@ -1954,12 +1954,12 @@
     "funnel_stage_screening": "Présélection",
     "funnel_stage_interview": "Entretien",
     "funnel_stage_offer": "Offre",
-    "funnel_insight_offer_conversion": "Conversion en offre au-dessus de la moyenne — beau travail",
-    "funnel_insight_interview_conversion": "Conversion en entretien au-dessus de la moyenne — continue comme ça",
-    "funnel_insight_screening_conversion": "Beaucoup de tes candidatures atteignent la présélection — ton CV fonctionne",
-    "funnel_insight_applied_speed": "Tu n'oublies pas les emplois enregistrés — c'est la bonne habitude",
-    "funnel_insight_streak": "Une semaine d'activité quotidienne — le plus dur est passé",
-    "funnel_insight_default": "Continue — chaque candidature te rapproche d'une offre",
+    "funnel_insight_offer_conversion": "Conversion en offre au-dessus de la moyenne. Beau travail",
+    "funnel_insight_interview_conversion": "Conversion en entretien au-dessus de la moyenne. Continue comme ça",
+    "funnel_insight_screening_conversion": "Beaucoup de tes candidatures atteignent la présélection : ton CV fonctionne",
+    "funnel_insight_applied_speed": "Tu n'oublies pas les emplois enregistrés, c'est la bonne habitude",
+    "funnel_insight_streak": "Une semaine d'activité quotidienne : le plus dur est passé",
+    "funnel_insight_default": "Continue : chaque candidature te rapproche d'une offre",
     "donut_title": "Pipeline actif",
     "donut_subtitle": "par statut",
     "donut_status_saved": "Enregistré",
@@ -1994,7 +1994,7 @@
     "activity_action_job_saved": "Offre sauvegardée",
     "upgrade_overlay_aria_label": "Améliore ton plan pour débloquer les analyses",
     "upgrade_title": "Débloque les analyses",
-    "upgrade_description": "Obtiens des informations approfondies sur ta recherche d'emploi — entonnoir, série, activité et plus encore.",
+    "upgrade_description": "Obtiens des informations approfondies sur ta recherche d'emploi : entonnoir, série, activité et plus encore.",
     "upgrade_cta": "Améliorer le plan",
     "error_generic": "Une erreur s'est produite lors du chargement de tes analyses. Réessaie.",
     "error_boundary_message": "Une erreur s'est produite lors du chargement de tes analyses. Nous en avons été informés.",
@@ -2060,7 +2060,7 @@
         "source": {
           "tr": {
             "label": "CV adapté (pour cet emploi)",
-            "sub": "Recommandé — utilise votre CV adapté optimisé pour ce poste"
+            "sub": "Recommandé : utilise votre CV adapté optimisé pour ce poste"
           },
           "profile": {
             "label": "Mon profil",
@@ -2073,7 +2073,7 @@
         },
         "contextLabel": "Contexte supplémentaire",
         "contextOptional": "(facultatif)",
-        "contextPlaceholder": "Quelque chose de spécifique à inclure ? (facultatif) — par ex. un lien personnel avec l'entreprise, un projet à mettre en avant ou une recommandation.",
+        "contextPlaceholder": "Quelque chose de spécifique à inclure ? (facultatif) Par exemple : un lien personnel avec l'entreprise, un projet à mettre en avant ou une recommandation.",
         "contextCounter": "{count} / 500 caractères",
         "profileHint": "Complétez votre profil pour continuer.",
         "modal": {
@@ -2157,12 +2157,12 @@
         "tipHeading": "Le saviez-vous ?",
         "tips": [
           "Une phrase d'accroche forte augmente plus les taux de réponse qu'une formule de clôture sophistiquée.",
-          "Light Role rédige 3 versions pour que vous puissiez choisir la voix qui vous correspond — pas seulement les mots.",
+          "Light Role rédige 3 versions pour que vous puissiez choisir la voix qui vous correspond, pas seulement les mots.",
           "Mentionner un projet ou une valeur spécifique de l'entreprise montre une recherche, pas seulement de l'enthousiasme.",
-          "Votre lettre de motivation complète votre CV — elle ne le répète pas."
+          "Votre lettre de motivation complète votre CV ; elle ne le répète pas."
         ],
-        "creditHint": "Patientez — nous utilisons l'un de vos crédits pour rédiger ceci.",
-        "aiFailToast": "L'IA n'a pas pu rédiger pour le moment — veuillez réessayer. Aucun crédit n'a été facturé.",
+        "creditHint": "Patientez. Nous utilisons l'un de vos crédits pour rédiger ceci.",
+        "aiFailToast": "L'IA n'a pas pu rédiger pour le moment. Veuillez réessayer. Aucun crédit n'a été facturé.",
         "networkFailToast": "Une erreur s'est produite. Veuillez réessayer.",
         "profileNotReadyToast": "Votre profil n'est pas suffisamment complet pour rédiger une lettre de motivation.",
         "jobNotFoundToast": "Emploi introuvable.",
@@ -2171,7 +2171,7 @@
       },
       "step3": {
         "title": "Vérifier les variantes",
-        "subtitle": "Voici 3 versions distinctes de votre lettre de motivation — choisissez celle qui résonne le plus.",
+        "subtitle": "Voici 3 versions distinctes de votre lettre de motivation. Choisissez celle qui résonne le plus.",
         "tab": {
           "variant1": "Variante 1",
           "variant2": "Variante 2",

@@ -28,8 +28,8 @@ import { useTranslations } from "next-intl";
 
 function makeJobSchema(t: (key: string) => string) {
   return z.object({
-    title: z.string().min(1, t("titleLabel") + " — " + t("invalidFieldsError")),
-    company: z.string().min(1, t("companyLabel") + " — " + t("invalidFieldsError")),
+    title: z.string().min(1, t("titleLabel") + ": " + t("invalidFieldsError")),
+    company: z.string().min(1, t("companyLabel") + ": " + t("invalidFieldsError")),
     location: z.string().optional(),
     salary: z.string().optional(),
     description_raw: z.string().optional(),
