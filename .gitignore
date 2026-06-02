@@ -1,6 +1,12 @@
 # Environment
 .env
 .env.local
+.env.prod
+.env.*.local
+# Keep example templates tracked (they contain placeholders only).
+!*.example
+!.env.local.example
+!.env.prod.example
 
 # Python
 __pycache__/

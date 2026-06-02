@@ -1,0 +1,75 @@
+# PROD overlay — loaded explicitly:
+#   docker compose -f docker-compose.yml -f docker-compose.prod.yml --env-file .env.prod ...
+# Adds restart policies, per-env env_file, and the nginx + certbot services.
+# The local override (docker-compose.override.yml) is NEVER loaded here, so
+# datastore/app host ports can never be exposed in prod.
+services:
+  postgres:
+    restart: always
+    env_file:
+      - .env.prod
+
+  redis:
+    restart: always
+    env_file:
+      - .env.prod
+
+  backend:
+    restart: always
+    env_file:
+      - .env.prod
+
+  frontend:
+    restart: always
+    env_file:
+      - .env.prod
+
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: lightrole_nginx
+    restart: always
+    env_file:
+      - .env.prod
+    environment:
+      # Only these three vars are substituted into the templates. nginx runtime
+      # vars ($host, $remote_addr, ...) are written without braces and left alone.
+      NGINX_ENVSUBST_FILTER: "DOMAIN|API_DOMAIN|CERT_DOMAIN"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d/default.conf:/etc/nginx/conf.d/default.conf:ro
+      # Mount only the templates dir (NOT the whole conf.d — that would pull in
+      # dev.conf). The official nginx image renders templates/*.template through
+      # envsubst into /etc/nginx/conf.d/*.conf at container start.
+      - ./nginx/templates:/etc/nginx/templates:ro
+      - uploads_data:/uploads:ro
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+      - certbot_webroot:/var/www/certbot:ro
+    networks:
+      - lightrole_net
+    depends_on:
+      - frontend
+      - backend
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+
+  certbot:
+    image: certbot/certbot:latest
+    container_name: lightrole_certbot
+    restart: always
+    volumes:
+      - /etc/letsencrypt:/etc/letsencrypt
+      - certbot_webroot:/var/www/certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew --quiet --webroot -w /var/www/certbot; sleep 12h & wait $${!}; done;'"
+    networks:
+      - lightrole_net
+
+volumes:
+  certbot_webroot:
+    name: lightrole_certbot_webroot

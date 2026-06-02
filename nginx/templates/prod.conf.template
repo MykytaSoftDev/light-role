@@ -1,0 +1,168 @@
+# ──────────────────────────────────────────────────────────────
+# prod.conf.template — rendered by the official nginx image's
+# envsubst mechanism into /etc/nginx/conf.d/prod.conf at startup.
+#
+# ONLY ${DOMAIN}, ${API_DOMAIN}, ${CERT_DOMAIN} are substituted
+# (guarded by NGINX_ENVSUBST_FILTER="DOMAIN|API_DOMAIN|CERT_DOMAIN").
+# All nginx runtime variables ($host, $remote_addr, $scheme,
+# $request_uri, $http_upgrade, $connection_upgrade,
+# $proxy_add_x_forwarded_for) are written WITHOUT braces so envsubst
+# leaves them untouched.
+# ──────────────────────────────────────────────────────────────
+
+# ── Upstreams ─────────────────────────────────────────────────
+upstream frontend {
+    server frontend:3000;
+}
+
+upstream backend {
+    server backend:8000;
+}
+
+# ── WebSocket connection-upgrade map (must be at http level) ──
+map $http_upgrade $connection_upgrade {
+    default upgrade;
+    ''      close;
+}
+
+# ── HTTP: ACME challenge + redirect ──────────────────────────
+server {
+    listen 80;
+    server_name ${DOMAIN} ${API_DOMAIN};
+
+    # Let's Encrypt webroot challenge (used by certbot renewal)
+    location /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+    }
+
+    location / {
+        return 301 https://$host$request_uri;
+    }
+}
+
+# ── HTTPS: ${DOMAIN}  (frontend) ─────────────────────────────
+server {
+    listen 443 ssl http2;
+    server_name ${DOMAIN};
+
+    # --- SSL certificate ---
+    ssl_certificate     /etc/letsencrypt/live/${CERT_DOMAIN}/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/${CERT_DOMAIN}/privkey.pem;
+
+    # --- SSL parameters ---
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384;
+    ssl_prefer_server_ciphers off;
+
+    ssl_session_cache   shared:SSL:10m;
+    ssl_session_timeout 1d;
+    ssl_session_tickets off;
+
+    ssl_stapling        on;
+    ssl_stapling_verify on;
+    resolver 1.1.1.1 8.8.8.8 valid=300s;
+    resolver_timeout 5s;
+
+    # --- Security headers ---
+    add_header Strict-Transport-Security "max-age=63072000; includeSubDomains" always;
+    add_header X-Frame-Options           "SAMEORIGIN" always;
+    add_header X-Content-Type-Options    "nosniff" always;
+    add_header Referrer-Policy            "strict-origin-when-cross-origin" always;
+
+    # --- Content Security Policy (report-only — tighten script-src iteratively) ---
+    # Allowed: own origin, the API origin (https://${API_DOMAIN}), Paddle,
+    # Google OAuth, and Sentry. 'unsafe-inline' in script-src is still present
+    # for Next.js inline bootstrap; tighten with nonces/hashes before enforcing.
+    add_header Content-Security-Policy-Report-Only "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.paddle.com https://*.paddle.com https://accounts.google.com https://apis.google.com; connect-src 'self' https://${API_DOMAIN} https://*.paddle.com https://*.ingest.sentry.io https://accounts.google.com; frame-src https://*.paddle.com https://accounts.google.com; img-src 'self' data: https:; style-src 'self' 'unsafe-inline'; font-src 'self' data:; base-uri 'self'; form-action 'self';" always;
+
+    client_max_body_size 15M;
+
+    # --- Frontend proxy ---
+    location / {
+        proxy_pass http://frontend;
+        proxy_http_version 1.1;
+
+        # WebSocket support (Next.js HMR)
+        proxy_set_header Upgrade    $http_upgrade;
+        proxy_set_header Connection $connection_upgrade;
+
+        proxy_set_header Host              $host;
+        proxy_set_header X-Real-IP         $remote_addr;
+        proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+    }
+}
+
+# ── HTTPS: ${API_DOMAIN}  (backend) ──────────────────────────
+server {
+    listen 443 ssl http2;
+    server_name ${API_DOMAIN};
+
+    # --- SSL certificate (same multi-domain cert) ---
+    ssl_certificate     /etc/letsencrypt/live/${CERT_DOMAIN}/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/${CERT_DOMAIN}/privkey.pem;
+
+    # --- SSL parameters ---
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384;
+    ssl_prefer_server_ciphers off;
+
+    ssl_session_cache   shared:SSL:10m;
+    ssl_session_timeout 1d;
+    ssl_session_tickets off;
+
+    ssl_stapling        on;
+    ssl_stapling_verify on;
+    resolver 1.1.1.1 8.8.8.8 valid=300s;
+    resolver_timeout 5s;
+
+    # --- Security headers ---
+    add_header Strict-Transport-Security "max-age=63072000; includeSubDomains" always;
+    add_header X-Frame-Options           "DENY" always;
+    add_header X-Content-Type-Options    "nosniff" always;
+    add_header Referrer-Policy            "strict-origin-when-cross-origin" always;
+
+    client_max_body_size 15M;
+
+    # --- API ---
+    location /api/ {
+        proxy_pass http://backend;
+        proxy_http_version 1.1;
+        proxy_set_header Host              $host;
+        proxy_set_header X-Real-IP         $remote_addr;
+        proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 120s;
+    }
+
+    # --- Swagger / ReDoc ---
+    location /docs {
+        proxy_pass http://backend;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+    }
+
+    location /openapi.json {
+        proxy_pass http://backend;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+    }
+
+    location /redoc {
+        proxy_pass http://backend;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+    }
+
+    # --- Uploaded files (served by nginx, access via X-Accel-Redirect) ---
+    location /uploads/ {
+        alias /uploads/;
+        internal;
+    }
+
+    # --- Catch-all: deny everything else ---
+    location / {
+        return 404;
+    }
+}

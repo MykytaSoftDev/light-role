@@ -1,0 +1,37 @@
+# LOCAL overlay — auto-merged by `docker compose` when no -f flags are given.
+# Adds host-bound datastore/app ports (127.0.0.1 only), source bind-mounts for
+# hot-reload, and dev commands. NEVER loaded for prod (prod uses explicit -f).
+services:
+  postgres:
+    ports:
+      - "127.0.0.1:5432:5432"
+
+  redis:
+    ports:
+      - "127.0.0.1:6379:6379"
+
+  backend:
+    env_file:
+      - .env.local
+    ports:
+      - "127.0.0.1:8000:8000"
+    volumes:
+      # Hot-reload source mount. uploads_data / logs_data are still appended
+      # from base (Compose merges volume lists).
+      - ./backend:/app
+    command: ["sh", "-c", "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"]
+
+  frontend:
+    build:
+      # Stage with node_modules but no prod `next build` — used for `next dev`.
+      target: deps
+    env_file:
+      - .env.local
+    ports:
+      - "127.0.0.1:3000:3000"
+    volumes:
+      - ./frontend:/app
+      # Anonymous volume preserves the container's Linux node_modules over the
+      # host bind-mount above.
+      - /app/node_modules
+    command: ["npm", "run", "dev"]
