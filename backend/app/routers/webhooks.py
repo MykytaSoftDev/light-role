@@ -1,6 +1,7 @@
 import hashlib
 import hmac
 import logging
+import time
 import uuid
 from datetime import datetime
 
@@ -20,6 +21,10 @@ from app.services.usage_service import invalidate_usage_cache
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/v1/webhooks", tags=["webhooks"])
+
+# Max allowed clock skew (seconds) between the Paddle-Signature `ts` and now.
+# Events outside this window are rejected to bound replay beyond idempotency TTL.
+WEBHOOK_TS_TOLERANCE_SECONDS = 300
 
 # Map Paddle subscription statuses to our internal enum values
 _PADDLE_STATUS_MAP: dict[str, SubscriptionStatus] = {
@@ -51,6 +56,24 @@ def _verify_paddle_signature(payload: bytes, signature_header: str, secret: str)
     except Exception as exc:
         logger.warning(f"Paddle signature verification error: {exc}")
         return False
+
+
+def _is_signature_timestamp_fresh(signature_header: str) -> bool:
+    """Validate the `ts` from the Paddle-Signature header is within the allowed skew.
+
+    `ts` is a unix timestamp (seconds). Returns False on a missing/malformed ts
+    or when it is more than ±WEBHOOK_TS_TOLERANCE_SECONDS from now. Call only
+    after the signature itself has been verified.
+    """
+    try:
+        parts = dict(p.split("=", 1) for p in signature_header.split(";"))
+        ts_raw = parts.get("ts", "")
+        if not ts_raw:
+            return False
+        ts = int(ts_raw)
+    except (ValueError, AttributeError):
+        return False
+    return abs(time.time() - ts) <= WEBHOOK_TS_TOLERANCE_SECONDS
 
 
 def _parse_paddle_datetime(value: str) -> datetime:
@@ -544,6 +567,25 @@ async def paddle_webhook(request: Request) -> JSONResponse:
         if not _verify_paddle_signature(raw_body, signature_header, settings.paddle_webhook_secret):
             logger.warning("Paddle webhook signature verification failed")
             return JSONResponse(status_code=401, content={"detail": "Invalid signature"})
+        # Replay/skew guard — only after a successful signature verification.
+        if not _is_signature_timestamp_fresh(signature_header):
+            logger.warning(
+                "Paddle webhook rejected: signature timestamp missing, malformed, "
+                "or outside the ±%ds tolerance window",
+                WEBHOOK_TS_TOLERANCE_SECONDS,
+            )
+            return JSONResponse(status_code=400, content={"detail": "Stale or invalid timestamp"})
+    elif settings.environment == "production":
+        # Fail closed: never process an unverified webhook in production. This is
+        # the runtime backstop to the production startup guard that asserts the
+        # secret is configured. Do not mutate any subscription state.
+        logger.error(
+            "Paddle webhook rejected: paddle_webhook_secret is not configured in "
+            "production — refusing to process unverified event"
+        )
+        return JSONResponse(
+            status_code=503, content={"detail": "Webhook verification unavailable"}
+        )
     else:
         logger.warning(
             "paddle_webhook_secret is not configured — skipping signature verification "

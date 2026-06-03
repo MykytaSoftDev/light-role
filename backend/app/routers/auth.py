@@ -21,13 +21,19 @@ from app.services.auth_service import (
     change_password,
     forgot_password,
     login_user,
+    logout_all_user,
     logout_user,
     refresh_tokens,
     register_user,
     reset_password,
     verify_email_user,
 )
-from app.services.oauth_service import google_oauth_login
+from app.services.oauth_service import (
+    STATE_COOKIE,
+    build_google_authorize_url,
+    google_oauth_login,
+    set_state_cookie,
+)
 
 router = APIRouter(prefix="/api/v1/auth", tags=["auth"])
 
@@ -67,6 +73,26 @@ def logout(
     return logout_user(response)
 
 
+@router.post("/logout-all")
+def logout_all(
+    response: Response,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_verified_user),
+    # SPEC §6.7: "logout everywhere" is identity/session-changing — blocked
+    # during impersonation (the admin should "Exit impersonation" first;
+    # otherwise this would bump the impersonated user's token_version).
+    _: None = Depends(block_during_impersonation),
+):
+    """Revoke every session for the current user (security TASK 3).
+
+    Bumps the user's token_version so all outstanding access/refresh tokens
+    on every device are rejected on their next request, then clears this
+    browser's cookies. Contrast with plain ``/logout``, which only clears
+    the current cookies and does NOT bump token_version.
+    """
+    return logout_all_user(current_user, db, response)
+
+
 @router.post("/forgot-password")
 async def forgot_password_endpoint(
     data: ForgotPasswordRequest,
@@ -99,13 +125,31 @@ def refresh(
     return refresh_tokens(refresh_token, db, response)
 
 
+@router.get("/oauth/google/start")
+async def google_oauth_start(response: Response):
+    """Begin the Google OAuth flow (security: oauth-state-pkce).
+
+    Mints a server-side `state` + PKCE binding (stored in Redis), sets the
+    `state` in a short-lived httpOnly cookie, and returns the Google
+    authorize URL. The SPA must navigate the browser to ``authorize_url``;
+    do NOT build the URL client-side. The redirect_uri is pinned server-side
+    (settings.google_redirect_uri).
+    """
+    authorize_url, state = await build_google_authorize_url()
+    set_state_cookie(response, state)
+    return {"authorize_url": authorize_url}
+
+
 @router.post("/oauth/google", response_model=UserResponse)
 async def google_oauth(
     data: GoogleOAuthRequest,
     response: Response,
     db: Session = Depends(get_db),
+    g_oauth_state: Optional[str] = Cookie(default=None, alias=STATE_COOKIE),
 ):
-    return await google_oauth_login(data.code, data.redirect_uri, db, response)
+    return await google_oauth_login(
+        data.code, data.state, db, response, g_oauth_state
+    )
 
 
 @router.post("/change-password")

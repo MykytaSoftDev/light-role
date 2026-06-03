@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import copy
 import logging
-from datetime import datetime, timezone
+from datetime import datetime
 from typing import Optional
 from uuid import UUID
 
@@ -21,8 +21,8 @@ from sqlalchemy.orm import Session, selectinload
 from app.ai.openai_service import OpenAIService
 from app.database import get_db
 from app.dependencies.ai_limit import (
-    COST_TYPE_CL,
-    COST_TYPE_RESUME,
+    CreditReservation,
+    refund_credit_reservation,
     require_cl_credit,
     require_resume_credit,
 )
@@ -33,11 +33,10 @@ from app.models.cover_letter import CoverLetter
 from app.models.enums import ApplicationStatus, NotificationType
 from app.models.job import Job
 from app.models.notification import Notification
-from app.models.subscription import Subscription
 from app.models.tailored_resume import TailoredResume
 from app.models.usage_log import UsageLog
 from app.models.user import User
-from app.redis import ai_gen_rate_limit_record, increment_credit_usage
+from app.redis import ai_gen_rate_limit_record
 from app.routers.tailored_resumes import _serialize as _serialize_tailored_resume
 from app.schemas.cover_letter import (
     CoverLetterGenerateRequest,
@@ -61,7 +60,6 @@ from app.schemas.tailored_resume import (
     TailoredResumeResponse,
 )
 from app.services import analytics_service, job_service
-from app.services.cycle_service import get_current_cycle_window, get_cycle_anchor
 from app.services.job_limit_service import check_active_jobs_limit
 from app.services.profile_service import get_or_create_profile
 from app.services.usage_service import invalidate_usage_cache
@@ -260,7 +258,10 @@ async def tailor_resume(
     # SPEC §6.8: thread the SessionContext so usage_log inserts can carry
     # `impersonator_id` and be excluded from the target user's quota count.
     session_ctx: SessionContext = Depends(get_session_context),
-    _quota: None = Depends(require_resume_credit),
+    # atomic-ai-quota: the credit is RESERVED (atomic INCR) inside this
+    # dependency BEFORE the AI call. Capture the reservation so we can
+    # REFUND it on any AI-failure path below (failed ops stay uncharged).
+    reservation: CreditReservation = Depends(require_resume_credit),
     # MONETIZE-5: anti-abuse cap (25/hour, all plans). Listed AFTER the
     # per-credit quota so legitimate "out of credits" 402s take precedence
     # over operational "too fast" 429s.
@@ -371,6 +372,8 @@ async def tailor_resume(
         _log_tailor_usage(
             db, current_user.id, success=False, impersonator_id=impersonator_id
         )
+        # Refund the reserved credit — the AI op did not complete.
+        await refund_credit_reservation(reservation)
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
             detail="AI service is temporarily unavailable. Please try again.",
@@ -385,6 +388,8 @@ async def tailor_resume(
         _log_tailor_usage(
             db, current_user.id, success=False, impersonator_id=impersonator_id
         )
+        # Refund the reserved credit — failed op stays uncharged.
+        await refund_credit_reservation(reservation)
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
             detail="AI service is temporarily unavailable. Please try again.",
@@ -412,6 +417,8 @@ async def tailor_resume(
         _log_tailor_usage(
             db, current_user.id, success=False, impersonator_id=impersonator_id
         )
+        # Refund the reserved credit — unusable AI payload, op failed.
+        await refund_credit_reservation(reservation)
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
             detail="AI service returned an unexpected payload. Please try again.",
@@ -451,27 +458,12 @@ async def tailor_resume(
         impersonator_id=impersonator_id,
     )
 
-    # 9a. Bump the per-credit Redis counter so the next quota check sees
-    #     the updated value without paying for a DB recount. Recompute the
-    #     cycle window here (rather than threading it through from the
-    #     dependency) because this point in the code is the only place
-    #     that knows the operation actually succeeded — and the cycle
-    #     boundary may have crossed between dependency-time and now.
-    try:
-        subscription = (
-            db.query(Subscription)
-            .filter(Subscription.user_id == current_user.id)
-            .first()
-        )
-        anchor = get_cycle_anchor(current_user, subscription)
-        cycle_start, _ = get_current_cycle_window(
-            anchor, datetime.now(timezone.utc)
-        )
-        await increment_credit_usage(
-            str(current_user.id), COST_TYPE_RESUME, cycle_start
-        )
-    except Exception as exc:  # pragma: no cover - cache best-effort
-        logger.debug("Tailor: credit-counter bump failed: %s", exc)
+    # 9a. NO credit increment here. atomic-ai-quota reserved the credit
+    #     (atomic INCR) in `require_resume_credit` BEFORE the AI call, and
+    #     we only reach this success path without having refunded it — so
+    #     the counter already reflects this op. Incrementing again would
+    #     double-count. usage_log (written above) remains the durable
+    #     record the Redis counter recounts from on a cold cache.
 
     # 9a-bis. MONETIZE-5: record this successful generation in the
     #         sliding-window rate limit. Only successful gens count
@@ -688,7 +680,10 @@ async def generate_cover_letter_for_job(
     # SPEC §6.8: thread the SessionContext so usage_log inserts can carry
     # `impersonator_id` and be excluded from the target user's quota count.
     session_ctx: SessionContext = Depends(get_session_context),
-    _quota: None = Depends(require_cl_credit),
+    # atomic-ai-quota: CL credit RESERVED (atomic INCR) inside this
+    # dependency BEFORE the AI call. Capture the reservation to REFUND it
+    # on the AI-failure paths below (failed ops stay uncharged).
+    reservation: CreditReservation = Depends(require_cl_credit),
     # MONETIZE-5: anti-abuse cap (25/hour, all plans). Listed AFTER the
     # per-credit quota so "out of CL credits" 402 still takes precedence.
     _rate: None = Depends(require_ai_gen_rate_limit),
@@ -834,6 +829,8 @@ async def generate_cover_letter_for_job(
             job.id,
             exc,
         )
+        # Refund the reserved CL credit — the AI op did not complete.
+        await refund_credit_reservation(reservation)
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
             detail={
@@ -853,6 +850,8 @@ async def generate_cover_letter_for_job(
             result.success,
             len(result.variants),
         )
+        # Refund the reserved CL credit — failed/malformed op stays uncharged.
+        await refund_credit_reservation(reservation)
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
             detail={
@@ -875,24 +874,11 @@ async def generate_cover_letter_for_job(
         impersonator_id=impersonator_id,
     )
 
-    # 11a. Bump the per-credit Redis counter (see tailor endpoint for the
-    #      rationale on recomputing cycle_start at this site rather than
-    #      threading it from the dependency).
-    try:
-        subscription = (
-            db.query(Subscription)
-            .filter(Subscription.user_id == current_user.id)
-            .first()
-        )
-        anchor = get_cycle_anchor(current_user, subscription)
-        cycle_start, _ = get_current_cycle_window(
-            anchor, datetime.now(timezone.utc)
-        )
-        await increment_credit_usage(
-            str(current_user.id), COST_TYPE_CL, cycle_start
-        )
-    except Exception as exc:  # pragma: no cover - cache best-effort
-        logger.debug("CL gen: credit-counter bump failed: %s", exc)
+    # 11a. NO credit increment here. atomic-ai-quota reserved the CL
+    #      credit (atomic INCR) in `require_cl_credit` BEFORE the AI call
+    #      and we reached this success path without refunding it, so the
+    #      counter already reflects this op. Incrementing again would
+    #      double-count. usage_log (written above) is the durable record.
 
     # 11a-bis. MONETIZE-5: record this successful generation in the
     #          sliding-window rate limit (25/hour, all plans). Best-effort.

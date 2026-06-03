@@ -87,6 +87,10 @@ COPY --from=python-deps /usr/local/bin /usr/local/bin
 # we already curated above — using the deps-less variant keeps the image lean.
 # Chromium revision is whatever `playwright==<pinned>` ships with (see
 # requirements.txt). Re-pinning playwright re-pins the browser.
+#
+# Runs as root → Chromium lands under /ms-playwright owned by root. We chown it
+# to appuser further down (after the user exists) so the non-root runtime can
+# read+execute the browser binaries.
 RUN playwright install chromium
 
 # ---------------------------------------------------------------------------
@@ -137,11 +141,39 @@ RUN mkdir -p /app/fonts \
     fc-cache -f -v > /dev/null
 
 # ---------------------------------------------------------------------------
+# Non-root runtime user (security hardening)
+# ---------------------------------------------------------------------------
+# Mirror the frontend image: dedicated appuser/appgroup at uid/gid 1001.
+#
+# Everything above this point needs root (apt-get, playwright install,
+# fc-cache, font downloads) — so we create the user and fix ownership AFTER
+# all root-privileged work, then drop privileges with `USER appuser` below.
+#
+# Named-volume permission note: /uploads and /app/logs are mounted as Docker
+# named volumes at runtime. When a named volume is first mounted onto a path,
+# Docker seeds the volume with the IMAGE's ownership of that mountpoint. So we
+# must create these dirs and chown them to appuser *in the image* — otherwise
+# the volumes would be created owned by root and the non-root process could not
+# write resume uploads or logs.
+RUN groupadd --system --gid 1001 appgroup \
+    && useradd --system --uid 1001 --gid appgroup --no-create-home appuser \
+    && mkdir -p /uploads /app/logs /app/fonts \
+    && chown -R appuser:appgroup /app /uploads /ms-playwright
+
+# ---------------------------------------------------------------------------
 # App code
 # ---------------------------------------------------------------------------
-COPY . .
+# Copy app code already owned by appuser so the running process can read it
+# (and so entrypoint.sh is owned by the user that executes it).
+COPY --chown=appuser:appgroup . .
 
+# entrypoint.sh must be executable by appuser (it runs `alembic upgrade head`
+# then uvicorn). chmod here sets the owner-exec bit; the COPY above made
+# appuser the owner.
 RUN chmod +x entrypoint.sh
+
+# Drop root. All subsequent layers + the runtime process run as appuser (1001).
+USER appuser
 
 EXPOSE 8000
 

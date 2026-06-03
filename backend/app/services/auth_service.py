@@ -32,9 +32,12 @@ COOKIE_MAX_AGE_ACCESS = 120 * 60         # 2 hours in seconds
 COOKIE_MAX_AGE_REFRESH = 7 * 24 * 3600   # 7 days in seconds
 
 
-def set_auth_cookies(response: Response, user_id: str) -> None:
-    access_token = create_access_token(user_id)
-    refresh_token = create_refresh_token(user_id)
+def set_auth_cookies(response: Response, user: User) -> None:
+    # Mint both tokens with the user's CURRENT token_version (security
+    # TASK 3) so a later bump (password change / logout-all) invalidates
+    # both the access and refresh token minted here.
+    access_token = create_access_token(str(user.id), user.token_version)
+    refresh_token = create_refresh_token(str(user.id), user.token_version)
 
     domain = settings.cookie_domain if settings.cookie_domain else None
     response.set_cookie(
@@ -119,7 +122,7 @@ def login_user(data: LoginRequest, db: Session, response: Response) -> UserRespo
     if not user or not user.password_hash or not verify_password(data.password, user.password_hash):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid email or password")
 
-    set_auth_cookies(response, str(user.id))
+    set_auth_cookies(response, user)
     # SPEC §4.7: track last_login_at on successful login. Stored as naive
     # UTC (column convention — see app/models/user.py).
     user.last_login_at = datetime.now(timezone.utc).replace(tzinfo=None)
@@ -139,13 +142,41 @@ def refresh_tokens(refresh_token: str, db: Session, response: Response) -> dict:
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found")
 
-    set_auth_cookies(response, str(user.id))
+    # Session-revocation (security TASK 3): a refresh token whose ``tv`` no
+    # longer matches the user's current token_version has been revoked
+    # (password change / logout-all). Reject it instead of minting fresh
+    # tokens off a stale session. A missing ``tv`` claim (legacy token) is
+    # likewise rejected.
+    if payload.get("tv") != user.token_version:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid refresh token")
+
+    # Re-mint with the user's CURRENT token_version (matches the check
+    # above; keeps both new tokens valid).
+    set_auth_cookies(response, user)
     return {"message": "Tokens refreshed"}
 
 
 def logout_user(response: Response) -> dict:
+    # Single-device logout (security TASK 3): clears only THIS browser's
+    # cookies. It deliberately does NOT bump token_version, so the user's
+    # other active sessions keep working. Use logout_all_user() to revoke
+    # every session.
     clear_auth_cookies(response)
     return {"message": "Logged out successfully"}
+
+
+def logout_all_user(user: User, db: Session, response: Response) -> dict:
+    """Revoke every session for the user ("logout everywhere").
+
+    Bumps token_version (security TASK 3) so all outstanding access/refresh
+    tokens — on every device — fail their next ``tv`` check, then clears the
+    current browser's cookies for immediate local effect.
+    """
+    user.token_version += 1
+    db.commit()
+    clear_auth_cookies(response)
+    logger.info(f"All sessions revoked (logout-all) for user {user.id}")
+    return {"message": "Logged out of all sessions successfully"}
 
 
 async def verify_email_user(token: str, db: Session, response: Response) -> dict:
@@ -173,7 +204,7 @@ async def verify_email_user(token: str, db: Session, response: Response) -> dict
     db.commit()
     await delete_token(_VERIFY_EMAIL_PREFIX, token_hash)
 
-    set_auth_cookies(response, str(user.id))
+    set_auth_cookies(response, user)
 
     logger.info(f"Email verified for user {user.id}")
 
@@ -233,6 +264,10 @@ async def reset_password(data: ResetPasswordRequest, db: Session) -> dict:
         )
 
     user.password_hash = hash_password(data.password)
+    # Session-revocation (security TASK 3): a password reset invalidates
+    # every existing session — bump token_version so all outstanding tokens
+    # are rejected on their next request.
+    user.token_version += 1
     db.commit()
 
     # Consume the token — one-time use only.
@@ -257,6 +292,10 @@ def change_password(data: ChangePasswordRequest, user: User, db: Session) -> dic
         )
 
     user.password_hash = hash_password(data.new_password)
+    # Session-revocation (security TASK 3): a password change invalidates
+    # every existing session — bump token_version so all outstanding tokens
+    # (including the one used to make THIS request) are rejected next time.
+    user.token_version += 1
     db.commit()
 
     logger.info(f"Password changed for user {user.id}")

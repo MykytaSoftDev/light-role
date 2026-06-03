@@ -12,7 +12,7 @@ from fastapi.staticfiles import StaticFiles
 from sentry_sdk.integrations.fastapi import FastApiIntegration
 from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration
 
-from app.config import settings
+from app.config import settings, validate_production_settings
 from app.logging_config import setup_logging
 from app.redis import close_redis, get_redis_client
 from app.services.pdf_service import pdf_service
@@ -36,14 +36,72 @@ from app.routers import webhooks as webhooks_router
 logger = logging.getLogger(__name__)
 
 
+_REDACTED = "[redacted]"
+# Substrings (case-insensitive) that mark a key as carrying a secret value.
+_SENSITIVE_KEY_PARTS = ("password", "token", "secret", "api_key")
+
+
+def _is_sensitive_key(key: Any) -> bool:
+    if not isinstance(key, str):
+        return False
+    lowered = key.lower()
+    return any(part in lowered for part in _SENSITIVE_KEY_PARTS)
+
+
+def _scrub(value: Any) -> Any:
+    """Recursively redact sensitive keys in dicts/lists found in an event."""
+    if isinstance(value, dict):
+        scrubbed: dict[Any, Any] = {}
+        for k, v in value.items():
+            if _is_sensitive_key(k):
+                scrubbed[k] = _REDACTED
+            else:
+                scrubbed[k] = _scrub(v)
+        return scrubbed
+    if isinstance(value, list):
+        return [_scrub(item) for item in value]
+    return value
+
+
+def _scrub_request(request: Any) -> None:
+    """Redact cookies and the Authorization header on a Sentry request dict."""
+    if not isinstance(request, dict):
+        return
+    if "cookies" in request:
+        request["cookies"] = _REDACTED
+    headers = request.get("headers")
+    if isinstance(headers, dict):
+        for header_key in list(headers.keys()):
+            if isinstance(header_key, str) and header_key.lower() == "authorization":
+                headers[header_key] = _REDACTED
+            elif isinstance(header_key, str) and header_key.lower() == "cookie":
+                headers[header_key] = _REDACTED
+    # Form/JSON body and query string may also contain sensitive fields.
+    if "data" in request:
+        request["data"] = _scrub(request["data"])
+
+
 def _before_send(event: dict[str, Any], hint: dict[str, Any]) -> dict[str, Any] | None:
-    """Filter out 4xx client errors from Sentry (only track 5xx server errors)."""
+    """Filter out 4xx client errors and redact PII before sending to Sentry.
+
+    Keeps existing behavior: drop FastAPI/Starlette HTTP exceptions with 4xx
+    status codes; let 5xx (and non-HTTP exceptions) through. Before returning
+    a captured event, scrub request cookies, the Authorization header, and any
+    field whose key contains password/token/secret/api_key.
+    """
     if "exc_info" in hint:
         exc_type, exc_value, _ = hint["exc_info"]
         # Skip FastAPI/Starlette HTTP exceptions with 4xx status codes
         status_code = getattr(exc_value, "status_code", None)
         if status_code is not None and 400 <= status_code < 500:
             return None
+
+    _scrub_request(event.get("request"))
+    if "extra" in event:
+        event["extra"] = _scrub(event["extra"])
+    if "contexts" in event:
+        event["contexts"] = _scrub(event["contexts"])
+
     return event
 
 
@@ -55,6 +113,9 @@ def setup_sentry() -> None:
         dsn=settings.sentry_dsn,
         environment=settings.environment,
         traces_sample_rate=0.1,
+        # Never attach default PII (request body, user IP, cookies). We also
+        # scrub explicitly in _before_send as defense in depth.
+        send_default_pii=False,
         integrations=[
             FastApiIntegration(),
             SqlalchemyIntegration(),
@@ -67,6 +128,10 @@ def setup_sentry() -> None:
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     setup_logging(log_dir="logs", environment=settings.environment)
+    # Abort boot before serving any traffic if production config is unsafe.
+    # The RuntimeError propagates out of the lifespan, so uvicorn fails to
+    # start (non-zero exit) instead of running with insecure settings.
+    validate_production_settings()
     setup_sentry()
     await get_redis_client()
     # Pre-warm Chromium for PDF rendering (TAILOR-3). Failures are logged
@@ -87,12 +152,15 @@ async def lifespan(app: FastAPI):
 
 
 def create_app() -> FastAPI:
+    # Hide interactive API docs and the OpenAPI schema in production; they
+    # remain available in dev/test for local exploration.
+    is_production = settings.environment == "production"
     app = FastAPI(
         title=settings.app_name,
         version="0.1.0",
-        docs_url="/docs",
-        redoc_url="/redoc",
-        openapi_url="/openapi.json",
+        docs_url=None if is_production else "/docs",
+        redoc_url=None if is_production else "/redoc",
+        openapi_url=None if is_production else "/openapi.json",
         lifespan=lifespan,
     )
 

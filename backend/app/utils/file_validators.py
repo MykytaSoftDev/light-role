@@ -4,6 +4,8 @@ from typing import Optional
 
 from fastapi import HTTPException, UploadFile, status
 
+from app.utils.file_security import FileSecurityError, verify_document_magic
+
 ALLOWED_CONTENT_TYPES = {
     "application/pdf": "pdf",
     "application/vnd.openxmlformats-officedocument.wordprocessingml.document": "docx",
@@ -62,7 +64,19 @@ async def validate_upload_file(file: UploadFile, max_size_mb: int = 10) -> str:
             detail="File is empty.",
         )
 
+    # TASK 15/16: magic-byte + DOCX-bomb verification is AUTHORITATIVE over the
+    # extension/content-type checks above. Rejects e.g. a .pdf-named text file
+    # or a .docx that isn't a real Word zip.
+    fmt = ext.lstrip(".")
+    try:
+        verify_document_magic(contents, fmt)
+    except FileSecurityError:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Unsupported file format. Only PDF and DOCX are allowed.",
+        )
+
     # Seek back to beginning so caller can read again
     await file.seek(0)
 
-    return ext.lstrip(".")
+    return fmt

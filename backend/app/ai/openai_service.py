@@ -876,7 +876,14 @@ class OpenAIService(AIServiceInterface):
         """
         from io import BytesIO
 
+        from app.utils.file_security import verify_document_magic
+
         fmt = (file_format or "").lower().lstrip(".")
+
+        # TASK 15/16: authoritative magic-byte + DOCX-bomb verification before
+        # any parser touches the bytes. FileSecurityError subclasses ValueError,
+        # so the parse_resume_to_profile caller maps it to HTTP 422.
+        verify_document_magic(file_bytes, fmt)
 
         if fmt == "pdf":
             import pdfplumber

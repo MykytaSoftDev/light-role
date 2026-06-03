@@ -4,7 +4,7 @@ import uuid
 from datetime import datetime
 from typing import TYPE_CHECKING, List
 
-from sqlalchemy import Boolean, DateTime, Enum as SAEnum, String, text
+from sqlalchemy import Boolean, DateTime, Enum as SAEnum, Integer, String, text
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -131,6 +131,20 @@ class User(TimestampMixin, Base):
     last_login_at: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=False),
         nullable=True,
+    )
+    # Session-revocation counter (security TASK 3). Embedded as the ``tv``
+    # claim in every access/refresh/impersonation token. Bumping this value
+    # invalidates ALL outstanding tokens for the user on their next request:
+    # auth dependencies reject any token whose ``tv`` != the current value.
+    #
+    # Bumped (incremented) on: password change, password reset-confirm, and
+    # the explicit "logout everywhere" endpoint. Plain single-device logout
+    # does NOT bump it (it only clears the current browser's cookies).
+    token_version: Mapped[int] = mapped_column(
+        Integer,
+        nullable=False,
+        default=0,
+        server_default="0",
     )
 
     # Relationships

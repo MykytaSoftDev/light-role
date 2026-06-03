@@ -23,6 +23,10 @@ from app.services.profile_service import (
     get_or_create_profile,
     merge_profile_sections,
 )
+from app.utils.file_security import (
+    FileSecurityError,
+    verify_document_magic,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -35,6 +39,11 @@ _ai_service = OpenAIService()
 # Per PRD 3.3.12: only PDF and DOCX accepted, max 10MB.
 ALLOWED_FILE_FORMATS = {"pdf", "docx"}
 MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024  # 10 MB
+
+# TASK 16: read the upload body in bounded chunks so an oversized payload is
+# rejected before the whole thing is buffered in memory. 64 KiB balances syscall
+# overhead against how much we over-read past the cap before aborting.
+_UPLOAD_CHUNK_SIZE = 64 * 1024
 
 _PDF_CONTENT_TYPES = {"application/pdf"}
 _DOCX_CONTENT_TYPES = {
@@ -83,6 +92,56 @@ def _detect_file_format(file: UploadFile) -> Optional[str]:
         return "docx"
 
     return None
+
+
+async def _read_bounded(file: UploadFile) -> bytes:
+    """Read an upload body in bounded chunks, aborting once it exceeds the cap.
+
+    TASK 16: avoids loading an arbitrarily large body fully into memory. We
+    first honour the ``Content-Length`` header (when present and trustworthy)
+    for an early reject, then stream in ``_UPLOAD_CHUNK_SIZE`` chunks and stop
+    the moment the running total crosses ``MAX_FILE_SIZE_BYTES``.
+
+    Raises:
+        HTTPException: 422 when the declared or actual size exceeds the cap, or
+            when the body is empty. Messages mirror the existing contract.
+    """
+    # Early reject on declared Content-Length (defense-in-depth — nginx already
+    # caps the body at 15M, and the header is client-supplied so the streaming
+    # check below remains authoritative).
+    declared = file.headers.get("content-length") if file.headers else None
+    if declared is not None:
+        try:
+            if int(declared) > MAX_FILE_SIZE_BYTES:
+                raise HTTPException(
+                    status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                    detail="File exceeds maximum size of 10 MB.",
+                )
+        except ValueError:
+            # Malformed header — ignore and fall through to streaming check.
+            pass
+
+    chunks: list[bytes] = []
+    total = 0
+    while True:
+        chunk = await file.read(_UPLOAD_CHUNK_SIZE)
+        if not chunk:
+            break
+        total += len(chunk)
+        if total > MAX_FILE_SIZE_BYTES:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail="File exceeds maximum size of 10 MB.",
+            )
+        chunks.append(chunk)
+
+    if total == 0:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="File is empty.",
+        )
+
+    return b"".join(chunks)
 
 
 def _log_usage(
@@ -175,17 +234,27 @@ async def reset_profile(
             detail="Only PDF and DOCX files are supported.",
         )
 
-    # 2. Read bytes (in-memory only — never written to disk).
-    file_bytes = await file.read()
-    if len(file_bytes) == 0:
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail="File is empty.",
+    # 2. Read bytes (in-memory only — never written to disk). Bounded chunked
+    #    read aborts before buffering an oversized body (TASK 16); empty/size
+    #    422 contracts are preserved inside the helper.
+    file_bytes = await _read_bounded(file)
+
+    # 2b. Magic-byte / content verification is AUTHORITATIVE over the declared
+    #     format from step 1 (TASK 15) and includes the DOCX decompression-bomb
+    #     guard (TASK 16). A mismatch (e.g. a .pdf-named text file, or a .docx
+    #     that isn't a real Word zip) is rejected here as 422.
+    try:
+        verify_document_magic(file_bytes, file_format)
+    except FileSecurityError as exc:
+        logger.info(
+            "Profile reset: rejected %s upload for user %s (content check): %s",
+            file_format,
+            current_user.id,
+            exc,
         )
-    if len(file_bytes) > MAX_FILE_SIZE_BYTES:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail="File exceeds maximum size of 10 MB.",
+            detail="Only PDF and DOCX files are supported.",
         )
 
     # 3. Ensure the user has a profile row (auto-creates if missing).

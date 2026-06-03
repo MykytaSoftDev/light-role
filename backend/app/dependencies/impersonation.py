@@ -106,6 +106,17 @@ def get_session_context(
             detail="User not found",
         )
 
+    # Session-revocation (security TASK 3): ``sub`` is the effective acting
+    # user (the impersonation target when impersonating), and the token's
+    # ``tv`` embeds that same user's token_version. Reject when it no longer
+    # matches — bumping the target's token_version therefore also kills any
+    # live impersonation session for them.
+    if payload.get("tv") != user.token_version:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Session has been revoked",
+        )
+
     is_imp = bool(payload.get("is_impersonating"))
     impersonator: Optional[User] = None
     if is_imp:

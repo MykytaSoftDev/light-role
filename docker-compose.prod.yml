@@ -60,7 +60,7 @@ services:
       start_period: 20s
 
   certbot:
-    image: certbot/certbot:latest
+    image: certbot/certbot:v3.1.0
     container_name: lightrole_certbot
     restart: always
     volumes:

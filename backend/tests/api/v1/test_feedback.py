@@ -37,7 +37,7 @@ def _create_test_user(db) -> User:
 
 def _auth_cookies(user_id: str) -> dict[str, str]:
     """Return a cookies dict with a valid access_token."""
-    token = create_access_token(user_id)
+    token = create_access_token(user_id, 0)
     return {"access_token": token}
 
 

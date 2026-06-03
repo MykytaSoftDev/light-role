@@ -1,6 +1,6 @@
 import logging
 import time
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 
 import redis.asyncio as aioredis
@@ -157,16 +157,59 @@ async def delete_token(prefix: str, token_hash: str) -> bool:
 
 
 # Rate limiting helpers
+class RedisUnavailableError(Exception):
+    """Raised by fail-closed helpers when Redis cannot be reached.
+
+    Distinguishes a *transport* failure (Redis down / unreachable) from a
+    successful check that merely found the limit exceeded. Callers guarding
+    SENSITIVE buckets (login, forgot-password, register, AI generation)
+    catch this and DENY the request (503), instead of the historical
+    fail-open behaviour where a cache outage silently disabled
+    brute-force / enumeration / abuse protection.
+    """
+
+
 async def check_rate_limit(key: str, limit: int, ttl_seconds: int) -> tuple[bool, int]:
     """
     Check and increment a rate limit counter.
     Returns (is_allowed, current_count).
     is_allowed=False means the limit has been exceeded.
+
+    FAIL-OPEN: on a Redis error the request is allowed (returns (True, 0)).
+    Use this for general/read traffic where a cache outage should not take
+    the API down. For sensitive buckets use ``check_rate_limit_strict``.
     """
     new_count = await redis_increment_with_ttl(key, ttl_seconds)
     if new_count is None:
         # Redis error — fail open (allow request)
         return True, 0
+    return new_count <= limit, new_count
+
+
+async def check_rate_limit_strict(key: str, limit: int, ttl_seconds: int) -> tuple[bool, int]:
+    """
+    Fail-CLOSED variant of :func:`check_rate_limit` for sensitive buckets.
+
+    Increments the counter and returns ``(is_allowed, current_count)`` on
+    success. On a Redis transport error it raises
+    :class:`RedisUnavailableError` instead of silently allowing the request,
+    so the caller can return 503 and preserve brute-force / enumeration
+    protection during a cache outage.
+    """
+    try:
+        client = await get_redis_client()
+        pipe = client.pipeline()
+        await pipe.incrby(key, 1)
+        await pipe.ttl(key)
+        results = await pipe.execute()
+        new_count: int = results[0]
+        current_ttl: int = results[1]
+        # Set TTL only if the key is new (TTL == -1 means no expiry set).
+        if current_ttl == -1:
+            await client.expire(key, ttl_seconds)
+    except RedisError as e:
+        # Do NOT swallow — let the caller deny the request (fail-closed).
+        raise RedisUnavailableError(str(e)) from e
     return new_count <= limit, new_count
 
 
@@ -250,9 +293,105 @@ async def increment_credit_usage(
     exist yet, INCR initialises it to 1 — but the value is most useful
     when the cache was already warmed by the dependency's recount path.
     Sets a fresh 1-hour TTL on first increment.
+
+    NOTE: prefer :func:`reserve_credit_usage` for quota enforcement — it
+    reserves the credit BEFORE the AI call and fails CLOSED on Redis
+    outage. This plain increment remains for non-gating cache warming.
     """
     key = _credit_usage_key(user_id, credit_type, cycle_start)
     return await redis_increment_with_ttl(key, ttl_seconds=3600)
+
+
+def _cycle_ttl_seconds(cycle_end: datetime, now: datetime) -> int:
+    """Seconds from ``now`` until ``cycle_end``, floored at a small minimum.
+
+    The per-cycle counter key encodes ``cycle_start`` so it is unique per
+    cycle; expiring it at ``cycle_end`` lets stale counters age out on
+    their own without cross-cycle reset logic. We add a small slack so a
+    key created right at the boundary doesn't expire mid-request, and
+    clamp to a 60s floor so a clock skew / already-past end never yields a
+    zero/negative EXPIRE (which Redis treats as "delete now").
+    """
+    delta = int((cycle_end - now).total_seconds())
+    # +1h slack past cycle end; 60s hard floor.
+    return max(delta + 3600, 60)
+
+
+async def reserve_credit_usage(
+    user_id: str,
+    credit_type: str,
+    cycle_start: datetime,
+    cycle_end: datetime,
+    db_count: int,
+) -> int:
+    """Atomically RESERVE one credit for the current cycle and return the
+    new counter value.
+
+    This is the gate used BEFORE an AI call to close the check-then-act
+    race: N concurrent callers each get a distinct, monotonically
+    increasing value back, so only the first ``limit`` of them land at or
+    below the cap. The caller compares the returned value against the plan
+    limit and refunds (see :func:`refund_credit_usage`) if it overshot.
+
+    Seeding on cache miss: the per-cycle counter mirrors the count of
+    successful ops in ``usage_log``. If the key does not exist yet we must
+    seed it with the authoritative DB count *before* incrementing, or the
+    first reservation of a cycle would reset the count to 1 and hand out
+    free credits. ``SET key db_count NX EX ttl`` does this atomically —
+    concurrent racers either win the seed or no-op, then everybody INCRs
+    on top of the same base. The counter key gets a TTL to ``cycle_end``
+    so an INCR that creates the key never leaves it un-expiring.
+
+    Fails CLOSED: raises :class:`RedisUnavailableError` on any Redis
+    transport error so the caller can DENY (the credit cannot be reserved
+    safely, so the cost-bearing AI op must not proceed).
+    """
+    key = _credit_usage_key(user_id, credit_type, cycle_start)
+    ttl = _cycle_ttl_seconds(cycle_end, datetime.now(timezone.utc))
+    try:
+        client = await get_redis_client()
+        # Seed to the authoritative DB count only if the key is absent.
+        # NX makes this a no-op once the cycle counter exists, so an
+        # in-flight cycle's running count is never clobbered.
+        await client.set(key, str(db_count), nx=True, ex=ttl)
+        new_value: int = await client.incr(key)
+        # Defensive: ensure a TTL exists even if the key pre-existed
+        # without one (e.g. seeded by the legacy increment path). EXPIRE
+        # is idempotent and cheap.
+        current_ttl = await client.ttl(key)
+        if current_ttl == -1:
+            await client.expire(key, ttl)
+        return new_value
+    except RedisError as exc:
+        # Fail-closed: do NOT swallow. The caller denies the AI op.
+        raise RedisUnavailableError(str(exc)) from exc
+
+
+async def refund_credit_usage(
+    user_id: str, credit_type: str, cycle_start: datetime
+) -> Optional[int]:
+    """Refund one previously-reserved credit (DECR), flooring at 0.
+
+    Called when a reservation overshoots the cap (over-limit racer) or the
+    AI op fails, so failed/denied ops stay uncharged. Best-effort: returns
+    the new value, or ``None`` on Redis error. A lost refund only ever
+    *over*-counts (charges the user slightly), which is the safe side to
+    err on, and the next cache-miss recount from ``usage_log`` (the
+    durable source of truth) self-heals it.
+    """
+    key = _credit_usage_key(user_id, credit_type, cycle_start)
+    try:
+        client = await get_redis_client()
+        new_value: int = await client.decr(key)
+        if new_value < 0:
+            # Never let the counter go negative (would hand out free
+            # credits on the next reservation). Clamp back to 0.
+            await client.set(key, "0", xx=True)
+            return 0
+        return new_value
+    except RedisError as exc:
+        logger.error(f"Redis DECR error for credit-usage key '{key}': {exc}")
+        return None
 
 
 # ─────────────────────────────────────────────

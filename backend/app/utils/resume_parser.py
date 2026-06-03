@@ -5,6 +5,12 @@ import io
 import logging
 import re
 
+from app.utils.file_security import (
+    FileSecurityError,
+    verify_docx_magic_and_safety,
+    verify_pdf_magic,
+)
+
 logger = logging.getLogger(__name__)
 
 
@@ -39,6 +45,9 @@ async def extract_text_from_file(file_contents: bytes, ext: str) -> str:
 def _extract_from_pdf(file_contents: bytes) -> str:
     """Extract text from PDF bytes using pdfplumber."""
     try:
+        # TASK 15: reject anything that is not a real PDF before parsing.
+        verify_pdf_magic(file_contents)
+
         import pdfplumber  # type: ignore[import-untyped]
 
         pages: list[str] = []
@@ -59,6 +68,10 @@ def _extract_from_pdf(file_contents: bytes) -> str:
 def _extract_from_docx(file_contents: bytes) -> str:
     """Extract text from DOCX bytes using python-docx."""
     try:
+        # TASK 15/16: confirm real OOXML Word zip and guard against zip bombs
+        # before handing the bytes to python-docx.
+        verify_docx_magic_and_safety(file_contents)
+
         from docx import Document  # type: ignore[import-untyped]
 
         doc = Document(io.BytesIO(file_contents))

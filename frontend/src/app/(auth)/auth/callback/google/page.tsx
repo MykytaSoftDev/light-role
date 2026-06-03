@@ -15,25 +15,32 @@ function GoogleCallbackContent() {
 
   useEffect(() => {
     const code = searchParams?.get("code") ?? null;
+    const state = searchParams?.get("state") ?? null;
     if (!code) {
       setError(t("noCode"));
       return;
     }
+    // The backend validates `state` against the httpOnly `g_oauth_state` cookie.
+    // A missing `state` can never validate, so fail with the generic error.
+    if (!state) {
+      setError(t("errorDescription"));
+      return;
+    }
 
-    const redirectUri = `${window.location.origin}/auth/callback/google`;
-
+    // credentials: "include" is REQUIRED so the `g_oauth_state` cookie is sent
+    // back. The backend pins its own redirect_uri and no longer accepts one.
     fetch(`${BASE_URL}/api/v1/auth/oauth/google`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
-      body: JSON.stringify({ code, redirect_uri: redirectUri }),
+      body: JSON.stringify({ code, state }),
     })
       .then((res) => {
         if (!res.ok) {
-          return res.json().then((d) => {
-            // detail is a backend message; fall back to translated description
-            throw new Error(d.detail || t("errorDescription"));
-          });
+          // Backend returns 400 for invalid/expired state or identity token.
+          // Surface a generic, translated "sign-in failed" message instead of
+          // leaking backend detail strings.
+          throw new Error(t("errorDescription"));
         }
         router.push("/dashboard");
       })

@@ -1,0 +1,59 @@
+name: CI
+
+# Dependency vulnerability scanning. Runs on every push and pull request.
+# Both jobs are currently REPORT-ONLY (continue-on-error) so they surface
+# findings in the build log without blocking merges. To make them blocking
+# on HIGH/CRITICAL later: drop `continue-on-error` (and the `|| true` on the
+# backend step) and let a non-zero exit fail the job.
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  backend-audit:
+    name: Backend dependency audit (pip-audit)
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install pip-audit
+        run: pip install pip-audit
+
+      - name: Run pip-audit on backend requirements
+        # Report-only for now: `|| true` keeps the step green even when
+        # vulnerabilities are found. Remove `|| true` (and continue-on-error
+        # above) to make this blocking on HIGH/CRITICAL later.
+        run: pip-audit -r backend/requirements.txt || true
+
+  frontend-audit:
+    name: Frontend dependency audit (npm audit)
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        # `npm ci` needs a lockfile; fall back to `npm install` if absent.
+        run: npm ci || npm install
+
+      - name: Run npm audit
+        # Report-only: `--audit-level=high` flags high/critical advisories.
+        # continue-on-error (job-level) keeps findings non-blocking for now.
+        run: npm audit --audit-level=high

@@ -39,7 +39,7 @@ def _create_test_user(db) -> User:
 
 
 def _auth_cookies(user_id: str) -> dict[str, str]:
-    return {"access_token": create_access_token(user_id)}
+    return {"access_token": create_access_token(user_id, 0)}
 
 
 def _create_job(

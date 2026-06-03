@@ -34,17 +34,26 @@ export default function LoginPage() {
   const tValidation = useTranslations("Auth.validation");
   const [serverError, setServerError] = useState<string | null>(null);
 
-  const handleGoogleSignIn = () => {
-    const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
-    console.log(clientId);
-    if (!clientId) {
-      alert(tCommon("googleNotConfigured"));
-      return;
+  const handleGoogleSignIn = async () => {
+    setServerError(null);
+    try {
+      // Backend owns the Google OAuth flow: it sets an httpOnly `g_oauth_state`
+      // cookie (state + PKCE) and returns the authorize URL with a pinned
+      // redirect_uri. credentials: "include" is REQUIRED so the cookie is stored.
+      const res = await api.get("/api/v1/auth/oauth/google/start");
+      if (!res.ok) {
+        setServerError(tCommon("genericError"));
+        return;
+      }
+      const data: { authorize_url?: string } = await res.json();
+      if (!data.authorize_url) {
+        setServerError(tCommon("genericError"));
+        return;
+      }
+      window.location.href = data.authorize_url;
+    } catch {
+      setServerError(tCommon("networkError"));
     }
-    const redirectUri = `${window.location.origin}/auth/callback/google`;
-    const scope = "openid email profile";
-    const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=${encodeURIComponent(scope)}`;
-    window.location.href = authUrl;
   };
 
   const loginSchema = makeLoginSchema(tValidation);

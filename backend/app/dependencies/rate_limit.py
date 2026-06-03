@@ -5,8 +5,12 @@ Uses Redis INCR + EXPIRE counters via the existing redis_increment_with_ttl
 helper (which sets the TTL only on the first increment, avoiding a race
 where a concurrent request resets the window).
 
-All limits fail open: if Redis is unreachable the request is allowed through
-so a cache outage does not take down the API.
+Fail-open vs fail-closed:
+    - General API / read traffic FAILS OPEN — if Redis is unreachable the
+      request is allowed through so a cache outage does not take down the API.
+    - Sensitive buckets (login, forgot-password, register) FAIL CLOSED — a
+      Redis outage returns 503 Service Unavailable rather than silently
+      disabling brute-force / enumeration protection.
 
 Key schema
 ----------
@@ -21,7 +25,12 @@ from typing import Optional
 
 from fastapi import Cookie, HTTPException, Request, status
 
-from app.redis import check_rate_limit, get_redis_client
+from app.redis import (
+    RedisUnavailableError,
+    check_rate_limit,
+    check_rate_limit_strict,
+    get_redis_client,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -31,16 +40,23 @@ logger = logging.getLogger(__name__)
 
 def _get_client_ip(request: Request) -> str:
     """
-    Return the most specific IP available.
+    Return the real peer IP for rate-limiting purposes.
 
-    Trusts X-Forwarded-For when present (set by a reverse proxy such as nginx).
-    Falls back to the direct connection address.
+    We trust ONLY ``X-Real-IP``, which our nginx sets to ``$remote_addr``
+    (the actual TCP peer) on both the app-host and api-host server blocks.
+    The leftmost ``X-Forwarded-For`` entry is deliberately NOT used: nginx
+    forwards it via ``$proxy_add_x_forwarded_for``, so its first hop is
+    attacker-controlled and trivially spoofable to evade per-IP limits.
+
+    Falls back to the direct connection address when ``X-Real-IP`` is
+    absent (e.g. local/dev requests that don't pass through nginx), and to
+    ``"unknown"`` only as a last resort.
     """
-    forwarded_for = request.headers.get("X-Forwarded-For")
-    if forwarded_for:
-        # The header may contain a comma-separated list; the first entry is the
-        # original client IP when the proxy appends its own address.
-        return forwarded_for.split(",")[0].strip()
+    real_ip = request.headers.get("X-Real-IP")
+    if real_ip:
+        real_ip = real_ip.strip()
+        if real_ip:
+            return real_ip
     if request.client:
         return request.client.host
     return "unknown"
@@ -86,6 +102,76 @@ async def _enforce(key: str, limit: int, window_seconds: int, request: Request) 
         )
 
 
+async def _enforce_strict(
+    key: str, limit: int, window_seconds: int, request: Request
+) -> None:
+    """
+    Fail-CLOSED enforcement for sensitive buckets (login/forgot/register).
+
+    Identical to :func:`_enforce` on the happy path, but if Redis is
+    unreachable we DENY the request with HTTP 503 instead of allowing it.
+    This keeps brute-force / enumeration protection in effect during a
+    cache outage. 503 (not 429) is used because the failure is server-side
+    (Redis down), not the client exceeding a limit — and ``Retry-After``
+    signals the client to back off briefly.
+
+    The Redis-down condition is logged once per occurrence at ERROR level
+    (one log line per affected request is acceptable here — these buckets
+    are low-volume; we are not at risk of log spam the way general API
+    traffic would be).
+    """
+    try:
+        allowed, _ = await check_rate_limit_strict(key, limit, window_seconds)
+    except RedisUnavailableError as exc:
+        logger.error(
+            "Rate limit FAIL-CLOSED: Redis unavailable, denying request",
+            extra={
+                "key": key,
+                "client_ip": _get_client_ip(request),
+                "path": request.url.path,
+                "error": str(exc),
+            },
+        )
+        retry_after = 30
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail={
+                "detail": "Service temporarily unavailable. Please try again shortly.",
+                "retry_after": retry_after,
+            },
+            headers={"Retry-After": str(retry_after)},
+        )
+
+    if not allowed:
+        retry_after = window_seconds
+        try:
+            redis = await get_redis_client()
+            ttl = await redis.ttl(key)
+            if ttl > 0:
+                retry_after = ttl
+        except Exception:
+            pass  # use the window as a safe upper bound
+
+        logger.warning(
+            "Rate limit exceeded",
+            extra={
+                "key": key,
+                "limit": limit,
+                "window_seconds": window_seconds,
+                "client_ip": _get_client_ip(request),
+                "path": request.url.path,
+            },
+        )
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail={
+                "detail": "Too many requests. Please try again later.",
+                "retry_after": retry_after,
+            },
+            headers={"Retry-After": str(retry_after)},
+        )
+
+
 # ──────────────────────────────────────────────────────────────────────────────
 # Public dependency functions
 # ──────────────────────────────────────────────────────────────────────────────
@@ -99,7 +185,7 @@ async def login_rate_limit(request: Request) -> None:
     """
     ip = _get_client_ip(request)
     key = f"rate_limit:login:{ip}"
-    await _enforce(key, limit=10, window_seconds=5 * 60, request=request)
+    await _enforce_strict(key, limit=10, window_seconds=5 * 60, request=request)
 
 
 async def forgot_password_rate_limit(request: Request) -> None:
@@ -115,7 +201,7 @@ async def forgot_password_rate_limit(request: Request) -> None:
     """
     ip = _get_client_ip(request)
     key = f"rate_limit:forgot:{ip}"
-    await _enforce(key, limit=5, window_seconds=60 * 60, request=request)
+    await _enforce_strict(key, limit=5, window_seconds=60 * 60, request=request)
 
 
 async def register_rate_limit(request: Request) -> None:
@@ -127,7 +213,7 @@ async def register_rate_limit(request: Request) -> None:
     """
     ip = _get_client_ip(request)
     key = f"rate_limit:register:{ip}"
-    await _enforce(key, limit=10, window_seconds=60 * 60, request=request)
+    await _enforce_strict(key, limit=10, window_seconds=60 * 60, request=request)
 
 
 async def general_api_rate_limit(

@@ -134,6 +134,79 @@ Co-locating dev and prod on one box is **advisory / not recommended**. If you do
 
 ---
 
+## Security hardening / operator checklist
+
+The application stack ships with sensible defaults, but the following items are
+**manual host-level / operational steps** the operator must complete or revisit.
+
+### verify-datastore-isolation (host firewall)
+
+The base compose file publishes **no** ports for postgres/redis/backend/frontend
+— only nginx exposes `80`/`443`. As defence-in-depth, the Hetzner host firewall
+(or cloud firewall) must still **DENY** inbound on the datastore/app ports so a
+misconfigured overlay or a future change can never expose them. Allow only
+`80`, `443`, and SSH.
+
+```bash
+# Default-deny inbound, allow outbound
+sudo ufw default deny incoming
+sudo ufw default allow outgoing
+
+# Allow only what we serve (SSH first so you don't lock yourself out)
+sudo ufw allow 22/tcp        # SSH
+sudo ufw allow 80/tcp        # HTTP (ACME + redirect)
+sudo ufw allow 443/tcp       # HTTPS
+
+# Explicitly deny the datastore/app ports (belt-and-braces; default-deny
+# already covers them, but make the intent auditable)
+sudo ufw deny 5432/tcp       # PostgreSQL
+sudo ufw deny 6379/tcp       # Redis
+sudo ufw deny 8000/tcp       # backend (FastAPI)
+sudo ufw deny 3000/tcp       # frontend (Next.js)
+
+sudo ufw enable
+sudo ufw status verbose
+```
+
+> On Hetzner Cloud you can/should also configure an equivalent **Cloud Firewall**
+> in the console with the same allow-list, so the rules apply even if the host
+> ufw is ever disabled.
+
+### csp-enforce (flip CSP from report-only to enforced)
+
+The prod CSP currently ships as **`Content-Security-Policy-Report-Only`** in
+`nginx/templates/prod.conf.template` — it reports violations but does not block
+them. This is deliberate: it lets us observe a real traffic window without
+risking breakage to Next.js, Paddle, Google OAuth, or Sentry.
+
+After observing reports for a window (e.g. a week of normal traffic) with **no
+legitimate violations**, flip it to enforcing:
+
+1. In `nginx/templates/prod.conf.template`, rename the header from
+   `Content-Security-Policy-Report-Only` to `Content-Security-Policy`.
+2. Tighten `script-src`: remove `'unsafe-inline'` by adopting per-request
+   **nonces** or static **hashes** for Next.js's inline bootstrap script, if
+   feasible. Keep the existing allow-list (Paddle, Google, Sentry) intact.
+3. Re-render and reload nginx (`make prod-up`), then re-check the console /
+   Sentry for CSP errors.
+
+This is a **deliberate later step**, not part of the initial launch.
+
+### nginx-dos / DDoS (scope of nginx-level protection)
+
+nginx now enforces per-IP request-rate (`req_per_ip`, 10r/s + burst) and
+connection (`conn_per_ip`, 20) limits plus slow-loris timeouts
+(`client_body_timeout`/`client_header_timeout`/`send_timeout` = 10s). These
+blunt **L7 / application-layer** abuse and slow-loris attacks only.
+
+> A volumetric **L3/L4 DDoS** (SYN floods, UDP floods, raw bandwidth
+> exhaustion) cannot be absorbed at the nginx layer — it requires a CDN/WAF such
+> as **Cloudflare** (or Hetzner's upstream DDoS protection) in front of the
+> origin. Putting a CDN/WAF in front is an **operator decision** and is
+> recommended before any high-traffic launch.
+
+---
+
 ## Renewal
 
 The `certbot` service runs a renewal loop (`certbot renew` every 12h). Renewed

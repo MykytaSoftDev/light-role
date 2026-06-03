@@ -29,8 +29,13 @@ class LoginRequest(BaseModel):
 
 
 class GoogleOAuthRequest(BaseModel):
+    # security (oauth-state-pkce): redirect_uri is NO LONGER accepted from
+    # the client — it is pinned server-side (settings.google_redirect_uri).
+    # `state` is the anti-CSRF / anti-code-injection nonce minted by
+    # GET /oauth/google/start; it is validated against both the
+    # g_oauth_state cookie and the Redis-stored PKCE binding.
     code: str
-    redirect_uri: str
+    state: str
 
 
 class VerifyEmailRequest(BaseModel):

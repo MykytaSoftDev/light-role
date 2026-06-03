@@ -17,9 +17,12 @@ Key design points:
     code calls `ai_gen_rate_limit_record` only after the AI call
     actually returned usable output. Failed generations don't punish
     legitimate retries.
-  - Fail-open on Redis errors: a cache outage must never lock real users
-    out of features they paid for. We log a warning and allow the
-    request through. Same trade-off the per-credit dependency makes.
+  - Fail-CLOSED on Redis errors: AI generation is a sensitive,
+    abuse-prone, cost-bearing bucket. If Redis is unreachable we cannot
+    enforce the anti-abuse cap, so we DENY with HTTP 503 rather than let
+    a cache outage hand out uncapped (and uncountable) AI generations.
+    This matches the auth limiters (login/forgot/register). The Redis-down
+    condition is logged at ERROR level.
 
 Audit trail decision (Option A from the brief):
   We deliberately do NOT write a `usage_log` row when the rate limit
@@ -67,35 +70,55 @@ async def require_ai_gen_rate_limit(
     both apply.
 
     Raises HTTP 429 ``AI_RATE_LIMIT`` with a structured detail and a
-    ``Retry-After`` header when the cap is hit. Returns ``None`` on
-    success or on Redis failure (fail-open).
+    ``Retry-After`` header when the cap is hit. Raises HTTP 503 when Redis
+    is unreachable (fail-closed — the anti-abuse cap cannot be enforced
+    without Redis, so the request is denied). Returns ``None`` on success.
     """
     user_id = str(current_user.id)
     limit = settings.ai_rate_limit_per_hour
     block_seconds = settings.ai_rate_limit_block_duration_min * 60
 
-    # 1. Check the sliding window + block flag. Fail-open on Redis errors
-    #    — same trade-off as the per-credit quota dependency.
+    # 1. Check the sliding window + block flag. FAIL-CLOSED on Redis errors:
+    #    AI generation is cost-bearing and abuse-prone, so a cache outage
+    #    must not bypass the cap. Deny with 503 instead.
     try:
         allowed, _count, retry_after = await ai_gen_rate_limit_check(
             user_id, limit, _WINDOW_SECONDS
         )
     except RedisError as exc:
-        logger.warning(
-            "AI rate-limit check failed (Redis error) for user %s — "
-            "allowing request: %s",
+        logger.error(
+            "AI rate-limit FAIL-CLOSED: Redis unavailable for user %s — "
+            "denying request: %s",
             user_id,
             exc,
         )
-        return
+        retry_after = 30
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail={
+                "error_code": ERROR_CODE_AI_RATE_LIMIT,
+                "retry_after_seconds": retry_after,
+                "message": "Service temporarily unavailable. Please try again shortly.",
+            },
+            headers={"Retry-After": str(retry_after)},
+        )
     except Exception as exc:  # pragma: no cover - defensive
-        logger.warning(
-            "AI rate-limit check raised unexpectedly for user %s — "
-            "allowing request: %s",
+        logger.error(
+            "AI rate-limit FAIL-CLOSED: check raised unexpectedly for user "
+            "%s — denying request: %s",
             user_id,
             exc,
         )
-        return
+        retry_after = 30
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail={
+                "error_code": ERROR_CODE_AI_RATE_LIMIT,
+                "retry_after_seconds": retry_after,
+                "message": "Service temporarily unavailable. Please try again shortly.",
+            },
+            headers={"Retry-After": str(retry_after)},
+        )
 
     if allowed:
         return

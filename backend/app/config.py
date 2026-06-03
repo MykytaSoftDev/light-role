@@ -28,7 +28,10 @@ class Settings(BaseSettings):
 
     # CORS
     frontend_url: str = "https://dev.lightrole.com"
-    cookie_secure: bool = False
+    # Secure cookies on by default (prod-safe). May be set False ONLY in
+    # non-production environments so local dev over plain http still works.
+    # The production startup guard rejects boot if this is False in prod.
+    cookie_secure: bool = True
     cookie_domain: str = ""
 
     # OpenAI
@@ -55,6 +58,16 @@ class Settings(BaseSettings):
     # Google OAuth
     google_client_id: str = ""
     google_client_secret: str = ""
+    # Server-pinned redirect_uri for the Google OAuth flow (security:
+    # oauth-state-pkce). This is the URI Google redirects the browser back
+    # to after consent AND the value sent in the token exchange — the two
+    # MUST match. It is pinned here (NOT supplied by the client) so an
+    # attacker cannot redirect the authorization code to a host they
+    # control. Must be registered as an "Authorized redirect URI" in the
+    # Google Cloud OAuth client. Points at the SPA callback route; override
+    # per-environment via GOOGLE_REDIRECT_URI (e.g.
+    # http://localhost:3000/auth/callback/google for local dev).
+    google_redirect_uri: str = "https://dev.lightrole.com/auth/callback/google"
 
     # Analytics
     # Bump this on any change to the AnalyticsResponse wire shape so
@@ -104,3 +117,44 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
+
+
+def validate_production_settings(s: Settings = settings) -> None:
+    """Fail-fast guard for unsafe configuration in production.
+
+    Called from the application lifespan startup so that an unsafe prod
+    config aborts boot (the raised RuntimeError propagates out of the
+    lifespan context manager and uvicorn exits non-zero). In non-production
+    environments this is a no-op so dev defaults stay usable.
+    """
+    if s.environment != "production":
+        return
+
+    errors: list[str] = []
+
+    # JWT signing key must be a real, sufficiently long secret.
+    if not s.secret_key:
+        errors.append("SECRET_KEY is empty")
+    elif s.secret_key == "change-me-in-production":
+        errors.append("SECRET_KEY is still the insecure default 'change-me-in-production'")
+    elif len(s.secret_key) < 32:
+        errors.append(
+            f"SECRET_KEY is too short ({len(s.secret_key)} chars); must be at least 32"
+        )
+
+    # Webhook / internal shared secrets must be configured in prod.
+    if not s.paddle_webhook_secret:
+        errors.append("PADDLE_WEBHOOK_SECRET is empty")
+    if not s.internal_render_secret:
+        errors.append("INTERNAL_RENDER_SECRET is empty")
+
+    # Cookies must be Secure in production (TLS-only). Fail fast rather than
+    # silently forcing True so the misconfiguration is visible and fixed.
+    if not s.cookie_secure:
+        errors.append("COOKIE_SECURE must be True in production")
+
+    if errors:
+        raise RuntimeError(
+            "Refusing to start in production due to unsafe configuration:\n  - "
+            + "\n  - ".join(errors)
+        )

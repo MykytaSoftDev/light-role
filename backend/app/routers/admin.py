@@ -287,7 +287,9 @@ def impersonate_user(
             detail="No active admin session",
         )
 
-    imp_token = create_impersonation_token(str(target.id), str(admin.id))
+    imp_token = create_impersonation_token(
+        str(target.id), str(admin.id), target.token_version
+    )
 
     secure = settings.cookie_secure
     response.set_cookie(

@@ -35,6 +35,16 @@ def get_current_user(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="User not found",
         )
+
+    # Session-revocation (security TASK 3): reject tokens whose ``tv`` claim
+    # no longer matches the user's current token_version. A missing claim
+    # (legacy token issued before this feature) compares unequal to the int
+    # and is likewise rejected — those users simply re-login.
+    if payload.get("tv") != user.token_version:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Session has been revoked",
+        )
     return user
 
 

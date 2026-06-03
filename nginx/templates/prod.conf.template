@@ -79,6 +79,12 @@ server {
 
     # --- Frontend proxy ---
     location / {
+        # DoS hardening: per-IP rate + connection caps. burst=50 nodelay
+        # absorbs the parallel asset/chunk fetches a Next.js page issues on
+        # first load without throttling legitimate browsing.
+        limit_req  zone=req_per_ip burst=50 nodelay;
+        limit_conn conn_per_ip 20;
+
         proxy_pass http://frontend;
         proxy_http_version 1.1;
 
@@ -127,6 +133,13 @@ server {
 
     # --- API ---
     location /api/ {
+        # DoS hardening: per-IP rate + connection caps. burst=20 nodelay
+        # leaves headroom for legitimate bursts (e.g. a 15M upload plus the
+        # surrounding API calls) while blunting floods. The upload itself is
+        # one request, so the rate limit does not throttle its throughput.
+        limit_req  zone=req_per_ip burst=20 nodelay;
+        limit_conn conn_per_ip 20;
+
         proxy_pass http://backend;
         proxy_http_version 1.1;
         proxy_set_header Host              $host;
@@ -136,24 +149,12 @@ server {
         proxy_read_timeout 120s;
     }
 
-    # --- Swagger / ReDoc ---
-    location /docs {
-        proxy_pass http://backend;
-        proxy_http_version 1.1;
-        proxy_set_header Host $host;
-    }
-
-    location /openapi.json {
-        proxy_pass http://backend;
-        proxy_http_version 1.1;
-        proxy_set_header Host $host;
-    }
-
-    location /redoc {
-        proxy_pass http://backend;
-        proxy_http_version 1.1;
-        proxy_set_header Host $host;
-    }
+    # --- Swagger / ReDoc / OpenAPI: NOT proxied in prod ---
+    # API docs are disabled in production (the backend also returns 404 for
+    # these paths in prod). They fall through to the catch-all 404 below.
+    # location /docs    { ... }   # disabled in prod
+    # location /openapi.json { ... }  # disabled in prod
+    # location /redoc   { ... }   # disabled in prod
 
     # --- Uploaded files (served by nginx, access via X-Accel-Redirect) ---
     location /uploads/ {
