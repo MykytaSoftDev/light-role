@@ -177,7 +177,10 @@ async def _verify_google_id_token(id_token: str) -> dict[str, Any]:
             audience=settings.google_client_id,
             # python-jose validates a single issuer string; we check the
             # broader accepted set manually below.
-            options={"verify_iss": False},
+            # at_hash binds the id_token to an access_token we never use
+            # (identity comes solely from the verified id_token claims), so
+            # disable it — we still verify signature + aud + iss + exp.
+            options={"verify_iss": False, "verify_at_hash": False},
         )
     except JWTError as exc:
         logger.warning("Google id_token verification failed: %s", exc)

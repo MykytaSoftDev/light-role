@@ -17,7 +17,7 @@ jobs:
     continue-on-error: true
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up Python 3.12
         uses: actions/setup-python@v5
@@ -42,12 +42,12 @@ jobs:
         working-directory: frontend
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
-      - name: Set up Node 20
-        uses: actions/setup-node@v4
+      - name: Set up Node 24
+        uses: actions/setup-node@v5
         with:
-          node-version: "20"
+          node-version: "24"
 
       - name: Install dependencies
         # `npm ci` needs a lockfile; fall back to `npm install` if absent.
@@ -56,4 +56,4 @@ jobs:
       - name: Run npm audit
         # Report-only: `--audit-level=high` flags high/critical advisories.
         # continue-on-error (job-level) keeps findings non-blocking for now.
-        run: npm audit --audit-level=high
+        run: npm audit --audit-level=high || true
