@@ -192,7 +192,6 @@
       "passwordPlaceholder": "••••••••",
       "or": "or",
       "continueWithGoogle": "Continue with Google",
-      "googleNotConfigured": "Google OAuth is not configured.",
       "networkError": "Unable to connect. Check your internet connection.",
       "genericError": "Something went wrong. Please try again."
     },

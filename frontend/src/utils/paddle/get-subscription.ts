@@ -9,10 +9,8 @@ export async function getSubscription(subscriptionId: string): Promise<Subscript
     const subscription = await getPaddleInstance().subscriptions.get(subscriptionId, {
       include: ["next_transaction", "recurring_transaction_details"],
     });
-    console.log("subscriptionId", subscriptionId);
-    console.log("subscription", subscription);
     return { data: parseSDKResponse(subscription) };
-  } catch (e) {
+  } catch {
     return { error: ErrorMessage };
   }
 }

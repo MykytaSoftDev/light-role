@@ -108,8 +108,6 @@ class Settings(BaseSettings):
 
     # Paddle
     paddle_api_key: str = ""
-    paddle_price_monthly: str = ""       # kept for backwards compat
-    paddle_price_annual: str = ""        # kept for backwards compat
     paddle_price_id_monthly: str = ""    # matches PADDLE_PRICE_ID_MONTHLY env var
     paddle_price_id_annual: str = ""     # matches PADDLE_PRICE_ID_ANNUAL env var
     paddle_webhook_secret: str = ""

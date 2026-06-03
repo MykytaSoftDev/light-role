@@ -192,7 +192,6 @@
       "passwordPlaceholder": "••••••••",
       "or": "или",
       "continueWithGoogle": "Продолжить с Google",
-      "googleNotConfigured": "Google OAuth не настроен.",
       "networkError": "Не удалось подключиться. Проверьте интернет-соединение.",
       "genericError": "Что-то пошло не так. Попробуйте ещё раз."
     },

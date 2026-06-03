@@ -56,8 +56,6 @@ const createFreeTransactionData = (): FreeTransactionData => ({
 });
 
 export function useSubscription(subscriptionId: string): UseSubscriptionReturn {
-  console.log("subscriptionId", subscriptionId);
-
   const [subscription, setSubscription] = useState<
     SubscriptionDetailResponse | FreeSubscription | null
   >(null);
@@ -68,7 +66,6 @@ export function useSubscription(subscriptionId: string): UseSubscriptionReturn {
   const [error, setError] = useState<string | null>(null);
 
   const { data: userData, isLoading: userLoading } = useProfile();
-  console.log("userData", userData);
   const fetchSubscriptionData = async () => {
     try {
       setLoading(true);

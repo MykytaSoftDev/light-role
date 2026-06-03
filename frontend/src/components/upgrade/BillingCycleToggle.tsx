@@ -17,7 +17,6 @@ export function BillingCycleToggle({
   onChange,
   monthlyLabel,
   annualLabel,
-  savingsBadgeLabel,
 }: BillingCycleToggleProps) {
   const tSub = useTranslations("Subscriptions.details");
   return (

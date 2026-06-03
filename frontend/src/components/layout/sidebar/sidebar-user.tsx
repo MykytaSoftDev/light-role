@@ -31,7 +31,6 @@ import { useProfile } from "@/hooks/use-profile";
 export function SidebarUser() {
   const { data, isLoading } = useProfile();
   const currentPlan = usePlan();
-  console.log(currentPlan);
   const { isMobile } = useSidebar();
   const tUser = useTranslations("Sidebar.user");
   const tNotifications = useTranslations("Notifications.bell");

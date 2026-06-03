@@ -1,10 +1,28 @@
 from datetime import datetime, timedelta, timezone
+from uuid import UUID
+
+from sqlalchemy.orm import Session
 
 from app.models.enums import SubscriptionStatus
 from app.models.plan import Plan
 from app.models.subscription import Subscription
 
 GRACE_PERIOD_DAYS = 7  # for past_due
+
+
+def get_user_subscription(db: Session, user_id: UUID) -> Subscription | None:
+    """Fetch the (unique) Subscription row for ``user_id``, or ``None``.
+
+    Thin wrapper over the repeated
+    ``db.query(Subscription).filter(Subscription.user_id == ...).first()``
+    lookup. None-handling (404 / 400 / free-tier fallthrough) stays at each
+    call site — this only centralises the query.
+    """
+    return (
+        db.query(Subscription)
+        .filter(Subscription.user_id == user_id)
+        .first()
+    )
 
 
 def get_effective_plan(subscription: Subscription | None) -> str:

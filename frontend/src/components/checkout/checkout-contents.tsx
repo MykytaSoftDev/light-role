@@ -36,8 +36,6 @@ export function CheckoutContents({ userEmail, userId }: Props) {
   const handleCheckoutEvents = useCallback(
     (event: CheckoutEventsData) => {
       setCheckoutData(event);
-      console.log("checkoutData", event);
-      console.log("customerIdSaved", customerIdSaved.current);
 
       if (event.customer.id && !customerIdSaved.current) {
         const data = { paddleUserId: event.customer.id };
@@ -45,8 +43,7 @@ export function CheckoutContents({ userEmail, userId }: Props) {
           onSuccess: () => {
             customerIdSaved.current = true;
           },
-          onError: (error) => {
-            console.log("error", error);
+          onError: () => {
             toast.error(tCommon("toast.genericError"));
           },
         });
@@ -103,7 +100,6 @@ export function CheckoutContents({ userEmail, userId }: Props) {
 
   useEffect(() => {
     if (paddle && priceId && paddle.Initialized) {
-      console.log("paddle2", paddle);
       updateItems(paddle, priceId, 1);
     }
   }, [paddle, priceId, updateItems]);

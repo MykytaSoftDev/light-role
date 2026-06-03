@@ -19,7 +19,7 @@ export async function getTransactions(
       hasMore: transactionCollection.hasMore,
       totalRecords: transactionCollection.estimatedTotal,
     };
-  } catch (e) {
+  } catch {
     return getErrorMessage();
   }
 }

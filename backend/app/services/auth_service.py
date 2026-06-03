@@ -208,13 +208,6 @@ async def verify_email_user(token: str, db: Session, response: Response) -> dict
 
     logger.info(f"Email verified for user {user.id}")
 
-    # Send welcome email — fire and forget (failure does not affect response).
-    #TODO: Will see, do we need these letter or not.
-    # try:
-    #     send_welcome_email(user.email)
-    # except Exception as exc:
-    #     logger.error(f"Could not send welcome email for user {user.id}: {exc}")
-
     return {"message": "Email verified successfully"}
 
 

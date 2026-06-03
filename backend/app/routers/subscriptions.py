@@ -27,6 +27,7 @@ from app.services.subscription_service import (
     get_effective_plan,
     get_plan_active_jobs_limit,
     get_plan_ai_limit,
+    get_user_subscription,
 )
 from app.services.usage_service import get_usage
 
@@ -73,9 +74,7 @@ async def get_subscription(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_verified_user),
 ):
-    subscription: Subscription | None = (
-        db.query(Subscription).filter(Subscription.user_id == current_user.id).first()
-    )
+    subscription: Subscription | None = get_user_subscription(db, current_user.id)
     if subscription is None:
         raise HTTPException(status_code=404, detail="Subscription not found")
 
@@ -122,9 +121,7 @@ async def save_customer_id(
     _: None = Depends(block_during_impersonation),
 ):
     """Save the Paddle customer ID on the user's subscription (called from inline checkout)."""
-    subscription: Subscription | None = (
-        db.query(Subscription).filter(Subscription.user_id == current_user.id).first()
-    )
+    subscription: Subscription | None = get_user_subscription(db, current_user.id)
     if subscription is None:
         raise HTTPException(status_code=404, detail="Subscription not found")
 
@@ -144,9 +141,7 @@ async def get_current_subscription(
     current_user: User = Depends(get_verified_user),
 ):
     """Detailed subscription info including live Paddle data for Pro users."""
-    subscription: Subscription | None = (
-        db.query(Subscription).filter(Subscription.user_id == current_user.id).first()
-    )
+    subscription: Subscription | None = get_user_subscription(db, current_user.id)
     usage = await get_usage(current_user, db)
 
     if subscription is None or subscription.plan.code == "free":
@@ -249,9 +244,7 @@ async def get_transactions(
     current_user: User = Depends(get_verified_user),
 ):
     """Paginated transaction history from Paddle."""
-    subscription: Subscription | None = (
-        db.query(Subscription).filter(Subscription.user_id == current_user.id).first()
-    )
+    subscription: Subscription | None = get_user_subscription(db, current_user.id)
 
     if subscription is None or not subscription.paddle_subscription_id:
         return TransactionListResponse(items=[], has_more=False)
@@ -302,9 +295,7 @@ async def cancel_subscription(
     _: None = Depends(block_during_impersonation),
 ):
     """Schedule subscription cancellation at the end of the current billing period."""
-    subscription: Subscription | None = (
-        db.query(Subscription).filter(Subscription.user_id == current_user.id).first()
-    )
+    subscription: Subscription | None = get_user_subscription(db, current_user.id)
 
     if subscription is None or not subscription.paddle_subscription_id:
         raise HTTPException(status_code=400, detail="No active subscription to cancel")
@@ -339,9 +330,7 @@ async def change_subscription_plan(
     Final reconciliation (plan_id swap from price_id) happens in
     ``_handle_subscription_updated`` when ``subscription.updated`` arrives.
     """
-    subscription: Subscription | None = (
-        db.query(Subscription).filter(Subscription.user_id == current_user.id).first()
-    )
+    subscription: Subscription | None = get_user_subscription(db, current_user.id)
 
     if subscription is None or not subscription.paddle_subscription_id:
         raise HTTPException(status_code=400, detail="No active subscription")
@@ -414,9 +403,7 @@ async def create_portal_session(
     _: None = Depends(block_during_impersonation),
 ):
     """Generate a Paddle Customer Portal session URL."""
-    subscription: Subscription | None = (
-        db.query(Subscription).filter(Subscription.user_id == current_user.id).first()
-    )
+    subscription: Subscription | None = get_user_subscription(db, current_user.id)
 
     if subscription is None or not subscription.paddle_customer_id:
         raise HTTPException(status_code=400, detail="No Paddle customer account found")

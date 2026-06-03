@@ -13,7 +13,6 @@ from app.models.enums import (
     FeedbackType,
     FileFormat,
     NotificationType,
-    OperationType,
     SubscriptionStatus,
 )
 from app.models.feedback import Feedback
@@ -31,7 +30,6 @@ __all__ = [
     "AuthProvider",
     "ApplicationStatus",
     "FileFormat",
-    "OperationType",
     "SubscriptionStatus",
     "CLStyle",
     "CLTone",

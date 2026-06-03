@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { LANDING_PAGES } from "@/constants/nav.constants";
 import { api } from "@/lib/api";
+import { initiateGoogleSignIn } from "@/lib/auth/google-signin";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CircleAlert, Loader2, MailCheck } from "lucide-react";
@@ -33,27 +34,7 @@ export default function RegisterPage() {
   const [serverError, setServerError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
-  const handleGoogleSignIn = async () => {
-    setServerError(null);
-    try {
-      // Backend owns the Google OAuth flow: it sets an httpOnly `g_oauth_state`
-      // cookie (state + PKCE) and returns the authorize URL with a pinned
-      // redirect_uri. credentials: "include" is REQUIRED so the cookie is stored.
-      const res = await api.get("/api/v1/auth/oauth/google/start");
-      if (!res.ok) {
-        setServerError(tCommon("genericError"));
-        return;
-      }
-      const data: { authorize_url?: string } = await res.json();
-      if (!data.authorize_url) {
-        setServerError(tCommon("genericError"));
-        return;
-      }
-      window.location.href = data.authorize_url;
-    } catch {
-      setServerError(tCommon("networkError"));
-    }
-  };
+  const handleGoogleSignIn = () => initiateGoogleSignIn(setServerError, tCommon);
 
   const registerSchema = makeRegisterSchema(tValidation);
 

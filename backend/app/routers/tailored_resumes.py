@@ -10,11 +10,7 @@ own tasks (TAILOR-8, TAILOR-14) and will land in this same router.
 from __future__ import annotations
 
 import logging
-import re
-import uuid
 from datetime import datetime, timezone
-from io import BytesIO
-from typing import Optional
 from uuid import UUID
 
 import httpx
@@ -30,6 +26,9 @@ from app.dependencies.auth import get_verified_user
 from app.models.ai_quality_rating import AIQualityRating
 from app.models.tailored_resume import TailoredResume
 from app.models.user import User
+from app.utils.filename import safe_filename_stem
+from app.utils.ownership import assert_owned, load_owned_entity
+from app.utils.streaming import build_download_response
 from app.schemas.tailored_resume import (
     AIQualityRatingCreateRequest,
     AIQualityRatingResponse,
@@ -57,29 +56,6 @@ router = APIRouter(prefix="/api/v1/tailored-resumes", tags=["tailored-resumes"])
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
-
-
-# Allowed chars in the Content-Disposition filename. We intentionally drop
-# spaces, em-dashes, and unicode — they trigger RFC 6266 encoding overhead
-# and some browsers truncate at the first non-ASCII char. Slug must be
-# downloadable as-is.
-_SLUG_RE = re.compile(r"[^A-Za-z0-9\-]+")
-
-
-def _safe_pdf_filename(name: Optional[str], resume_id: UUID) -> str:
-    """Sanitise `name` into an ASCII-safe `*.pdf` filename.
-
-    Rules:
-      - Replace any run of disallowed chars with a single `-`.
-      - Trim leading/trailing dashes.
-      - Cap at 80 chars (well under the 255-byte filename limit).
-      - If the result is empty, fall back to `resume-<8 chars of uuid>`.
-    """
-    raw = (name or "").strip()
-    slug = _SLUG_RE.sub("-", raw).strip("-")
-    if not slug:
-        slug = f"resume-{str(resume_id)[:8]}"
-    return f"{slug[:80]}.pdf"
 
 
 # Default sections order used when the row's snapshot is missing/empty.
@@ -289,12 +265,7 @@ def _load_owned(
         .filter(TailoredResume.id == tailored_resume_id)
         .first()
     )
-    if row is None or row.user_id != user.id:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Tailored resume not found.",
-        )
-    return row
+    return assert_owned(row, user, not_found_detail="Tailored resume not found.")
 
 
 @router.get(
@@ -571,16 +542,13 @@ async def download_tailored_resume(
     Does NOT consume AI credits and does NOT write to `usage_log` —
     rendering an existing resume to PDF is free.
     """
-    row = (
-        db.query(TailoredResume)
-        .filter(TailoredResume.id == tailored_resume_id)
-        .first()
+    row = load_owned_entity(
+        db,
+        TailoredResume,
+        tailored_resume_id,
+        current_user,
+        not_found_detail="Tailored resume not found.",
     )
-    if row is None or row.user_id != current_user.id:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Tailored resume not found.",
-        )
 
     try:
         html = await _render_resume_html(row)
@@ -604,17 +572,10 @@ async def download_tailored_resume(
             detail="Failed to render PDF. Please try again later.",
         )
 
-    filename = _safe_pdf_filename(row.name, row.id)
-    headers = {
-        # Content-Disposition with `attachment` triggers a save-as dialog
-        # in browsers rather than rendering inline.
-        "Content-Disposition": f'attachment; filename="{filename}"',
-        "Content-Length": str(len(pdf_bytes)),
-        # Prevent intermediaries from caching a personalised PDF.
-        "Cache-Control": "private, no-store",
-    }
-    return StreamingResponse(
-        BytesIO(pdf_bytes),
-        media_type="application/pdf",
-        headers=headers,
-    )
+    # Stem fallback needs the row id (uuid[:8]) so it lives at the call site;
+    # the shared slugifier returns an empty string when nothing survives.
+    stem = safe_filename_stem(row.name, kind="resume")
+    if not stem:
+        stem = f"resume-{str(row.id)[:8]}"
+    filename = f"{stem}.pdf"
+    return build_download_response(pdf_bytes, filename, media_type="application/pdf")

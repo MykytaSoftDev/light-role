@@ -1,8 +1,6 @@
 from __future__ import annotations
 
 import logging
-import re
-from io import BytesIO
 from typing import Optional
 from uuid import UUID
 
@@ -17,6 +15,9 @@ from app.models.cover_letter import CoverLetter
 from app.models.enums import CLLength, CLStyle, CLTone
 from app.models.job import Job
 from app.models.user import User
+from app.utils.filename import safe_filename_stem
+from app.utils.ownership import load_owned_entity
+from app.utils.streaming import build_download_response
 from app.schemas.cover_letter import (
     CoverLetterFinalizeRequest,
     CoverLetterListResponse,
@@ -340,56 +341,6 @@ async def regenerate_cover_letter(cover_letter_id: UUID) -> dict:
 # (matches the 404 semantics of the tailored-resume download endpoint).
 
 
-# Allowed chars in the Content-Disposition filename. Mirrors the
-# tailored-resume download route — drop spaces and unicode so the
-# slug is safe to use as a literal filename without RFC 6266 encoding.
-_FILENAME_SLUG_RE = re.compile(r"[^A-Za-z0-9\-_]+")
-# Cap mirrors the tailored-resume side; well under the 255-byte FS limit.
-_FILENAME_MAX_LEN = 80
-
-
-def _safe_cl_filename_stem(name: Optional[str]) -> str:
-    """Sanitise ``name`` into an ASCII-safe filename stem (no extension).
-
-    Rules (per CL-9 spec):
-      - lowercase
-      - spaces → ``-``
-      - drop every char that isn't ``[a-z0-9_-]``
-      - collapse runs of ``-`` (artefact of the previous step) into one
-      - trim leading / trailing ``-``
-      - cap at 80 chars
-      - if the result is empty, fall back to ``cover-letter``
-    """
-    raw = (name or "").strip().lower().replace(" ", "-")
-    slug = _FILENAME_SLUG_RE.sub("", raw)
-    slug = re.sub(r"-+", "-", slug).strip("-_")
-    if not slug:
-        slug = "cover-letter"
-    return slug[:_FILENAME_MAX_LEN]
-
-
-def _load_owned_cover_letter(
-    db: Session, cover_letter_id: UUID, user: User
-) -> CoverLetter:
-    """Load a CoverLetter, 404 on missing-or-not-owner.
-
-    Single 404 path on both branches keeps existence opaque to a
-    non-owner probing the URL (mirrors the tailored-resume download
-    pattern). The HTTP detail string is identical for both cases.
-    """
-    row = (
-        db.query(CoverLetter)
-        .filter(CoverLetter.id == cover_letter_id)
-        .first()
-    )
-    if row is None or row.user_id != user.id:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Cover letter not found.",
-        )
-    return row
-
-
 @router.post(
     "/{cover_letter_id}/download",
     status_code=status.HTTP_200_OK,
@@ -412,7 +363,13 @@ async def download_cover_letter_pdf(
     Does NOT consume AI credits and does NOT write to ``usage_log`` —
     rendering an existing cover letter to PDF is free.
     """
-    cl = _load_owned_cover_letter(db, cover_letter_id, current_user)
+    cl = load_owned_entity(
+        db,
+        CoverLetter,
+        cover_letter_id,
+        current_user,
+        not_found_detail="Cover letter not found.",
+    )
 
     # ``content`` is JSONB-loaded as a dict on the model side. Defensive
     # ``or {}`` because legacy rows pre-migration-011 could in theory
@@ -440,24 +397,14 @@ async def download_cover_letter_pdf(
             detail="Failed to render PDF. Please try again later.",
         )
 
-    filename = f"{_safe_cl_filename_stem(cl.name)}.pdf"
-    headers = {
-        "Content-Disposition": f'attachment; filename="{filename}"',
-        "Content-Length": str(len(pdf_bytes)),
-        # Personalised content — stop intermediaries from caching it.
-        "Cache-Control": "private, no-store",
-    }
+    filename = f"{safe_filename_stem(cl.name, kind='cover_letter')}.pdf"
     logger.info(
         "Cover letter PDF rendered: cl_id=%s user_id=%s bytes=%d",
         cl.id,
         current_user.id,
         len(pdf_bytes),
     )
-    return StreamingResponse(
-        BytesIO(pdf_bytes),
-        media_type="application/pdf",
-        headers=headers,
-    )
+    return build_download_response(pdf_bytes, filename, media_type="application/pdf")
 
 
 @router.post(
@@ -481,7 +428,13 @@ def download_cover_letter_docx(
 
     Does NOT consume AI credits and does NOT write to ``usage_log``.
     """
-    cl = _load_owned_cover_letter(db, cover_letter_id, current_user)
+    cl = load_owned_entity(
+        db,
+        CoverLetter,
+        cover_letter_id,
+        current_user,
+        not_found_detail="Cover letter not found.",
+    )
 
     try:
         docx_bytes = render_tiptap_to_docx(cl.content or {}, title=cl.name)
@@ -498,23 +451,18 @@ def download_cover_letter_docx(
             detail="Failed to render DOCX. Please try again later.",
         )
 
-    filename = f"{_safe_cl_filename_stem(cl.name)}.docx"
-    headers = {
-        "Content-Disposition": f'attachment; filename="{filename}"',
-        "Content-Length": str(len(docx_bytes)),
-        "Cache-Control": "private, no-store",
-    }
+    filename = f"{safe_filename_stem(cl.name, kind='cover_letter')}.docx"
     logger.info(
         "Cover letter DOCX rendered: cl_id=%s user_id=%s bytes=%d",
         cl.id,
         current_user.id,
         len(docx_bytes),
     )
-    return StreamingResponse(
-        BytesIO(docx_bytes),
+    return build_download_response(
+        docx_bytes,
+        filename,
         media_type=(
             "application/vnd.openxmlformats-officedocument."
             "wordprocessingml.document"
         ),
-        headers=headers,
     )
