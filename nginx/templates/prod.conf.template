@@ -77,12 +77,28 @@ server {
 
     client_max_body_size 15M;
 
+    # --- Next.js static assets ---
+    location ^~ /_next/static/ {
+        # Hashed immutable build assets — cheap to serve, cached by Cloudflare.
+        # No request-rate limit: a single dashboard load fetches 60-100 chunks
+        # in parallel and would instantly trip any per-IP burst budget.
+        limit_conn conn_per_ip 40;
+        proxy_pass http://frontend;
+        proxy_set_header Host              $host;
+        proxy_set_header X-Real-IP         $remote_addr;
+        proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        add_header Cache-Control "public, max-age=31536000, immutable";
+    }
+
     # --- Frontend proxy ---
     location / {
-        # DoS hardening: per-IP rate + connection caps. burst=50 nodelay
-        # absorbs the parallel asset/chunk fetches a Next.js page issues on
-        # first load without throttling legitimate browsing.
-        limit_req  zone=req_per_ip burst=50 nodelay;
+        # DoS hardening: per-IP rate + connection caps. burst=100 nodelay
+        # absorbs the parallel fetches a Next.js page issues on first load
+        # (icons, RSC route prefetches, fonts) without throttling legitimate
+        # browsing. Hashed build chunks are handled by the /_next/static/
+        # location above and are exempt from the request-rate limit.
+        limit_req  zone=req_per_ip burst=100 nodelay;
         limit_conn conn_per_ip 20;
 
         proxy_pass http://frontend;
@@ -133,11 +149,13 @@ server {
 
     # --- API ---
     location /api/ {
-        # DoS hardening: per-IP rate + connection caps. burst=20 nodelay
-        # leaves headroom for legitimate bursts (e.g. a 15M upload plus the
-        # surrounding API calls) while blunting floods. The upload itself is
-        # one request, so the rate limit does not throttle its throughput.
-        limit_req  zone=req_per_ip burst=20 nodelay;
+        # DoS hardening: per-IP rate + connection caps. burst=60 nodelay
+        # leaves headroom for legitimate bursts: a dashboard load fires ~15
+        # parallel queries and React Query retries can roughly double that,
+        # plus the occasional 15M upload alongside surrounding API calls,
+        # while still blunting floods. The upload itself is one request, so
+        # the rate limit does not throttle its throughput.
+        limit_req  zone=req_per_ip burst=60 nodelay;
         limit_conn conn_per_ip 20;
 
         proxy_pass http://backend;
