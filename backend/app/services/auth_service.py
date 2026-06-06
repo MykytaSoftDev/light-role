@@ -32,6 +32,15 @@ COOKIE_MAX_AGE_ACCESS = 120 * 60         # 2 hours in seconds
 COOKIE_MAX_AGE_REFRESH = 7 * 24 * 3600   # 7 days in seconds
 
 
+def _cookie_domain() -> str | None:
+    # Domain attribute only in production (.lightrole.com via COOKIE_DOMAIN).
+    # Locally the attribute must be omitted entirely so cookies stay
+    # host-only on localhost — set_cookie(domain=None) skips the attribute.
+    if settings.environment == "production":
+        return settings.cookie_domain or None
+    return None
+
+
 def set_auth_cookies(response: Response, user: User) -> None:
     # Mint both tokens with the user's CURRENT token_version (security
     # TASK 3) so a later bump (password change / logout-all) invalidates
@@ -39,7 +48,6 @@ def set_auth_cookies(response: Response, user: User) -> None:
     access_token = create_access_token(str(user.id), user.token_version)
     refresh_token = create_refresh_token(str(user.id), user.token_version)
 
-    domain = settings.cookie_domain if settings.cookie_domain else None
     response.set_cookie(
         key=ACCESS_COOKIE,
         value=access_token,
@@ -48,7 +56,7 @@ def set_auth_cookies(response: Response, user: User) -> None:
         secure=settings.cookie_secure,
         samesite="lax",
         path="/",
-        # domain=domain,
+        domain=_cookie_domain(),
     )
     response.set_cookie(
         key=REFRESH_COOKIE,
@@ -58,14 +66,13 @@ def set_auth_cookies(response: Response, user: User) -> None:
         secure=settings.cookie_secure,
         samesite="lax",
         path="/",
-        # domain=domain,
+        domain=_cookie_domain(),
     )
 
 
 def clear_auth_cookies(response: Response) -> None:
-    domain = settings.cookie_domain if settings.cookie_domain else None
-    response.delete_cookie(ACCESS_COOKIE, path="/", domain=domain, secure=settings.cookie_secure)
-    response.delete_cookie(REFRESH_COOKIE, path="/", domain=domain, secure=settings.cookie_secure)
+    response.delete_cookie(ACCESS_COOKIE, path="/", domain=_cookie_domain(), secure=settings.cookie_secure)
+    response.delete_cookie(REFRESH_COOKIE, path="/", domain=_cookie_domain(), secure=settings.cookie_secure)
 
 
 _VERIFY_EMAIL_PREFIX = "verify_email"
