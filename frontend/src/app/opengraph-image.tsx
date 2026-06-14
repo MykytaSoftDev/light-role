@@ -1,3 +1,6 @@
+import { readFile } from "node:fs/promises";
+import { join } from "node:path";
+
 import { ImageResponse } from "next/og";
 
 export const alt = "Light Role: AI resume tailoring and job application tracking";
@@ -9,6 +12,11 @@ const BACKGROUND_HEX = "#FFFFFF";
 const FOREGROUND_HEX = "#0A0A0A";
 
 export default async function OgImage() {
+  const logoData = await readFile(
+    join(process.cwd(), "public/assets/logo/lightrole-icon-512.png"),
+  );
+  const logoSrc = `data:image/png;base64,${logoData.toString("base64")}`;
+
   return new ImageResponse(
     (
       <div
@@ -23,27 +31,8 @@ export default async function OgImage() {
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
-          <svg width="60" height="60" viewBox="0 0 200 200" fill="none">
-            <path
-              d="M 60 32 L 32 32 L 32 168 L 60 168"
-              stroke={PRIMARY_HEX}
-              strokeWidth="16"
-              fill="none"
-            />
-            <path
-              d="M 140 32 L 168 32 L 168 168 L 140 168"
-              stroke={PRIMARY_HEX}
-              strokeWidth="16"
-              fill="none"
-            />
-            <path
-              d="M 80 52 L 80 148 L 132 148"
-              stroke={FOREGROUND_HEX}
-              strokeWidth="18"
-              strokeLinejoin="miter"
-              fill="none"
-            />
-          </svg>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={logoSrc} width={60} height={60} alt="" />
           <span
             style={{
               fontSize: 48,

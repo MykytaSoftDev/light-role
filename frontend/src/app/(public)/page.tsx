@@ -74,9 +74,6 @@ export async function generateMetadata(): Promise<Metadata> {
       },
     },
     formatDetection: { email: false, telephone: false, address: false },
-    other: {
-      "theme-color": "#FFFFFF",
-    },
   };
 }
 
@@ -103,7 +100,7 @@ export default async function HomePage() {
         "@id": `${SITE_URL}/#organization`,
         name: "Light Role",
         url: SITE_URL,
-        logo: `${SITE_URL}/icon`,
+        logo: `${SITE_URL}/assets/logo/lightrole-icon-512.png`,
         sameAs: [],
         contactPoint: {
           "@type": "ContactPoint",
@@ -118,11 +115,6 @@ export default async function HomePage() {
         url: SITE_URL,
         publisher: { "@id": `${SITE_URL}/#organization` },
         inLanguage: SEO_BCP47_LOCALES,
-        potentialAction: {
-          "@type": "SearchAction",
-          target: `${SITE_URL}/?q={search_term_string}`,
-          "query-input": "required name=search_term_string",
-        },
       },
       {
         "@type": "SoftwareApplication",

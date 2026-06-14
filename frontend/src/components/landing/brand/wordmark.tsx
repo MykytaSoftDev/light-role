@@ -10,7 +10,7 @@ export function Wordmark({ size = 20, className }: WordmarkProps) {
     <span
       aria-hidden="true"
       className={cn(
-        "font-display font-bold leading-none whitespace-nowrap text-[var(--color-foreground)]",
+        "font-display font-bold leading-none whitespace-nowrap text-foreground",
         className,
       )}
       style={{

@@ -15,16 +15,16 @@ import {
   SidebarMenuItem,
   SidebarRail,
 } from "@/components/ui/sidebar";
+import { BrandMark } from "@/components/landing/brand/brand-mark";
+import { Wordmark } from "@/components/landing/brand/wordmark";
 import { DASHBOARD_PAGES } from "@/constants/nav.constants";
 import { useTranslations } from "next-intl";
-import Image from "next/image";
 import Link from "next/link";
 import { SidebarAdmin } from "./sidebar-admin";
 import { SidebarDocuments } from "./sidebar-documents";
 import { SidebarSecondary } from "./sidebar-secondary";
 
 export function AppSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
-  const tBranding = useTranslations("Auth.branding");
   const tSidebarRoot = useTranslations("Sidebar");
   return (
     <Sidebar collapsible="icon" {...props}>
@@ -36,13 +36,12 @@ export function AppSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
                 <Link
                   href={DASHBOARD_PAGES.HOME}
                   aria-label={tSidebarRoot("dashboardHomeAria")}
+                  className="flex items-center gap-2"
                 >
-                  <Image
-                    src="/assets/logo/lightrole-text.svg"
-                    width={150}
-                    height={200}
-                    priority={true}
-                    alt={tBranding("logoAlt")}
+                  <BrandMark size={26} className="shrink-0" />
+                  <Wordmark
+                    size={18}
+                    className="group-data-[collapsible=icon]:hidden"
                   />
                 </Link>
               </SidebarMenuButton>

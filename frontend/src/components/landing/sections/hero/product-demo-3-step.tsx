@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-import { BracketMark } from "@/components/landing/brand/bracket-mark";
+import { BrandMark } from "@/components/landing/brand/brand-mark";
 import { Wordmark } from "@/components/landing/brand/wordmark";
 
 import { DemoStep1 } from "./demo-step-1";
@@ -221,7 +221,7 @@ export function ProductDemo3Step(props: ProductDemo3StepProps) {
           <div className="w-full h-full grid grid-cols-[180px_1fr] bg-[var(--color-background)]">
             <aside className="border-r border-[var(--color-border)] px-3.5 py-[18px] flex flex-col gap-3 bg-[var(--color-sidebar)]">
               <div className="flex items-center gap-2" role="img" aria-label="Light Role">
-                <BracketMark size={20} />
+                <BrandMark size={20} />
                 <Wordmark size={13} />
               </div>
               <div className="h-px bg-[var(--color-border)] -mx-3.5 my-2" />

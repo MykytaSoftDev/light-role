@@ -1,6 +1,7 @@
 "use client";
 
 import StreakBackground from "@/components/streak-background";
+import { Logo } from "@/components/landing/brand/logo";
 import { GoogleIcon } from "@/components/shared/google-icon";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -96,13 +97,8 @@ export default function RegisterPage() {
       >
         <StreakBackground />
         {/* Logo */}
-        <div className="relative z-10 flex items-center gap-3">
-          <div className="bg-primary text-primary-foreground flex h-8 w-8 items-center justify-center rounded-md text-xs font-bold select-none">
-            LR
-          </div>
-          <span className="text-base font-semibold tracking-tight">
-            {tBranding("logoFallback")}
-          </span>
+        <div className="relative z-10">
+          <Logo size={32} />
         </div>
 
         {/* Hero copy */}
@@ -140,13 +136,8 @@ export default function RegisterPage() {
       <div className="bg-background flex flex-1 flex-col items-center justify-center px-6 py-12 sm:px-10 lg:px-16">
         <div className="w-full max-w-sm">
           {/* Mobile logo header */}
-          <div className="mb-8 flex items-center gap-2 lg:hidden">
-            <div className="bg-primary text-primary-foreground flex h-7 w-7 items-center justify-center rounded-md text-xs font-bold select-none">
-              LR
-            </div>
-            <span className="text-foreground text-sm font-semibold">
-              {tBranding("logoFallback")}
-            </span>
+          <div className="mb-8 lg:hidden">
+            <Logo size={28} />
           </div>
 
           {/* Page header */}

@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 220" width="860" height="220" role="img" aria-label="Light Role">
+  <defs>
+    <linearGradient id="lr-grad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="oklch(50% 0.15 122)"></stop>
+      <stop offset="0.46" stop-color="oklch(62% 0.20 124)"></stop>
+      <stop offset="1" stop-color="oklch(80% 0.20 140)"></stop>
+    </linearGradient>
+    
+  </defs>
+  <text class="wm" x="20" y="158" fill="url(#lr-grad)">Light Role</text>
+</svg>

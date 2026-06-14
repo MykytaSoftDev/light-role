@@ -1,11 +1,10 @@
 import type { MetadataRoute } from "next";
 
 // theme_color and background_color must be literal hex (manifests don't support oklch()).
-// Resolved from globals.css :root tokens:
-//   --background: oklch(98% 0 0)        → ~#FAFAFA, treat as white for the manifest splash
-//   --primary:    oklch(60% 0.2 120)    → ~#5FA90E, a close sRGB approximation of the brand green
+// Both are kept as white so the PWA splash / browser chrome matches the site's
+// light theme-color (unified across the root <meta name="theme-color"> and this manifest).
 const BACKGROUND_LIGHT_HEX = "#FFFFFF";
-const PRIMARY_HEX = "#5FA90E";
+const THEME_COLOR_HEX = "#FFFFFF";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
@@ -15,10 +14,10 @@ export default function manifest(): MetadataRoute.Manifest {
     start_url: "/",
     display: "standalone",
     background_color: BACKGROUND_LIGHT_HEX,
-    theme_color: PRIMARY_HEX,
+    theme_color: THEME_COLOR_HEX,
     icons: [
-      { src: "/icon", sizes: "32x32", type: "image/png" },
-      { src: "/apple-icon", sizes: "180x180", type: "image/png" },
+      { src: "/assets/logo/lightrole-icon-512.png", sizes: "512x512", type: "image/png" },
+      { src: "/assets/logo/lightrole-icon-1024.png", sizes: "1024x1024", type: "image/png" },
     ],
   };
 }

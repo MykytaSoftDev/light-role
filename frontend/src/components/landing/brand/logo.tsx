@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 
-import { BracketMark } from "./bracket-mark";
+import { BrandMark } from "./brand-mark";
 import { Wordmark } from "./wordmark";
 
 interface LogoProps {
@@ -17,7 +17,7 @@ export function Logo({ size = 30, gap = 10, className }: LogoProps) {
       className={cn("inline-flex items-center", className)}
       style={{ gap: `${gap}px` }}
     >
-      <BracketMark size={size} />
+      <BrandMark size={size} />
       <Wordmark size={Math.round(size * 0.66)} />
     </span>
   );

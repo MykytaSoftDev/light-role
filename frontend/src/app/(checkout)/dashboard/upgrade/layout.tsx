@@ -1,7 +1,7 @@
 import { CheckoutGradients } from "@/components/gradients/checkout-gradients";
+import { Logo } from "@/components/landing/brand/logo";
 import { ChevronLeft } from "lucide-react";
 import { cookies } from "next/headers";
-import Image from "next/image";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import "@/styles/checkout.css";
@@ -46,13 +46,12 @@ export default async function UpgradeLayout({ children }: { children: React.Reac
             <ChevronLeft className="h-4 w-4" />
             {tFooter("back")}
           </a>
-          <div className="flex flex-1 justify-center">
-            <Image
-              src="/assets/logo/lightrole-text.svg"
-              width={200}
-              height={200}
-              alt={tBranding("logoAlt")}
-            />
+          <div
+            className="flex flex-1 justify-center"
+            role="img"
+            aria-label={tBranding("logoAlt")}
+          >
+            <Logo size={26} />
           </div>
           {/* Spacer mirrors the back link width so the logo stays centered */}
           <div className="w-32" />

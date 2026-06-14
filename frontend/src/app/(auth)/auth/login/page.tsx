@@ -1,6 +1,7 @@
 "use client";
 
 import StreakBackground from "@/components/streak-background";
+import { Logo } from "@/components/landing/brand/logo";
 import { GoogleIcon } from "@/components/shared/google-icon";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,7 +12,6 @@ import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CircleAlert, Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -72,17 +72,8 @@ export default function LoginPage() {
       >
         <StreakBackground />
         {/* Logo */}
-        <div className="relative z-10 flex items-center gap-3">
-          {/* <div className="bg-primary text-primary-foreground flex h-8 w-8 items-center justify-center rounded-md text-xs font-bold select-none">
-            LR
-          </div> */}
-          <Image
-            src="/assets/logo/lightrole-text.svg"
-            width={250}
-            height={300}
-            alt={tBranding("logoAlt")}
-          />
-          {/* <span className="text-base font-semibold tracking-tight">Light Role</span> */}
+        <div className="relative z-10">
+          <Logo size={32} />
         </div>
 
         {/* Hero copy */}
@@ -123,16 +114,8 @@ export default function LoginPage() {
       >
         <div className="w-full max-w-sm">
           {/* Mobile logo header */}
-          <div className="mb-8 flex items-center gap-2 lg:hidden">
-            {/* <div className="bg-primary text-primary-foreground flex h-7 w-7 items-center justify-center rounded-md text-xs font-bold select-none">
-              LR
-            </div> */}
-            <Image
-              src="/assets/logo/lightrole-text.svg"
-              width={250}
-              height={300}
-              alt={tBranding("logoAlt")}
-            />
+          <div className="mb-8 lg:hidden">
+            <Logo size={28} />
           </div>
 
           {/* Page header */}

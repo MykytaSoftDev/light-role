@@ -1,6 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="Light Role">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1180 320" width="1180" height="320" role="img" aria-label="Light Role">
   <defs>
     <linearGradient id="lr-grad" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="512">
+      <stop offset="0" stop-color="oklch(50% 0.15 122)"></stop>
+      <stop offset="0.46" stop-color="oklch(62% 0.20 124)"></stop>
+      <stop offset="1" stop-color="oklch(80% 0.20 140)"></stop>
+    </linearGradient>
+    <linearGradient id="lr-grad-text" gradientUnits="userSpaceOnUse" x1="0" y1="60" x2="0" y2="260">
       <stop offset="0" stop-color="oklch(50% 0.15 122)"></stop>
       <stop offset="0.46" stop-color="oklch(62% 0.20 124)"></stop>
       <stop offset="1" stop-color="oklch(80% 0.20 140)"></stop>
@@ -9,7 +14,9 @@
       <rect width="512" height="512" fill="white"></rect>
       <polygon points="352,100 375,100 307,168 284,168" fill="black"></polygon>
     </mask>
+    
   </defs>
+  <g transform="translate(5,5) scale(0.605)">
   <g fill="none" stroke="url(#lr-grad)" mask="url(#lr-cuts)">
     <circle cx="256" cy="256" r="243" stroke-width="26"></circle>
     <circle cx="144" cy="293" r="30" stroke-width="24"></circle>
@@ -18,4 +25,6 @@
     <path stroke-width="24" stroke-linejoin="miter" stroke-miterlimit="6" d="M 165 272 L 303 133 C 284 110 252 97 226 97 C 195 99 170 109 155 127 C 137 147 126 165 122 187 C 118 204 110 214 101 222 C 88 234 78 244 68 260 C 61 274 60 284 60 294 C 62 316 69 332 77.5 342 C 86 352 92 358 100 365 C 108 372 118 378 132 379 L 152 379 C 168 379 180 370 190 350 L 313 228"></path>
     <path stroke-width="24" stroke-linejoin="miter" stroke-miterlimit="6" d="M 344 127 L 374 142 C 383 150 388 158 391 170 C 394 182 402 196 405 210 C 406 216 414 226 428 236 C 444 248 454 262 457 284 C 458 298 456 310 452 322 C 448 334 438 346 428 356 C 416 370 402 377 386 377 L 292 377 L 355 315"></path>
   </g>
+  </g>
+  <text class="wm" x="364" y="212" fill="url(#lr-grad-text)">Light Role</text>
 </svg>

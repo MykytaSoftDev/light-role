@@ -1,5 +1,5 @@
 import { Providers as TanstackQueryProvider, ThemeProvider } from "@/providers/query.provider";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
 import { Toaster } from "sonner";
@@ -38,6 +38,21 @@ const jetbrains_mono = localFont({
 export const metadata: Metadata = {
   title: "Light Role",
   description: "AI-powered job search management platform",
+  icons: {
+    icon: [
+      { url: "/assets/favicon/favicon.svg", type: "image/svg+xml" },
+      { url: "/assets/favicon/favicon-32.png", sizes: "32x32", type: "image/png" },
+      { url: "/assets/favicon/favicon-16.png", sizes: "16x16", type: "image/png" },
+      { url: "/assets/favicon/favicon-48.png", sizes: "48x48", type: "image/png" },
+    ],
+    apple: [
+      { url: "/assets/favicon/apple-touch-icon-180.png", sizes: "180x180", type: "image/png" },
+    ],
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#FFFFFF",
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
