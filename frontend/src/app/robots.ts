@@ -10,6 +10,10 @@ export default function robots(): MetadataRoute.Robots {
         allow: [
           "/",
           "/pricing",
+          "/product/resume-tailor",
+          "/product/cover-letters",
+          "/product/job-tracking",
+          "/product/analytics",
           "/auth/login",
           "/auth/register",
           "/terms-and-conditions",

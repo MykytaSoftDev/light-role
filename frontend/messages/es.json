@@ -297,7 +297,7 @@
       "ctaPrimary": "Comenzar",
       "ctaSecondary": "Iniciar sesión",
       "hero": {
-        "eyebrow": "v1 · Para quienes están cansados de plantillas",
+        "eyebrow": "Para quienes están cansados de plantillas",
         "headlineLine1": "Deja de reescribir tu",
         "headlineLine2": "currículum.",
         "headlineLine3": "Empieza a conseguirlos.",
@@ -555,34 +555,317 @@
       "footer": {
         "tagline": "El SO de búsqueda de empleo para quienes prefieren postular a llevar hojas de cálculo.",
         "columnTitleProduct": "Producto",
-        "columnTitleResources": "Recursos",
-        "columnTitleCompany": "Empresa",
         "columnTitleLegal": "Legal",
         "linkPricing": "Precios",
         "linkResumeTailor": "Adaptar currículum",
         "linkCoverLetters": "Cartas de presentación",
         "linkJobTracking": "Seguimiento de empleos",
         "linkAnalytics": "Analíticas",
-        "linkTemplates": "Plantillas",
-        "linkChangelog": "Registro de cambios",
-        "linkBlog": "Blog",
-        "linkHelpCenter": "Centro de ayuda",
-        "linkResumeGuides": "Guías de currículum",
-        "linkApiStatus": "Estado de la API",
-        "linkRoadmap": "Hoja de ruta",
-        "linkAbout": "Acerca de",
-        "linkCareers": "Empleo",
-        "linkContact": "Contacto",
-        "linkPressKit": "Kit de prensa",
         "linkTerms": "Términos y Condiciones",
         "linkPrivacy": "Política de Privacidad",
-        "linkCookiePolicy": "Política de Cookies",
-        "linkGdpr": "RGPD",
-        "linkDpa": "DPA",
-        "copyright": "© {year} Light Role",
-        "socialX": "X",
-        "socialIn": "LinkedIn",
-        "socialGh": "GitHub"
+        "copyright": "© {year} Light Role"
+      }
+    },
+    "product": {
+      "shared": {
+        "howItWorksKicker": "Cómo funciona",
+        "howItWorksTitle": "Un paso corto: de la oferta a la candidatura.",
+        "subFeaturesKicker": "Qué incluye",
+        "subFeaturesTitle": "Pensado para cómo buscas empleo de verdad.",
+        "faqKicker": "FAQ",
+        "faqTitle": "Preguntas frecuentes.",
+        "ctaSubtitle": "Plan gratis para siempre. Sin tarjeta.",
+        "ctaPrimary": "Empezar gratis",
+        "ctaPrimaryAuthed": "Ir al panel",
+        "ctaSecondary": "Ver precios",
+        "ctaSeePricing": "Ver precios"
+      },
+      "resumeTailor": {
+        "metaTitle": "Adapta tu currículum con IA a cada empleo — Light Role",
+        "metaDescription": "Pega una oferta y recibe un currículum a medida, compatible con ATS, en menos de un minuto. Palabras clave, reescrituras con IA fieles a tu perfil y export a PDF.",
+        "breadcrumbName": "Adaptar currículum",
+        "eyebrow": "Adaptar currículum",
+        "kicker": "IA · Basado en tu perfil",
+        "title": "Un perfil. Cada currículum,",
+        "titleAccent": "a medida.",
+        "body": "Pega una descripción del puesto. Extraemos las palabras clave, reordenamos tus secciones y reescribimos tus bullets para que coincidan, sin inventar nada que no esté ya en tu perfil.",
+        "steps": {
+          "step1": {
+            "title": "Pega la oferta",
+            "body": "Copia el texto de la descripción del puesto y pégalo. La IA extrae el título, el nivel, las responsabilidades y las palabras clave decisivas en segundos."
+          },
+          "step2": {
+            "title": "Revisa la coincidencia",
+            "body": "Las palabras clave coincidentes se resaltan como chips de colores con una puntuación de coincidencia, para que veas exactamente qué cambió y por qué. Cada línea sigue siendo editable."
+          },
+          "step3": {
+            "title": "Descarga el PDF",
+            "body": "Un diseño limpio y compatible con ATS. Exporta un PDF pulido listo para enviar, sin reformatear nada."
+          }
+        },
+        "features": {
+          "f1": {
+            "title": "Coincidencia de palabras clave",
+            "body": "Palabras clave con código de color enlazadas al punto donde aparecen tanto en la oferta como en tus bullets. Nada de caja negra."
+          },
+          "f2": {
+            "title": "Reordenación de secciones",
+            "body": "Para un puesto de DevRel destacamos tu historial de charlas. Para un rol IC, tu historial de entregas. Por currículum, nunca de forma global."
+          },
+          "f3": {
+            "title": "Fiel a la verdad",
+            "body": "La IA reescribe, nunca inventa. Cada afirmación debe remontarse a una entrada de tu perfil, o no aparece en el resultado."
+          },
+          "f4": {
+            "title": "Reescritura de bullets",
+            "body": "Verbos más fuertes, cifras más nítidas, menos relleno. Puedes recuperar el original cuando quieras."
+          },
+          "f5": {
+            "title": "Con versiones",
+            "body": "Cada currículum adaptado es una instantánea inmutable ligada a una oferta. Tus originales nunca cambian; cada candidatura conserva su propia copia."
+          },
+          "f6": {
+            "title": "Rápido por defecto",
+            "body": "De la oferta pegada al PDF pulido en menos de un minuto, más rápido que rescatar y retocar el currículum del mes pasado."
+          }
+        },
+        "testimonial": {
+          "quote": "Reescribí mi currículum 31 veces en dos semanas antes de esto. Ahora pego una oferta y hago clic. La primera versión casi siempre queda más cerca que la que me habría llevado una hora.",
+          "role": "Senior PM, ex-Notion"
+        },
+        "faq": {
+          "q1": {
+            "question": "¿Inventa experiencia que no tengo?",
+            "answer": "No. La adaptación reformula lo que hay en tu perfil (verbos, enfoque, énfasis), pero no puede introducir puestos, empresas ni afirmaciones que no estén ya ahí. Si una oferta pide algo que no tienes, la IA lo señala en lugar de fabricarlo."
+          },
+          "q2": {
+            "question": "¿Puedo editar antes de descargar?",
+            "answer": "Sí. Cada sección es totalmente editable antes de exportar: puedes reescribir cualquier línea directamente. También puedes devolver cualquier bullet reescrito a su original con un clic."
+          },
+          "q3": {
+            "question": "¿Cómo exporto el currículum terminado?",
+            "answer": "Como un PDF limpio y compatible con ATS. El diseño se mantiene intacto y listo para enviar, sin reformatear nada."
+          },
+          "q4": {
+            "question": "¿Y si la oferta está en otro idioma?",
+            "answer": "La adaptación funciona en el idioma de la oferta. Una oferta en alemán produce un currículum en alemán; una en francés, uno en francés. Tu perfil permanece en tu idioma y se traduce al vuelo."
+          }
+        },
+        "ctaTitle": "Pruébalo con una oferta real →",
+        "shot": {
+          "jobTitle": "Senior Product Designer · Linear",
+          "downloadPdf": "Descargar PDF",
+          "summaryLabel": "Resumen",
+          "experienceLabel": "Experiencia",
+          "insightsTitle": "Observaciones",
+          "matchedKeywordsTitle": "Palabras clave coincidentes",
+          "appliedChangesTitle": "Cambios aplicados",
+          "matchedKeyword1": "systems thinking",
+          "matchedKeyword2": "design tokens",
+          "matchedKeyword3": "SaaS",
+          "matchedKeyword4": "roadmapping",
+          "appliedSection1": "Resumen",
+          "appliedSection2": "Experiencia",
+          "untouchedSection1": "Formación",
+          "untouchedSection2": "Habilidades"
+        }
+      },
+      "coverLetters": {
+        "metaTitle": "Generador de cartas de presentación con IA — Light Role",
+        "metaDescription": "Cartas de presentación que suenan a ti, no a un chatbot. Tres estilos, tonos y longitudes, ancladas en tu perfil y en la oferta. Multilingüe.",
+        "breadcrumbName": "Cartas de presentación",
+        "eyebrow": "Cartas de presentación",
+        "kicker": "Suena a ti, no a un chatbot",
+        "title": "Cartas de presentación en segundos,",
+        "titleAccent": "que parecen escritas por ti.",
+        "body": "Elige un estilo, un tono y una longitud. La IA lee la oferta, toma datos de tu perfil y redacta tres variantes con aperturas distintas: envía la que suene a ti.",
+        "features": {
+          "f1": {
+            "title": "Estilo, tono y longitud",
+            "body": "Tres estilos: formal, profesional, ajustado a la oferta. Tres tonos: seguro, humilde, entusiasta. Tres longitudes. El predeterminado es profesional, no rígido."
+          },
+          "f2": {
+            "title": "Atenta a la oferta",
+            "body": "Menciona responsabilidades concretas del anuncio. No empieza con 'Le escribo para expresar mi interés…' salvo que se lo pidas."
+          },
+          "f3": {
+            "title": "Multilingüe",
+            "body": "Genera en el idioma de la oferta. Útil para roles europeos, latinoamericanos y bilingües, donde cambiar de idioma a mitad de carta queda raro."
+          }
+        },
+        "testimonial": {
+          "quote": "Que las cartas de presentación no suenen a ChatGPT es, de verdad, la función estrella. Dediqué más tiempo a editar la versión de la IA que a escribirla yo, pero solo porque me importaba, no porque tuviera que hacerlo.",
+          "role": "Diseñadora, Brooklyn"
+        },
+        "faq": {
+          "q1": {
+            "question": "¿Por qué estas cartas no suenan a IA?",
+            "answer": "No usamos un prompt genérico de 'escríbeme una carta de presentación'. El modelo se ancla en tu perfil y se restringe frente a las frases hechas que los reclutadores dicen odiar: 'Le escribo para expresar mi interés…', 'aprovechar mis competencias…' y demás."
+          },
+          "q2": {
+            "question": "¿Puedo controlar cómo suena la carta?",
+            "answer": "Sí. Elige uno de tres estilos (formal, profesional, ajustado a la oferta), tres tonos (seguro, humilde, entusiasta) y tres longitudes. Cada generación produce tres variantes con aperturas distintas, así eliges en vez de conformarte."
+          },
+          "q3": {
+            "question": "¿Cuántas cartas puedo generar?",
+            "answer": "El plan Free incluye 3 generaciones de cartas de presentación con IA por ciclo, junto con 3 adaptaciones de currículum. Los planes de pago suben o eliminan esos límites, y cada carta sigue siendo editable después de generarse."
+          }
+        },
+        "ctaTitle": "Redacta tu primera carta →",
+        "shot": {
+          "styleOption1": "Formal",
+          "styleOption2": "Profesional",
+          "styleOption3": "Ajustado a la oferta",
+          "toneOption1": "Seguro",
+          "toneOption2": "Humilde",
+          "toneOption3": "Entusiasta",
+          "lengthOption1": "Corta",
+          "lengthOption2": "Media",
+          "lengthOption3": "Larga",
+          "draftLabel": "Borrador · Profesional · Seguro",
+          "greeting": "Hola, equipo de Northwind,",
+          "body1Pre": "He pasado los últimos cuatro años lanzando sistemas de diseño que escalan, y hace poco una",
+          "body1Highlight": "arquitectura de tokens",
+          "body1Post": "que unificó web y móvil para 500k equipos.",
+          "body2Pre": "Tu anuncio busca a alguien que lidere el",
+          "body2Highlight": "crecimiento impulsado por el diseño",
+          "body2Post": "— justo el trabajo que dejé mi último puesto para hacer más.",
+          "signoff": "Hablamos pronto,",
+          "name": "Maya Lindqvist"
+        }
+      },
+      "jobTracking": {
+        "metaTitle": "Seguimiento de candidaturas: Kanban y tabla — Light Role",
+        "metaDescription": "Sigue cada candidatura en un tablero Kanban o una tabla ordenable. Ocho etapas, fechas de follow-up, deadlines y valoraciones de entusiasmo. Gratis para empezar.",
+        "breadcrumbName": "Seguimiento de empleos",
+        "eyebrow": "Seguimiento de empleos",
+        "kicker": "Pipeline · Kanban · Tabla",
+        "title": "El pipeline que no parece",
+        "titleAccent": "una hoja de cálculo.",
+        "body": "Kanban para vista rápida. Tabla para el detalle. Mueve los empleos por ocho etapas, de guardado a aceptado, con deadlines, follow-ups y valoraciones de entusiasmo incluidos.",
+        "features": {
+          "f1": {
+            "title": "Kanban o tabla",
+            "body": "Cambia con un clic. Ambas vistas comparten estado: mover una tarjeta en el tablero actualiza la fila, y viceversa."
+          },
+          "f2": {
+            "title": "Fechas de follow-up",
+            "body": "Pon una fecha de follow-up en cualquier empleo y ve qué necesita un empujón antes de enfriarse, sin revisar a diario."
+          },
+          "f3": {
+            "title": "Deadlines",
+            "body": "Fechas de cierre de candidatura con cuentas atrás discretas. Nada alarmista: lo justo para no dejar pasar un deadline del viernes un miércoles."
+          },
+          "f4": {
+            "title": "Valoración de entusiasmo",
+            "body": "Valoración de 5 puntos por empleo. Ordena tu bandeja sin obligarte a escribir un ensayo de 'por qué me interesa' antes de postular."
+          },
+          "f5": {
+            "title": "Filtros y orden",
+            "body": "Filtros de estado multiselección, búsqueda por empresa y orden por nueve columnas. Las candidaturas de la semana pasada están a dos clics."
+          },
+          "f6": {
+            "title": "Pega y analiza",
+            "body": "Pega una oferta como texto y la IA rellena el título, la empresa y los detalles por ti. Sin formularios para empezar a hacer seguimiento."
+          }
+        },
+        "testimonial": {
+          "quote": "Lo compré por la adaptación de currículum y me quedé por el kanban. Venía usando una tabla de Notion que me engañaba a mí mismo diciéndome que funcionaba.",
+          "role": "Diseñador de producto"
+        },
+        "faq": {
+          "q1": {
+            "question": "¿Tengo que introducir los datos del empleo a mano?",
+            "answer": "No. Pega el texto de la oferta y la IA lo convierte en una entrada estructurada: título, empresa y detalles. Siempre puedes editar los campos o rellenarlos manualmente."
+          },
+          "q2": {
+            "question": "¿Qué pasa con los empleos antiguos?",
+            "answer": "Nada: se quedan en tu pipeline, no se oculta nada por defecto. El plan Free limita los empleos activos a 10; mover un empleo a un estado cerrado libera la plaza."
+          },
+          "q3": {
+            "question": "¿Se integra con LinkedIn?",
+            "answer": "No directamente: somos alérgicos a los scrapers frágiles. Copia el texto de la oferta de cualquier sitio, pégalo y la IA lo convierte en un empleo con seguimiento. Integraciones más profundas están en la hoja de ruta."
+          }
+        },
+        "ctaTitle": "Trae tu pipeline aquí →",
+        "shot": {
+          "colSaved": "GUARDADA",
+          "colApplied": "ENVIADA",
+          "colInterview": "ENTREVISTA",
+          "colOffer": "OFERTA"
+        }
+      },
+      "analytics": {
+        "metaTitle": "Analíticas de búsqueda de empleo y embudo — Light Role",
+        "metaDescription": "Ve tu búsqueda con claridad: embudo del pipeline, velocidad de postulación, tiempos de respuesta y un mapa de calor de actividad diaria. En Pro y Unlimited.",
+        "breadcrumbName": "Analíticas",
+        "eyebrow": "Analíticas",
+        "kicker": "Pro · Unlimited",
+        "title": "Distingue una semana floja",
+        "titleAccent": "de un embudo roto.",
+        "body": "Velocidad de postulación. Conversión del embudo. Días hasta la primera respuesta. Solo las métricas que cambian lo que haces mañana, sin paneles de vanidad.",
+        "features": {
+          "f1": {
+            "title": "Tarjetas KPI con sparklines",
+            "body": "Pipeline activo, candidaturas, entrevistas, ofertas, cada una con un sparkline para que veas la tendencia, no solo el número."
+          },
+          "f2": {
+            "title": "Tiempo de respuesta",
+            "body": "Media de días desde el envío hasta la primera respuesta. Sabe si el mercado está lento o si tus candidaturas se atascan."
+          },
+          "f3": {
+            "title": "Embudo del pipeline",
+            "body": "Conversión a través de GUARDADA → ENVIADA → SCREENING → ENTREVISTA → OFERTA → ACEPTADA. Detecta la fuga antes de que sea un agujero."
+          },
+          "f4": {
+            "title": "Mapa de calor de actividad",
+            "body": "Un mapa de calor diario de aproximadamente los últimos tres meses de tu búsqueda. Las semanas muertas son imposibles de pasar por alto."
+          },
+          "f5": {
+            "title": "Velocidad",
+            "body": "Candidaturas por semana, suavizadas. Comprueba, con honestidad, si esta semana postulaste a algo."
+          },
+          "f6": {
+            "title": "Feed de actividad",
+            "body": "Un registro continuo de todo lo que pasó en tu pipeline: candidaturas enviadas, cambios de etapa, ofertas, en un único flujo cronológico."
+          }
+        },
+        "testimonial": {
+          "quote": "Descubrí que mi tasa de respuesta era 4× mayor en series-B que en FAANG. Reorienté mis dos semanas siguientes. Conseguí una oferta 11 días después.",
+          "role": "Sr. data scientist"
+        },
+        "faq": {
+          "q1": {
+            "question": "¿Las analíticas están en el plan gratis?",
+            "answer": "No: es una función de Pro y Unlimited. Tus datos de seguimiento se registran desde el primer día en todos los planes, así que el panel está totalmente poblado en cuanto mejoras de plan."
+          },
+          "q2": {
+            "question": "¿Cuánto historial necesito para que sea útil?",
+            "answer": "Los gráficos de embudo y velocidad son honestos desde tu primer puñado de candidaturas y se afinan a medida que crece tu pipeline. El mapa de calor de actividad cubre aproximadamente los últimos tres meses."
+          },
+          "q3": {
+            "question": "¿Me comparáis con otros usuarios?",
+            "answer": "No. Las comparativas entre usuarios están ausentes a propósito: generan más ansiedad que información, y tu búsqueda es tuya."
+          }
+        },
+        "ctaTitle": "Mira qué dice tu pipeline →",
+        "shot": {
+          "kpi1Label": "Tasa de respuesta",
+          "kpi1Value": "24 %",
+          "kpi1Delta": "+6 %",
+          "kpi2Label": "Candidaturas",
+          "kpi2Value": "38",
+          "kpi2Delta": "+12",
+          "kpi3Label": "Entrevistas",
+          "kpi3Value": "7",
+          "kpi3Delta": "+3",
+          "funnelTitle": "Embudo del pipeline",
+          "funnel1Label": "GUARDADA",
+          "funnel2Label": "ENVIADA",
+          "funnel3Label": "ENTREVISTA",
+          "funnel4Label": "OFERTA",
+          "funnel5Label": "ACEPTADA"
+        }
       }
     }
   },

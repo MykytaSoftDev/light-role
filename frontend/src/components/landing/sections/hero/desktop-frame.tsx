@@ -3,6 +3,12 @@ interface DesktopFrameProps {
   label?: string;
   height?: number;
   className?: string;
+  /**
+   * When provided, the frame height is driven by these (typically responsive)
+   * Tailwind height classes instead of the fixed `height` pixel value. Lets
+   * callers shrink the frame on small screens, e.g. "h-[400px] lg:h-[520px]".
+   */
+  heightClassName?: string;
 }
 
 const TRAFFIC_LIGHTS = ["#ff5f57", "#febc2e", "#28c840"] as const;
@@ -12,11 +18,12 @@ export function DesktopFrame({
   label = "lightrole.com/dashboard",
   height = 520,
   className,
+  heightClassName,
 }: DesktopFrameProps) {
   return (
     <div
-      className={`w-full overflow-hidden rounded-[14px] border border-[var(--color-border)] bg-[var(--color-card)] shadow-[0_24px_60px_-20px_rgba(0,0,0,0.18),0_2px_6px_rgba(0,0,0,0.04)] flex flex-col ${className ?? ""}`}
-      style={{ height: `${height}px` }}
+      className={`w-full overflow-hidden rounded-[14px] border border-[var(--color-border)] bg-[var(--color-card)] shadow-[0_24px_60px_-20px_rgba(0,0,0,0.18),0_2px_6px_rgba(0,0,0,0.04)] flex flex-col ${heightClassName ?? ""} ${className ?? ""}`}
+      style={heightClassName ? undefined : { height: `${height}px` }}
     >
       <div className="h-[34px] flex-none border-b border-[var(--color-border)] flex items-center gap-2 px-3 bg-[var(--color-background)]">
         <div className="flex gap-1.5">

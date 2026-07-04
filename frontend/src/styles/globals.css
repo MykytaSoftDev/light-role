@@ -167,6 +167,12 @@
   --color-primary-20: oklch(60% 0.2 120 / 0.20);
   --shadow-primary: 0 2px 8px oklch(60% 0.2 120 / 0.15);
 
+  /* Aliases used by the landing/product surface. These reference the dynamic
+     --muted-foreground / --primary-foreground tokens (not their @theme
+     --color-* forms) so the .dark overrides propagate without duplication. */
+  --color-muted-fg: var(--muted-foreground);
+  --color-primary-fg: var(--primary-foreground);
+
   /* Radius scale (handoff additions only — sm/md/lg/xl already aliased
      via @theme inline above). */
   --radius-2xl: 1rem;

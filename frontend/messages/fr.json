@@ -297,7 +297,7 @@
       "ctaPrimary": "Commencer",
       "ctaSecondary": "Se connecter",
       "hero": {
-        "eyebrow": "v1 · Pour celles et ceux qui en ont marre des modèles",
+        "eyebrow": "Pour celles et ceux qui en ont marre des modèles",
         "headlineLine1": "Arrêtez de réécrire votre",
         "headlineLine2": "CV.",
         "headlineLine3": "Décrochez-les.",
@@ -555,34 +555,317 @@
       "footer": {
         "tagline": "L'OS de recherche d'emploi pour celles et ceux qui préfèrent postuler que tenir un tableur.",
         "columnTitleProduct": "Produit",
-        "columnTitleResources": "Ressources",
-        "columnTitleCompany": "Entreprise",
         "columnTitleLegal": "Mentions légales",
         "linkPricing": "Tarifs",
         "linkResumeTailor": "Adapter le CV",
         "linkCoverLetters": "Lettres de motivation",
         "linkJobTracking": "Suivi des candidatures",
         "linkAnalytics": "Analyses",
-        "linkTemplates": "Modèles",
-        "linkChangelog": "Historique des versions",
-        "linkBlog": "Blog",
-        "linkHelpCenter": "Centre d'aide",
-        "linkResumeGuides": "Guides CV",
-        "linkApiStatus": "État de l'API",
-        "linkRoadmap": "Feuille de route",
-        "linkAbout": "À propos",
-        "linkCareers": "Carrières",
-        "linkContact": "Contact",
-        "linkPressKit": "Kit de presse",
         "linkTerms": "Conditions générales",
         "linkPrivacy": "Politique de confidentialité",
-        "linkCookiePolicy": "Politique des cookies",
-        "linkGdpr": "RGPD",
-        "linkDpa": "DPA",
-        "copyright": "© {year} Light Role",
-        "socialX": "X",
-        "socialIn": "LinkedIn",
-        "socialGh": "GitHub"
+        "copyright": "© {year} Light Role"
+      }
+    },
+    "product": {
+      "shared": {
+        "howItWorksKicker": "Comment ça marche",
+        "howItWorksTitle": "Un court chemin de l'offre à la candidature.",
+        "subFeaturesKicker": "Ce qu'il y a dedans",
+        "subFeaturesTitle": "Conçu pour ta vraie façon de chercher un emploi.",
+        "faqKicker": "FAQ",
+        "faqTitle": "Questions fréquentes.",
+        "ctaSubtitle": "Offre gratuite pour toujours. Pas de carte requise.",
+        "ctaPrimary": "Commencer gratuitement",
+        "ctaPrimaryAuthed": "Ouvrir le tableau de bord",
+        "ctaSecondary": "Voir les tarifs",
+        "ctaSeePricing": "Voir les tarifs"
+      },
+      "resumeTailor": {
+        "metaTitle": "Adaptation de CV par IA pour chaque offre — Light Role",
+        "metaDescription": "Collez une offre d'emploi et obtenez un CV sur mesure, compatible ATS, en moins d'une minute. Correspondance de mots-clés, IA fidèle à la vérité et export PDF soigné.",
+        "breadcrumbName": "Adapter le CV",
+        "eyebrow": "Adapter le CV",
+        "kicker": "IA · Basé sur le profil",
+        "title": "Un seul profil. Chaque CV,",
+        "titleAccent": "sur mesure.",
+        "body": "Colle une offre d'emploi. On extrait les mots-clés, on réordonne tes sections et on reformule tes puces pour qu'elles collent — sans rien inventer qui ne soit pas déjà dans ton profil.",
+        "steps": {
+          "step1": {
+            "title": "Colle l'offre",
+            "body": "Copie le texte de l'offre et colle-le. L'IA extrait le titre, le niveau, les responsabilités et les mots-clés porteurs en quelques secondes."
+          },
+          "step2": {
+            "title": "Vérifie la correspondance",
+            "body": "Les mots-clés matchés apparaissent en chips colorées avec un score de correspondance, pour voir exactement ce qui a changé et pourquoi. Chaque ligne reste modifiable."
+          },
+          "step3": {
+            "title": "Télécharge le PDF",
+            "body": "Une mise en page nette, compatible ATS. Exporte un PDF soigné, prêt à envoyer — aucune remise en forme nécessaire."
+          }
+        },
+        "features": {
+          "f1": {
+            "title": "Correspondance de mots-clés",
+            "body": "Des mots-clés en code couleur, reliés aux endroits où ils apparaissent dans l'offre et dans tes puces. Pas de boîte noire."
+          },
+          "f2": {
+            "title": "Réordonnancement des sections",
+            "body": "Pour un poste DevRel, on met en avant tes conférences. Pour un rôle d'IC, ton historique de livraison. Par CV, jamais globalement."
+          },
+          "f3": {
+            "title": "Fidèle à la vérité",
+            "body": "L'IA reformule, n'invente jamais. Chaque affirmation doit renvoyer à une entrée du profil, sinon elle n'apparaît pas dans le résultat."
+          },
+          "f4": {
+            "title": "Puces reformulées",
+            "body": "Des verbes plus forts, des chiffres plus nets, moins de remplissage. Tu peux revenir à l'original à tout moment."
+          },
+          "f5": {
+            "title": "Versionné",
+            "body": "Chaque CV adapté est un instantané figé, épinglé à une offre. Tes originaux ne changent jamais ; chaque candidature garde sa propre copie."
+          },
+          "f6": {
+            "title": "Rapide par défaut",
+            "body": "De l'offre collée au PDF soigné en moins d'une minute — plus rapide que de déterrer et retravailler le CV du mois dernier."
+          }
+        },
+        "testimonial": {
+          "quote": "Avant, j'ai réécrit mon CV 31 fois en deux semaines. Maintenant, je colle une offre et je clique. La première version est presque toujours plus proche que celle sur laquelle j'aurais passé une heure.",
+          "role": "Senior PM, ex-Notion"
+        },
+        "faq": {
+          "q1": {
+            "question": "Invente-t-il une expérience que je n'ai pas ?",
+            "answer": "Non. L'adaptation remodèle ce qui est dans ton profil — verbes, cadrage, accent — mais ne peut pas introduire de postes, d'entreprises ou d'affirmations qui n'y sont pas déjà. Si une offre exige quelque chose que tu n'as pas, l'IA le signale au lieu de l'inventer."
+          },
+          "q2": {
+            "question": "Puis-je modifier avant de télécharger ?",
+            "answer": "Oui. Chaque section est entièrement modifiable avant l'export — tu peux réécrire chaque ligne directement. Tu peux aussi remettre n'importe quelle puce reformulée à l'original en un clic."
+          },
+          "q3": {
+            "question": "Comment exporter le CV terminé ?",
+            "answer": "En PDF net et compatible ATS. La mise en page reste intacte et prête à envoyer — aucune remise en forme nécessaire."
+          },
+          "q4": {
+            "question": "Et si une offre est dans une autre langue ?",
+            "answer": "L'adaptation fonctionne dans la langue de l'offre. Une annonce en allemand produit un CV en allemand, une annonce en français un CV en français. Ton profil reste dans ta langue et est traduit à la volée."
+          }
+        },
+        "ctaTitle": "Essaie-le sur une vraie offre →",
+        "shot": {
+          "jobTitle": "Senior Product Designer · Linear",
+          "downloadPdf": "Télécharger le PDF",
+          "summaryLabel": "Résumé",
+          "experienceLabel": "Expérience",
+          "insightsTitle": "Aperçus",
+          "matchedKeywordsTitle": "Mots-clés trouvés",
+          "appliedChangesTitle": "Modifications appliquées",
+          "matchedKeyword1": "systems thinking",
+          "matchedKeyword2": "design tokens",
+          "matchedKeyword3": "SaaS",
+          "matchedKeyword4": "roadmapping",
+          "appliedSection1": "Résumé",
+          "appliedSection2": "Expérience",
+          "untouchedSection1": "Formation",
+          "untouchedSection2": "Compétences"
+        }
+      },
+      "coverLetters": {
+        "metaTitle": "Générateur de lettres de motivation IA — Light Role",
+        "metaDescription": "Des lettres de motivation qui vous ressemblent, pas un chatbot. Trois styles, tons et longueurs, ancrés dans votre profil et l'offre d'emploi. Multilingue.",
+        "breadcrumbName": "Lettres de motivation",
+        "eyebrow": "Lettres de motivation",
+        "kicker": "Ça te ressemble, pas un chatbot",
+        "title": "Des lettres en quelques secondes,",
+        "titleAccent": "qu'on dirait écrites de ta main.",
+        "body": "Choisis un style, un ton et une longueur. L'IA lit l'offre, puise dans ton profil et rédige trois variantes aux accroches différentes — envoie celle qui te ressemble.",
+        "features": {
+          "f1": {
+            "title": "Style, ton et longueur",
+            "body": "Trois styles — formel, professionnel, adapté à l'offre. Trois tons — assuré, modeste, enthousiaste. Trois longueurs. Par défaut, c'est professionnel, pas guindé."
+          },
+          "f2": {
+            "title": "Au fait de l'offre",
+            "body": "Renvoie à des responsabilités précises de l'annonce. Ne commence pas par « Je me permets de vous adresser ma candidature… » sauf si tu le demandes."
+          },
+          "f3": {
+            "title": "Multilingue",
+            "body": "Génère dans la langue de l'offre. Utile pour les postes européens, latino-américains et bilingues, où changer de langue en plein milieu fait maladroit."
+          }
+        },
+        "testimonial": {
+          "quote": "Des lettres qui ne sonnent pas comme ChatGPT, c'est vraiment la fonctionnalité qui tue. J'ai passé plus de temps à modifier la version de l'IA qu'à l'écrire moi-même, mais seulement parce que j'y tenais, pas parce que j'y étais obligé.",
+          "role": "Designer, Brooklyn"
+        },
+        "faq": {
+          "q1": {
+            "question": "Pourquoi ces lettres ne sonnent-elles pas comme de l'IA ?",
+            "answer": "On n'utilise pas un prompt générique du type « écris-moi une lettre de motivation ». Le modèle est ancré à ton profil et bridé contre les formules toutes faites que les recruteurs disent détester — « Je me permets de vous adresser ma candidature… », « mettre à profit mes compétences… » et tout le reste."
+          },
+          "q2": {
+            "question": "Puis-je contrôler le ton de la lettre ?",
+            "answer": "Oui. Choisis parmi trois styles (formel, professionnel, adapté à l'offre), trois tons (assuré, modeste, enthousiaste) et trois longueurs. Chaque génération produit trois variantes aux accroches différentes, pour que tu choisisses au lieu de te contenter."
+          },
+          "q3": {
+            "question": "Combien de lettres puis-je générer ?",
+            "answer": "L'offre Free inclut 3 générations de lettres par IA par cycle, en plus de 3 adaptations de CV. Les offres payantes augmentent ou suppriment ces limites — et chaque lettre reste modifiable une fois générée."
+          }
+        },
+        "ctaTitle": "Rédige ta première lettre →",
+        "shot": {
+          "styleOption1": "Formel",
+          "styleOption2": "Professionnel",
+          "styleOption3": "Adapté à l'offre",
+          "toneOption1": "Assuré",
+          "toneOption2": "Modeste",
+          "toneOption3": "Enthousiaste",
+          "lengthOption1": "Court",
+          "lengthOption2": "Moyen",
+          "lengthOption3": "Long",
+          "draftLabel": "Brouillon · Professionnel · Assuré",
+          "greeting": "Bonjour l'équipe Northwind,",
+          "body1Pre": "Ces quatre dernières années, j'ai livré des design systems qui passent à l'échelle — le plus récent, une",
+          "body1Highlight": "architecture de tokens",
+          "body1Post": "qui a unifié le web et le mobile pour 500 000 équipes.",
+          "body2Pre": "Votre annonce cherche quelqu'un pour mener une",
+          "body2Highlight": "croissance portée par le design",
+          "body2Post": "— exactement le travail pour lequel j'ai quitté mon poste précédent pour en faire davantage.",
+          "signoff": "À bientôt,",
+          "name": "Maya Lindqvist"
+        }
+      },
+      "jobTracking": {
+        "metaTitle": "Suivi de candidatures : Kanban et tableau — Light Role",
+        "metaDescription": "Suivez chaque candidature sur un tableau Kanban ou un tableau triable. Huit étapes de pipeline, dates de suivi, deadlines et notes d'enthousiasme. Gratuit pour démarrer.",
+        "breadcrumbName": "Suivi des candidatures",
+        "eyebrow": "Suivi des candidatures",
+        "kicker": "Pipeline · Kanban · Tableau",
+        "title": "Le pipeline qui n'a rien",
+        "titleAccent": "d'une feuille de calcul.",
+        "body": "Kanban pour ceux qui survolent. Tableau pour ceux qui analysent. Fais passer tes offres par huit étapes, d'enregistré à accepté — deadlines, suivis et notes d'enthousiasme suivent.",
+        "features": {
+          "f1": {
+            "title": "Kanban ou tableau",
+            "body": "Bascule en un clic. Les deux vues partagent le même état — déplacer une carte sur le tableau met à jour la ligne, et inversement."
+          },
+          "f2": {
+            "title": "Dates de suivi",
+            "body": "Définis une date de suivi sur n'importe quelle offre et vois ce qui a besoin d'un coup de pouce avant de refroidir — sans pointage quotidien."
+          },
+          "f3": {
+            "title": "Deadlines",
+            "body": "Dates de clôture des candidatures avec des comptes à rebours discrets. Rien d'alarmiste — juste assez pour ne pas rater un mercredi une deadline du vendredi."
+          },
+          "f4": {
+            "title": "Note d'enthousiasme",
+            "body": "Note sur 5 points par offre. Trie ta liste sans t'obliger à rédiger une dissertation « pourquoi ça m'intéresse » avant de postuler."
+          },
+          "f5": {
+            "title": "Filtres et tri",
+            "body": "Filtres de statut multi-sélection, recherche d'entreprise et tri sur neuf colonnes. Les candidatures de la semaine dernière sont à deux clics."
+          },
+          "f6": {
+            "title": "Coller pour analyser",
+            "body": "Colle une offre en texte et l'IA remplit le titre, l'entreprise et les détails pour toi. Aucun formulaire à remplir pour commencer le suivi."
+          }
+        },
+        "testimonial": {
+          "quote": "Je l'ai pris pour l'adaptation de CV, je l'ai gardé pour le kanban. J'utilisais un tableau Notion dont je me persuadais qu'il marchait.",
+          "role": "Product designer"
+        },
+        "faq": {
+          "q1": {
+            "question": "Dois-je saisir les détails de l'offre à la main ?",
+            "answer": "Non. Colle le texte de l'offre et l'IA l'analyse en une entrée structurée — titre, entreprise et détails. Tu peux toujours modifier les champs ou les remplir à la main."
+          },
+          "q2": {
+            "question": "Qu'advient-il des anciennes offres ?",
+            "answer": "Rien — elles restent dans ton pipeline, rien n'est masqué par défaut. L'offre Free plafonne les offres actives à 10 ; passer une offre à un statut clôturé libère la place."
+          },
+          "q3": {
+            "question": "S'intègre-t-il à LinkedIn ?",
+            "answer": "Pas directement — on est allergiques aux scrapers fragiles. Copie le texte de l'offre depuis n'importe quel site, colle-le, et l'IA l'analyse en une offre suivie. Des intégrations plus poussées sont sur la roadmap."
+          }
+        },
+        "ctaTitle": "Migre ton pipeline →",
+        "shot": {
+          "colSaved": "ENREGISTRÉ",
+          "colApplied": "ENVOYÉ",
+          "colInterview": "ENTRETIEN",
+          "colOffer": "OFFRE"
+        }
+      },
+      "analytics": {
+        "metaTitle": "Analyses et entonnoir de recherche d'emploi — Light Role",
+        "metaDescription": "Voyez clair dans votre recherche : entonnoir de pipeline, vitesse de candidature, temps de réponse et heatmap d'activité quotidienne. Disponible sur Pro et Unlimited.",
+        "breadcrumbName": "Analyses",
+        "eyebrow": "Analyses",
+        "kicker": "Pro · Unlimited",
+        "title": "Distingue une semaine creuse",
+        "titleAccent": "d'un entonnoir cassé.",
+        "body": "Vitesse de candidature. Conversion de l'entonnoir. Jours jusqu'à la première réponse. Juste les métriques qui changent ce que tu fais demain — pas de tableaux de bord cosmétiques.",
+        "features": {
+          "f1": {
+            "title": "Cartes KPI avec sparklines",
+            "body": "Pipeline actif, candidatures, entretiens, offres — chacun avec une sparkline pour voir la tendance, pas juste le chiffre."
+          },
+          "f2": {
+            "title": "Temps de réponse",
+            "body": "Nombre moyen de jours entre la candidature et la première réponse. Sache si le marché est lent ou si tes candidatures patinent."
+          },
+          "f3": {
+            "title": "Entonnoir de pipeline",
+            "body": "Conversion à travers ENREGISTRÉ → ENVOYÉ → SCREENING → ENTRETIEN → OFFRE → ACCEPTÉ. Repère la fuite avant qu'elle ne devienne un trou."
+          },
+          "f4": {
+            "title": "Heatmap d'activité",
+            "body": "Une heatmap quotidienne sur environ les trois derniers mois de ta recherche. Les semaines mortes sont impossibles à manquer."
+          },
+          "f5": {
+            "title": "Vitesse",
+            "body": "Candidatures par semaine, lissées. Vois honnêtement si tu as vraiment postulé à quoi que ce soit cette semaine."
+          },
+          "f6": {
+            "title": "Fil d'activité",
+            "body": "Un journal continu de tout ce qui s'est passé dans ton pipeline — candidatures envoyées, changements d'étape, offres — dans un seul flux chronologique."
+          }
+        },
+        "testimonial": {
+          "quote": "J'ai découvert que mon taux de réponse était 4× plus élevé en série B qu'en FAANG. J'ai réorienté mes deux semaines suivantes. J'ai reçu une offre 11 jours plus tard.",
+          "role": "Sr. data scientist"
+        },
+        "faq": {
+          "q1": {
+            "question": "Les analyses sont-elles dans l'offre gratuite ?",
+            "answer": "Non — c'est une fonctionnalité Pro et Unlimited. Tes données de suivi sont enregistrées dès le premier jour sur toutes les offres, donc le tableau de bord est complet dès que tu passes à une offre supérieure."
+          },
+          "q2": {
+            "question": "Combien d'historique faut-il pour que ce soit utile ?",
+            "answer": "Les graphiques d'entonnoir et de vitesse sont fiables dès tes premières candidatures et s'affinent à mesure que ton pipeline grandit. La heatmap d'activité couvre environ les trois derniers mois."
+          },
+          "q3": {
+            "question": "Me comparez-vous à d'autres utilisateurs ?",
+            "answer": "Non. Les comparatifs entre utilisateurs sont volontairement absents — ils créent plus d'anxiété que d'insight, et ta recherche n'appartient qu'à toi."
+          }
+        },
+        "ctaTitle": "Vois ce que dit ton pipeline →",
+        "shot": {
+          "kpi1Label": "Taux de réponse",
+          "kpi1Value": "24 %",
+          "kpi1Delta": "+6 %",
+          "kpi2Label": "Candidatures",
+          "kpi2Value": "38",
+          "kpi2Delta": "+12",
+          "kpi3Label": "Entretiens",
+          "kpi3Value": "7",
+          "kpi3Delta": "+3",
+          "funnelTitle": "Entonnoir de pipeline",
+          "funnel1Label": "ENREGISTRÉ",
+          "funnel2Label": "ENVOYÉ",
+          "funnel3Label": "ENTRETIEN",
+          "funnel4Label": "OFFRE",
+          "funnel5Label": "ACCEPTÉ"
+        }
       }
     }
   },

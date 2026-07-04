@@ -297,7 +297,7 @@
       "ctaPrimary": "Loslegen",
       "ctaSecondary": "Anmelden",
       "hero": {
-        "eyebrow": "v1 · Für Bewerber:innen, die genug von Vorlagen haben",
+        "eyebrow": "Für Bewerber:innen, die genug von Vorlagen haben",
         "headlineLine1": "Hör auf, deinen",
         "headlineLine2": "Lebenslauf umzuschreiben.",
         "headlineLine3": "Fang an, sie zu landen.",
@@ -555,34 +555,317 @@
       "footer": {
         "tagline": "Das Job-Such-OS für alle, die lieber bewerben als Tabellen pflegen.",
         "columnTitleProduct": "Produkt",
-        "columnTitleResources": "Ressourcen",
-        "columnTitleCompany": "Unternehmen",
         "columnTitleLegal": "Rechtliches",
         "linkPricing": "Preise",
         "linkResumeTailor": "Lebenslauf-Tailor",
         "linkCoverLetters": "Anschreiben",
         "linkJobTracking": "Job-Tracking",
         "linkAnalytics": "Analysen",
-        "linkTemplates": "Vorlagen",
-        "linkChangelog": "Changelog",
-        "linkBlog": "Blog",
-        "linkHelpCenter": "Hilfe-Center",
-        "linkResumeGuides": "Lebenslauf-Guides",
-        "linkApiStatus": "API-Status",
-        "linkRoadmap": "Roadmap",
-        "linkAbout": "Über uns",
-        "linkCareers": "Karriere",
-        "linkContact": "Kontakt",
-        "linkPressKit": "Press Kit",
         "linkTerms": "AGB",
         "linkPrivacy": "Datenschutz",
-        "linkCookiePolicy": "Cookie-Richtlinie",
-        "linkGdpr": "DSGVO",
-        "linkDpa": "AV-Vertrag",
-        "copyright": "© {year} Light Role",
-        "socialX": "X",
-        "socialIn": "LinkedIn",
-        "socialGh": "GitHub"
+        "copyright": "© {year} Light Role"
+      }
+    },
+    "product": {
+      "shared": {
+        "howItWorksKicker": "So funktioniert's",
+        "howItWorksTitle": "Ein kurzer Weg von der Stellenanzeige zur Bewerbung.",
+        "subFeaturesKicker": "Was drinsteckt",
+        "subFeaturesTitle": "Gebaut für die Art, wie du wirklich nach Jobs suchst.",
+        "faqKicker": "FAQ",
+        "faqTitle": "Häufige Fragen.",
+        "ctaSubtitle": "Für immer kostenloser Plan. Keine Kreditkarte nötig.",
+        "ctaPrimary": "Kostenlos starten",
+        "ctaPrimaryAuthed": "Dashboard öffnen",
+        "ctaSecondary": "Preise ansehen",
+        "ctaSeePricing": "Preise ansehen"
+      },
+      "resumeTailor": {
+        "metaTitle": "KI-Lebenslauf-Anpassung für jeden Job — Light Role",
+        "metaDescription": "Fügen Sie eine Stellenbeschreibung ein und erhalten Sie in unter einer Minute einen maßgeschneiderten, ATS-freundlichen Lebenslauf. Keyword-Matching, wahrheitstreue KI, PDF-Export.",
+        "breadcrumbName": "Lebenslauf-Tailor",
+        "eyebrow": "Lebenslauf-Tailor",
+        "kicker": "KI · Profilbasiert",
+        "title": "Ein Profil. Jeder Lebenslauf,",
+        "titleAccent": "maßgeschneidert.",
+        "body": "Füge eine Stellenbeschreibung ein. Wir extrahieren die Keywords, ordnen deine Abschnitte neu und formulieren deine Bullets passend um — ohne etwas zu erfinden, das nicht schon in deinem Profil steht.",
+        "steps": {
+          "step1": {
+            "title": "Job einfügen",
+            "body": "Kopiere den Text der Stellenbeschreibung und füge ihn ein. Die KI extrahiert Titel, Level, Aufgaben und die tragenden Keywords in Sekunden."
+          },
+          "step2": {
+            "title": "Den Treffer prüfen",
+            "body": "Passende Keywords werden als farbige Chips mit einem Match-Score hervorgehoben, sodass du genau siehst, was sich geändert hat und warum. Jede Zeile bleibt bearbeitbar."
+          },
+          "step3": {
+            "title": "PDF herunterladen",
+            "body": "Ein sauberes, ATS-freundliches Layout. Exportiere ein poliertes PDF, das versandbereit ist — kein Neuformatieren nötig."
+          }
+        },
+        "features": {
+          "f1": {
+            "title": "Keyword-Matching",
+            "body": "Farbcodierte Keywords, verlinkt mit den Stellen, an denen sie sowohl in der Stellenbeschreibung als auch in deinen Bullets auftauchen. Keine Blackbox."
+          },
+          "f2": {
+            "title": "Abschnitte neu ordnen",
+            "body": "Für einen DevRel-Job rücken wir deine Vortragshistorie nach vorn. Für eine IC-Rolle deine Auslieferungs-Bilanz. Pro Lebenslauf, nie global."
+          },
+          "f3": {
+            "title": "Wahrheitsgebunden",
+            "body": "Die KI formuliert um, erfindet nie. Jede Aussage muss auf einen Profileintrag zurückführbar sein, sonst erscheint sie nicht im Ergebnis."
+          },
+          "f4": {
+            "title": "Bullets umformuliert",
+            "body": "Stärkere Verben, präzisere Zahlen, weniger Füllwörter. Du kannst jederzeit das Original wiederherstellen."
+          },
+          "f5": {
+            "title": "Versioniert",
+            "body": "Jeder angepasste Lebenslauf ist ein unveränderlicher Snapshot, an einen Job gepinnt. Deine Originale ändern sich nie; jede Bewerbung behält ihre eigene Kopie."
+          },
+          "f6": {
+            "title": "Schnell von Haus aus",
+            "body": "Von der eingefügten Stellenbeschreibung zum polierten PDF in unter einer Minute — schneller, als den Lebenslauf vom letzten Monat herauszukramen und zu überarbeiten."
+          }
+        },
+        "testimonial": {
+          "quote": "Vorher habe ich meinen Lebenslauf in zwei Wochen 31-mal umgeschrieben. Jetzt füge ich einen Job ein und klicke. Die erste Version ist fast immer näher dran als die, für die ich eine Stunde gebraucht hätte.",
+          "role": "Senior PM, ehem. Notion"
+        },
+        "faq": {
+          "q1": {
+            "question": "Erfindet es Erfahrung, die ich nicht habe?",
+            "answer": "Nein. Die Anpassung formt um, was in deinem Profil steht — Verben, Rahmung, Betonung — kann aber keine Rollen, Unternehmen oder Aussagen einführen, die nicht schon da sind. Wenn eine Stellenbeschreibung etwas verlangt, das du nicht hast, weist die KI darauf hin, statt es zu erfinden."
+          },
+          "q2": {
+            "question": "Kann ich vor dem Download bearbeiten?",
+            "answer": "Ja. Jeder Abschnitt ist vor dem Export voll bearbeitbar — du kannst jede Zeile direkt umschreiben. Du kannst außerdem jede umformulierte Bullet mit einem Klick zurück zum Original tauschen."
+          },
+          "q3": {
+            "question": "Wie exportiere ich den fertigen Lebenslauf?",
+            "answer": "Als sauberes, ATS-freundliches PDF. Das Layout bleibt intakt und versandbereit — kein Neuformatieren nötig."
+          },
+          "q4": {
+            "question": "Was, wenn eine Stellenbeschreibung in einer anderen Sprache ist?",
+            "answer": "Die Anpassung arbeitet in der Sprache der Stellenbeschreibung. Eine deutsche Anzeige ergibt einen deutschen Lebenslauf, eine französische einen französischen. Dein Profil bleibt in deiner Sprache und wird spontan übersetzt."
+          }
+        },
+        "ctaTitle": "Probier es an einer echten Stellenanzeige aus →",
+        "shot": {
+          "jobTitle": "Senior Product Designer · Linear",
+          "downloadPdf": "PDF herunterladen",
+          "summaryLabel": "Zusammenfassung",
+          "experienceLabel": "Erfahrung",
+          "insightsTitle": "Insights",
+          "matchedKeywordsTitle": "Passende Keywords",
+          "appliedChangesTitle": "Angewandte Änderungen",
+          "matchedKeyword1": "systems thinking",
+          "matchedKeyword2": "design tokens",
+          "matchedKeyword3": "SaaS",
+          "matchedKeyword4": "roadmapping",
+          "appliedSection1": "Zusammenfassung",
+          "appliedSection2": "Erfahrung",
+          "untouchedSection1": "Ausbildung",
+          "untouchedSection2": "Skills"
+        }
+      },
+      "coverLetters": {
+        "metaTitle": "KI-Anschreiben-Generator — Light Role",
+        "metaDescription": "Anschreiben, die nach Ihnen klingen, nicht nach Chatbot. Drei Stile, Tonlagen und Längen, verankert in Ihrem Profil und der Stellenbeschreibung. Mehrsprachig.",
+        "breadcrumbName": "Anschreiben",
+        "eyebrow": "Anschreiben",
+        "kicker": "Klingt nach dir, nicht nach Chatbot",
+        "title": "Anschreiben in Sekunden,",
+        "titleAccent": "die klingen, als hättest du sie geschrieben.",
+        "body": "Wähle einen Stil, einen Ton und eine Länge. Die KI liest die Stellenbeschreibung, schöpft aus deinem Profil und entwirft drei Varianten mit unterschiedlichen Einstiegen — schick die, die nach dir klingt.",
+        "features": {
+          "f1": {
+            "title": "Stil, Ton & Länge",
+            "body": "Drei Stile — formell, professionell, auf den Job abgestimmt. Drei Tonlagen — selbstbewusst, bescheiden, begeistert. Drei Längen. Standard ist professionell, nicht steif."
+          },
+          "f2": {
+            "title": "Kennt die Stellenbeschreibung",
+            "body": "Bezieht sich auf konkrete Aufgaben aus der Anzeige. Beginnt nicht mit „Hiermit bewerbe ich mich…“, es sei denn, du willst das so."
+          },
+          "f3": {
+            "title": "Mehrsprachig",
+            "body": "Generiere in der Sprache der Stellenbeschreibung. Praktisch für europäische, lateinamerikanische und zweisprachige Rollen, bei denen ein Sprachwechsel mitten im Brief unbeholfen wirkt."
+          }
+        },
+        "testimonial": {
+          "quote": "Anschreiben, die nicht nach ChatGPT klingen, sind wirklich das Killer-Feature. Ich habe mehr Zeit mit dem Bearbeiten der KI-Version verbracht als mit dem Selberschreiben, aber nur, weil es mir wichtig war, nicht, weil ich musste.",
+          "role": "Designer, Brooklyn"
+        },
+        "faq": {
+          "q1": {
+            "question": "Warum klingen diese Anschreiben nicht nach KI?",
+            "answer": "Wir verwenden keinen generischen „Schreib mir ein Anschreiben“-Prompt. Das Modell ist an dein Profil verankert und gegen die Floskeln beschränkt, die Recruiter:innen nach eigener Aussage hassen — „Hiermit bewerbe ich mich…“, „meine Fähigkeiten einbringen…“ und den ganzen Rest."
+          },
+          "q2": {
+            "question": "Kann ich steuern, wie der Brief klingt?",
+            "answer": "Ja. Wähle einen von drei Stilen (formell, professionell, auf den Job abgestimmt), drei Tonlagen (selbstbewusst, bescheiden, begeistert) und drei Längen. Jede Generierung liefert drei Varianten mit unterschiedlichen Einstiegen, damit du auswählst, statt dich zufriedenzugeben."
+          },
+          "q3": {
+            "question": "Wie viele Briefe kann ich generieren?",
+            "answer": "Der Free-Plan enthält 3 KI-Anschreiben-Generierungen pro Zyklus, dazu 3 Lebenslauf-Anpassungen. Bezahlte Pläne erhöhen oder entfernen diese Limits — und jeder Brief bleibt nach der Generierung bearbeitbar."
+          }
+        },
+        "ctaTitle": "Entwirf deinen ersten Brief →",
+        "shot": {
+          "styleOption1": "Formell",
+          "styleOption2": "Professionell",
+          "styleOption3": "Auf den Job abgestimmt",
+          "toneOption1": "Selbstbewusst",
+          "toneOption2": "Bescheiden",
+          "toneOption3": "Begeistert",
+          "lengthOption1": "Kurz",
+          "lengthOption2": "Mittel",
+          "lengthOption3": "Lang",
+          "draftLabel": "Entwurf · Professionell · Selbstbewusst",
+          "greeting": "Hallo Northwind-Team,",
+          "body1Pre": "In den letzten vier Jahren habe ich skalierbare Design-Systeme ausgeliefert — zuletzt eine",
+          "body1Highlight": "Token-Architektur",
+          "body1Post": "die Web und Mobile für 500.000 Teams vereinheitlicht hat.",
+          "body2Pre": "Eure Anzeige sucht jemanden, der",
+          "body2Highlight": "design-getriebenes Wachstum",
+          "body2Post": "vorantreibt — genau die Arbeit, für die ich meine letzte Stelle verlassen habe, um mehr davon zu tun.",
+          "signoff": "Bis bald,",
+          "name": "Maya Lindqvist"
+        }
+      },
+      "jobTracking": {
+        "metaTitle": "Bewerbungs-Tracker: Kanban & Tabelle — Light Role",
+        "metaDescription": "Verfolgen Sie jede Bewerbung auf einem Kanban-Board oder in einer sortierbaren Tabelle. Acht Pipeline-Phasen, Follow-up-Termine, Deadlines und Begeisterungs-Bewertungen. Kostenlos starten.",
+        "breadcrumbName": "Job-Tracking",
+        "eyebrow": "Job-Tracking",
+        "kicker": "Pipeline · Kanban · Tabelle",
+        "title": "Die Pipeline, die sich nicht",
+        "titleAccent": "wie eine Tabelle anfühlt.",
+        "body": "Kanban für Überflieger:innen. Tabelle für Detail-Fans. Bewege Jobs durch acht Phasen von gespeichert bis angenommen — Deadlines, Follow-ups und Begeisterungs-Bewertungen kommen mit.",
+        "features": {
+          "f1": {
+            "title": "Kanban oder Tabelle",
+            "body": "Wechsle mit einem Klick. Beide Ansichten teilen sich den Zustand — eine Karte auf dem Board zu verschieben, aktualisiert die Zeile und umgekehrt."
+          },
+          "f2": {
+            "title": "Follow-up-Termine",
+            "body": "Setze bei jedem Job ein Follow-up-Datum und sieh, was einen Anstoß braucht, bevor es einschläft — kein tägliches Nachsehen nötig."
+          },
+          "f3": {
+            "title": "Deadlines",
+            "body": "Bewerbungsschluss-Termine mit dezenten Countdowns. Nichts Alarmistisches — gerade genug, damit du eine Freitags-Deadline nicht am Mittwoch verpasst."
+          },
+          "f4": {
+            "title": "Begeisterungs-Bewertung",
+            "body": "5-Punkte-Bewertung pro Job. Sortiert deinen Posteingang, ohne dass du vor der Bewerbung einen „Warum ich interessiert bin“-Aufsatz schreiben musst."
+          },
+          "f5": {
+            "title": "Filter & Sortierung",
+            "body": "Mehrfach-Statusfilter, Unternehmenssuche und Sortierung über neun Spalten. Die Bewerbungen der letzten Woche sind zwei Klicks entfernt."
+          },
+          "f6": {
+            "title": "Einfügen-und-Parsen",
+            "body": "Füge eine Stellenbeschreibung als Text ein, und die KI trägt Titel, Unternehmen und Details für dich ein. Kein Formular-Ausfüllen, um mit dem Tracking zu starten."
+          }
+        },
+        "testimonial": {
+          "quote": "Gekauft wegen der Lebenslauf-Anpassung, geblieben wegen des Kanbans. Ich hatte eine Notion-Tabelle benutzt, von der ich mir eingeredet habe, sie funktioniere.",
+          "role": "Product Designer"
+        },
+        "faq": {
+          "q1": {
+            "question": "Muss ich Job-Details von Hand eingeben?",
+            "answer": "Nein. Füge den Text der Stellenbeschreibung ein, und die KI parst ihn in einen strukturierten Eintrag — Titel, Unternehmen und Details. Du kannst Felder jederzeit bearbeiten oder stattdessen manuell ausfüllen."
+          },
+          "q2": {
+            "question": "Was passiert mit alten Jobs?",
+            "answer": "Nichts — sie bleiben in deiner Pipeline, standardmäßig wird nichts ausgeblendet. Der Free-Plan begrenzt aktive Jobs auf 10; einen Job in einen abgeschlossenen Status zu verschieben, gibt den Platz frei."
+          },
+          "q3": {
+            "question": "Lässt es sich mit LinkedIn integrieren?",
+            "answer": "Nicht direkt — wir sind allergisch gegen fragile Scraper. Kopiere den Text der Stellenbeschreibung von jeder Seite, füge ihn ein, und die KI parst ihn in einen verfolgten Job. Tiefere Integrationen stehen auf der Roadmap."
+          }
+        },
+        "ctaTitle": "Zieh deine Pipeline um →",
+        "shot": {
+          "colSaved": "GESPEICHERT",
+          "colApplied": "BEWORBEN",
+          "colInterview": "INTERVIEW",
+          "colOffer": "ANGEBOT"
+        }
+      },
+      "analytics": {
+        "metaTitle": "Jobsuche-Analysen & Funnel — Light Role",
+        "metaDescription": "Sehen Sie Ihre Jobsuche klar: Pipeline-Funnel, Bewerbungstempo, Antwortzeiten und eine tägliche Aktivitäts-Heatmap. Verfügbar mit Pro und Unlimited.",
+        "breadcrumbName": "Analysen",
+        "eyebrow": "Analysen",
+        "kicker": "Pro · Unlimited",
+        "title": "Unterscheide eine ruhige Woche",
+        "titleAccent": "von einem kaputten Funnel.",
+        "body": "Bewerbungstempo. Funnel-Konversion. Tage bis zur ersten Antwort. Nur die Kennzahlen, die ändern, was du morgen tust — keine Vanity-Dashboards.",
+        "features": {
+          "f1": {
+            "title": "KPI-Karten mit Sparklines",
+            "body": "Aktive Pipeline, Bewerbungen, Interviews, Angebote — jeweils mit einer Sparkline, damit du den Trend siehst, nicht nur die Zahl."
+          },
+          "f2": {
+            "title": "Antwortzeit",
+            "body": "Durchschnittliche Tage von der Bewerbung bis zur ersten Antwort. Erkenne, ob der Markt langsam ist oder deine Bewerbungen ins Stocken geraten."
+          },
+          "f3": {
+            "title": "Pipeline-Funnel",
+            "body": "Konversion durch GESPEICHERT → BEWORBEN → SCREENING → INTERVIEW → ANGEBOT → ANGENOMMEN. Erkenne das Leck, bevor es zum Loch wird."
+          },
+          "f4": {
+            "title": "Aktivitäts-Heatmap",
+            "body": "Eine tägliche Heatmap von etwa den letzten drei Monaten deiner Suche. Die toten Wochen sind unmöglich zu übersehen."
+          },
+          "f5": {
+            "title": "Tempo",
+            "body": "Bewerbungen pro Woche, geglättet. Sieh ehrlich, ob du diese Woche wirklich etwas beworben hast."
+          },
+          "f6": {
+            "title": "Aktivitäts-Feed",
+            "body": "Ein laufendes Protokoll von allem, was in deiner Pipeline passiert ist — verschickte Bewerbungen, Phasenwechsel, Angebote — in einem chronologischen Stream."
+          }
+        },
+        "testimonial": {
+          "quote": "Ich habe herausgefunden, dass meine Antwortquote bei Series-B 4× höher war als bei FAANG. Ich habe meine nächsten zwei Wochen umgelenkt. 11 Tage später hatte ich ein Angebot.",
+          "role": "Sr. Data Scientist"
+        },
+        "faq": {
+          "q1": {
+            "question": "Gibt es Analysen im Free-Plan?",
+            "answer": "Nein — es ist eine Pro- und Unlimited-Funktion. Deine Tracking-Daten werden in jedem Plan ab dem ersten Tag erfasst, sodass das Dashboard vollständig gefüllt ist, sobald du upgradest."
+          },
+          "q2": {
+            "question": "Wie viel Verlauf brauche ich, bis es nützlich ist?",
+            "answer": "Die Funnel- und Tempo-Diagramme sind ab deiner ersten Handvoll Bewerbungen ehrlich und werden schärfer, je größer deine Pipeline wird. Die Aktivitäts-Heatmap deckt etwa die letzten drei Monate ab."
+          },
+          "q3": {
+            "question": "Vergleicht ihr mich mit anderen Nutzer:innen?",
+            "answer": "Nein. Nutzerübergreifende Benchmarks fehlen bewusst — sie erzeugen mehr Angst als Erkenntnis, und deine Suche gehört dir."
+          }
+        },
+        "ctaTitle": "Sieh, was deine Pipeline sagt →",
+        "shot": {
+          "kpi1Label": "Antwortquote",
+          "kpi1Value": "24 %",
+          "kpi1Delta": "+6 %",
+          "kpi2Label": "Bewerbungen",
+          "kpi2Value": "38",
+          "kpi2Delta": "+12",
+          "kpi3Label": "Interviews",
+          "kpi3Value": "7",
+          "kpi3Delta": "+3",
+          "funnelTitle": "Pipeline-Funnel",
+          "funnel1Label": "GESPEICHERT",
+          "funnel2Label": "BEWORBEN",
+          "funnel3Label": "INTERVIEW",
+          "funnel4Label": "ANGEBOT",
+          "funnel5Label": "ANGENOMMEN"
+        }
       }
     }
   },

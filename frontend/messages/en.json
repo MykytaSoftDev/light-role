@@ -297,7 +297,7 @@
       "ctaPrimary": "Get Started",
       "ctaSecondary": "Sign In",
       "hero": {
-        "eyebrow": "v1 · For job seekers tired of templates",
+        "eyebrow": "For job seekers tired of templates",
         "headlineLine1": "Stop rewriting your",
         "headlineLine2": "resume.",
         "headlineLine3": "Start landing them.",
@@ -555,34 +555,317 @@
       "footer": {
         "tagline": "Job-search OS for people who'd rather apply than spreadsheet.",
         "columnTitleProduct": "Product",
-        "columnTitleResources": "Resources",
-        "columnTitleCompany": "Company",
         "columnTitleLegal": "Legal",
         "linkPricing": "Pricing",
         "linkResumeTailor": "Resume tailor",
         "linkCoverLetters": "Cover letters",
         "linkJobTracking": "Job tracking",
         "linkAnalytics": "Analytics",
-        "linkTemplates": "Templates",
-        "linkChangelog": "Changelog",
-        "linkBlog": "Blog",
-        "linkHelpCenter": "Help center",
-        "linkResumeGuides": "Resume guides",
-        "linkApiStatus": "API status",
-        "linkRoadmap": "Roadmap",
-        "linkAbout": "About",
-        "linkCareers": "Careers",
-        "linkContact": "Contact",
-        "linkPressKit": "Press kit",
         "linkTerms": "Terms & Conditions",
         "linkPrivacy": "Privacy Policy",
-        "linkCookiePolicy": "Cookie Policy",
-        "linkGdpr": "GDPR",
-        "linkDpa": "DPA",
-        "copyright": "© {year} Light Role",
-        "socialX": "X",
-        "socialIn": "LinkedIn",
-        "socialGh": "GitHub"
+        "copyright": "© {year} Light Role"
+      }
+    },
+    "product": {
+      "shared": {
+        "howItWorksKicker": "How it works",
+        "howItWorksTitle": "A short walk from job post to applied.",
+        "subFeaturesKicker": "What's inside",
+        "subFeaturesTitle": "Built for the way you actually job search.",
+        "faqKicker": "FAQ",
+        "faqTitle": "Common questions.",
+        "ctaSubtitle": "Free forever plan. No card required.",
+        "ctaPrimary": "Start free",
+        "ctaPrimaryAuthed": "Open dashboard",
+        "ctaSecondary": "View pricing",
+        "ctaSeePricing": "See pricing"
+      },
+      "resumeTailor": {
+        "metaTitle": "AI Resume Tailoring for Every Job — Light Role",
+        "metaDescription": "Paste a job description and get a tailored, ATS-friendly resume in under a minute. Keyword matching, truth-bound AI rewrites, and clean PDF export.",
+        "breadcrumbName": "Resume tailor",
+        "eyebrow": "Resume tailor",
+        "kicker": "AI · Profile-driven",
+        "title": "One profile. Every resume,",
+        "titleAccent": "tailored.",
+        "body": "Paste a job description. We extract the keywords, reorder your sections, and rewrite your bullets to match — without inventing anything that isn't already in your profile.",
+        "steps": {
+          "step1": {
+            "title": "Paste the job",
+            "body": "Copy the job description text and paste it in. The AI extracts the title, level, responsibilities, and load-bearing keywords in seconds."
+          },
+          "step2": {
+            "title": "Review the match",
+            "body": "Matched keywords are highlighted as colored chips with a match score, so you see exactly what changed and why. Every line stays editable."
+          },
+          "step3": {
+            "title": "Download the PDF",
+            "body": "One clean, ATS-friendly layout. Export a polished PDF that's ready to send — no reformatting needed."
+          }
+        },
+        "features": {
+          "f1": {
+            "title": "Keyword matching",
+            "body": "Color-coded keywords linked back to where they appear in both the job description and your bullets. No black box."
+          },
+          "f2": {
+            "title": "Section reordering",
+            "body": "For a DevRel job we promote your speaking history. For an IC role, your shipping record. Per-resume, never globally."
+          },
+          "f3": {
+            "title": "Truth-bound",
+            "body": "The AI rewrites, never invents. Every claim must trace to a profile entry, or it can't appear in the output."
+          },
+          "f4": {
+            "title": "Bullet rewrites",
+            "body": "Stronger verbs, sharper numbers, less filler. You can swap in the original any time."
+          },
+          "f5": {
+            "title": "Versioned",
+            "body": "Every tailored resume is an immutable snapshot pinned to a job. Your originals never change; each application keeps its own copy."
+          },
+          "f6": {
+            "title": "Fast by default",
+            "body": "From pasted job description to polished PDF in under a minute — faster than digging up and reworking last month's resume."
+          }
+        },
+        "testimonial": {
+          "quote": "I rewrote my resume 31 times in two weeks before this. Now I paste a job and click. The first version is almost always closer than the one I would've spent an hour on.",
+          "role": "Senior PM, ex-Notion"
+        },
+        "faq": {
+          "q1": {
+            "question": "Does it invent experience I don't have?",
+            "answer": "No. The tailor reshapes what's in your profile — verbs, framing, emphasis — but it can't introduce roles, companies, or claims that aren't already there. If a job description requires something you don't have, the AI flags it instead of fabricating it."
+          },
+          "q2": {
+            "question": "Can I edit before downloading?",
+            "answer": "Yes. Every section is fully editable before export — you can rewrite any line directly. You can also swap any rewritten bullet back to the original with one click."
+          },
+          "q3": {
+            "question": "How do I export the finished resume?",
+            "answer": "As a clean, ATS-friendly PDF. The layout stays intact and ready to send — no reformatting needed."
+          },
+          "q4": {
+            "question": "What if a job description is in a different language?",
+            "answer": "The tailor works in the language of the job description. A German posting produces a German resume, a French posting a French one. Your profile stays in your language and gets translated on the fly."
+          }
+        },
+        "ctaTitle": "Try it on a real job posting →",
+        "shot": {
+          "jobTitle": "Senior Product Designer · Linear",
+          "downloadPdf": "Download PDF",
+          "summaryLabel": "Summary",
+          "experienceLabel": "Experience",
+          "insightsTitle": "Insights",
+          "matchedKeywordsTitle": "Matched keywords",
+          "appliedChangesTitle": "Applied changes",
+          "matchedKeyword1": "systems thinking",
+          "matchedKeyword2": "design tokens",
+          "matchedKeyword3": "SaaS",
+          "matchedKeyword4": "roadmapping",
+          "appliedSection1": "Summary",
+          "appliedSection2": "Experience",
+          "untouchedSection1": "Education",
+          "untouchedSection2": "Skills"
+        }
+      },
+      "coverLetters": {
+        "metaTitle": "AI Cover Letter Generator — Light Role",
+        "metaDescription": "Cover letters that sound like you, not a chatbot. Three styles, tones, and lengths, grounded in your profile and the job description. Multilingual.",
+        "breadcrumbName": "Cover letters",
+        "eyebrow": "Cover letters",
+        "kicker": "Sound like you, not a chatbot",
+        "title": "Cover letters in seconds,",
+        "titleAccent": "that read like you wrote them.",
+        "body": "Pick a style, a tone, and a length. The AI reads the job description, pulls from your profile, and drafts three variants with different openings — send the one that sounds like you.",
+        "features": {
+          "f1": {
+            "title": "Style, tone & length",
+            "body": "Three styles — formal, professional, job-matched. Three tones — confident, humble, enthusiastic. Three lengths. The default is professional, not stiff."
+          },
+          "f2": {
+            "title": "Aware of the job description",
+            "body": "References specific responsibilities from the posting. Doesn't open with 'I am writing to express my interest…' unless you ask it to."
+          },
+          "f3": {
+            "title": "Multi-language",
+            "body": "Generate in the job description's language. Useful for European, LATAM, and bilingual roles where switching mid-letter looks awkward."
+          }
+        },
+        "testimonial": {
+          "quote": "Cover letters that don't sound like ChatGPT is genuinely the killer feature. I spent more time editing the AI's version than writing it myself, but only because I cared, not because I had to.",
+          "role": "Designer, Brooklyn"
+        },
+        "faq": {
+          "q1": {
+            "question": "Why don't these cover letters sound like AI?",
+            "answer": "We don't use a generic 'write me a cover letter' prompt. The model is anchored to your profile and constrained against the boilerplate phrases recruiters say they hate — 'I am writing to express my interest…', 'leverage my skills…', and the rest."
+          },
+          "q2": {
+            "question": "Can I control how the letter sounds?",
+            "answer": "Yes. Choose one of three styles (formal, professional, job-matched), three tones (confident, humble, enthusiastic), and three lengths. Every generation produces three variants with different opening hooks, so you pick instead of settling."
+          },
+          "q3": {
+            "question": "How many letters can I generate?",
+            "answer": "The Free plan includes 3 AI cover-letter generations per cycle, alongside 3 resume tailorings. Paid plans raise or remove those limits — and every letter stays editable after it's generated."
+          }
+        },
+        "ctaTitle": "Draft your first letter →",
+        "shot": {
+          "styleOption1": "Formal",
+          "styleOption2": "Professional",
+          "styleOption3": "Job-matched",
+          "toneOption1": "Confident",
+          "toneOption2": "Humble",
+          "toneOption3": "Enthusiastic",
+          "lengthOption1": "Short",
+          "lengthOption2": "Medium",
+          "lengthOption3": "Long",
+          "draftLabel": "Draft · Professional · Confident",
+          "greeting": "Hi Northwind team,",
+          "body1Pre": "I've spent the last four years shipping design systems that scale — most recently a",
+          "body1Highlight": "token architecture",
+          "body1Post": "that unified web and mobile for 500k teams.",
+          "body2Pre": "Your posting calls for someone to lead",
+          "body2Highlight": "design-led growth",
+          "body2Post": "— that's exactly the work I left my last role to do more of.",
+          "signoff": "Talk soon,",
+          "name": "Maya Lindqvist"
+        }
+      },
+      "jobTracking": {
+        "metaTitle": "Job Application Tracker: Kanban & Table — Light Role",
+        "metaDescription": "Track every application on a kanban board or sortable table. Eight pipeline stages, follow-up dates, deadlines, and excitement ratings. Free to start.",
+        "breadcrumbName": "Job tracking",
+        "eyebrow": "Job tracking",
+        "kicker": "Pipeline · Kanban · Table",
+        "title": "The pipeline that doesn't feel",
+        "titleAccent": "like a spreadsheet.",
+        "body": "Kanban for skimmers. Table for inspectors. Move jobs through eight stages from saved to accepted — deadlines, follow-ups, and excitement ratings come along.",
+        "features": {
+          "f1": {
+            "title": "Kanban or table",
+            "body": "Switch with one click. Both views share state — moving a card on the board updates the row, and vice versa."
+          },
+          "f2": {
+            "title": "Follow-up dates",
+            "body": "Set a follow-up date on any job and see what needs a nudge before it goes cold — no daily check-in required."
+          },
+          "f3": {
+            "title": "Deadlines",
+            "body": "Application close dates with subtle countdowns. Nothing alarmist — just enough to make sure you don't miss a Friday deadline on a Wednesday."
+          },
+          "f4": {
+            "title": "Excitement rating",
+            "body": "5-dot rating per job. Sorts your inbox without forcing you to write a 'why I'm interested' essay before you apply."
+          },
+          "f5": {
+            "title": "Filters & sort",
+            "body": "Multi-select status filters, company search, and sorting on nine columns. Last week's applications are two clicks away."
+          },
+          "f6": {
+            "title": "Paste-to-parse",
+            "body": "Paste a job description as text and the AI fills in the title, company, and details for you. No form-filling to start tracking."
+          }
+        },
+        "testimonial": {
+          "quote": "Bought it for the resume tailoring, kept it for the kanban. I'd been using a Notion table that I lied to myself was working.",
+          "role": "Product designer"
+        },
+        "faq": {
+          "q1": {
+            "question": "Do I have to enter job details by hand?",
+            "answer": "No. Paste the job description text and the AI parses it into a structured entry — title, company, and details. You can always edit fields or fill them in manually instead."
+          },
+          "q2": {
+            "question": "What happens to old jobs?",
+            "answer": "Nothing — they stay in your pipeline, nothing is hidden by default. The Free plan caps active jobs at 10; moving a job to a closed status releases the slot."
+          },
+          "q3": {
+            "question": "Does it integrate with LinkedIn?",
+            "answer": "Not directly — we're allergic to brittle scrapers. Copy the job description text from any site, paste it in, and the AI parses it into a tracked job. Deeper integrations are on the roadmap."
+          }
+        },
+        "ctaTitle": "Move your pipeline over →",
+        "shot": {
+          "colSaved": "SAVED",
+          "colApplied": "APPLIED",
+          "colInterview": "INTERVIEW",
+          "colOffer": "OFFER"
+        }
+      },
+      "analytics": {
+        "metaTitle": "Job Search Analytics & Funnel — Light Role",
+        "metaDescription": "See your job search clearly: pipeline funnel, application velocity, response times, and a daily activity heatmap. Available on Pro and Unlimited.",
+        "breadcrumbName": "Analytics",
+        "eyebrow": "Analytics",
+        "kicker": "Pro · Unlimited",
+        "title": "Tell a slow week",
+        "titleAccent": "from a broken funnel.",
+        "body": "Application velocity. Funnel conversion. Days to first response. Just the metrics that change what you do tomorrow — no vanity dashboards.",
+        "features": {
+          "f1": {
+            "title": "KPI cards with sparklines",
+            "body": "Active pipeline, applications, interviews, offers — each with a sparkline so you see the trend, not just the number."
+          },
+          "f2": {
+            "title": "Response time",
+            "body": "Average days from applied to first response. Know whether the market is slow or your applications are stalling."
+          },
+          "f3": {
+            "title": "Pipeline funnel",
+            "body": "Conversion through SAVED → APPLIED → SCREENING → INTERVIEW → OFFER → ACCEPTED. Spot the leak before it becomes a hole."
+          },
+          "f4": {
+            "title": "Activity heatmap",
+            "body": "A daily heatmap of roughly the last three months of your search. The dead weeks are impossible to miss."
+          },
+          "f5": {
+            "title": "Velocity",
+            "body": "Applications per week, smoothed. See whether you actually applied to anything this week, honestly."
+          },
+          "f6": {
+            "title": "Activity feed",
+            "body": "A running log of everything that happened across your pipeline — applications sent, stage changes, offers — in one chronological stream."
+          }
+        },
+        "testimonial": {
+          "quote": "I figured out my response rate was 4× higher for series-B than for FAANG. I redirected my next two weeks. Got an offer 11 days later.",
+          "role": "Sr. data scientist"
+        },
+        "faq": {
+          "q1": {
+            "question": "Is analytics on the free plan?",
+            "answer": "No — it's a Pro and Unlimited feature. Your tracking data is recorded from day one on every plan, so the dashboard is fully populated the moment you upgrade."
+          },
+          "q2": {
+            "question": "How much history do I need before it's useful?",
+            "answer": "The funnel and velocity charts are honest from your first handful of applications and get sharper as your pipeline grows. The activity heatmap covers roughly the last three months."
+          },
+          "q3": {
+            "question": "Do you compare me to other users?",
+            "answer": "No. Cross-user benchmarks are intentionally absent — they create anxiety more than insight, and your search is yours."
+          }
+        },
+        "ctaTitle": "See what your pipeline says →",
+        "shot": {
+          "kpi1Label": "Response rate",
+          "kpi1Value": "24%",
+          "kpi1Delta": "+6%",
+          "kpi2Label": "Applications",
+          "kpi2Value": "38",
+          "kpi2Delta": "+12",
+          "kpi3Label": "Interviews",
+          "kpi3Value": "7",
+          "kpi3Delta": "+3",
+          "funnelTitle": "Pipeline funnel",
+          "funnel1Label": "SAVED",
+          "funnel2Label": "APPLIED",
+          "funnel3Label": "INTERVIEW",
+          "funnel4Label": "OFFER",
+          "funnel5Label": "ACCEPTED"
+        }
       }
     }
   },
